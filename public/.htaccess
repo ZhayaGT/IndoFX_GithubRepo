@@ -1,0 +1,21 @@
+RewriteEngine On
+
+# Jangan tulis ulang berkas yang benar-benar ada (css, js, gambar)
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Teruskan sisanya ke front controller
+RewriteRule ^ index.php [L]
+
+# Lindungi berkas sensitif
+<FilesMatch "^\.env|composer\.(json|lock)$">
+    Require all denied
+</FilesMatch>
+
+# Header keamanan dasar
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>

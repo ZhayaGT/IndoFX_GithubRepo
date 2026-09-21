@@ -1,0 +1,37 @@
+# Lingkungan
+.env
+.env.*
+!.env.example
+
+# Dependensi
+/vendor/
+/node_modules/
+
+# Bootstrap & aset vendor hasil unduh
+/public/assets/vendor/*
+!/public/assets/vendor/.gitkeep
+
+# Penyimpanan runtime
+/storage/logs/*
+/storage/cache/*
+/storage/uploads/tmp/*
+/storage/invoices/*
+!/storage/**/.gitkeep
+
+# Berkas pengguna
+/public/assets/uploads/
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Log & cache
+*.log
+.phpunit.result.cache
+.php-cs-fixer.cache

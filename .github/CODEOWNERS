@@ -1,0 +1,28 @@
+# Pemilik kode IndoFX.
+# Ganti @username dengan akun GitHub masing-masing anggota.
+# Format: <pola berkas>  <pemilik>
+
+# Project Manager
+*                       @jonathan-pm
+/docs/                  @jonathan-pm
+/.github/               @jonathan-pm
+/README.md              @jonathan-pm
+/CONTRIBUTING.md        @jonathan-pm
+/CHANGELOG.md           @jonathan-pm
+
+# UI/UX Designer
+/design/                @hikmal-ux
+/resources/css/         @hikmal-ux
+
+# Front End Developer
+/resources/views/       @naufal-fe @hikmal-ux
+/resources/js/          @naufal-fe
+/public/assets/         @naufal-fe
+
+# Back End Developer
+/app/                   @diaz-be
+/routes/                @diaz-be
+/database/              @diaz-be
+/public/index.php       @diaz-be
+/composer.json          @diaz-be
+/tests/                 @diaz-be
