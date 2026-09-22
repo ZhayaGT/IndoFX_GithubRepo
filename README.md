@@ -97,6 +97,7 @@ Setiap anggota memiliki satu peran utama dan **folder yang menjadi tanggung jawa
 |---|---|---|
 | Project Manager | Jonathan Emmanual Kristanto | `docs/`, `.github/`, `README.md` |
 | UI/UX Designer | Hikmal Fadhillah Rasyid Andro Mulyawan | `design/`, `resources/css/` |
+| UI/UX Designer | Dhafir Tsabit | `design/`, `resources/css/` |
 | Front End Developer | Naufal Haidar Azmi | `resources/views/`, `resources/js/`, `public/assets/` |
 | Back End Developer | Diaz Prahardyan | `app/`, `routes/`, `database/`, `tests/` |
 
