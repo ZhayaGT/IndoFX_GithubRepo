@@ -13,7 +13,7 @@ require BASE_PATH . '/vendor/autoload.php';
 
 use IndoFX\Core\Database;
 use IndoFX\Core\Router;
-use IndoFX\Core\Session;
+// use IndoFX\Core\Session;
 
 $config = require BASE_PATH . '/app/Config/app.php';
 
@@ -25,10 +25,11 @@ if ($config['debug']) {
     error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
 }
 
-Session::start($config['session']['name'], $config['session']['lifetime']);
-Database::connect(require BASE_PATH . '/app/Config/database.php');
+// Session::start($config['session']['name'], $config['session']['lifetime']);
 
 $router = new Router();
 require BASE_PATH . '/routes/web.php';
 
-$router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
+$uri = $_SERVER['REQUEST_URI'];
+$method = $_SERVER['REQUEST_METHOD'];
+$router->dispatch($uri, $method);
