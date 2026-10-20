@@ -22,7 +22,7 @@ class Router {
 
         foreach ($this->routes as $route) {
             if ($route['uri'] === $uri && $route['method'] === $method) {
-                $controllerClass = "\\app\\Controllers\\" . $route['controller'];
+                $controllerClass = "\\IndoFX\\Controllers\\" . $route['controller'];
                 
                 if (class_exists($controllerClass)) {
                     $controllerInstance = new $controllerClass();

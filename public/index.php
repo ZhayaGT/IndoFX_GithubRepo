@@ -32,4 +32,5 @@ require BASE_PATH . '/routes/web.php';
 
 $uri = $_SERVER['REQUEST_URI'];
 $method = $_SERVER['REQUEST_METHOD'];
+
 $router->dispatch($uri, $method);
