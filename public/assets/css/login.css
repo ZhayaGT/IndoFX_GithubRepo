@@ -1,0 +1,98 @@
+/* ==========================================================================
+   INDOFX AUTH (LOGIN & REGISTER) STYLESHEET
+   ========================================================================== */
+
+.auth-wrapper {
+  background-color: var(--ifx-cream-bg, #fdece2);
+  min-height: calc(100vh - 56px - 220px); /* Pas di antara Navbar dan Footer */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 16px;
+}
+
+/* Card Form Auth Putih Rapi */
+.auth-card {
+  background-color: #ffffff;
+  border: 1.5px solid var(--ifx-border-dark, #3b2314);
+  border-radius: 12px;
+  padding: 36px 32px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 8px 24px rgba(59, 35, 20, 0.08);
+}
+
+.auth-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--ifx-brown-dark, #3b2314);
+  line-height: 1.2;
+}
+
+.auth-subtitle {
+  font-size: 0.8rem;
+  color: var(--ifx-brown-muted, #6e5a4f);
+  margin-bottom: 24px;
+}
+
+.auth-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ifx-brown-dark, #3b2314);
+  margin-bottom: 6px;
+}
+
+.auth-input {
+  border: 1.5px solid #d8c6b9 !important;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 0.85rem;
+  color: var(--ifx-brown-dark, #3b2314);
+  background-color: #ffffff;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.auth-input:focus {
+  border-color: var(--ifx-orange, #ed6b1d) !important;
+  box-shadow: 0 0 0 3px rgba(237, 107, 29, 0.15) !important;
+  outline: none;
+}
+
+.auth-link {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ifx-brown-dark, #3b2314);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.auth-link:hover {
+  color: var(--ifx-orange, #ed6b1d);
+}
+
+/* Tombol Submit Oranye */
+.btn-auth-submit {
+  background-color: var(--ifx-orange, #ed6b1d);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 11px;
+  border-radius: 6px;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.btn-auth-submit:hover {
+  background-color: var(--ifx-orange-hover, #d95d12);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.auth-footer-text {
+  font-size: 0.8rem;
+  color: var(--ifx-brown-muted, #6e5a4f);
+  margin-top: 20px;
+  text-align: center;
+}
