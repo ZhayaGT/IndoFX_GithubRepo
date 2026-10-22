@@ -16,7 +16,7 @@ class HomeController extends Controller {
         echo "<h1>Sistem Back End IndoFX Berjalan!</h1>";
         echo "<p>Router berhasil memanggil HomeController.</p>";
         
-        // Nanti, ketika Front End Developer sudah membuat file view-nya,
+        // ketika Front End Developer sudah membuat file view,
         // hapus baris echo di atas dan hilangkan tanda komentar pada kode di bawah ini:
         // $this->view('catalog/home', $data);
     }
