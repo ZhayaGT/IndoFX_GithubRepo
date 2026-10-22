@@ -13,14 +13,14 @@ class Database {
     // Constructor dibuat private agar tidak bisa diinisialisasi sembarangan
     private function __construct() {
         // Mengambil konfigurasi dari .env
-        $host = getenv('DB_HOST') ?: '127.0.0.1';
-        $port = getenv('DB_PORT') ?: '5434';
-        $db   = getenv('DB_NAME') ?: '';
-        $user = getenv('DB_USER') ?: '';
-        $pass = getenv('DB_PASSWORD') ?: '';
+        $host = Env::get('DB_HOST') ?: '127.0.0.1';
+        $port = Env::get('DB_PORT') ?: '5434';
+        $db   = Env::get('DB_NAME') ?: '';
+        $user = Env::get('DB_USER') ?: '';
+        $pass = Env::get('DB_PASSWORD') ?: '';
 
         // DSN khusus untuk PostgreSQL
-        $dsn = "pgsql:host=$host;port=$port;dbname=$db";
+        $dsn = "pgsql:host={$host};port={$port};dbname={$db}";
         
         $options = [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,

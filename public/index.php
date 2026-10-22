@@ -11,6 +11,10 @@ define('BASE_PATH', dirname(__DIR__));
 
 require BASE_PATH . '/vendor/autoload.php';
 
+// Inisialisasi phpdotenv untuk membaca file .env
+$dotenv = Dotenv\Dotenv::createImmutable(BASE_PATH);
+$dotenv->load();
+
 use IndoFX\Core\Database;
 use IndoFX\Core\Router;
 // use IndoFX\Core\Session;
