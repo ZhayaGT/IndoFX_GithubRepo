@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace IndoFX\Core;
 
-class Router {
+class router {
     protected $routes = [];
 
     // Mendaftarkan rute baru (mendukung GET dan POST)
@@ -35,28 +35,3 @@ class Router {
     echo "404 - Halaman tidak ditemukan";
     }
 }
-    // // Mencari kecocokan URL dan menjalankan controller yang sesuai
-    // public function dispatch($uri, $method) {
-    //     // Bersihkan parameter query string dari URI (misal: /katalog?id=1 menjadi /katalog)
-    //     $uri = parse_url($uri, PHP_URL_PATH);
-
-    //     foreach ($this->routes as $route) {
-    //         if ($route['uri'] === $uri && $route['method'] === $method) {
-    //             $controllerClass = "\\App\\Controllers\\" . $route['controller'];
-                
-    //             if (class_exists($controllerClass)) {
-    //                 $controllerInstance = new $controllerClass();
-    //                 $action = $route['action'];
-                    
-    //                 if (method_exists($controllerInstance, $action)) {
-    //                     return $controllerInstance->$action();
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     // Jika tidak ada rute yang cocok, kembalikan 404
-    //     http_response_code(404);
-    //     echo "404 - Halaman tidak ditemukan";
-    // }
-// }
