@@ -2,6 +2,7 @@
     'use strict';
 
     var DATA_URL = '/assets/data/assets.json';
+    var PAGE_SIZE = 6;
 
     function formatPrice(price) {
         return price === 0 ? 'Gratis' : 'Rp' + price.toLocaleString('id-ID');
@@ -106,8 +107,108 @@
         });
     }
 
+    function renderExplore() {
+        var listEl = document.querySelector('[data-catalog-list="explore"]');
+        var countEl = document.querySelector('[data-catalog-count]');
+        var paginationEl = document.querySelector('[data-catalog-pagination]');
+        var sortSelect = document.querySelector('.sort-select');
+
+        var allItems = [];
+        var currentSort = 'terbaru';
+        var currentPage = 1;
+        var colClass = 'col-12 col-sm-6 col-md-4';
+
+        function applySort(items, sort) {
+            if (sort === 'terbaru') { return items.slice().sort(byCreatedDesc); }
+            if (sort === 'populer') { return items.slice().sort(byDownloadsDesc); }
+            if (sort === 'harga_rendah') {
+                return items.slice().sort(function (a, b) { return a.price - b.price; });
+            }
+            if (sort === 'harga_tinggi') {
+                return items.slice().sort(function (a, b) { return b.price - a.price; });
+            }
+            return items;
+        }
+
+        function buildPagination(totalPages) {
+            if (!paginationEl) { return; }
+
+            var html = '<a href="javascript:void(0)" data-page-prev class="page-nav-link ' +
+                (currentPage === 1 ? 'text-muted' : 'text-dark fw-bold') + '">&laquo; Sebelumnya</a>';
+
+            for (var page = 1; page <= totalPages; page++) {
+                html += '<a href="javascript:void(0)" data-page="' + page + '" class="page-num-link' +
+                    (page === currentPage ? ' active' : '') + '">' + page + '</a>';
+            }
+
+            html += '<a href="javascript:void(0)" data-page-next class="page-nav-link ' +
+                (currentPage === totalPages ? 'text-muted' : 'text-dark fw-bold') + '">Selanjutnya &raquo;</a>';
+
+            paginationEl.innerHTML = html;
+        }
+
+        function paint() {
+            var sorted = applySort(allItems, currentSort);
+            var totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
+
+            if (currentPage > totalPages) { currentPage = totalPages; }
+            if (currentPage < 1) { currentPage = 1; }
+
+            if (countEl) { countEl.textContent = String(sorted.length); }
+
+            if (!sorted.length) {
+                showMessage(listEl, 'Belum ada aset yang cocok.');
+                if (paginationEl) { paginationEl.innerHTML = ''; }
+                return;
+            }
+
+            var start = (currentPage - 1) * PAGE_SIZE;
+            renderCards(listEl, sorted.slice(start, start + PAGE_SIZE), colClass);
+            buildPagination(totalPages);
+        }
+
+        if (paginationEl) {
+            paginationEl.addEventListener('click', function (event) {
+                var link = event.target.closest('a');
+                if (!link || !paginationEl.contains(link)) { return; }
+                event.preventDefault();
+
+                var target = null;
+                if (link.hasAttribute('data-page-prev')) {
+                    target = currentPage - 1;
+                } else if (link.hasAttribute('data-page-next')) {
+                    target = currentPage + 1;
+                } else if (link.hasAttribute('data-page')) {
+                    target = parseInt(link.getAttribute('data-page'), 10);
+                }
+
+                if (target === null || isNaN(target) || target === currentPage) { return; }
+                currentPage = target;
+                paint();
+            });
+        }
+
+        if (sortSelect) {
+            sortSelect.addEventListener('change', function () {
+                currentSort = sortSelect.value;
+                currentPage = 1;
+                paint();
+            });
+        }
+
+        loadCatalog(function (err, items) {
+            if (err) {
+                showMessage(listEl, 'Gagal memuat katalog. Muat ulang halaman.');
+                return;
+            }
+            allItems = items;
+            paint();
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         if (document.querySelector('[data-catalog-list="latest"]')) { renderLatest(); }
         if (document.querySelector('[data-catalog-list="free"]')) { renderFree(); }
+        if (document.querySelector('[data-catalog-list="explore"]')) { renderExplore(); }
     });
 })();
