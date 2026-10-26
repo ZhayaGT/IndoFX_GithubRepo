@@ -4,8 +4,10 @@ namespace IndoFX\Controllers;
 
 use IndoFX\Core\Controller;
 
-class HomeController extends Controller {
-    public function index() {
+class HomeController extends Controller
+{
+    public function index()
+    {
         // Data sementara untuk dikirim ke view
         $data = [
             'title' => 'Beranda IndoFX'

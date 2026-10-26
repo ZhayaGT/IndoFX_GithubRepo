@@ -90,7 +90,7 @@
             </div>
 
             <div class="d-flex align-items-center gap-2">
-                <a href="/auth/login" class="btn btn-nav-login">Masuk</a>
+                <?php require BASE_PATH . '/resources/views/partials/navbar-auth.php'; ?>
             </div>
         </div>
     </nav>
@@ -111,7 +111,9 @@
                     </p>
                     <div class="d-flex flex-wrap gap-3">
                         <a href="#katalog" class="btn btn-hero-orange">Jelajahi Katalog</a>
-                        <a href="/auth/login" class="btn btn-hero-cream">Masuk</a>
+                        <?php if (!\IndoFX\Core\Auth::check()): ?>
+                            <a href="/auth/login" class="btn btn-hero-cream">Masuk</a>
+                        <?php endif; ?>
                     </div>
                 </div>
 

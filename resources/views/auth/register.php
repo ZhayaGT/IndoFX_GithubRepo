@@ -50,20 +50,36 @@
             <h2 class="auth-title mb-1">Daftar Akun Baru</h2>
             <p class="auth-subtitle mb-4">Akses ribuan aset Unity terbaik karya anak bangsa</p>
 
+            <?php if (!empty($errors)): ?>
+                <div class="alert alert-danger py-2" role="alert">
+                    <ul class="mb-0 ps-3">
+                        <?php foreach ($errors as $message): ?>
+                            <li><?= htmlspecialchars((string) $message, ENT_QUOTES, 'UTF-8') ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
+
             <form action="/auth/register" method="POST">
+                <input type="hidden" name="_token" value="<?= htmlspecialchars((string) $csrf, ENT_QUOTES, 'UTF-8') ?>">
+
                 <div class="mb-3">
                     <label for="name" class="form-label auth-label">Nama Lengkap</label>
-                    <input type="text" class="form-control auth-input" id="name" name="name" placeholder="Andi Pratama" required>
+                    <input type="text" class="form-control auth-input" id="name" name="name"
+                           value="<?= htmlspecialchars((string) ($old['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                           placeholder="Andi Pratama" required>
                 </div>
 
                 <div class="mb-3">
                     <label for="email" class="form-label auth-label">Alamat Email</label>
-                    <input type="email" class="form-control auth-input" id="email" name="email" placeholder="contoh@developer.id" required>
+                    <input type="email" class="form-control auth-input" id="email" name="email"
+                           value="<?= htmlspecialchars((string) ($old['email'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                           placeholder="contoh@developer.id" required>
                 </div>
 
                 <div class="mb-4">
                     <label for="password" class="form-label auth-label">Kata Sandi</label>
-                    <input type="password" class="form-control auth-input" id="password" name="password" placeholder="Minimal 8 karakter" required>
+                    <input type="password" class="form-control auth-input" id="password" name="password" placeholder="Minimal 8 karakter" minlength="8" required>
                 </div>
 
                 <div class="d-grid mb-3">

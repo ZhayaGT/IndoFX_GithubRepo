@@ -35,8 +35,8 @@
   },
   "scripts": {
     "serve": "php -S localhost:8000 -t public",
-    "lint": "php-cs-fixer fix --dry-run --diff --rules=@PSR12",
-    "lint:fix": "php-cs-fixer fix --rules=@PSR12",
+    "lint": "php-cs-fixer fix --dry-run --diff",
+    "lint:fix": "php-cs-fixer fix",
     "test": "phpunit",
     "migrate": "php database/migrate.php"
   },

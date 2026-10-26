@@ -17,7 +17,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: pdo, pdo_pgsql, mbstring, json
+          extensions: pdo, pdo_pgsql, mbstring, json, curl
           tools: composer
 
       - name: Cache Composer
@@ -30,7 +30,7 @@ jobs:
         run: composer install --no-interaction --prefer-dist --no-progress
 
       - name: Cek sintaks semua berkas PHP
-        run: find app public routes -name '*.php' -print0 | xargs -0 -n1 php -l
+        run: find app public routes database tests -name '*.php' -print0 | xargs -0 -n1 php -l
 
       - name: Cek gaya kode (PSR-12)
         run: composer lint
@@ -55,7 +55,6 @@ jobs:
     env:
       DB_HOST: 127.0.0.1
       DB_PORT: 5432
-      DB_NAME: indofx_test
       DB_USER: indofx
       DB_PASSWORD: secret
     steps:
@@ -65,14 +64,12 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: pdo, pdo_pgsql, mbstring, json
+          extensions: pdo, pdo_pgsql, mbstring, json, curl
           tools: composer
 
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
 
-      - name: Muat skema ke database uji
-        run: psql "postgresql://indofx:secret@127.0.0.1:5432/indofx_test" -f database/schema.sql
-
+      # Setiap kelas uji membuat database sendiri dari database/schema.sql.
       - name: Jalankan pengujian
         run: composer test

@@ -172,14 +172,20 @@ cp .env.example .env
 createdb indofx
 psql -d indofx -f database/schema.sql
 
-# 5. Jalankan server pengembangan
+# 5. Data pengguna awal (admin/seller/buyer, kata sandi lihat berkasnya)
+php database/seeders/users.php
+
+# 6. Jalankan server pengembangan
 composer serve          # http://localhost:8000
 
-# 6. Perintah lain
+# 7. Perintah lain
 composer lint           # cek gaya kode PSR-12
 composer lint:fix       # perbaiki otomatis
-composer test           # jalankan PHPUnit
+composer test           # jalankan PHPUnit (butuh role PostgreSQL dengan hak CREATEDB)
 ```
+
+Akun hasil seeder: `admin@indofx.id` / `admin12345`, `seller@indofx.id` / `seller12345`,
+`buyer@indofx.id` / `buyer12345`.
 
 ---
 

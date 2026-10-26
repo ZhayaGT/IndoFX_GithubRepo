@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
+use IndoFX\Controllers\AuthController;
 use IndoFX\Core\Router;
 
 /** @var Router $router */
@@ -8,13 +11,15 @@ $router->get('/', function () {
     require BASE_PATH . '/resources/views/catalog/index.php';
 });
 
-$router->get('/auth/login', function () {
-    require BASE_PATH . '/resources/views/auth/login.php';
-});
+// Autentikasi
+$router->get('/auth/login', [AuthController::class, 'showLogin']);
+$router->post('/auth/login', [AuthController::class, 'login']);
 
-$router->get('/auth/register', function () {
-    require BASE_PATH . '/resources/views/auth/register.php';
-});
+$router->get('/auth/register', [AuthController::class, 'showRegister']);
+$router->post('/auth/register', [AuthController::class, 'register']);
+
+$router->get('/auth/logout', [AuthController::class, 'logout']);
+$router->post('/auth/logout', [AuthController::class, 'logout']);
 
 $router->get('/asset/detail', function () {
     require BASE_PATH . '/resources/views/asset/detail.php';
@@ -39,5 +44,5 @@ $router->get('/dashboard/add-asset', function () {
 });
 
 $router->get('/catalog/explore', function () {
-    require __DIR__ . '/../resources/views/catalog/explore.php';
+    require BASE_PATH . '/resources/views/catalog/explore.php';
 });
