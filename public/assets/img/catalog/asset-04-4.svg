@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 220" width="400" height="220" role="img" aria-label="Desert Dune Terrain Pack — tampilan 4">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E8B06A"/>
+      <stop offset="55%" stop-color="#D9985A"/>
+      <stop offset="100%" stop-color="#8C5A2B"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="220" fill="url(#bg)"/>
+  <circle cx="245" cy="53" r="38" fill="#FFF3D0" opacity="0.9"/>
+  <circle cx="245" cy="53" r="60" fill="#FFF3D0" opacity="0.3"/>
+  <ellipse cx="200" cy="150" rx="190" ry="26" fill="#C08A55" opacity="0.35"/>
+  <path d="M0 156 Q140 132 250 156 T400 148 L400 220 L0 220 Z" fill="#6B451F"/>
+  <path d="M0 188 Q170 170 400 184 L400 220 L0 220 Z" fill="#4A2E14"/>
+</svg>
