@@ -151,7 +151,7 @@
                         <h4 class="catalog-heading mb-1">Aset CG & VFX Terbaru</h4>
                         <p class="catalog-subheading m-0">Aset terbaru yang diunggah oleh kreator game berbakat Indonesia</p>
                     </div>
-                    <a href="/dashboard" class="catalog-side-link">Library Saya</a>
+                    <a href="/dashboard" class="catalog-side-link">Selengkapnya</a>
                 </div>
 
                 <div class="row g-3">
