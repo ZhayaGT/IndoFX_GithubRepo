@@ -171,6 +171,8 @@ class AuthFlowTest extends TestCase
 
         $home = $this->request('GET', '/', $jar)['body'];
         self::assertStringContainsString('Pembeli Uji', $home);
+        self::assertStringContainsString('data-auth-state="pembeli"', $home);
+        self::assertStringContainsString('id="nav-guest" class="navbar-auth-group" hidden', $home);
         self::assertStringNotContainsString('btn-hero-cream', $home);
     }
 
@@ -250,6 +252,7 @@ class AuthFlowTest extends TestCase
         // Sesi lama tidak boleh lagi dianggap login.
         $replayJar = ['indofx_test_session' => $sessionAfterLogin];
         $replay = $this->request('GET', '/', $replayJar)['body'];
+        self::assertStringContainsString('data-auth-state="guest"', $replay);
         self::assertStringContainsString('btn-hero-cream', $replay);
 
         $page = $this->request('GET', '/auth/login', $jar)['body'];

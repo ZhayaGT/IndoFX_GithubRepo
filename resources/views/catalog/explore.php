@@ -268,6 +268,8 @@
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Pergantian navbar guest/pembeli -->
+    <script src="/assets/js/navbar-auth.js"></script>
 </body>
 
 </html>
