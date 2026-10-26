@@ -1,63 +1,18 @@
 <?php
 
-declare(strict_types=1);
+/** @var \IndoFX\Core\Router $router */
 
-use IndoFX\Controllers\AuthController;
-use IndoFX\Core\Router;
+// Mendaftarkan URL beranda
+$router->add('GET', '/', 'HomeController', 'index');
 
-/** @var Router $router */
+// Rute Autentikasi
+$router->add('GET', '/login', 'AuthController', 'login');
+$router->add('POST', '/login', 'AuthController', 'processLogin');
 
-/**
- * Merender view; bila berkasnya belum ada tampilkan halaman 404
- * (bukan fatal error), supaya tautan navbar tetap aman diklik.
- */
-$renderView = static function (string $view): void {
-    $path = BASE_PATH . '/resources/views/' . $view . '.php';
+$router->add('GET', '/register', 'AuthController', 'register');
+$router->add('POST', '/register', 'AuthController', 'processRegister');
 
-    if (file_exists($path)) {
-        require $path;
-        return;
-    }
+$router->add('GET', '/logout', 'AuthController', 'logout');
 
-    require BASE_PATH . '/resources/views/errors/404.php';
-};
-
-$router->get('/', function () {
-    require BASE_PATH . '/resources/views/catalog/index.php';
-});
-
-// Autentikasi
-$router->get('/auth/login', [AuthController::class, 'showLogin']);
-$router->post('/auth/login', [AuthController::class, 'login']);
-
-$router->get('/auth/register', [AuthController::class, 'showRegister']);
-$router->post('/auth/register', [AuthController::class, 'register']);
-
-$router->get('/auth/logout', [AuthController::class, 'logout']);
-$router->post('/auth/logout', [AuthController::class, 'logout']);
-
-$router->get('/asset/detail', function () use ($renderView) {
-    $renderView('asset/detail');
-});
-
-// 1. Dashboard Utama (Dashboard Penjual)
-$router->get('/dashboard', function () use ($renderView) {
-    $renderView('dashboard/main');
-});
-
-// 2. Halaman Semua Aset Saya
-$router->get('/dashboard/assets', function () use ($renderView) {
-    $renderView('dashboard/dashboard');
-});
-
-$router->get('/dashboard/transactions', function () use ($renderView) {
-    $renderView('dashboard/transactions');
-});
-
-$router->get('/dashboard/add-asset', function () use ($renderView) {
-    $renderView('dashboard/add_asset');
-});
-
-$router->get('/catalog/explore', function () {
-    require BASE_PATH . '/resources/views/catalog/explore.php';
-});
+// Halaman katalog lanjutan (front end)
+$router->add('GET', '/catalog/explore', 'CatalogController', 'explore');

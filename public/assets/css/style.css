@@ -40,6 +40,15 @@ body {
   border-bottom: 1.5px solid var(--ifx-border-dark);
 }
 
+/* Jarak antar elemen navbar; search bar boleh menyusut di layar sempit. */
+.navbar-orange .container-figma {
+  gap: 10px;
+}
+
+.navbar-orange .navbar-brand {
+  flex-shrink: 0;
+}
+
 .brand-icon-box {
   display: inline-flex;
   align-items: center;
@@ -68,6 +77,9 @@ body {
 .search-box-header {
   position: relative;
   width: 340px;
+  max-width: 100%;
+  min-width: 0;
+  flex: 0 1 340px;
   background-color: #ffffff;
   border: 1.5px solid var(--ifx-border-dark);
   border-radius: 6px;
@@ -217,7 +229,7 @@ body {
   color: var(--ifx-brown-dark);
 }
 
-.navbar-avatar-email {
+.navbar-avatar-meta {
   margin: 2px 0 10px;
   font-size: 0.75rem;
   color: var(--ifx-brown-muted);
@@ -225,6 +237,7 @@ body {
 }
 
 .navbar-avatar-logout {
+  display: block;
   width: 100%;
   padding: 6px 10px;
   background-color: var(--ifx-cream-btn);
@@ -233,10 +246,13 @@ body {
   border-radius: 6px;
   font-size: 0.78rem;
   font-weight: 700;
+  text-align: center;
+  text-decoration: none;
 }
 
 .navbar-avatar-logout:hover {
   background-color: #f39c6b;
+  color: var(--ifx-brown-dark);
 }
 
 /* Di layar sempit, tombol "Jadi Penjual" disembunyikan agar navbar tidak meluber. */
@@ -252,6 +268,34 @@ body {
   .btn-nav-library {
     padding: 5px 10px;
     font-size: 0.72rem;
+  }
+}
+
+/* Search bar tetap tampil di mobile: baris pertama logo + tombol,
+   baris kedua search selebar navbar. */
+@media (max-width: 767.98px) {
+  .navbar-orange .container-figma {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+
+  .search-box-header {
+    order: 3;
+    flex: 1 0 100%;
+    width: 100%;
+  }
+
+  .search-input-header {
+    font-size: 0.75rem;
+  }
+
+  /* Judul hero dibuat membungkus agar tidak memicu scroll horizontal. */
+  .hero-title {
+    font-size: 1.65rem;
+  }
+
+  .hero-title .text-nowrap {
+    white-space: normal !important;
   }
 }
 

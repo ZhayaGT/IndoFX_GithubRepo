@@ -1,48 +1,38 @@
 <?php
 
-declare(strict_types=1);
-
 namespace IndoFX\Core;
 
-/**
- * Basis seluruh controller: render view dan redirect.
- */
-abstract class Controller
+class Controller
 {
     /**
-     * Merender view di resources/views.
+     * Fungsi untuk merender tampilan (view) dan mengirimkan data.
      *
-     * @param array<string, mixed> $data
+     * @param string $view Lokasi file view (contoh: 'catalog/home')
+     * @param array $data Data yang akan dikirim ke view
      */
-    protected function view(string $view, array $data = []): void
+    protected function view($view, $data = [])
     {
-        extract($data, EXTR_SKIP);
+        // Ekstrak array menjadi variabel tunggal (misal: ['nama' => 'Diaz'] menjadi $nama)
+        extract($data);
 
+        // Membentuk path absolut ke file view menggunakan BASE_PATH dari index.php
         $viewPath = BASE_PATH . '/resources/views/' . $view . '.php';
 
-        if (!file_exists($viewPath)) {
-            throw new \RuntimeException("View tidak ditemukan: {$view}");
+        if (file_exists($viewPath)) {
+            require $viewPath;
+        } else {
+            // Jika file view tidak ada, kembalikan pesan error
+            http_response_code(404);
+            die("View tidak ditemukan: " . $view);
         }
-
-        require $viewPath;
-    }
-
-    protected function redirect(string $path): never
-    {
-        header('Location: ' . $path, true, 302);
-        exit;
     }
 
     /**
-     * Redirect kembali ke form sambil menyimpan pesan error dan input lama.
-     *
-     * @param array<string, string> $errors
-     * @param array<string, mixed>  $old
+     * Mengalihkan halaman lalu menghentikan eksekusi.
      */
-    protected function redirectWithErrors(string $path, array $errors, array $old = []): never
+    protected function redirect($path)
     {
-        Session::flash('errors', $errors);
-        Session::flash('old', $old);
-        $this->redirect($path);
+        header('Location: ' . $path);
+        exit;
     }
 }

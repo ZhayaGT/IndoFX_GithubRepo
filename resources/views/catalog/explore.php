@@ -80,7 +80,7 @@
                 <span class="brand-text">IndoFX</span>
             </a>
 
-            <div class="search-box-header d-none d-md-flex align-items-center">
+            <div class="search-box-header d-flex align-items-center">
                 <i class="bi bi-search search-icon-header"></i>
                 <input type="text" class="form-control search-input-header" placeholder="Cari aset, VFX, shader, tekstur...">
             </div>

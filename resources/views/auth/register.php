@@ -50,19 +50,11 @@
             <h2 class="auth-title mb-1">Daftar Akun Baru</h2>
             <p class="auth-subtitle mb-4">Akses ribuan aset Unity terbaik karya anak bangsa</p>
 
-            <?php if (!empty($errors)): ?>
-                <div class="alert alert-danger py-2" role="alert">
-                    <ul class="mb-0 ps-3">
-                        <?php foreach ($errors as $message): ?>
-                            <li><?= htmlspecialchars((string) $message, ENT_QUOTES, 'UTF-8') ?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
+            <?php if (!empty($error)): ?>
+                <div class="alert alert-danger py-2" role="alert"><?= htmlspecialchars((string) $error, ENT_QUOTES, 'UTF-8') ?></div>
             <?php endif; ?>
 
-            <form action="/auth/register" method="POST">
-                <input type="hidden" name="_token" value="<?= htmlspecialchars((string) $csrf, ENT_QUOTES, 'UTF-8') ?>">
-
+            <form action="/register" method="POST">
                 <div class="mb-3">
                     <label for="name" class="form-label auth-label">Nama Lengkap</label>
                     <input type="text" class="form-control auth-input" id="name" name="name"
@@ -87,7 +79,7 @@
                 </div>
 
                 <p class="auth-footer-text mb-0">
-                    Sudah punya akun? <a href="/auth/login" class="auth-link fw-bold">Masuk</a>
+                    Sudah punya akun? <a href="/login" class="auth-link fw-bold">Masuk</a>
                 </p>
             </form>
         </div>

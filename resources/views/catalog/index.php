@@ -84,7 +84,7 @@
                 <span class="brand-text">IndoFX</span>
             </a>
 
-            <div class="search-box-header d-none d-md-flex align-items-center">
+            <div class="search-box-header d-flex align-items-center">
                 <i class="bi bi-search search-icon-header"></i>
                 <input type="text" class="form-control search-input-header" placeholder="Cari aset, VFX, shader, tekstur...">
             </div>
@@ -111,8 +111,8 @@
                     </p>
                     <div class="d-flex flex-wrap gap-3">
                         <a href="#katalog" class="btn btn-hero-orange">Jelajahi Katalog</a>
-                        <?php if (!\IndoFX\Core\Auth::check()): ?>
-                            <a href="/auth/login" class="btn btn-hero-cream">Masuk</a>
+                        <?php if (!isset($_SESSION['user_id'])): ?>
+                            <a href="/login" class="btn btn-hero-cream">Masuk</a>
                         <?php endif; ?>
                     </div>
                 </div>
