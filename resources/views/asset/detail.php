@@ -99,10 +99,7 @@ $reviewInitials = static function (string $name): string {
                 <span class="brand-text">IndoFX</span>
             </a>
 
-            <div class="search-box-header d-flex align-items-center">
-                <i class="bi bi-search search-icon-header"></i>
-                <input type="text" class="form-control search-input-header" placeholder="Cari aset, VFX, shader, tekstur...">
-            </div>
+            <?php require BASE_PATH . '/resources/views/partials/navbar-search.php'; ?>
 
             <div class="d-flex align-items-center gap-2">
                 <?php require BASE_PATH . '/resources/views/partials/navbar-auth.php'; ?>
