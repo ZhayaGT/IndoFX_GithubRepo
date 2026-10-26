@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 220" width="400" height="220" role="img" aria-label="Cave Crystal Prop Set — tampilan 3">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1F2A44"/>
+      <stop offset="55%" stop-color="#35507A"/>
+      <stop offset="100%" stop-color="#4E6FA8"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="220" fill="url(#bg)"/>
+  <circle cx="185" cy="75" r="34" fill="#BFE3FF" opacity="0.9"/>
+  <circle cx="185" cy="75" r="56" fill="#BFE3FF" opacity="0.3"/>
+  <ellipse cx="200" cy="150" rx="190" ry="26" fill="#4A6D9E" opacity="0.35"/>
+  <path d="M0 164 Q90 142 200 162 T400 154 L400 220 L0 220 Z" fill="#24365A"/>
+  <path d="M0 194 Q120 176 400 190 L400 220 L0 220 Z" fill="#0E1526"/>
+</svg>

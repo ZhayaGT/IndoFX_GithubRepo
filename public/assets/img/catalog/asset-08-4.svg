@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 220" width="400" height="220" role="img" aria-label="Snow Peak Terrain Set — tampilan 4">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#C7DCEA"/>
+      <stop offset="55%" stop-color="#9DBBD0"/>
+      <stop offset="100%" stop-color="#6B8CA6"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="220" fill="url(#bg)"/>
+  <circle cx="265" cy="45" r="32" fill="#FFFFFF" opacity="0.9"/>
+  <circle cx="265" cy="45" r="54" fill="#FFFFFF" opacity="0.3"/>
+  <ellipse cx="200" cy="150" rx="190" ry="26" fill="#B9D2E2" opacity="0.35"/>
+  <path d="M0 156 Q140 132 250 156 T400 148 L400 220 L0 220 Z" fill="#7E9BB0"/>
+  <path d="M0 188 Q170 170 400 184 L400 220 L0 220 Z" fill="#3A4E5E"/>
+</svg>

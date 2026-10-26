@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 220" width="400" height="220" role="img" aria-label="Forest Mist dan Fog Volume — tampilan 2">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8FA3B0"/>
+      <stop offset="55%" stop-color="#C9D6DF"/>
+      <stop offset="100%" stop-color="#3A4740"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="220" fill="url(#bg)"/>
+  <circle cx="65" cy="55" r="28" fill="#E4EEF5" opacity="0.9"/>
+  <circle cx="65" cy="55" r="50" fill="#E4EEF5" opacity="0.3"/>
+  <ellipse cx="200" cy="150" rx="190" ry="26" fill="#E4EEF5" opacity="0.35"/>
+  <path d="M0 150 Q120 118 240 150 T400 140 L400 220 L0 220 Z" fill="#52615B"/>
+  <path d="M0 182 Q150 164 400 180 L400 220 L0 220 Z" fill="#1A241E"/>
+</svg>
