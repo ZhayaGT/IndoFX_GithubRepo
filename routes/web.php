@@ -16,3 +16,6 @@ $router->add('GET', '/logout', 'AuthController', 'logout');
 
 // Halaman katalog lanjutan (front end)
 $router->add('GET', '/catalog/explore', 'CatalogController', 'explore');
+
+// Halaman detail aset (data masih dummy, dipilih lewat ?slug=)
+$router->add('GET', '/asset/detail', 'AssetController', 'detail');
