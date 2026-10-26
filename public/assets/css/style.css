@@ -482,13 +482,27 @@ body {
 
 .badge-pipeline {
   display: inline-block;
-  background-color: var(--ifx-green-bg);
-  color: var(--ifx-green-text);
+  background-color: var(--ifx-brown-muted);
+  color: #ffffff;
   font-size: 0.6rem;
   font-weight: 800;
   padding: 2px 7px;
   border-radius: 4px;
   letter-spacing: 0.2px;
+}
+
+/* Warna tag per render pipeline. Warna dasar di atas jadi cadangan untuk
+   nilai pipeline yang belum dikenal. */
+.badge-pipeline-urp {
+  background-color: #a3161c;
+}
+
+.badge-pipeline-hdrp {
+  background-color: #4f378b;
+}
+
+.badge-pipeline-builtin {
+  background-color: #0088ff;
 }
 
 .asset-price {
@@ -777,6 +791,14 @@ body {
   font-weight: 700;
   color: var(--ifx-brown-dark);
   text-align: right;
+}
+
+/* Beberapa tag pipeline pada satu baris spesifikasi. */
+.asset-buy-meta-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px;
 }
 
 .btn-detail-buy,

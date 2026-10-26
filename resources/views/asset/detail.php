@@ -258,7 +258,11 @@ $reviewInitials = static function (string $name): string {
                             </div>
                             <div class="asset-buy-meta-row">
                                 <dt>Render Pipeline</dt>
-                                <dd><?= htmlspecialchars(implode(', ', $pipelines), ENT_QUOTES, 'UTF-8') ?></dd>
+                                <dd class="asset-buy-meta-badges">
+                                    <?php foreach ($pipelines as $pipeline): ?>
+                                        <span class="badge-pipeline <?= pipeline_badge_class((string) $pipeline) ?>"><?= htmlspecialchars((string) $pipeline, ENT_QUOTES, 'UTF-8') ?></span>
+                                    <?php endforeach; ?>
+                                </dd>
                             </div>
                             <div class="asset-buy-meta-row">
                                 <dt>Format File</dt>

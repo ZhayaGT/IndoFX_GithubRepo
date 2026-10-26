@@ -4,6 +4,17 @@
     var DATA_URL = '/assets/data/assets.json';
     var PAGE_SIZE = 6;
 
+    /* Kelas warna tag untuk tiap render pipeline (lihat .badge-pipeline-* di style.css). */
+    var PIPELINE_CLASSES = {
+        'URP': 'badge-pipeline-urp',
+        'HDRP': 'badge-pipeline-hdrp',
+        'Built-in': 'badge-pipeline-builtin'
+    };
+
+    function pipelineBadgeClass(pipeline) {
+        return PIPELINE_CLASSES[pipeline] || '';
+    }
+
     function formatPrice(price) {
         return price === 0 ? 'Gratis' : 'Rp' + price.toLocaleString('id-ID');
     }
@@ -32,7 +43,7 @@
             '<span class="asset-studio">' + escapeHtml(item.seller_name) + '</span>' +
             '<h6 class="asset-name">' + escapeHtml(item.title) + '</h6>' +
             '<div class="d-flex gap-1 mb-2">' +
-            '<span class="badge-pipeline">' + escapeHtml(item.render_pipeline) + '</span>' +
+            '<span class="badge-pipeline ' + pipelineBadgeClass(item.render_pipeline) + '">' + escapeHtml(item.render_pipeline) + '</span>' +
             '</div>' +
             '</div>' +
             '<div class="d-flex justify-content-between align-items-center pt-1">' +
