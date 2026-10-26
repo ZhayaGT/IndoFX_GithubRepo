@@ -151,7 +151,7 @@
                         <h4 class="catalog-heading mb-1">Aset CG & VFX Terbaru</h4>
                         <p class="catalog-subheading m-0">Aset terbaru yang diunggah oleh kreator game berbakat Indonesia</p>
                     </div>
-                    <a href="/dashboard" class="catalog-side-link">Selengkapnya</a>
+                    <a href="/catalog/explore?sort=terbaru" class="catalog-side-link">Selengkapnya</a>
                 </div>
 
                 <div class="row g-3" data-catalog-list="latest"></div>
@@ -164,7 +164,7 @@
                         <h4 class="catalog-heading mb-1">Aset Gratis Unggulan</h4>
                         <p class="catalog-subheading m-0">Mulai kembangkan prototype game Anda tanpa biaya</p>
                     </div>
-                    <a href="/catalog/explore" class="catalog-side-link">Selengkapnya</a>
+                    <a href="/catalog/explore?gratis=1" class="catalog-side-link">Selengkapnya</a>
                 </div>
 
                 <div class="row g-3" data-catalog-list="free"></div>

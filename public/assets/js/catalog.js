@@ -118,16 +118,61 @@
         });
     }
 
+    /* Nilai <option> pada .sort-select yang dikenal renderExplore(). */
+    var SORT_VALUES = ['terbaru', 'populer', 'harga_rendah', 'harga_tinggi'];
+
+    /**
+     * Baca keadaan awal halaman dari query string.
+     *
+     * Dipakai tautan "Selengkapnya" di beranda:
+     *   /catalog/explore?sort=terbaru -> urutkan Terbaru
+     *   /catalog/explore?gratis=1     -> radio "Gratis" menyala
+     */
+    function readExploreParams() {
+        var params = new URLSearchParams(window.location.search);
+        var sort = params.get('sort');
+
+        return {
+            sort: SORT_VALUES.indexOf(sort) === -1 ? 'terbaru' : sort,
+            gratis: params.get('gratis') === '1'
+        };
+    }
+
     function renderExplore() {
         var listEl = document.querySelector('[data-catalog-list="explore"]');
         var countEl = document.querySelector('[data-catalog-count]');
         var paginationEl = document.querySelector('[data-catalog-pagination]');
         var sortSelect = document.querySelector('.sort-select');
+        var freeRadio = document.getElementById('price_free_radio');
+        var resetLink = document.querySelector('.filter-reset-link');
 
+        var initial = readExploreParams();
         var allItems = [];
-        var currentSort = 'terbaru';
+        var currentSort = initial.sort;
+        var freeOnly = initial.gratis;
         var currentPage = 1;
         var colClass = 'col-12 col-sm-6 col-md-4';
+
+        /* Tulis keadaan filter ke query string tanpa memuat ulang halaman,
+           supaya tautan bisa dibagikan dan tombol Back tidak rusak. */
+        function syncUrl() {
+            var params = new URLSearchParams(window.location.search);
+
+            if (currentSort === 'terbaru') {
+                params.delete('sort');
+            } else {
+                params.set('sort', currentSort);
+            }
+
+            if (freeOnly) {
+                params.set('gratis', '1');
+            } else {
+                params.delete('gratis');
+            }
+
+            var query = params.toString();
+            window.history.replaceState(null, '', window.location.pathname + (query ? '?' + query : ''));
+        }
 
         function applySort(items, sort) {
             if (sort === 'terbaru') { return items.slice().sort(byCreatedDesc); }
@@ -159,7 +204,10 @@
         }
 
         function paint() {
-            var sorted = applySort(allItems, currentSort);
+            var visible = freeOnly
+                ? allItems.filter(function (item) { return item.price === 0; })
+                : allItems;
+            var sorted = applySort(visible, currentSort);
             var totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
 
             if (currentPage > totalPages) { currentPage = totalPages; }
@@ -200,10 +248,40 @@
         }
 
         if (sortSelect) {
+            sortSelect.value = currentSort;
+
             sortSelect.addEventListener('change', function () {
                 currentSort = sortSelect.value;
                 currentPage = 1;
                 paint();
+                syncUrl();
+            });
+        }
+
+        if (freeRadio) {
+            freeRadio.checked = freeOnly;
+
+            freeRadio.addEventListener('change', function () {
+                freeOnly = freeRadio.checked;
+                currentPage = 1;
+                paint();
+                syncUrl();
+            });
+        }
+
+        if (resetLink) {
+            resetLink.addEventListener('click', function (event) {
+                event.preventDefault();
+
+                freeOnly = false;
+                currentSort = 'terbaru';
+                currentPage = 1;
+
+                if (freeRadio) { freeRadio.checked = false; }
+                if (sortSelect) { sortSelect.value = currentSort; }
+
+                paint();
+                syncUrl();
             });
         }
 
