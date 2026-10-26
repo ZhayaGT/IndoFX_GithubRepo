@@ -22,7 +22,7 @@
         var col = colClass || 'col-12 col-sm-6 col-lg-3';
 
         return '<div class="' + col + '">' +
-            '<a href="/asset/detail" class="text-decoration-none d-block h-100">' +
+            '<a href="/asset/detail?slug=' + encodeURIComponent(item.slug) + '" class="text-decoration-none d-block h-100">' +
             '<div class="asset-card-figma h-100 d-flex flex-column">' +
             '<div class="asset-thumb-wrapper">' +
             '<img class="asset-thumb-img" src="' + escapeHtml(item.image) + '" alt="' + escapeHtml(item.title) + '" loading="lazy">' +
