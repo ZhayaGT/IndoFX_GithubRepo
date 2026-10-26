@@ -164,7 +164,7 @@
                         <h4 class="catalog-heading mb-1">Aset Gratis Unggulan</h4>
                         <p class="catalog-subheading m-0">Mulai kembangkan prototype game Anda tanpa biaya</p>
                     </div>
-                    <a href="/catalog/explore?gratis=1" class="catalog-side-link">Selengkapnya</a>
+                    <a href="/catalog/explore?gratis=1&amp;sort=populer" class="catalog-side-link">Selengkapnya</a>
                 </div>
 
                 <div class="row g-3" data-catalog-list="free"></div>
