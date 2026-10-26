@@ -50,7 +50,7 @@
             <h2 class="auth-title mb-1">Daftar Akun Baru</h2>
             <p class="auth-subtitle mb-4">Akses ribuan aset Unity terbaik karya anak bangsa</p>
 
-            <form action="/auth/register" method="POST">
+            <form action="/register" method="POST">
                 <div class="mb-3">
                     <label for="name" class="form-label auth-label">Nama Lengkap</label>
                     <input type="text" class="form-control auth-input" id="name" name="name" placeholder="Andi Pratama" required>
@@ -71,7 +71,7 @@
                 </div>
 
                 <p class="auth-footer-text mb-0">
-                    Sudah punya akun? <a href="/auth/login" class="auth-link fw-bold">Masuk</a>
+                    Sudah punya akun? <a href="/login" class="auth-link fw-bold">Masuk</a>
                 </p>
             </form>
         </div>

@@ -31,6 +31,11 @@ if ($config['debug']) {
 
 // Session::start($config['session']['name'], $config['session']['lifetime']);
 
+// Jalankan sesi bawaan PHP secara langsung agar aman
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 $router = new Router();
 require BASE_PATH . '/routes/web.php';
 

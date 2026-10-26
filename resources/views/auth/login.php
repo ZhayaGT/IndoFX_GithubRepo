@@ -50,7 +50,7 @@
             <h2 class="auth-title mb-1 text-center">Masuk ke Akun Anda</h2>
             <p class="auth-subtitle text-center">Gunakan akun IndoFX Anda untuk mulai mendownload aset</p>
 
-            <form action="/auth/login" method="POST">
+            <form action="/login" method="POST">
                 <div class="mb-3">
                     <label for="email" class="form-label auth-label">Alamat Email</label>
                     <input type="email" class="form-control auth-input" id="email" name="email" placeholder="contoh@developer.id" required>
@@ -69,7 +69,7 @@
                 </div>
 
                 <p class="auth-footer-text mb-0">
-                    Belum punya akun? <a href="/auth/register" class="auth-link fw-bold">Daftar</a>
+                    Belum punya akun? <a href="/register" class="auth-link fw-bold">Daftar</a>
                 </p>
             </form>
         </div>

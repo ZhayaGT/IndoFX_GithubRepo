@@ -2,10 +2,10 @@
 
 /** @var \IndoFX\Core\Router $router */
 
-// Mendaftarkan URL beranda
+// Mendaftarkan URL Landing Page
 $router->add('GET', '/', 'HomeController', 'index');
 
-// Rute Autentikasi
+// Rute Autentikasi (Mendukung /login dan /auth/login)
 $router->add('GET', '/login', 'AuthController', 'login');
 $router->add('POST', '/login', 'AuthController', 'processLogin');
 
