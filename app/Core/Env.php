@@ -1,56 +1,34 @@
 <?php
 
-declare(strict_types=1);
-
 namespace IndoFX\Core;
 
 class Env
 {
-    /**
-     * Mengambil nilai environment variable
-     */
-    public static function get(string $key, mixed $default = null): mixed
+    // Mengambil nilai string dari variabel environment (.env)
+    public static function get($key, $default = null)
     {
-        // Variabel proses (mis. dari CI atau shell) menang atas isi .env.
+        // Variabel proses (shell/CI) diutamakan, lalu nilai dari .env.
         $value = getenv($key);
 
         if ($value === false) {
-            $value = $_ENV[$key] ?? $_SERVER[$key] ?? null;
+            $value = $_ENV[$key] ?? null;
         }
 
         if ($value === false || $value === null) {
             return $default;
         }
 
-        return match (strtolower((string) $value)) {
-            'true', '(true)' => true,
-            'false', '(false)' => false,
-            'empty', '(empty)' => '',
-            'null', '(null)' => null,
-            default => $value,
-        };
+        return $value;
     }
 
-    /**
-     * Mengambil nilai boolean dari environment variable
-     */
-    public static function bool(string $key, bool $default = false): bool
+    // Mengambil nilai boolean dari variabel environment (.env)
+    public static function bool($key, $default = false)
     {
-        $value = self::get($key, $default);
-
-        if (is_bool($value)) {
-            return $value;
+        $value = getenv($key);
+        if ($value === false) {
+            return $default;
         }
-
+        // Konversi string 'true', 'false', '1', '0' menjadi tipe boolean asli PHP
         return filter_var($value, FILTER_VALIDATE_BOOLEAN);
-    }
-
-    /**
-     * Mengambil nilai integer dari environment variable
-     */
-    public static function int(string $key, int $default = 0): int
-    {
-        $value = self::get($key, $default);
-        return (int) $value;
     }
 }

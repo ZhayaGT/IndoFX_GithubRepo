@@ -1,138 +1,105 @@
 <?php
 
-declare(strict_types=1);
-
 namespace IndoFX\Controllers;
 
-use IndoFX\Core\Auth;
 use IndoFX\Core\Controller;
-use IndoFX\Core\Csrf;
-use IndoFX\Core\Session;
-use IndoFX\Core\Validator;
 use IndoFX\Models\User;
 
-/**
- * Registrasi, login, dan logout pengguna.
- */
 class AuthController extends Controller
 {
-    private const LOGIN_PATH = '/auth/login';
-    private const REGISTER_PATH = '/auth/register';
-
-    public function showLogin(): void
+    // 1. Menampilkan halaman Login
+    public function login()
     {
-        if (Auth::check()) {
+        // Pengguna yang sudah login tidak perlu melihat form login
+        if (isset($_SESSION['user_id'])) {
             $this->redirect('/');
         }
 
         $this->view('auth/login', [
-            'errors'  => Session::pullFlash('errors', []),
-            'old'     => Session::pullFlash('old', []),
-            'success' => Session::pullFlash('success'),
-            'csrf'    => Csrf::token(),
+            'error'   => $_SESSION['login_error'] ?? null,
+            'success' => $_SESSION['login_success'] ?? null,
+            'old'     => $_SESSION['login_old'] ?? [],
         ]);
+
+        unset($_SESSION['login_error'], $_SESSION['login_success'], $_SESSION['login_old']);
     }
 
-    public function login(): void
+    // 2. Memproses data Login (POST)
+    public function processLogin()
     {
-        if (!Csrf::verify($_POST['_token'] ?? null)) {
-            $this->redirectWithErrors(self::LOGIN_PATH, ['_token' => 'Sesi formulir kedaluwarsa. Silakan coba lagi.']);
+        $email = strtolower(trim($_POST['email'] ?? ''));
+        $password = $_POST['password'] ?? '';
+
+        $userModel = new User();
+        $user = $userModel->findByEmail($email);
+
+        // Verifikasi keberadaan user dan kecocokan password hash
+        if ($user && password_verify($password, $user['password_hash'])) {
+            // Daftarkan sesi pengguna
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['role'] = $user['role'];
+            $_SESSION['name'] = $user['name'];
+
+            $this->redirect('/');
         }
 
-        $input = [
-            'email'    => trim((string) ($_POST['email'] ?? '')),
-            'password' => (string) ($_POST['password'] ?? ''),
-        ];
+        // Login gagal: simpan pesan lalu kembali ke form
+        $_SESSION['login_error'] = 'Email atau password salah!';
+        $_SESSION['login_old'] = ['email' => $email];
 
-        $validator = new Validator(
-            $input,
-            ['email' => 'required|email', 'password' => 'required'],
-            ['email' => 'Alamat email', 'password' => 'Kata sandi']
-        );
-
-        if ($validator->fails()) {
-            $this->redirectWithErrors(self::LOGIN_PATH, $validator->errors(), ['email' => $input['email']]);
-        }
-
-        $email = mb_strtolower($input['email']);
-        $user = (new User())->findByEmail($email);
-
-        // Pesan disamakan agar tidak membocorkan email mana yang terdaftar.
-        if ($user === null || !password_verify($input['password'], $user['password_hash'])) {
-            $this->redirectWithErrors(self::LOGIN_PATH, ['email' => 'Email atau kata sandi salah.'], ['email' => $input['email']]);
-        }
-
-        if (!(bool) $user['is_active']) {
-            $this->redirectWithErrors(self::LOGIN_PATH, ['email' => 'Akun ini sedang dinonaktifkan.'], ['email' => $input['email']]);
-        }
-
-        Auth::login($user);
-        $this->redirect('/');
+        $this->redirect('/login');
     }
 
-    public function showRegister(): void
+    // 3. Menampilkan halaman Register
+    public function register()
     {
-        if (Auth::check()) {
+        if (isset($_SESSION['user_id'])) {
             $this->redirect('/');
         }
 
         $this->view('auth/register', [
-            'errors' => Session::pullFlash('errors', []),
-            'old'    => Session::pullFlash('old', []),
-            'csrf'   => Csrf::token(),
+            'error' => $_SESSION['register_error'] ?? null,
+            'old'   => $_SESSION['register_old'] ?? [],
         ]);
+
+        unset($_SESSION['register_error'], $_SESSION['register_old']);
     }
 
-    public function register(): void
+    // 4. Memproses data Register (POST)
+    public function processRegister()
     {
-        if (!Csrf::verify($_POST['_token'] ?? null)) {
-            $this->redirectWithErrors(self::REGISTER_PATH, ['_token' => 'Sesi formulir kedaluwarsa. Silakan coba lagi.']);
+        $name = trim($_POST['name'] ?? '');
+        $email = strtolower(trim($_POST['email'] ?? ''));
+        $password = $_POST['password'] ?? '';
+
+        $userModel = new User();
+
+        // Mencegah pendaftaran dengan email yang sama
+        if ($userModel->findByEmail($email)) {
+            $_SESSION['register_error'] = 'Email sudah terdaftar!';
+            $_SESSION['register_old'] = ['name' => $name, 'email' => $email];
+
+            $this->redirect('/register');
         }
 
-        $input = [
-            'name'     => trim((string) ($_POST['name'] ?? '')),
-            'email'    => trim((string) ($_POST['email'] ?? '')),
-            'password' => (string) ($_POST['password'] ?? ''),
-        ];
+        // Mengenkripsi kata sandi sebelum masuk ke database
+        $passwordHash = password_hash($password, PASSWORD_BCRYPT);
 
-        $validator = new Validator(
-            $input,
-            [
-                'name'     => 'required|max:255',
-                'email'    => 'required|email|max:255',
-                'password' => 'required|min:8',
-            ],
-            ['name' => 'Nama lengkap', 'email' => 'Alamat email', 'password' => 'Kata sandi']
-        );
+        // Menyimpan user baru (role default 'buyer')
+        $userModel->create($name, $email, $passwordHash, 'buyer');
 
-        $old = ['name' => $input['name'], 'email' => $input['email']];
+        $_SESSION['login_success'] = 'Registrasi berhasil! Silakan masuk.';
+        $_SESSION['login_old'] = ['email' => $email];
 
-        if ($validator->fails()) {
-            $this->redirectWithErrors(self::REGISTER_PATH, $validator->errors(), $old);
-        }
-
-        $email = mb_strtolower($input['email']);
-        $users = new User();
-
-        if ($users->findByEmail($email) !== null) {
-            $this->redirectWithErrors(self::REGISTER_PATH, ['email' => 'Email sudah terdaftar.'], $old);
-        }
-
-        $users->create(
-            $input['name'],
-            $email,
-            password_hash($input['password'], PASSWORD_DEFAULT),
-            'buyer'
-        );
-
-        Session::flash('success', 'Akun berhasil dibuat. Silakan masuk.');
-        $this->redirect(self::LOGIN_PATH);
+        $this->redirect('/login');
     }
 
-    public function logout(): void
+    // 5. Menghapus sesi pengguna
+    public function logout()
     {
-        Auth::logout();
-        Session::flash('success', 'Anda telah keluar.');
-        $this->redirect(self::LOGIN_PATH);
+        session_unset();
+        session_destroy();
+
+        $this->redirect('/login');
     }
 }

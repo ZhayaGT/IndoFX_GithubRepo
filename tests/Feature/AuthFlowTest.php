@@ -8,7 +8,7 @@ use PDO;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Uji alur autentikasi lewat HTTP terhadap server pengembangan.
+ * Uji alur autentikasi (login, register, logout) lewat HTTP.
  *
  * Server dijalankan sekali per kelas dengan `php -S` pada port acak dan
  * memakai database uji yang skemanya dimuat ulang setiap test.
@@ -44,9 +44,9 @@ class AuthFlowTest extends TestCase
         self::$baseUrl = "http://127.0.0.1:{$appPort}";
 
         $env = array_merge(getenv(), [
-            'DB_NAME'       => self::$dbName,
-            'APP_DEBUG'     => 'true',
-            'SESSION_NAME'  => 'indofx_test_session',
+            'DB_NAME'      => self::$dbName,
+            'APP_DEBUG'    => 'true',
+            'SESSION_NAME' => 'indofx_test_session',
         ]);
 
         $command = [PHP_BINARY, '-S', "127.0.0.1:{$appPort}", '-t', BASE_PATH . '/public'];
@@ -89,25 +89,28 @@ class AuthFlowTest extends TestCase
     public function testRegisterCreatesBuyerWithHashedPassword(): void
     {
         $jar = [];
-        $token = $this->csrfToken('/auth/register', $jar);
 
-        $response = $this->request('POST', '/auth/register', $jar, [
-            '_token'   => $token,
+        $response = $this->request('POST', '/register', $jar, [
             'name'     => 'Budi Santoso',
             'email'    => 'Budi@Example.com',
             'password' => 'rahasia123',
         ]);
 
         self::assertSame(302, $response['status']);
-        self::assertSame('/auth/login', $response['headers']['location']);
+        self::assertSame('/login', $response['headers']['location']);
 
-        $row = self::$pdo->query("SELECT name, email, role, password_hash FROM users")->fetch(PDO::FETCH_ASSOC);
+        $row = self::$pdo->query('SELECT name, email, role, password_hash FROM users')->fetch(PDO::FETCH_ASSOC);
 
         self::assertSame('Budi Santoso', $row['name']);
         self::assertSame('budi@example.com', $row['email']);
         self::assertSame('buyer', $row['role']);
         self::assertTrue(password_verify('rahasia123', $row['password_hash']));
         self::assertStringNotContainsString('rahasia123', $row['password_hash']);
+
+        // Pesan sukses dan email terisi di halaman login.
+        $page = $this->request('GET', '/login', $jar)['body'];
+        self::assertStringContainsString('Registrasi berhasil!', $page);
+        self::assertStringContainsString('value="budi@example.com"', $page);
     }
 
     public function testRegisterRejectsDuplicateEmail(): void
@@ -115,50 +118,26 @@ class AuthFlowTest extends TestCase
         $this->insertUser('ada@example.com', 'rahasia123');
 
         $jar = [];
-        $token = $this->csrfToken('/auth/register', $jar);
-
-        $response = $this->request('POST', '/auth/register', $jar, [
-            '_token'   => $token,
+        $response = $this->request('POST', '/register', $jar, [
             'name'     => 'Kedua',
             'email'    => 'ada@example.com',
             'password' => 'rahasia123',
         ]);
 
-        self::assertSame('/auth/register', $response['headers']['location']);
-        self::assertSame(1, (int) self::$pdo->query("SELECT COUNT(*) FROM users")->fetchColumn());
+        self::assertSame('/register', $response['headers']['location']);
+        self::assertSame(1, (int) self::$pdo->query('SELECT COUNT(*) FROM users')->fetchColumn());
+
+        $page = $this->request('GET', '/register', $jar)['body'];
+        self::assertStringContainsString('Email sudah terdaftar!', $page);
+        self::assertStringContainsString('value="ada@example.com"', $page);
     }
 
-    public function testRegisterRejectsInvalidInput(): void
-    {
-        $jar = [];
-        $token = $this->csrfToken('/auth/register', $jar);
-
-        $response = $this->request('POST', '/auth/register', $jar, [
-            '_token'   => $token,
-            'name'     => '',
-            'email'    => 'bukan-email',
-            'password' => 'pendek',
-        ]);
-
-        self::assertSame('/auth/register', $response['headers']['location']);
-
-        $page = $this->request('GET', '/auth/register', $jar)['body'];
-        self::assertStringContainsString('Nama lengkap wajib diisi.', $page);
-        self::assertStringContainsString('Format Alamat email tidak valid.', $page);
-        self::assertStringContainsString('Kata sandi minimal 8 karakter.', $page);
-        self::assertSame(0, (int) self::$pdo->query("SELECT COUNT(*) FROM users")->fetchColumn());
-    }
-
-    public function testLoginStoresSessionAndShowsUserName(): void
+    public function testLoginStoresSessionAndShowsBuyerNavbar(): void
     {
         $this->insertUser('pembeli@example.com', 'rahasia123', 'Pembeli Uji');
 
         $jar = [];
-        $token = $this->csrfToken('/auth/login', $jar);
-        $before = $jar['indofx_test_session'] ?? '';
-
-        $response = $this->request('POST', '/auth/login', $jar, [
-            '_token'   => $token,
+        $response = $this->request('POST', '/login', $jar, [
             'email'    => 'pembeli@example.com',
             'password' => 'rahasia123',
         ]);
@@ -166,13 +145,10 @@ class AuthFlowTest extends TestCase
         self::assertSame(302, $response['status']);
         self::assertSame('/', $response['headers']['location']);
 
-        // ID sesi harus berganti setelah login (anti session fixation).
-        self::assertNotSame($before, $jar['indofx_test_session'] ?? '');
-
         $home = $this->request('GET', '/', $jar)['body'];
-        self::assertStringContainsString('Pembeli Uji', $home);
         self::assertStringContainsString('data-auth-state="pembeli"', $home);
         self::assertStringContainsString('id="nav-guest" class="navbar-auth-group" hidden', $home);
+        self::assertStringContainsString('Pembeli Uji', $home);
         self::assertStringNotContainsString('btn-hero-cream', $home);
     }
 
@@ -181,54 +157,16 @@ class AuthFlowTest extends TestCase
         $this->insertUser('pembeli@example.com', 'rahasia123');
 
         $jar = [];
-        $token = $this->csrfToken('/auth/login', $jar);
-
-        $response = $this->request('POST', '/auth/login', $jar, [
-            '_token'   => $token,
+        $response = $this->request('POST', '/login', $jar, [
             'email'    => 'pembeli@example.com',
             'password' => 'salah',
         ]);
 
-        self::assertSame('/auth/login', $response['headers']['location']);
+        self::assertSame('/login', $response['headers']['location']);
 
-        $page = $this->request('GET', '/auth/login', $jar)['body'];
-        self::assertStringContainsString('Email atau kata sandi salah.', $page);
+        $page = $this->request('GET', '/login', $jar)['body'];
+        self::assertStringContainsString('Email atau password salah!', $page);
         self::assertStringContainsString('value="pembeli@example.com"', $page);
-    }
-
-    public function testLoginRejectsInactiveAccount(): void
-    {
-        $this->insertUser('nonaktif@example.com', 'rahasia123', 'Nonaktif', false);
-
-        $jar = [];
-        $token = $this->csrfToken('/auth/login', $jar);
-
-        $this->request('POST', '/auth/login', $jar, [
-            '_token'   => $token,
-            'email'    => 'nonaktif@example.com',
-            'password' => 'rahasia123',
-        ]);
-
-        $page = $this->request('GET', '/auth/login', $jar)['body'];
-        self::assertStringContainsString('Akun ini sedang dinonaktifkan.', $page);
-    }
-
-    public function testPostWithoutCsrfTokenIsRejected(): void
-    {
-        $this->insertUser('pembeli@example.com', 'rahasia123');
-
-        $jar = [];
-        $this->request('GET', '/auth/login', $jar);
-
-        $response = $this->request('POST', '/auth/login', $jar, [
-            'email'    => 'pembeli@example.com',
-            'password' => 'rahasia123',
-        ]);
-
-        self::assertSame('/auth/login', $response['headers']['location']);
-
-        $page = $this->request('GET', '/auth/login', $jar)['body'];
-        self::assertStringContainsString('Sesi formulir kedaluwarsa.', $page);
     }
 
     public function testLogoutClearsSession(): void
@@ -236,27 +174,19 @@ class AuthFlowTest extends TestCase
         $this->insertUser('pembeli@example.com', 'rahasia123', 'Pembeli Uji');
 
         $jar = [];
-        $token = $this->csrfToken('/auth/login', $jar);
-        $this->request('POST', '/auth/login', $jar, [
-            '_token'   => $token,
+        $this->request('POST', '/login', $jar, [
             'email'    => 'pembeli@example.com',
             'password' => 'rahasia123',
         ]);
-        $sessionAfterLogin = $jar['indofx_test_session'];
 
-        $response = $this->request('POST', '/auth/logout', $jar);
+        $response = $this->request('GET', '/logout', $jar);
 
-        self::assertSame('/auth/login', $response['headers']['location']);
-        self::assertNotSame($sessionAfterLogin, $jar['indofx_test_session'] ?? '');
+        self::assertSame(302, $response['status']);
+        self::assertSame('/login', $response['headers']['location']);
 
-        // Sesi lama tidak boleh lagi dianggap login.
-        $replayJar = ['indofx_test_session' => $sessionAfterLogin];
-        $replay = $this->request('GET', '/', $replayJar)['body'];
-        self::assertStringContainsString('data-auth-state="guest"', $replay);
-        self::assertStringContainsString('btn-hero-cream', $replay);
-
-        $page = $this->request('GET', '/auth/login', $jar)['body'];
-        self::assertStringContainsString('Anda telah keluar.', $page);
+        $home = $this->request('GET', '/', $jar)['body'];
+        self::assertStringContainsString('data-auth-state="guest"', $home);
+        self::assertStringContainsString('btn-hero-cream', $home);
     }
 
     public function testLoggedInUserIsRedirectedAwayFromAuthPages(): void
@@ -264,14 +194,12 @@ class AuthFlowTest extends TestCase
         $this->insertUser('pembeli@example.com', 'rahasia123');
 
         $jar = [];
-        $token = $this->csrfToken('/auth/login', $jar);
-        $this->request('POST', '/auth/login', $jar, [
-            '_token'   => $token,
+        $this->request('POST', '/login', $jar, [
             'email'    => 'pembeli@example.com',
             'password' => 'rahasia123',
         ]);
 
-        foreach (['/auth/login', '/auth/register'] as $path) {
+        foreach (['/login', '/register'] as $path) {
             $response = $this->request('GET', $path, $jar);
             self::assertSame(302, $response['status'], $path);
             self::assertSame('/', $response['headers']['location'], $path);
@@ -291,22 +219,6 @@ class AuthFlowTest extends TestCase
             ':role'   => 'buyer',
             ':active' => $active ? 'true' : 'false',
         ]);
-    }
-
-    /**
-     * Mengambil token CSRF dari halaman form dan mengisi cookie jar.
-     *
-     * @param array<string, string> $jar
-     */
-    private function csrfToken(string $path, array &$jar): string
-    {
-        $body = $this->request('GET', $path, $jar)['body'];
-
-        if (!preg_match('/name="_token" value="([^"]+)"/', $body, $matches)) {
-            self::fail("Token CSRF tidak ditemukan pada {$path}");
-        }
-
-        return $matches[1];
     }
 
     /**

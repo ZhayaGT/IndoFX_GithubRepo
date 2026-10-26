@@ -1,19 +1,14 @@
 <?php
 
-declare(strict_types=1);
-
 namespace IndoFX\Core;
 
-/**
- * Basis seluruh model.
- * Menyediakan koneksi PDO bersama dari singleton Database.
- */
-abstract class Model
+class Model
 {
-    protected Database $db;
+    protected $db;
 
     public function __construct()
     {
+        // Memanggil Singleton Database PDO yang sudah kita buat di chore sebelumnya
         $this->db = Database::getInstance();
     }
 }

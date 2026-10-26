@@ -1,63 +1,35 @@
 <?php
 
-declare(strict_types=1);
-
 namespace IndoFX\Models;
 
 use IndoFX\Core\Model;
 
-/**
- * Akses tabel `users`.
- * Nama kolom mengikuti database/schema.sql (password_hash, bukan password).
- */
 class User extends Model
 {
-    public function findByEmail(string $email): ?array
+    // Mencari pengguna berdasarkan email.
+    // Digunakan saat validasi Login atau mengecek duplikasi email saat Register.
+    public function findByEmail($email)
     {
-        $stmt = $this->db->query(
-            'SELECT id, name, email, password_hash, role, is_active
-             FROM users
-             WHERE email = :email
-             LIMIT 1',
-            [':email' => $email]
-        );
-
-        $user = $stmt->fetch();
-
-        return $user === false ? null : $user;
+        $sql = "SELECT * FROM users WHERE email = :email LIMIT 1";
+        // Query akan otomatis memanggil prepared statement dari Database.php
+        $stmt = $this->db->query($sql, [':email' => $email]);
+        return $stmt->fetch();
     }
 
-    public function findById(string $id): ?array
+    // Menyimpan pengguna baru (Register).
+    public function create($name, $email, $passwordHash, $role = 'buyer')
     {
-        $stmt = $this->db->query(
-            'SELECT id, name, email, password_hash, role, is_active
-             FROM users
-             WHERE id = :id
-             LIMIT 1',
-            [':id' => $id]
-        );
+        $sql = "INSERT INTO users (name, email, password_hash, role) 
+                VALUES (:name, :email, :password_hash, :role)";
 
-        $user = $stmt->fetch();
+        $this->db->query($sql, [
+            ':name'          => $name,
+            ':email'         => $email,
+            ':password_hash' => $passwordHash, // Untuk Memastikan controller mengirimkan password yang sudah di-hash
+            ':role'          => $role
+        ]);
 
-        return $user === false ? null : $user;
-    }
-
-    /**
-     * Menyimpan pengguna baru dan mengembalikan baris yang baru dibuat.
-     */
-    public function create(string $name, string $email, string $passwordHash, string $role = 'buyer'): array
-    {
-        $this->db->query(
-            'INSERT INTO users (name, email, password_hash, role)
-             VALUES (:name, :email, :password_hash, :role)',
-            [
-                ':name'          => $name,
-                ':email'         => $email,
-                ':password_hash' => $passwordHash,
-                ':role'          => $role,
-            ]
-        );
-
-        return $this->findByEmail($email) ?? [];
+        // Mengembalikan data user yang baru saja berhasil dibuat
+        return $this->findByEmail($email);
     }
 }

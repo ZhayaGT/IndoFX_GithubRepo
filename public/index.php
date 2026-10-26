@@ -11,13 +11,11 @@ define('BASE_PATH', dirname(__DIR__));
 
 require BASE_PATH . '/vendor/autoload.php';
 
-use IndoFX\Core\Router;
-use IndoFX\Core\Session;
+// Inisialisasi phpdotenv untuk membaca file .env
+$dotenv = Dotenv\Dotenv::createImmutable(BASE_PATH);
+$dotenv->safeLoad();
 
-// Variabel lingkungan dari .env (diabaikan bila berkas tidak ada).
-if (file_exists(BASE_PATH . '/.env')) {
-    Dotenv\Dotenv::createImmutable(BASE_PATH)->load();
-}
+use IndoFX\Core\Router;
 
 $config = require BASE_PATH . '/app/Config/app.php';
 
@@ -29,11 +27,14 @@ if ($config['debug']) {
     error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
 }
 
-date_default_timezone_set($config['timezone']);
-
-Session::start($config['session']['name'], $config['session']['lifetime']);
+// Sesi dipakai AuthController untuk menyimpan status login
+session_name($config['session']['name']);
+session_start();
 
 $router = new Router();
 require BASE_PATH . '/routes/web.php';
 
-$router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
+$uri = $_SERVER['REQUEST_URI'];
+$method = $_SERVER['REQUEST_METHOD'];
+
+$router->dispatch($uri, $method);
