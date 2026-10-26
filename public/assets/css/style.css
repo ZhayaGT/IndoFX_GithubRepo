@@ -129,14 +129,130 @@ body {
   color: var(--ifx-brown-dark);
 }
 
-.navbar-user-name {
-  color: #ffffff;
-  font-size: 0.8rem;
-  font-weight: 700;
-  max-width: 140px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* NAVBAR: STATUS GUEST / PEMBELI */
+.navbar-auth {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-auth-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-nav-seller,
+.btn-nav-library {
   white-space: nowrap;
+}
+
+/* Atribut hidden harus menang atas display:flex di atas. */
+.navbar-auth-group[hidden] {
+  display: none !important;
+}
+
+.btn-nav-library {
+  background-color: transparent;
+  color: #ffffff;
+  border: 1.5px solid #ffffff;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 5px 14px;
+  transition: all 0.15s ease;
+}
+
+.btn-nav-library:hover {
+  background-color: #ffffff;
+  color: var(--ifx-orange);
+}
+
+.navbar-avatar-wrap {
+  position: relative;
+}
+
+.navbar-avatar {
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border: none;
+  border-radius: 50%;
+  background-color: #c9cdd2;
+  color: #5c6470;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.navbar-avatar:hover {
+  background-color: #b9bec5;
+}
+
+.navbar-avatar-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 1050;
+  min-width: 210px;
+  padding: 12px 14px;
+  background-color: #ffffff;
+  border: 1.5px solid var(--ifx-border-dark);
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(59, 35, 20, 0.18);
+  text-align: left;
+}
+
+.navbar-avatar-name {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ifx-brown-dark);
+}
+
+.navbar-avatar-email {
+  margin: 2px 0 10px;
+  font-size: 0.75rem;
+  color: var(--ifx-brown-muted);
+  word-break: break-all;
+}
+
+.navbar-avatar-logout {
+  width: 100%;
+  padding: 6px 10px;
+  background-color: var(--ifx-cream-btn);
+  color: var(--ifx-brown-dark);
+  border: 1.5px solid var(--ifx-border-dark);
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.navbar-avatar-logout:hover {
+  background-color: #f39c6b;
+}
+
+/* Di layar sempit, tombol "Jadi Penjual" disembunyikan agar navbar tidak meluber. */
+@media (max-width: 575.98px) {
+  .btn-nav-seller {
+    display: none;
+  }
+
+  .navbar-auth-group {
+    gap: 6px;
+  }
+
+  .btn-nav-library {
+    padding: 5px 10px;
+    font-size: 0.72rem;
+  }
 }
 
 /* HERO SECTION */

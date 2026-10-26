@@ -68,6 +68,6 @@ class Router
 
         // Tampilan 404 jika route tidak ditemukan
         http_response_code(404);
-        echo '<h1>404 - Halaman Tidak Ditemukan</h1>';
+        require BASE_PATH . '/resources/views/errors/404.php';
     }
 }
