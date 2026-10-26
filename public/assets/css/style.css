@@ -126,18 +126,18 @@ body {
 }
 
 .btn-nav-login {
-  background-color: #f6b089;
+  background-color: #fdecdd;
   color: var(--ifx-brown-dark);
-  border: 1.5px solid var(--ifx-border-dark);
-  border-radius: 6px;
+  border: none;
+  border-radius: 4px;
   font-size: 0.78rem;
   font-weight: 700;
-  padding: 5px 16px;
+  padding: 6px 18px;
   transition: all 0.15s ease;
 }
 
 .btn-nav-login:hover {
-  background-color: #f39c6b;
+  background-color: #f6d9c3;
   color: var(--ifx-brown-dark);
 }
 
