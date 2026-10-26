@@ -50,10 +50,28 @@
             <h2 class="auth-title mb-1 text-center">Masuk ke Akun Anda</h2>
             <p class="auth-subtitle text-center">Gunakan akun IndoFX Anda untuk mulai mendownload aset</p>
 
+            <?php if (!empty($success)): ?>
+                <div class="alert alert-success py-2" role="status"><?= htmlspecialchars((string) $success, ENT_QUOTES, 'UTF-8') ?></div>
+            <?php endif; ?>
+
+            <?php if (!empty($errors)): ?>
+                <div class="alert alert-danger py-2" role="alert">
+                    <ul class="mb-0 ps-3">
+                        <?php foreach ($errors as $message): ?>
+                            <li><?= htmlspecialchars((string) $message, ENT_QUOTES, 'UTF-8') ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
+
             <form action="/auth/login" method="POST">
+                <input type="hidden" name="_token" value="<?= htmlspecialchars((string) $csrf, ENT_QUOTES, 'UTF-8') ?>">
+
                 <div class="mb-3">
                     <label for="email" class="form-label auth-label">Alamat Email</label>
-                    <input type="email" class="form-control auth-input" id="email" name="email" placeholder="contoh@developer.id" required>
+                    <input type="email" class="form-control auth-input" id="email" name="email"
+                           value="<?= htmlspecialchars((string) ($old['email'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                           placeholder="contoh@developer.id" required>
                 </div>
 
                 <div class="mb-4">

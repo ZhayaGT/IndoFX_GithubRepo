@@ -129,6 +129,16 @@ body {
   color: var(--ifx-brown-dark);
 }
 
+.navbar-user-name {
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* HERO SECTION */
 .hero-section {
   background-color: #ffffff;

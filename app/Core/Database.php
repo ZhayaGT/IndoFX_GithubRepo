@@ -1,66 +1,69 @@
 <?php
 
+declare(strict_types=1);
+
 namespace IndoFX\Core;
 
 use PDO;
 use PDOException;
+use RuntimeException;
 
-class Database {
-    // Variabel statis untuk menyimpan instance dengan pola Singleton
-    private static $instance = null;
-    private $connection;
+/**
+ * Koneksi PostgreSQL tunggal (singleton) dengan prepared statement native.
+ */
+class Database
+{
+    private static ?Database $instance = null;
 
-    // Constructor dibuat private agar tidak bisa diinisialisasi sembarangan
-    private function __construct() {
-        // Mengambil konfigurasi dari .env
-        $host = getenv('DB_HOST') ?: '127.0.0.1';
-        $port = getenv('DB_PORT') ?: '5434';
-        $db   = getenv('DB_NAME') ?: '';
-        $user = getenv('DB_USER') ?: '';
-        $pass = getenv('DB_PASSWORD') ?: '';
+    private PDO $connection;
 
-        // DSN khusus untuk PostgreSQL
-        $dsn = "pgsql:host=$host;port=$port;dbname=$db";
+    private function __construct()
+    {
+        $host = (string) Env::get('DB_HOST', '127.0.0.1');
+        $port = (int) Env::get('DB_PORT', 5432);
+        $name = (string) Env::get('DB_NAME', 'indofx');
+        $user = (string) Env::get('DB_USER', 'indofx');
+        $pass = (string) Env::get('DB_PASSWORD', '');
+        $ssl  = (string) Env::get('DB_SSLMODE', 'prefer');
 
-        $options = [
-            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES   => false, // Memaksa penggunaan native prepared statements
-        ];
+        $dsn = "pgsql:host={$host};port={$port};dbname={$name};sslmode={$ssl}";
 
         try {
-            $this->connection = new PDO($dsn, $user, $pass, $options);
+            $this->connection = new PDO($dsn, $user, $pass, [
+                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES   => false,
+            ]);
         } catch (PDOException $e) {
-            // Dalam mode production pesan error ini dilog
-            die("Koneksi database gagal: " . $e->getMessage());
+            throw new RuntimeException('Koneksi database gagal: ' . $e->getMessage(), 0, $e);
         }
     }
 
-    // Mengambil instance singleton
-    public static function getInstance() {
-        if (self::$instance === null) {
-            self::$instance = new Database();
-        }
-        return self::$instance;
+    public static function getInstance(): Database
+    {
+        return self::$instance ??= new Database();
     }
 
-    // Fungsi utama untuk menjalankan query dengan prepared statement
-    public function query($sql, $params = []) {
+    public function query(string $sql, array $params = []): \PDOStatement
+    {
         $stmt = $this->connection->prepare($sql);
         $stmt->execute($params);
+
         return $stmt;
     }
 
-    // --- Kontrol Transaksi SQL ---
-    public function beginTransaction() {
+    public function beginTransaction(): bool
+    {
         return $this->connection->beginTransaction();
     }
 
-    public function commit() {
+    public function commit(): bool
+    {
         return $this->connection->commit();
     }
 
-    public function rollback() {
+    public function rollback(): bool
+    {
         return $this->connection->rollBack();
     }
 }
