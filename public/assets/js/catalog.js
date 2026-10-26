@@ -1,0 +1,113 @@
+(function () {
+    'use strict';
+
+    var DATA_URL = '/assets/data/assets.json';
+
+    function formatPrice(price) {
+        return price === 0 ? 'Gratis' : 'Rp' + price.toLocaleString('id-ID');
+    }
+
+    function escapeHtml(text) {
+        return String(text === null || text === undefined ? '' : text)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    // Mengembalikan string HTML satu kartu, mengikuti markup yang sekarang ada.
+    function createCard(item, colClass) {
+        var col = colClass || 'col-12 col-sm-6 col-lg-3';
+
+        return '<div class="' + col + '">' +
+            '<a href="/asset/detail" class="text-decoration-none d-block h-100">' +
+            '<div class="asset-card-figma h-100 d-flex flex-column">' +
+            '<div class="asset-thumb-wrapper">' +
+            '<img class="asset-thumb-img" src="' + escapeHtml(item.image) + '" alt="' + escapeHtml(item.title) + '" loading="lazy">' +
+            '</div>' +
+            '<div class="asset-card-body d-flex flex-column justify-content-between flex-grow-1">' +
+            '<div>' +
+            '<span class="asset-studio">' + escapeHtml(item.seller_name) + '</span>' +
+            '<h6 class="asset-name">' + escapeHtml(item.title) + '</h6>' +
+            '<div class="d-flex gap-1 mb-2">' +
+            '<span class="badge-pipeline">' + escapeHtml(item.render_pipeline) + '</span>' +
+            '</div>' +
+            '</div>' +
+            '<div class="d-flex justify-content-between align-items-center pt-1">' +
+            '<span class="asset-price">' + formatPrice(item.price) + '</span>' +
+            '<i class="bi bi-download asset-dl-icon"></i>' +
+            '</div>' +
+            '</div>' +
+            '</div>' +
+            '</a>' +
+            '</div>';
+    }
+
+    // Mengambil JSON sekali, lalu memanggil callback dengan array item.
+    function loadCatalog(callback) {
+        fetch(DATA_URL)
+            .then(function (res) {
+                if (!res.ok) { throw new Error('HTTP ' + res.status); }
+                return res.json();
+            })
+            .then(function (payload) { callback(null, payload.data || []); })
+            .catch(function (err) { callback(err, []); });
+    }
+
+    function showMessage(container, text) {
+        if (!container) { return; }
+        container.innerHTML = '<div class="alert alert-light border text-center text-muted mb-0 py-4 w-100">' +
+            escapeHtml(text) + '</div>';
+    }
+
+    function renderCards(container, items, colClass) {
+        if (!container) { return; }
+        if (!items.length) {
+            showMessage(container, 'Belum ada aset yang cocok.');
+            return;
+        }
+        container.innerHTML = items.map(function (item) {
+            return createCard(item, colClass);
+        }).join('');
+    }
+
+    function byCreatedDesc(a, b) {
+        if (a.created_at === b.created_at) { return 0; }
+        return a.created_at < b.created_at ? 1 : -1;
+    }
+
+    function byDownloadsDesc(a, b) {
+        return b.download_count - a.download_count;
+    }
+
+    function renderLatest() {
+        var container = document.querySelector('[data-catalog-list="latest"]');
+
+        loadCatalog(function (err, items) {
+            if (err) {
+                showMessage(container, 'Gagal memuat katalog. Muat ulang halaman.');
+                return;
+            }
+            renderCards(container, items.slice().sort(byCreatedDesc).slice(0, 4));
+        });
+    }
+
+    function renderFree() {
+        var container = document.querySelector('[data-catalog-list="free"]');
+
+        loadCatalog(function (err, items) {
+            if (err) {
+                showMessage(container, 'Gagal memuat katalog. Muat ulang halaman.');
+                return;
+            }
+            var free = items.filter(function (item) { return item.price === 0; });
+            renderCards(container, free.sort(byDownloadsDesc).slice(0, 4));
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        if (document.querySelector('[data-catalog-list="latest"]')) { renderLatest(); }
+        if (document.querySelector('[data-catalog-list="free"]')) { renderFree(); }
+    });
+})();
