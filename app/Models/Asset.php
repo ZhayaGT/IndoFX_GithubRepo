@@ -30,12 +30,7 @@ class Asset extends Model
         'harga_tinggi' => 'a.price DESC, a.id DESC',
     ];
 
-    /**
-     * Daftar aset terbit sesuai filter katalog.
-     *
-     * @param array{q?:string, gratis?:bool, category?:string, pipeline?:string, sort?:string, limit?:int, offset?:int} $filter
-     * @return array<int, array<string, mixed>>
-     */
+    // Daftar aset terbit sesuai filter katalog.
     public function search(array $filter = []): array
     {
         [$where, $params] = $this->buildWhere($filter);
@@ -51,9 +46,7 @@ class Asset extends Model
         return $stmt->fetchAll();
     }
 
-    /**
-     * Jumlah aset terbit untuk filter yang sama, dipakai untuk paginasi.
-     */
+    // Jumlah baris untuk filter yang sama (paginasi).
     public function count(array $filter = []): int
     {
         [$where, $params] = $this->buildWhere($filter);
@@ -79,11 +72,7 @@ class Asset extends Model
         return $asset ?: null;
     }
 
-    /**
-     * Semua gambar aset, urut sesuai sort_order.
-     *
-     * @return array<int, string>
-     */
+    // Path gambar aset, urut sort_order.
     public function images(int $assetId): array
     {
         $stmt = $this->db->query(
@@ -94,9 +83,7 @@ class Asset extends Model
         return array_column($stmt->fetchAll(), 'image_path');
     }
 
-    /**
-     * Berkas unduhan terbaru milik aset (format file diambil dari ekstensi).
-     */
+    // Berkas unduhan terbaru aset.
     public function latestFile(int $assetId): ?array
     {
         $stmt = $this->db->query(
@@ -111,39 +98,25 @@ class Asset extends Model
         return $file ?: null;
     }
 
-    /**
-     * Semua kategori untuk sidebar filter.
-     *
-     * @return array<int, array<string, mixed>>
-     */
+    // Kategori untuk sidebar filter.
     public function categories(): array
     {
         return $this->db->query('SELECT id, name, slug FROM categories ORDER BY name')->fetchAll();
     }
 
-    /**
-     * Aset terbaru untuk beranda.
-     *
-     * @return array<int, array<string, mixed>>
-     */
+    // Aset terbaru untuk beranda.
     public function latest(int $limit = 4): array
     {
         return $this->search(['sort' => 'terbaru', 'limit' => $limit]);
     }
 
-    /**
-     * Aset gratis paling banyak diunduh untuk beranda.
-     *
-     * @return array<int, array<string, mixed>>
-     */
+    // Aset gratis terlaris untuk beranda.
     public function freePopular(int $limit = 4): array
     {
         return $this->search(['gratis' => true, 'sort' => 'populer', 'limit' => $limit]);
     }
 
-    /**
-     * @return array{0:string, 1:array<string, mixed>}
-     */
+    // Mengembalikan [klausa WHERE, parameter].
     private function buildWhere(array $filter): array
     {
         $conditions = [];
