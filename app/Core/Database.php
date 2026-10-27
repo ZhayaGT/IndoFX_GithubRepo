@@ -18,7 +18,9 @@ class Database
         $user = Env::get('DB_USER', '');
         $pass = Env::get('DB_PASSWORD', '');
 
-        $dsn = "pgsql:host={$host};port={$port};dbname={$name}";
+        // sslmode dipakai saat database dihosting (mis. Supabase).
+        $sslmode = Env::get('DB_SSLMODE', 'prefer');
+        $dsn = "pgsql:host={$host};port={$port};dbname={$name};sslmode={$sslmode}";
 
         $options = [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,

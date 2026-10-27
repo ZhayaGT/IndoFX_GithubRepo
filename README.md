@@ -207,6 +207,8 @@ relatif (mis. `assets/img/catalog/01.jpg`) dan diubah menjadi URL oleh
 `IndoFX\Helpers\Storage`. Bila nanti memakai Supabase Storage, cukup isi
 `STORAGE_BASE_URL` di `.env` dengan URL bucket publik; tidak ada kode lain yang perlu diubah.
 
+Panduan lengkap memindahkan database dan berkas ke Supabase: **[docs/panduan-supabase.md](docs/panduan-supabase.md)**.
+
 ---
 
 ## Alur Kerja Harian
