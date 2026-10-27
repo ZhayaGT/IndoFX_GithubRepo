@@ -27,7 +27,7 @@ class AuthController extends Controller {
             $_SESSION['role'] = $user['role'];
             $_SESSION['name'] = $user['name'];
 
-            // Sementara arahkan ke halaman utama atau dashboard setelah sukses
+            // Sementara arahkan ke halaman utama atau landing page setelah sukses
             header('Location: /');
             exit;
         } else {
