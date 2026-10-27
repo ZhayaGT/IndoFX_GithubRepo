@@ -80,10 +80,7 @@
                 <span class="brand-text">IndoFX</span>
             </a>
 
-            <div class="search-box-header d-flex align-items-center">
-                <i class="bi bi-search search-icon-header"></i>
-                <input type="text" class="form-control search-input-header" placeholder="Cari aset, VFX, shader, tekstur...">
-            </div>
+            <?php require BASE_PATH . '/resources/views/partials/navbar-search.php'; ?>
 
             <div class="d-flex align-items-center gap-2">
                 <?php require BASE_PATH . '/resources/views/partials/navbar-auth.php'; ?>
@@ -97,12 +94,12 @@
 
             <!-- Header Ringkasan & Urutkan -->
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-                <span class="text-dark fw-bold fs-7">Menampilkan 120 aset yang cocok</span>
+                <span class="text-dark fw-bold fs-7">Menampilkan <span data-catalog-count>0</span> aset yang cocok</span>
 
                 <div class="d-flex align-items-center gap-2">
                     <span class="text-muted small">Urutkan:</span>
                     <select class="form-select form-select-sm sort-select">
-                        <option selected>Terbaru</option>
+                        <option value="terbaru" selected>Terbaru</option>
                         <option value="populer">Terpopuler</option>
                         <option value="harga_rendah">Harga: Rendah ke Tinggi</option>
                         <option value="harga_tinggi">Harga: Tinggi ke Rendah</option>
@@ -114,50 +111,10 @@
 
                 <!-- KOLOM KIRI: Grid 3 Kartu per Baris -->
                 <div class="col-12 col-lg-9">
-                    <div class="row g-3">
-                        <?php
-                        // Contoh data mock 12 card bergantian kastil & hutan
-                        for ($j = 0; $j < 12; $j++):
-                            $isFree = ($j % 2 === 1);
-                            $thumbId = $isFree ? '#forest-mist-art' : '#castle-asset-thumb';
-                            $priceText = $isFree ? 'Gratis' : 'Rp150.000';
-                        ?>
-                            <div class="col-12 col-sm-6 col-md-4">
-                                <a href="/asset/detail" class="text-decoration-none d-block h-100">
-                                    <div class="asset-card-figma h-100 d-flex flex-column">
-                                        <div class="asset-thumb-wrapper">
-                                            <svg width="100%" height="160" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice">
-                                                <use href="<?= $thumbId ?>" />
-                                            </svg>
-                                        </div>
-                                        <div class="asset-card-body d-flex flex-column justify-content-between flex-grow-1">
-                                            <div>
-                                                <span class="asset-studio">Arga Studio</span>
-                                                <h6 class="asset-name">Volumetric Rain &amp; Storm URP</h6>
-                                                <div class="d-flex gap-1 mb-2">
-                                                    <span class="badge-pipeline">URP</span>
-                                                    <span class="badge-pipeline">HDRP</span>
-                                                </div>
-                                            </div>
-                                            <div class="d-flex justify-content-between align-items-center pt-1">
-                                                <span class="asset-price"><?= $priceText ?></span>
-                                                <i class="bi bi-download asset-dl-icon"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                        <?php endfor; ?>
-                    </div>
+                    <div class="row g-3" data-catalog-list="explore"></div>
 
-                    <!-- Pagination Sesuai Figma -->
-                    <div class="d-flex justify-content-center align-items-center gap-3 mt-5 mb-3 explore-pagination">
-                        <a href="javascript:void(0)" class="page-nav-link text-muted">Sebelumnya</a>
-                        <a href="javascript:void(0)" class="page-num-link active">1</a>
-                        <a href="javascript:void(0)" class="page-num-link">2</a>
-                        <a href="javascript:void(0)" class="page-num-link">3</a>
-                        <a href="javascript:void(0)" class="page-nav-link text-dark fw-bold">Selanjutnya</a>
-                    </div>
+                    <!-- Pagination dinamis -->
+                    <div class="d-flex justify-content-center align-items-center gap-3 mt-5 mb-3 explore-pagination" data-catalog-pagination></div>
                 </div>
 
                 <!-- KOLOM KANAN: Card Filter Pencarian -->
@@ -270,6 +227,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Pergantian navbar guest/pembeli -->
     <script src="/assets/js/navbar-auth.js"></script>
+    <!-- Katalog dari data dummy -->
+    <script src="/assets/js/catalog.js" defer></script>
 </body>
 
 </html>

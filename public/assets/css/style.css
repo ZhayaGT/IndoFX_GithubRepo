@@ -454,6 +454,13 @@ body {
   background-color: #3d3b54;
 }
 
+.asset-thumb-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .asset-card-body {
   padding: 12px 14px 14px 14px;
 }
@@ -475,13 +482,27 @@ body {
 
 .badge-pipeline {
   display: inline-block;
-  background-color: var(--ifx-green-bg);
-  color: var(--ifx-green-text);
+  background-color: var(--ifx-brown-muted);
+  color: #ffffff;
   font-size: 0.6rem;
   font-weight: 800;
   padding: 2px 7px;
   border-radius: 4px;
   letter-spacing: 0.2px;
+}
+
+/* Warna tag per render pipeline. Warna dasar di atas jadi cadangan untuk
+   nilai pipeline yang belum dikenal. */
+.badge-pipeline-urp {
+  background-color: #a3161c;
+}
+
+.badge-pipeline-hdrp {
+  background-color: #4f378b;
+}
+
+.badge-pipeline-builtin {
+  background-color: #0088ff;
 }
 
 .asset-price {
@@ -638,4 +659,510 @@ body {
 
 .page-num-link:hover:not(.active) {
   background-color: rgba(59, 35, 20, 0.08);
+}
+
+/* ==========================================================================
+   STYLING HALAMAN DETAIL ASET
+   ========================================================================== */
+
+.asset-detail-page {
+  padding: 28px 0 56px 0;
+  background-color: #fdf3ec;
+}
+
+/* Galeri */
+.asset-detail-main {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 4px;
+  background-color: #e7d6c8;
+}
+
+.asset-detail-main-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.asset-detail-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.asset-detail-thumb {
+  width: 72px;
+  height: 48px;
+  padding: 0;
+  overflow: hidden;
+  border: 1.5px solid transparent;
+  border-radius: 4px;
+  background-color: transparent;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.asset-detail-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.asset-detail-thumb:hover,
+.asset-detail-thumb.is-active {
+  border-color: var(--ifx-orange);
+}
+
+/* Kartu pembelian */
+.asset-buy-card {
+  background-color: #ffffff;
+  border: 1.5px solid var(--ifx-border-dark);
+  border-radius: 8px;
+  padding: 18px 18px 20px 18px;
+}
+
+.asset-buy-category {
+  display: block;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--ifx-brown-muted);
+  margin-bottom: 4px;
+}
+
+.asset-buy-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--ifx-brown-dark);
+  line-height: 1.25;
+  margin-bottom: 4px;
+}
+
+.asset-buy-seller {
+  font-size: 0.72rem;
+  color: var(--ifx-brown-muted);
+  margin-bottom: 16px;
+}
+
+.asset-buy-price-label {
+  font-size: 0.68rem;
+  color: var(--ifx-brown-muted);
+  margin-bottom: 0;
+}
+
+.asset-buy-price {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--ifx-brown-dark);
+  line-height: 1.2;
+  margin-bottom: 14px;
+}
+
+.asset-buy-meta {
+  margin-bottom: 16px;
+}
+
+.asset-buy-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid #efe0d5;
+  font-size: 0.7rem;
+}
+
+.asset-buy-meta-row:last-child {
+  border-bottom: none;
+}
+
+.asset-buy-meta-row dt {
+  font-weight: 400;
+  color: var(--ifx-brown-muted);
+}
+
+.asset-buy-meta-row dd {
+  margin: 0;
+  font-weight: 700;
+  color: var(--ifx-brown-dark);
+  text-align: right;
+}
+
+/* Beberapa tag pipeline pada satu baris spesifikasi. */
+.asset-buy-meta-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.btn-detail-buy,
+.btn-detail-cart {
+  display: block;
+  width: 100%;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 5px;
+  transition: all 0.15s ease;
+}
+
+.btn-detail-buy {
+  background-color: var(--ifx-orange);
+  border: 1.5px solid var(--ifx-border-dark);
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.btn-detail-buy:hover {
+  background-color: var(--ifx-orange-hover);
+  color: #ffffff;
+}
+
+.btn-detail-cart {
+  background-color: var(--ifx-cream-btn);
+  border: 1.5px solid var(--ifx-border-dark);
+  color: var(--ifx-brown-dark);
+}
+
+.btn-detail-cart:hover {
+  background-color: #f3d4c2;
+  color: var(--ifx-brown-dark);
+}
+
+.asset-buy-status {
+  font-size: 0.68rem;
+  color: var(--ifx-brown-muted);
+  margin: 10px 0 0 0;
+}
+
+.asset-buy-status:empty {
+  margin: 0;
+}
+
+/* Tab Deskripsi / Changelog / Ulasan */
+.asset-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 26px;
+  border-bottom: 1px solid #d8c8bd;
+}
+
+.asset-tab-link {
+  padding: 0 0 8px 0;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ifx-brown-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.asset-tab-link:hover {
+  color: var(--ifx-brown-dark);
+}
+
+.asset-tab-link.active {
+  font-weight: 800;
+  color: var(--ifx-brown-dark);
+  border-bottom-color: var(--ifx-orange);
+}
+
+.asset-tab-panel {
+  background-color: #ffffff;
+  border: 1.5px solid var(--ifx-border-dark);
+  border-radius: 6px;
+  padding: 18px 20px;
+  margin-top: 14px;
+}
+
+.asset-description-text {
+  font-size: 0.78rem;
+  line-height: 1.7;
+  color: var(--ifx-brown-dark);
+  margin-bottom: 14px;
+}
+
+.asset-description-text:last-child {
+  margin-bottom: 0;
+}
+
+.asset-panel-heading {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--ifx-brown-dark);
+  margin-bottom: 14px;
+}
+
+.asset-panel-empty {
+  font-size: 0.78rem;
+  color: var(--ifx-brown-muted);
+  margin: 0;
+}
+
+/* Changelog */
+.changelog-item {
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid #efe0d5;
+}
+
+.changelog-item:last-child {
+  padding-bottom: 0;
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.changelog-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.changelog-version {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--ifx-brown-dark);
+}
+
+.changelog-date {
+  font-size: 0.68rem;
+  color: var(--ifx-brown-muted);
+}
+
+.changelog-notes {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.changelog-notes li {
+  font-size: 0.74rem;
+  line-height: 1.6;
+  color: var(--ifx-brown-dark);
+}
+
+/* Ulasan: ringkasan rating */
+.rating-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid #efe0d5;
+}
+
+.rating-summary-score {
+  flex: 0 0 140px;
+}
+
+.rating-average {
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: var(--ifx-brown-dark);
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+
+.rating-average-max {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ifx-brown-muted);
+}
+
+.rating-stars,
+.review-stars {
+  color: var(--ifx-orange);
+  font-size: 0.72rem;
+  letter-spacing: 1px;
+}
+
+.rating-total {
+  font-size: 0.66rem;
+  color: var(--ifx-brown-muted);
+  margin: 4px 0 0 0;
+}
+
+.rating-distribution {
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+
+.rating-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.rating-bar-star {
+  flex: 0 0 28px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: var(--ifx-brown-dark);
+}
+
+.rating-bar-star i {
+  color: var(--ifx-orange);
+  font-size: 0.6rem;
+}
+
+.rating-bar-track {
+  flex: 1 1 auto;
+  height: 6px;
+  border-radius: 50rem;
+  background-color: #f3e2d5;
+  overflow: hidden;
+}
+
+.rating-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 50rem;
+  background-color: var(--ifx-orange);
+}
+
+.rating-bar-count {
+  flex: 0 0 16px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: var(--ifx-brown-muted);
+  text-align: right;
+}
+
+.review-list-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.review-list-count {
+  font-size: 0.68rem;
+  color: var(--ifx-brown-muted);
+}
+
+.review-item {
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #efe0d5;
+}
+
+.review-item:last-child {
+  padding-bottom: 0;
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.review-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.review-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--ifx-cream-btn);
+  border: 1px solid #e0c8b8;
+  font-size: 0.66rem;
+  font-weight: 800;
+  color: var(--ifx-brown-dark);
+}
+
+.review-identity {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.review-name {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--ifx-brown-dark);
+}
+
+.review-role {
+  font-size: 0.62rem;
+  color: var(--ifx-brown-muted);
+}
+
+.review-date {
+  margin-left: auto;
+  font-size: 0.66rem;
+  color: var(--ifx-brown-muted);
+}
+
+.review-title {
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: var(--ifx-brown-dark);
+  margin: 6px 0 4px 0;
+}
+
+.review-body {
+  font-size: 0.74rem;
+  line-height: 1.65;
+  color: var(--ifx-brown-dark);
+  margin: 0;
+}
+
+/* Penyesuaian layar kecil */
+@media (max-width: 575.98px) {
+  .asset-buy-title {
+    font-size: 1.05rem;
+  }
+
+  .asset-buy-price {
+    font-size: 1.3rem;
+  }
+
+  .asset-detail-thumb {
+    width: 62px;
+    height: 42px;
+  }
+
+  .asset-tabs {
+    gap: 14px;
+  }
+
+  /* Nama, peran, dan tanggal tidak muat sebaris pada layar sempit. */
+  .review-head {
+    flex-wrap: wrap;
+  }
+
+  .review-identity {
+    flex-wrap: wrap;
+    flex: 1 1 auto;
+  }
+
+  .review-date {
+    flex: 0 0 100%;
+    margin-left: 42px;
+  }
+}
+
+/* Footer tengah pada halaman detail (mengikuti desain) */
+.footer-main-centered {
+  text-align: center;
+}
+
+.footer-main-centered .footer-brand-desc {
+  max-width: 560px;
 }
