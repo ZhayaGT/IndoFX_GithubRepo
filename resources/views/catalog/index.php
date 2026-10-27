@@ -148,7 +148,7 @@
                         <h4 class="catalog-heading mb-1">Aset CG & VFX Terbaru</h4>
                         <p class="catalog-subheading m-0">Aset terbaru yang diunggah oleh kreator game berbakat Indonesia</p>
                     </div>
-                    <a href="/catalog/explore?sort=terbaru" class="catalog-side-link">Library Saya</a>
+                    <a href="/catalog/explore?sort=terbaru" class="catalog-side-link">Selengkapnya</a>
                 </div>
 
                 <div class="row g-3">
@@ -222,6 +222,8 @@
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Navbar guest/pembeli dan menu avatar -->
+    <script src="/assets/js/navbar-auth.js"></script>
 </body>
 
 </html>
