@@ -84,17 +84,13 @@
                 <span class="brand-text">IndoFX</span>
             </a>
 
-            <div class="search-box-header d-none d-md-flex align-items-center">
+            <div class="search-box-header d-flex align-items-center">
                 <i class="bi bi-search search-icon-header"></i>
                 <input type="text" class="form-control search-input-header" placeholder="Cari aset, VFX, shader, tekstur...">
             </div>
 
             <div class="d-flex align-items-center gap-2">
-                <?php if (isset($_SESSION['user_id'])): ?>
-                    <a href="/Dashboard" class="btn btn-nav-login">Halo, <?= htmlspecialchars($_SESSION['name'] ?? 'Akun') ?></a>
-                <?php else: ?>
-                    <a href="/login" class="btn btn-nav-login">Masuk</a>
-                <?php endif; ?>
+                <?php require BASE_PATH . '/resources/views/partials/navbar-auth.php'; ?>
             </div>
         </div>
     </nav>
@@ -117,8 +113,7 @@
                         <a href="#katalog" class="btn btn-hero-orange">Jelajahi Katalog</a>
                         <?php if (!isset($_SESSION['user_id'])): ?>
                             <a href="/login" class="btn btn-hero-cream">Masuk</a>
-                        <?php else: ?>
-                            <a href="/dashboard" class="btn btn-hero-cream">Dashboard Saya</a>
+
                         <?php endif; ?>
                     </div>
                 </div>
@@ -157,7 +152,7 @@
                         <h4 class="catalog-heading mb-1">Aset CG & VFX Terbaru</h4>
                         <p class="catalog-subheading m-0">Aset terbaru yang diunggah oleh kreator game berbakat Indonesia</p>
                     </div>
-                    <a href="/dashboard" class="catalog-side-link">Library Saya</a>
+                    <a href="/dashboard" class="catalog-side-link">Selengkapnya</a>
                 </div>
 
                 <div class="row g-3">
@@ -271,6 +266,8 @@
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Pergantian navbar guest/pembeli -->
+    <script src="/assets/js/navbar-auth.js"></script>
 </body>
 
 </html>

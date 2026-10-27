@@ -80,13 +80,13 @@
                 <span class="brand-text">IndoFX</span>
             </a>
 
-            <div class="search-box-header d-none d-md-flex align-items-center">
+            <div class="search-box-header d-flex align-items-center">
                 <i class="bi bi-search search-icon-header"></i>
                 <input type="text" class="form-control search-input-header" placeholder="Cari aset, VFX, shader, tekstur...">
             </div>
 
             <div class="d-flex align-items-center gap-2">
-                <a href="/auth/login" class="btn btn-nav-login">Masuk</a>
+                <?php require BASE_PATH . '/resources/views/partials/navbar-auth.php'; ?>
             </div>
         </div>
     </nav>
@@ -268,6 +268,8 @@
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Pergantian navbar guest/pembeli -->
+    <script src="/assets/js/navbar-auth.js"></script>
 </body>
 
 </html>

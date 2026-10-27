@@ -40,6 +40,15 @@ body {
   border-bottom: 1.5px solid var(--ifx-border-dark);
 }
 
+/* Jarak antar elemen navbar; search bar boleh menyusut di layar sempit. */
+.navbar-orange .container-figma {
+  gap: 10px;
+}
+
+.navbar-orange .navbar-brand {
+  flex-shrink: 0;
+}
+
 .brand-icon-box {
   display: inline-flex;
   align-items: center;
@@ -68,6 +77,9 @@ body {
 .search-box-header {
   position: relative;
   width: 340px;
+  max-width: 100%;
+  min-width: 0;
+  flex: 0 1 340px;
   background-color: #ffffff;
   border: 1.5px solid var(--ifx-border-dark);
   border-radius: 6px;
@@ -114,19 +126,177 @@ body {
 }
 
 .btn-nav-login {
-  background-color: #f6b089;
+  background-color: #fdecdd;
+  color: var(--ifx-brown-dark);
+  border: none;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 6px 18px;
+  transition: all 0.15s ease;
+}
+
+.btn-nav-login:hover {
+  background-color: #f6d9c3;
+  color: var(--ifx-brown-dark);
+}
+
+/* NAVBAR: STATUS GUEST / PEMBELI */
+.navbar-auth {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-auth-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-nav-seller,
+.btn-nav-library {
+  white-space: nowrap;
+}
+
+/* Atribut hidden harus menang atas display:flex di atas. */
+.navbar-auth-group[hidden] {
+  display: none !important;
+}
+
+.btn-nav-library {
+  background-color: transparent;
+  color: #ffffff;
+  border: 1.5px solid #ffffff;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 5px 14px;
+  transition: all 0.15s ease;
+}
+
+.btn-nav-library:hover {
+  background-color: #ffffff;
+  color: var(--ifx-orange);
+}
+
+.navbar-avatar-wrap {
+  position: relative;
+}
+
+.navbar-avatar {
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border: none;
+  border-radius: 50%;
+  background-color: #c9cdd2;
+  color: #5c6470;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.navbar-avatar:hover {
+  background-color: #b9bec5;
+}
+
+.navbar-avatar-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 1050;
+  min-width: 210px;
+  padding: 12px 14px;
+  background-color: #ffffff;
+  border: 1.5px solid var(--ifx-border-dark);
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(59, 35, 20, 0.18);
+  text-align: left;
+}
+
+.navbar-avatar-name {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ifx-brown-dark);
+}
+
+.navbar-avatar-meta {
+  margin: 2px 0 10px;
+  font-size: 0.75rem;
+  color: var(--ifx-brown-muted);
+  word-break: break-all;
+}
+
+.navbar-avatar-logout {
+  display: block;
+  width: 100%;
+  padding: 6px 10px;
+  background-color: var(--ifx-cream-btn);
   color: var(--ifx-brown-dark);
   border: 1.5px solid var(--ifx-border-dark);
   border-radius: 6px;
   font-size: 0.78rem;
   font-weight: 700;
-  padding: 5px 16px;
-  transition: all 0.15s ease;
+  text-align: center;
+  text-decoration: none;
 }
 
-.btn-nav-login:hover {
+.navbar-avatar-logout:hover {
   background-color: #f39c6b;
   color: var(--ifx-brown-dark);
+}
+
+/* Di layar sempit, tombol "Jadi Penjual" disembunyikan agar navbar tidak meluber. */
+@media (max-width: 575.98px) {
+  .btn-nav-seller {
+    display: none;
+  }
+
+  .navbar-auth-group {
+    gap: 6px;
+  }
+
+  .btn-nav-library {
+    padding: 5px 10px;
+    font-size: 0.72rem;
+  }
+}
+
+/* Search bar tetap tampil di mobile: baris pertama logo + tombol,
+   baris kedua search selebar navbar. */
+@media (max-width: 767.98px) {
+  .navbar-orange .container-figma {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+
+  .search-box-header {
+    order: 3;
+    flex: 1 0 100%;
+    width: 100%;
+  }
+
+  .search-input-header {
+    font-size: 0.75rem;
+  }
+
+  /* Judul hero dibuat membungkus agar tidak memicu scroll horizontal. */
+  .hero-title {
+    font-size: 1.65rem;
+  }
+
+  .hero-title .text-nowrap {
+    white-space: normal !important;
+  }
 }
 
 /* HERO SECTION */
