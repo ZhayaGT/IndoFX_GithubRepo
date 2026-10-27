@@ -12,9 +12,9 @@ use IndoFX\Core\Env;
 return [
     'driver'   => 'pgsql',
     'host'     => Env::get('DB_HOST', '127.0.0.1'),
-    'port'     => (int) Env::get('DB_PORT', 5432),
+    'port'     => (int) Env::get('DB_PORT', 5434),
     'database' => Env::get('DB_NAME', 'indofx'),
-    'username' => Env::get('DB_USER', 'indofx'),
+    'username' => Env::get('DB_USER', 'diaz'),
     'password' => Env::get('DB_PASSWORD', ''),
     'sslmode'  => Env::get('DB_SSLMODE', 'prefer'),
     'options'  => [

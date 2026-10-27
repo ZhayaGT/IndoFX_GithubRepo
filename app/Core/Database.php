@@ -18,9 +18,10 @@ class Database {
         $db   = Env::get('DB_NAME') ?: '';
         $user = Env::get('DB_USER') ?: '';
         $pass = Env::get('DB_PASSWORD') ?: '';
+        $sslmode = Env::get('DB_SSLMODE') ?: 'prefer';
 
         // DSN khusus untuk PostgreSQL
-        $dsn = "pgsql:host={$host};port={$port};dbname={$db}";
+        $dsn = "pgsql:host={$host};port={$port};dbname={$db};sslmode={$sslmode}";
         
         $options = [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
@@ -49,6 +50,11 @@ class Database {
         $stmt = $this->connection->prepare($sql);
         $stmt->execute($params);
         return $stmt;
+    }
+
+    // Mengambil ID terakhir setelah INSERT
+    public function lastInsertId() {
+        return $this->connection->lastInsertId();
     }
 
     // --- Kontrol Transaksi SQL ---
