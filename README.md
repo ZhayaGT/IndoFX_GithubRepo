@@ -107,11 +107,13 @@ Area milik peran lain boleh dibaca, tetapi perubahan harus melalui pull request 
 
 | Nama | Akun GitHub | Kontribusi |
 |---|---|---|
-| Jonathan Emmanual Kristanto | [@ZhayaGT](https://github.com/ZhayaGT) | Project manager, katalog, detail aset, integrasi front end |
-| Diaz Prahardyan | [@Dzy-hue](https://github.com/Dzy-hue) | Back end: arsitektur PDO, router, autentikasi login/register/logout, skema database `Script marketplace_game_assets.sql`, trigger entitlement, view katalog |
-| Naufal Haidar Azmi | [@naufal2323](https://github.com/naufal2323) | Front end: halaman login, register, eksplorasi katalog, styling |
+| Jonathan Emmanual Kristanto | [@ZhayaGT](https://github.com/ZhayaGT) | Project manager; navbar auth, katalog beranda dan eksplorasi, detail aset, pencarian, integrasi branch |
+| Diaz Prahardyan | [@Dzy-hue](https://github.com/Dzy-hue) | Back end: PDO wrapper, router, autentikasi login/register/logout, skema `database/Script marketplace_game_assets.sql` (tabel, seed, view `vw_katalog_publik`, trigger entitlement, fungsi royalti), `HomeController` |
+| Naufal Haidar Azmi | [@naufal2323](https://github.com/naufal2323) | Front end: halaman login dan register, eksplorasi katalog, styling |
 | Hikmal Fadhillah Rasyid Andro Mulyawan | - | UI/UX design |
 | Dhafir Tsabit | - | UI/UX design |
+
+Riwayat kontribusi per orang bisa dilihat dengan `git log --author="<nama>"`.
 
 ---
 
@@ -178,24 +180,32 @@ composer install
 cp .env.example .env
 # isi DB_PASSWORD, MIDTRANS_*, MAIL_*, dll.
 
-# 4. Siapkan database PostgreSQL
+# 4. Siapkan database PostgreSQL (skema + data contoh)
 createdb indofx
-psql -d indofx -f database/schema.sql
+psql -d indofx -f "database/Script marketplace_game_assets.sql"
 
-# 5. Data pengguna awal (admin/seller/buyer, kata sandi lihat berkasnya)
-php database/seeders/users.php
-
-# 6. Jalankan server pengembangan
+# 5. Jalankan server pengembangan
 composer serve          # http://localhost:8000
 
-# 7. Perintah lain
+# 6. Perintah lain
 composer lint           # cek gaya kode PSR-12
 composer lint:fix       # perbaiki otomatis
 composer test           # jalankan PHPUnit (butuh role PostgreSQL dengan hak CREATEDB)
 ```
 
-Akun hasil seeder: `admin@indofx.id` / `admin12345`, `seller@indofx.id` / `seller12345`,
-`buyer@indofx.id` / `buyer12345`.
+Skrip `database/Script marketplace_game_assets.sql` membuat seluruh tabel, mengisi 5 kategori,
+5 pengguna, 11 aset contoh, berkas dan gambar aset, transaksi, serta view dan trigger pelaporan.
+Skrip aman dijalankan berulang (`IF NOT EXISTS` + `ON CONFLICT DO NOTHING`).
+
+Akun contoh: `admin@assetforge.io` / `admin12345`, `budi.studio@gmail.com` / `seller12345`,
+`dimas.dev@indiegame.com` / `buyer12345`.
+
+### Gambar dan penyimpanan berkas
+
+Gambar contoh disimpan di `public/assets/img/` sebagai JPG/PNG. Path di database bersifat
+relatif (mis. `assets/img/catalog/01.jpg`) dan diubah menjadi URL oleh
+`IndoFX\Helpers\Storage`. Bila nanti memakai Supabase Storage, cukup isi
+`STORAGE_BASE_URL` di `.env` dengan URL bucket publik; tidak ada kode lain yang perlu diubah.
 
 ---
 
