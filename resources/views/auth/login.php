@@ -50,10 +50,20 @@
             <h2 class="auth-title mb-1 text-center">Masuk ke Akun Anda</h2>
             <p class="auth-subtitle text-center">Gunakan akun IndoFX Anda untuk mulai mendownload aset</p>
 
-            <form action="/auth/login" method="POST">
+            <?php if (!empty($success)): ?>
+                <div class="alert alert-success py-2" role="status"><?= htmlspecialchars((string) $success, ENT_QUOTES, 'UTF-8') ?></div>
+            <?php endif; ?>
+
+            <?php if (!empty($error)): ?>
+                <div class="alert alert-danger py-2" role="alert"><?= htmlspecialchars((string) $error, ENT_QUOTES, 'UTF-8') ?></div>
+            <?php endif; ?>
+
+            <form action="/login" method="POST">
                 <div class="mb-3">
                     <label for="email" class="form-label auth-label">Alamat Email</label>
-                    <input type="email" class="form-control auth-input" id="email" name="email" placeholder="contoh@developer.id" required>
+                    <input type="email" class="form-control auth-input" id="email" name="email"
+                           value="<?= htmlspecialchars((string) ($old['email'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                           placeholder="contoh@developer.id" required>
                 </div>
 
                 <div class="mb-4">
@@ -69,7 +79,7 @@
                 </div>
 
                 <p class="auth-footer-text mb-0">
-                    Belum punya akun? <a href="/auth/register" class="auth-link fw-bold">Daftar</a>
+                    Belum punya akun? <a href="/register" class="auth-link fw-bold">Daftar</a>
                 </p>
             </form>
         </div>

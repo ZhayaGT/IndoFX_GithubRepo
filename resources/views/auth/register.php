@@ -50,20 +50,28 @@
             <h2 class="auth-title mb-1">Daftar Akun Baru</h2>
             <p class="auth-subtitle mb-4">Akses ribuan aset Unity terbaik karya anak bangsa</p>
 
-            <form action="/auth/register" method="POST">
+            <?php if (!empty($error)): ?>
+                <div class="alert alert-danger py-2" role="alert"><?= htmlspecialchars((string) $error, ENT_QUOTES, 'UTF-8') ?></div>
+            <?php endif; ?>
+
+            <form action="/register" method="POST">
                 <div class="mb-3">
                     <label for="name" class="form-label auth-label">Nama Lengkap</label>
-                    <input type="text" class="form-control auth-input" id="name" name="name" placeholder="Andi Pratama" required>
+                    <input type="text" class="form-control auth-input" id="name" name="name"
+                           value="<?= htmlspecialchars((string) ($old['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                           placeholder="Andi Pratama" required>
                 </div>
 
                 <div class="mb-3">
                     <label for="email" class="form-label auth-label">Alamat Email</label>
-                    <input type="email" class="form-control auth-input" id="email" name="email" placeholder="contoh@developer.id" required>
+                    <input type="email" class="form-control auth-input" id="email" name="email"
+                           value="<?= htmlspecialchars((string) ($old['email'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                           placeholder="contoh@developer.id" required>
                 </div>
 
                 <div class="mb-4">
                     <label for="password" class="form-label auth-label">Kata Sandi</label>
-                    <input type="password" class="form-control auth-input" id="password" name="password" placeholder="Minimal 8 karakter" required>
+                    <input type="password" class="form-control auth-input" id="password" name="password" placeholder="Minimal 8 karakter" minlength="8" required>
                 </div>
 
                 <div class="d-grid mb-3">
@@ -71,7 +79,7 @@
                 </div>
 
                 <p class="auth-footer-text mb-0">
-                    Sudah punya akun? <a href="/auth/login" class="auth-link fw-bold">Masuk</a>
+                    Sudah punya akun? <a href="/login" class="auth-link fw-bold">Masuk</a>
                 </p>
             </form>
         </div>
