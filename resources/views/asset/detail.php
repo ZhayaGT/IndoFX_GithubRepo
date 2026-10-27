@@ -165,8 +165,8 @@ $pipelines    = [$asset['render_pipeline']];
                             <div class="asset-buy-meta-row">
                                 <dt>Render Pipeline</dt>
                                 <dd class="asset-buy-meta-badges">
-                                    <?php foreach ($pipelines as $pipeline): ?>
-                                        <span class="badge-pipeline <?= pipeline_badge_class((string) $pipeline) ?>"><?= htmlspecialchars((string) $pipeline, ENT_QUOTES, 'UTF-8') ?></span>
+                                    <?php foreach (pipeline_badges($asset['render_pipeline'] ?? '') as $label): ?>
+                                        <span class="badge-pipeline <?= pipeline_badge_class($label) ?>"><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?></span>
                                     <?php endforeach; ?>
                                 </dd>
                             </div>

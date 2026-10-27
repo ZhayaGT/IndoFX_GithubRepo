@@ -16,20 +16,25 @@ class CatalogController extends Controller
         'harga_tinggi' => 'Harga: Tinggi ke Rendah',
     ];
 
-    private const PIPELINE_OPTIONS = [
-        'Universal Render Pipeline (URP)' => 'URP',
-        'Built-in / URP'                  => 'Built-in / URP',
-        'Any'                             => 'Any',
-        'Any (UI Canvas)'                 => 'Any (UI Canvas)',
-    ];
-
     public function explore()
     {
+        // Filter desain hanya Shader dan Particle; slug tabel categories dipetakan di sini.
+        $categoryMap = [
+            'shader'   => 'vfx-and-shaders',
+            'particle' => 'vfx-and-shaders',
+        ];
+
+        $picked = array_values(array_filter((array) ($_GET['kategori'] ?? []), static fn ($v) => isset($categoryMap[$v])));
+        $slugs = array_values(array_unique(array_map(static fn ($v) => $categoryMap[$v], $picked)));
+
         $filter = [
             'q'        => trim((string) ($_GET['q'] ?? '')),
             'gratis'   => ($_GET['gratis'] ?? '') === '1',
-            'category' => trim((string) ($_GET['kategori'] ?? '')),
-            'pipeline' => trim((string) ($_GET['pipeline'] ?? '')),
+            'category' => $slugs,
+            'pipeline' => array_values(array_filter((array) ($_GET['pipeline'] ?? []))),
+            'unity'    => trim((string) ($_GET['unity'] ?? '')),
+            'priceMin' => trim((string) ($_GET['harga_min'] ?? '')),
+            'priceMax' => trim((string) ($_GET['harga_max'] ?? '')),
             'sort'     => trim((string) ($_GET['sort'] ?? 'terbaru')),
         ];
 
@@ -48,13 +53,12 @@ class CatalogController extends Controller
         $this->view('catalog/explore', [
             'title'           => 'Jelajahi Katalog IndoFX',
             'assets'          => $assets,
-            'categories'      => $model->categories(),
             'filter'          => $filter,
             'total'           => $total,
             'page'            => $page,
             'totalPages'      => $totalPages,
             'sortOptions'     => self::SORT_OPTIONS,
-            'pipelineOptions' => self::PIPELINE_OPTIONS,
+            'pickedCategories' => $picked,
         ]);
     }
 }

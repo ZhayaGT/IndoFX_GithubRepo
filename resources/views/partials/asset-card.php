@@ -25,9 +25,9 @@ $price = (int) $item['price'];
                     <span class="asset-studio"><?= htmlspecialchars($item['seller_name'], ENT_QUOTES, 'UTF-8') ?></span>
                     <h6 class="asset-name"><?= htmlspecialchars($item['title'], ENT_QUOTES, 'UTF-8') ?></h6>
                     <div class="d-flex gap-1 mb-2">
-                        <span class="badge-pipeline <?= pipeline_badge_class((string) $item['render_pipeline']) ?>">
-                            <?= htmlspecialchars($item['render_pipeline'], ENT_QUOTES, 'UTF-8') ?>
-                        </span>
+                        <?php foreach (pipeline_badges($item['render_pipeline'] ?? '') as $label): ?>
+                            <span class="badge-pipeline <?= pipeline_badge_class($label) ?>"><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?></span>
+                        <?php endforeach; ?>
                     </div>
                 </div>
                 <div class="d-flex justify-content-between align-items-center pt-1">

@@ -364,13 +364,6 @@ body {
   border-radius: 4px;
 }
 
-.hero-image {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
 /* CONTENT BODY & KATEGORI */
 .content-body-wrapper {
   background-color: var(--ifx-cream-bg);
@@ -489,8 +482,8 @@ body {
 
 .badge-pipeline {
   display: inline-block;
-  background-color: var(--ifx-brown-muted);
-  color: #ffffff;
+  background-color: var(--ifx-green-bg);
+  color: var(--ifx-green-text);
   font-size: 0.6rem;
   font-weight: 800;
   padding: 2px 7px;
@@ -498,18 +491,20 @@ body {
   letter-spacing: 0.2px;
 }
 
-/* Warna tag per render pipeline. Warna dasar di atas jadi cadangan untuk
-   nilai pipeline yang belum dikenal. */
+/* Warna tag per render pipeline sesuai desain: URP merah, HDRP ungu, Built-in biru. */
 .badge-pipeline-urp {
   background-color: #a3161c;
+  color: #ffffff;
 }
 
 .badge-pipeline-hdrp {
   background-color: #4f378b;
+  color: #ffffff;
 }
 
 .badge-pipeline-builtin {
   background-color: #0088ff;
+  color: #ffffff;
 }
 
 .asset-price {

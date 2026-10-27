@@ -117,6 +117,7 @@ class Asset extends Model
     }
 
     // Mengembalikan [klausa WHERE, parameter].
+    // Mengembalikan [klausa WHERE, parameter].
     private function buildWhere(array $filter): array
     {
         $conditions = [];
@@ -132,16 +133,45 @@ class Asset extends Model
             $conditions[] = 'a.price = 0';
         }
 
-        $category = trim((string) ($filter['category'] ?? ''));
-        if ($category !== '') {
-            $conditions[] = 'c.slug = :category';
-            $params[':category'] = $category;
+        $categories = array_filter((array) ($filter['category'] ?? []), static fn ($v) => $v !== '');
+        if ($categories !== []) {
+            $placeholders = [];
+            foreach (array_values($categories) as $i => $slug) {
+                $placeholders[] = ':category' . $i;
+                $params[':category' . $i] = $slug;
+            }
+            $conditions[] = 'c.slug IN (' . implode(', ', $placeholders) . ')';
         }
 
-        $pipeline = trim((string) ($filter['pipeline'] ?? ''));
-        if ($pipeline !== '') {
-            $conditions[] = 'a.render_pipeline = :pipeline';
-            $params[':pipeline'] = $pipeline;
+        $pipelines = array_filter((array) ($filter['pipeline'] ?? []), static fn ($v) => $v !== '');
+        if ($pipelines !== []) {
+            $placeholders = [];
+            foreach (array_values($pipelines) as $i => $pipe) {
+                $placeholders[] = ':pipeline' . $i;
+                $params[':pipeline' . $i] = '%' . $pipe . '%';
+            }
+            $conditions[] = '(' . implode(' OR ', array_map(
+                static fn ($ph) => 'a.render_pipeline ILIKE ' . $ph,
+                $placeholders
+            )) . ')';
+        }
+
+        $priceMin = $filter['priceMin'] ?? '';
+        if ($priceMin !== '' && $priceMin !== null) {
+            $conditions[] = 'a.price >= :priceMin';
+            $params[':priceMin'] = (int) $priceMin;
+        }
+
+        $priceMax = $filter['priceMax'] ?? '';
+        if ($priceMax !== '' && $priceMax !== null) {
+            $conditions[] = 'a.price <= :priceMax';
+            $params[':priceMax'] = (int) $priceMax;
+        }
+
+        $unity = trim((string) ($filter['unity'] ?? ''));
+        if ($unity !== '') {
+            $conditions[] = 'a.unity_version ILIKE :unity';
+            $params[':unity'] = $unity . '%';
         }
 
         return [$conditions === [] ? '' : ' AND ' . implode(' AND ', $conditions), $params];
