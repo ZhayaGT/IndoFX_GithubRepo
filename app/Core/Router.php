@@ -4,41 +4,35 @@ namespace IndoFX\Core;
 
 class Router
 {
-    protected $routes = [];
+    private array $routes = [];
 
-    // Mendaftarkan rute baru yang mendukung GET dan POST
-    public function add($method, $uri, $controller, $action)
+    public function add(string $method, string $uri, string $controller, string $action): void
     {
         $this->routes[] = [
             'method'     => $method,
             'uri'        => $uri,
             'controller' => $controller,
-            'action'     => $action
+            'action'     => $action,
         ];
     }
 
-    // Mencari kecocokan URL dan menjalankan controller yang sesuai
-    public function dispatch($uri, $method)
+    public function dispatch(string $uri, string $method): void
     {
-        // Membersihkan parameter query string dari URI (misal: /katalog?id=1 menjadi /katalog)
-        $uri = parse_url($uri, PHP_URL_PATH);
+        $path = parse_url($uri, PHP_URL_PATH);
 
         foreach ($this->routes as $route) {
-            if ($route['uri'] === $uri && $route['method'] === $method) {
-                $controllerClass = "\\IndoFX\\Controllers\\" . $route['controller'];
+            if ($route['uri'] !== $path || $route['method'] !== $method) {
+                continue;
+            }
 
-                if (class_exists($controllerClass)) {
-                    $controllerInstance = new $controllerClass();
-                    $action = $route['action'];
+            $class = '\\IndoFX\\Controllers\\' . $route['controller'];
 
-                    if (method_exists($controllerInstance, $action)) {
-                        return $controllerInstance->$action();
-                    }
-                }
+            if (class_exists($class) && method_exists($class, $route['action'])) {
+                (new $class())->{$route['action']}();
+                return;
             }
         }
 
-        // Jika tidak ada rute yang cocok maka kembalikan 404
         http_response_code(404);
         require BASE_PATH . '/resources/views/errors/404.php';
     }

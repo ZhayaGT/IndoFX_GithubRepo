@@ -1,14 +1,4 @@
-/**
- * Interaksi halaman detail aset.
- *
- * Isi halaman dirender PHP (AssetController::detail), jadi berkas ini hanya
- * mengurus dua hal:
- *   1. Perpindahan tab Deskripsi / Changelog / Ulasan.
- *   2. Pemilihan gambar galeri lewat thumbnail.
- *
- * Tombol Beli dan Keranjang belum punya backend; klik hanya menampilkan
- * keterangan singkat supaya tombol tidak terasa mati.
- */
+// Tab detail dan pemilihan gambar galeri.
 
 (function () {
     'use strict';
@@ -26,9 +16,8 @@
             var name = button.getAttribute('data-detail-tab');
 
             tabs.querySelectorAll('[data-detail-tab]').forEach(function (node) {
-                var isActive = node === button;
-                node.classList.toggle('active', isActive);
-                node.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                node.classList.toggle('active', node === button);
+                node.setAttribute('aria-selected', node === button ? 'true' : 'false');
             });
 
             panels.forEach(function (panel) {
@@ -56,22 +45,22 @@
 
     function bindActions() {
         var status = document.querySelector('[data-detail-status]');
-        var buy = document.querySelector('[data-detail-buy]');
-        var cart = document.querySelector('[data-detail-cart]');
 
         function announce(text) {
             if (status) { status.textContent = text; }
         }
 
+        var buy = document.querySelector('[data-detail-buy]');
         if (buy) {
             buy.addEventListener('click', function () {
-                announce('Pembelian belum tersedia pada versi dummy ini.');
+                announce('Pembelian belum tersedia pada versi ini.');
             });
         }
 
+        var cart = document.querySelector('[data-detail-cart]');
         if (cart) {
             cart.addEventListener('click', function () {
-                announce('Keranjang belum tersedia pada versi dummy ini.');
+                announce('Keranjang belum tersedia pada versi ini.');
             });
         }
     }

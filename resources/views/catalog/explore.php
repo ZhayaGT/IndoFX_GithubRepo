@@ -21,50 +21,6 @@
 
 <body style="background-color: var(--ifx-cream-bg, #FDECE2);">
 
-    <!-- SVG Helper untuk Gambar Kartu Aset -->
-    <svg class="d-none">
-        <defs>
-            <g id="castle-asset-thumb">
-                <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#D4A39B" />
-                    <stop offset="50%" stop-color="#E8C5B0" />
-                    <stop offset="100%" stop-color="#F7D69D" />
-                </linearGradient>
-                <rect width="400" height="220" fill="url(#skyGrad)" />
-                <circle cx="310" cy="85" r="42" fill="#FFFDF2" opacity="0.95" />
-                <circle cx="310" cy="85" r="65" fill="#FFF7D6" opacity="0.4" />
-                <ellipse cx="90" cy="50" rx="65" ry="18" fill="#B88E8D" opacity="0.35" />
-                <path d="M0 165 Q120 135 250 160 T400 155 L400 220 L0 220 Z" fill="#6E575F" />
-                <rect x="85" y="105" width="185" height="90" fill="#4A3B47" />
-                <rect x="105" y="70" width="32" height="125" fill="#3B2E39" />
-                <polygon points="100,70 121,32 142,70" fill="#2B2129" />
-                <rect x="165" y="55" width="38" height="140" fill="#3B2E39" />
-                <polygon points="160,55 184,15 208,55" fill="#2B2129" />
-                <rect x="235" y="65" width="36" height="130" fill="#59484F" />
-                <polygon points="230,65 253,25 276,65" fill="#3B2E39" />
-                <rect x="179" y="85" width="8" height="14" rx="4" fill="#FFAE42" />
-                <path d="M0 185 Q160 170 400 185 L400 220 L0 220 Z" fill="#2B2122" />
-            </g>
-
-            <g id="forest-mist-art">
-                <linearGradient id="forestSky" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#8FA3B0" />
-                    <stop offset="60%" stop-color="#C9D6DF" />
-                    <stop offset="100%" stop-color="#3A4740" />
-                </linearGradient>
-                <rect width="400" height="220" fill="url(#forestSky)" />
-                <path d="M0 140 Q100 110 220 135 T400 120 L400 220 L0 220 Z" fill="#52615B" opacity="0.6" />
-                <polygon points="50,40 25,150 75,150" fill="#2D3A34" />
-                <polygon points="85,55 65,155 105,155" fill="#3B4B44" />
-                <polygon points="310,30 280,155 340,155" fill="#25302B" />
-                <ellipse cx="200" cy="135" rx="180" ry="25" fill="#E4EEF5" opacity="0.45" />
-                <path d="M0 155 Q110 140 175 220 L0 220 Z" fill="#1A241E" />
-                <path d="M400 150 Q280 140 225 220 L400 220 Z" fill="#16201A" />
-                <polygon points="175,220 198,148 212,148 225,220" fill="#3E3A35" />
-            </g>
-        </defs>
-    </svg>
-
     <!-- 1. Header Navbar Oranye -->
     <nav class="navbar navbar-orange sticky-top">
         <div class="container-figma d-flex justify-content-between align-items-center w-100">
@@ -92,94 +48,113 @@
     <main class="py-4">
         <div class="container-figma">
 
-            <!-- Header Ringkasan & Urutkan -->
-            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-                <span class="text-dark fw-bold fs-7">Menampilkan <span data-catalog-count>0</span> aset yang cocok</span>
+            <form method="get" action="/catalog/explore" class="row g-4 align-items-start">
 
-                <div class="d-flex align-items-center gap-2">
-                    <span class="text-muted small">Urutkan:</span>
-                    <select class="form-select form-select-sm sort-select">
-                        <option value="terbaru" selected>Terbaru</option>
-                        <option value="populer">Terpopuler</option>
-                        <option value="harga_rendah">Harga: Rendah ke Tinggi</option>
-                        <option value="harga_tinggi">Harga: Tinggi ke Rendah</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="row g-4 align-items-start">
-
-                <!-- KOLOM KIRI: Grid 3 Kartu per Baris -->
                 <div class="col-12 col-lg-9">
-                    <div class="row g-3" data-catalog-list="explore"></div>
+                    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                        <span class="text-dark fw-bold fs-7">
+                            Menampilkan <?= (int) $total ?> aset yang cocok
+                        </span>
 
-                    <!-- Pagination dinamis -->
-                    <div class="d-flex justify-content-center align-items-center gap-3 mt-5 mb-3 explore-pagination" data-catalog-pagination></div>
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="text-muted small mb-0" for="sort">Urutkan:</label>
+                            <select class="form-select form-select-sm sort-select" id="sort" name="sort" onchange="this.form.submit()">
+                                <?php foreach ($sortOptions as $value => $label): ?>
+                                    <option value="<?= $value ?>" <?= $filter['sort'] === $value ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <?php foreach ($assets as $item): ?>
+                            <?php $colClass = 'col-12 col-sm-6 col-md-4'; require BASE_PATH . '/resources/views/partials/asset-card.php'; ?>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <?php if ($assets === []): ?>
+                        <p class="text-muted small mt-3">Belum ada aset yang cocok dengan filter ini.</p>
+                    <?php endif; ?>
+
+                    <?php if ($totalPages > 1): ?>
+                        <div class="d-flex justify-content-center align-items-center gap-3 mt-5 mb-3 explore-pagination">
+                            <?php
+                            $baseQuery = array_filter([
+                                'q'        => $filter['q'],
+                                'gratis'   => $filter['gratis'] ? '1' : '',
+                                'kategori' => $filter['category'],
+                                'pipeline' => $filter['pipeline'],
+                                'sort'     => $filter['sort'] !== 'terbaru' ? $filter['sort'] : '',
+                            ]);
+                            $pageUrl = static fn (int $n): string => '/catalog/explore?' . http_build_query($baseQuery + ['page' => $n]);
+                            ?>
+                            <a href="<?= $page > 1 ? $pageUrl($page - 1) : 'javascript:void(0)' ?>"
+                               class="page-nav-link <?= $page === 1 ? 'text-muted' : 'text-dark fw-bold' ?>">&laquo; Sebelumnya</a>
+
+                            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                                <a href="<?= $pageUrl($i) ?>" class="page-num-link <?= $i === $page ? 'active' : '' ?>"><?= $i ?></a>
+                            <?php endfor; ?>
+
+                            <a href="<?= $page < $totalPages ? $pageUrl($page + 1) : 'javascript:void(0)' ?>"
+                               class="page-nav-link <?= $page === $totalPages ? 'text-muted' : 'text-dark fw-bold' ?>">Selanjutnya &raquo;</a>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
                 <!-- KOLOM KANAN: Card Filter Pencarian -->
                 <div class="col-12 col-lg-3">
                     <div class="filter-search-card p-3">
 
-                        <!-- Header Filter -->
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <span class="fw-bold text-dark fs-7">Filter Pencarian</span>
-                            <a href="javascript:void(0)" class="filter-reset-link">Reset</a>
+                            <a href="/catalog/explore" class="filter-reset-link">Reset</a>
                         </div>
 
-                        <!-- 1. Kategori -->
+                        <input type="hidden" name="q" value="<?= htmlspecialchars($filter['q'], ENT_QUOTES, 'UTF-8') ?>">
+                        <input type="hidden" name="sort" value="<?= htmlspecialchars($filter['sort'], ENT_QUOTES, 'UTF-8') ?>">
+
                         <div class="filter-group mb-3">
                             <label class="filter-group-label d-block mb-2">Kategori</label>
-                            <div class="form-check mb-1">
-                                <input class="form-check-input filter-checkbox" type="checkbox" id="cat_shader">
-                                <label class="form-check-label filter-check-text" for="cat_shader">Shader</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input filter-checkbox" type="checkbox" id="cat_particle">
-                                <label class="form-check-label filter-check-text" for="cat_particle">Particle</label>
-                            </div>
+                            <?php foreach ($categories as $category): ?>
+                                <div class="form-check mb-1">
+                                    <input class="form-check-input filter-checkbox" type="radio"
+                                           id="cat_<?= htmlspecialchars($category['slug'], ENT_QUOTES, 'UTF-8') ?>"
+                                           name="kategori" value="<?= htmlspecialchars($category['slug'], ENT_QUOTES, 'UTF-8') ?>"
+                                           onchange="this.form.submit()"
+                                        <?= $filter['category'] === $category['slug'] ? 'checked' : '' ?>>
+                                    <label class="form-check-label filter-check-text"
+                                           for="cat_<?= htmlspecialchars($category['slug'], ENT_QUOTES, 'UTF-8') ?>">
+                                        <?= htmlspecialchars($category['name'], ENT_QUOTES, 'UTF-8') ?>
+                                    </label>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
 
-                        <!-- 2. Rentang Harga (Rp) -->
                         <div class="filter-group mb-3">
-                            <label class="filter-group-label d-block mb-2">Rentang Harga (Rp)</label>
-                            <div class="d-flex align-items-center gap-1 mb-2">
-                                <input type="number" class="form-control form-control-sm filter-range-input" placeholder="Min">
-                                <span class="text-muted">-</span>
-                                <input type="number" class="form-control form-control-sm filter-range-input" placeholder="Max">
-                            </div>
+                            <label class="filter-group-label d-block mb-2">Harga</label>
                             <div class="form-check">
-                                <input class="form-check-input filter-radio" type="radio" name="price_filter_radio" id="price_free_radio">
+                                <input class="form-check-input filter-radio" type="checkbox" id="price_free_radio"
+                                       name="gratis" value="1" onchange="this.form.submit()"
+                                    <?= $filter['gratis'] ? 'checked' : '' ?>>
                                 <label class="form-check-label filter-check-text" for="price_free_radio">Gratis</label>
                             </div>
                         </div>
 
-                        <!-- 3. Render Pipeline -->
-                        <div class="filter-group mb-3">
-                            <label class="filter-group-label d-block mb-2">Render Pipeline</label>
-                            <div class="form-check mb-1">
-                                <input class="form-check-input filter-checkbox" type="checkbox" id="pipe_builtin">
-                                <label class="form-check-label filter-check-text" for="pipe_builtin">Built-in</label>
-                            </div>
-                            <div class="form-check mb-1">
-                                <input class="form-check-input filter-checkbox" type="checkbox" id="pipe_urp">
-                                <label class="form-check-label filter-check-text" for="pipe_urp">URP</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input filter-checkbox" type="checkbox" id="pipe_hdrp">
-                                <label class="form-check-label filter-check-text" for="pipe_hdrp">HDRP</label>
-                            </div>
-                        </div>
-
-                        <!-- 4. Versi Unity -->
                         <div class="filter-group mb-1">
-                            <label class="filter-group-label d-block mb-2">Versi Unity</label>
-                            <select class="form-select form-select-sm filter-range-input">
-                                <option selected>Semua Versi</option>
-                                <option value="2021">2021.3 LTS</option>
-                                <option value="2022">2022.3 LTS</option>
-                                <option value="2023">2023.x</option>
-                            </select>
+                            <label class="filter-group-label d-block mb-2">Render Pipeline</label>
+                            <?php foreach ($pipelineOptions as $value => $label): ?>
+                                <div class="form-check mb-1">
+                                    <input class="form-check-input filter-checkbox" type="radio"
+                                           id="pipe_<?= md5($value) ?>" name="pipeline" value="<?= htmlspecialchars($value, ENT_QUOTES, 'UTF-8') ?>"
+                                           onchange="this.form.submit()"
+                                        <?= $filter['pipeline'] === $value ? 'checked' : '' ?>>
+                                    <label class="form-check-label filter-check-text" for="pipe_<?= md5($value) ?>">
+                                        <?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?>
+                                    </label>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
 
                     </div>
@@ -227,8 +202,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Pergantian navbar guest/pembeli -->
     <script src="/assets/js/navbar-auth.js"></script>
-    <!-- Katalog dari data dummy -->
-    <script src="/assets/js/catalog.js" defer></script>
 </body>
 
 </html>

@@ -1,21 +1,4 @@
-/**
- * Pergantian tampilan navbar: guest vs pembeli.
- *
- * Alurnya sederhana:
- *   1. PHP menulis keadaan saat ini pada .navbar-auth[data-auth-state]
- *      ("guest" atau "pembeli").
- *   2. Saat halaman siap, syncNavbarAuth() membaca keadaan itu lalu
- *      memanggil showGuestNav() atau showPembeliNav().
- *   3. showGuestNav()/showPembeliNav() hanya menyembunyikan satu div
- *      dan menampilkan div lainnya.
- *
- * Kalau nanti keadaan berubah tanpa reload (mis. setelah login lewat AJAX),
- * cukup panggil salah satu fungsi ini dari kode Anda:
- *
- *   showPembeliNav();                      // tampilkan menu pembeli
- *   showGuestNav();                        // tampilkan tombol Masuk
- *   syncNavbarAuth('pembeli');             // set keadaan + tampilkan
- */
+// Navbar guest vs pembeli, plus menu avatar.
 
 (function () {
     'use strict';
@@ -23,7 +6,7 @@
     var guestNav = document.getElementById('nav-guest');
     var pembeliNav = document.getElementById('nav-pembeli');
 
-    /** Tampilkan tombol Masuk, sembunyikan menu pembeli. */
+    // Tampilkan tombol Masuk.
     function showGuestNav() {
         if (guestNav) {
             guestNav.hidden = false;
@@ -33,7 +16,7 @@
         }
     }
 
-    /** Tampilkan menu pembeli, sembunyikan tombol Masuk. */
+    // Tampilkan menu pembeli.
     function showPembeliNav() {
         if (guestNav) {
             guestNav.hidden = true;
@@ -43,10 +26,7 @@
         }
     }
 
-    /**
-     * Baca keadaan dari HTML lalu tampilkan div yang sesuai.
-     * @param {string} [state] "guest" atau "pembeli"; kosong = baca dari atribut.
-     */
+    // Baca data-auth-state lalu tampilkan grup yang sesuai.
     function syncNavbarAuth(state) {
         var container = document.querySelector('.navbar-auth');
 
@@ -63,7 +43,7 @@
         }
     }
 
-    /** Buka/tutup menu kecil di avatar. */
+    // Menu kecil pada avatar.
     function initAvatarMenu() {
         var button = document.getElementById('navbar-avatar');
         var menu = document.getElementById('navbar-avatar-menu');
@@ -97,7 +77,7 @@
         initAvatarMenu();
     });
 
-    // Dipakai juga oleh skrip lain (mis. setelah login tanpa reload).
+    // Diekspos untuk skrip lain.
     window.showGuestNav = showGuestNav;
     window.showPembeliNav = showPembeliNav;
     window.syncNavbarAuth = syncNavbarAuth;

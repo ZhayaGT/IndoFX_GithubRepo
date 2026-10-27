@@ -2,11 +2,12 @@
 
 namespace IndoFX\Core;
 
-class Model {
+class Model
+{
     protected $db;
 
-    public function __construct() {
-        // Memanggil Singleton Database PDO yang sudah kita buat di chore sebelumnya
+    public function __construct()
+    {
         $this->db = Database::getInstance();
     }
 }

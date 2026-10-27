@@ -3,13 +3,8 @@
 /**
  * Kotak pencarian pada navbar.
  *
- * Form GET biasa: menekan Enter mengirim `?q=<kata kunci>` ke halaman
- * eksplorasi katalog, sehingga pencarian selalu berakhir di
- * /catalog/explore (lihat CatalogController::explore dan renderExplore di
- * public/assets/js/catalog.js).
- *
- * Nilai yang sedang dicari diisi ulang dari $_GET['q'] supaya kotak tidak
- * kosong setelah pindah halaman.
+ * Form GET: Enter mengirim ?q=<kata kunci> ke halaman eksplorasi katalog.
+ * Nilai q diisi ulang dari $_GET supaya kotak tidak kosong setelah pindah halaman.
  */
 
 $searchQuery = isset($_GET['q']) ? trim((string) $_GET['q']) : '';

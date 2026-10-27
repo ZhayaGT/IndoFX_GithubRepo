@@ -3,63 +3,18 @@
 /**
  * Halaman detail aset.
  *
- * Seluruh isi dirender PHP dari data dummy (lihat AssetController::detail):
- *   public/assets/data/assets.json        -> kolom aset (judul, harga, pipeline, ...)
- *   public/assets/data/asset-details.json -> galeri, deskripsi, changelog, ulasan
- *
- * public/assets/js/asset-detail.js hanya mengurus perpindahan tab dan
- * pemilihan gambar galeri.
- *
  * @var string $title
- * @var array  $asset
- * @var array  $detail
- * @var string $categoryLabel
- * @var array  $reviewSummary
- * @var array  $reviews
+ * @var array  $asset      baris aset dari IndoFX\Models\Asset::findBySlug()
+ * @var array  $gallery    daftar URL gambar, sudah lengkap dengan basis storage
+ * @var array  $paragraphs paragraf deskripsi
+ * @var array  $howToUse   langkah cara pakai
+ * @var ?array $file       berkas unduhan terbaru
+ * @var string $fileFormat ekstensi berkas, mis. ".unitypackage"
  */
 
-$gallery     = $detail['gallery'] ?? [];
-$mainImage   = $gallery[0] ?? ($asset['image'] ?? '');
-$description = $detail['description'] ?? [];
-$changelog   = $detail['changelog'] ?? [];
-$fileFormat  = (string) ($detail['file_format'] ?? '');
-$unityVersions = (string) ($detail['unity_versions'] ?? ($asset['unity_version'] ?? ''));
-$pipelines   = $detail['pipelines'] ?? array_filter([$asset['render_pipeline'] ?? null]);
-$price       = (int) ($asset['price'] ?? 0);
-$average     = (float) ($reviewSummary['average'] ?? 0);
-$counts      = $reviewSummary['counts'] ?? [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
-$totalReviews = (int) ($reviewSummary['total'] ?? 0);
-
-/** Bintang Bootstrap Icons untuk nilai 0–5 (setengah bintang dibulatkan ke 0,5). */
-$starIcons = static function (float $value): string {
-    $html = '';
-    for ($star = 1; $star <= 5; $star++) {
-        if ($value >= $star) {
-            $html .= '<i class="bi bi-star-fill"></i>';
-        } elseif ($value >= $star - 0.5) {
-            $html .= '<i class="bi bi-star-half"></i>';
-        } else {
-            $html .= '<i class="bi bi-star"></i>';
-        }
-    }
-
-    return $html;
-};
-
-/**
- * Inisial nama untuk avatar ulasan: "Dimas Pratama" -> "DP".
- *
- * Sengaja tidak memakai nama $initials karena partials/navbar-auth.php
- * memakai variabel itu pada scope yang sama.
- */
-$reviewInitials = static function (string $name): string {
-    $result = '';
-    foreach (array_slice(preg_split('/\s+/', trim($name)) ?: [], 0, 2) as $word) {
-        $result .= mb_strtoupper(mb_substr($word, 0, 1));
-    }
-
-    return $result;
-};
+$mainImage    = $gallery[0] ?? '';
+$price        = (int) $asset['price'];
+$pipelines    = [$asset['render_pipeline']];
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -150,11 +105,18 @@ $reviewInitials = static function (string $name): string {
                     <!-- Panel: Deskripsi -->
                     <div class="asset-tab-panel" role="tabpanel" id="panel-deskripsi"
                          aria-labelledby="tab-deskripsi" data-detail-panel="deskripsi">
-                        <?php if ($description === []): ?>
+                        <?php if ($paragraphs === []): ?>
                             <p class="asset-panel-empty">Belum ada deskripsi untuk aset ini.</p>
                         <?php else: ?>
-                            <?php foreach ($description as $paragraph): ?>
-                                <p class="asset-description-text"><?= htmlspecialchars((string) $paragraph, ENT_QUOTES, 'UTF-8') ?></p>
+                            <?php foreach ($paragraphs as $paragraph): ?>
+                                <p class="asset-description-text"><?= htmlspecialchars($paragraph, ENT_QUOTES, 'UTF-8') ?></p>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+
+                        <?php if ($howToUse !== []): ?>
+                            <h2 class="asset-panel-heading mt-4">Cara pakai</h2>
+                            <?php foreach ($howToUse as $step): ?>
+                                <p class="asset-description-text"><?= htmlspecialchars($step, ENT_QUOTES, 'UTF-8') ?></p>
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </div>
@@ -162,86 +124,33 @@ $reviewInitials = static function (string $name): string {
                     <!-- Panel: Changelog -->
                     <div class="asset-tab-panel" role="tabpanel" id="panel-changelog"
                          aria-labelledby="tab-changelog" data-detail-panel="changelog" hidden>
-                        <?php if ($changelog === []): ?>
-                            <p class="asset-panel-empty">Belum ada riwayat pembaruan untuk aset ini.</p>
+                        <?php if ($file === null): ?>
+                            <p class="asset-panel-empty">Belum ada berkas yang diunggah untuk aset ini.</p>
                         <?php else: ?>
-                            <h2 class="asset-panel-heading">Riwayat pembaruan</h2>
-                            <?php foreach ($changelog as $entry): ?>
-                                <div class="changelog-item">
-                                    <div class="changelog-head">
-                                        <span class="changelog-version">Versi <?= htmlspecialchars((string) $entry['version'], ENT_QUOTES, 'UTF-8') ?></span>
-                                        <span class="changelog-date"><?= htmlspecialchars((string) $entry['date'], ENT_QUOTES, 'UTF-8') ?></span>
-                                    </div>
-                                    <ul class="changelog-notes">
-                                        <?php foreach ($entry['notes'] ?? [] as $note): ?>
-                                            <li><?= htmlspecialchars((string) $note, ENT_QUOTES, 'UTF-8') ?></li>
-                                        <?php endforeach; ?>
-                                    </ul>
+                            <h2 class="asset-panel-heading">Berkas aset</h2>
+                            <div class="changelog-item">
+                                <div class="changelog-head">
+                                    <span class="changelog-version"><?= htmlspecialchars($file['original_name'], ENT_QUOTES, 'UTF-8') ?></span>
+                                    <span class="changelog-date"><?= htmlspecialchars($fileFormat, ENT_QUOTES, 'UTF-8') ?></span>
                                 </div>
-                            <?php endforeach; ?>
+                                <ul class="changelog-notes">
+                                    <li>Ukuran berkas: <?= number_format((int) $file['file_size'] / 1048576, 1, ',', '.') ?> MB</li>
+                                </ul>
+                            </div>
                         <?php endif; ?>
                     </div>
 
                     <!-- Panel: Ulasan -->
                     <div class="asset-tab-panel" role="tabpanel" id="panel-ulasan"
                          aria-labelledby="tab-ulasan" data-detail-panel="ulasan" hidden>
-                        <?php if ($reviews === []): ?>
-                            <p class="asset-panel-empty">Belum ada ulasan untuk aset ini.</p>
-                        <?php else: ?>
-                            <div class="rating-summary">
-                                <div class="rating-summary-score">
-                                    <p class="rating-average">
-                                        <?= number_format($average, 1, ',', '.') ?><span class="rating-average-max">/5</span>
-                                    </p>
-                                    <div class="rating-stars"><?= $starIcons(round($average * 2) / 2) ?></div>
-                                    <p class="rating-total">Dari <?= $totalReviews ?> ulasan terverifikasi</p>
-                                </div>
-
-                                <div class="rating-distribution">
-                                    <?php foreach ([5, 4, 3, 2, 1] as $star): ?>
-                                        <?php
-                                        $count = (int) ($counts[$star] ?? 0);
-                                        $percent = $totalReviews > 0 ? ($count / $totalReviews) * 100 : 0;
-                                        ?>
-                                        <div class="rating-bar-row">
-                                            <span class="rating-bar-star"><?= $star ?> <i class="bi bi-star-fill"></i></span>
-                                            <span class="rating-bar-track">
-                                                <span class="rating-bar-fill" style="width: <?= number_format($percent, 2, '.', '') ?>%"></span>
-                                            </span>
-                                            <span class="rating-bar-count"><?= $count ?></span>
-                                        </div>
-                                    <?php endforeach; ?>
-                                </div>
-                            </div>
-
-                            <div class="review-list-head">
-                                <h2 class="asset-panel-heading mb-0">Ulasan pembeli</h2>
-                                <span class="review-list-count"><?= $totalReviews ?> ulasan</span>
-                            </div>
-
-                            <?php foreach ($reviews as $review): ?>
-                                <article class="review-item">
-                                    <div class="review-head">
-                                        <span class="review-avatar"><?= htmlspecialchars($reviewInitials((string) $review['name']), ENT_QUOTES, 'UTF-8') ?></span>
-                                        <div class="review-identity">
-                                            <span class="review-name"><?= htmlspecialchars((string) $review['name'], ENT_QUOTES, 'UTF-8') ?></span>
-                                            <span class="review-role">Pembeli aset</span>
-                                        </div>
-                                        <span class="review-date"><?= htmlspecialchars((string) $review['date'], ENT_QUOTES, 'UTF-8') ?></span>
-                                    </div>
-                                    <div class="review-stars"><?= $starIcons((float) $review['rating']) ?></div>
-                                    <h3 class="review-title"><?= htmlspecialchars((string) $review['title'], ENT_QUOTES, 'UTF-8') ?></h3>
-                                    <p class="review-body"><?= htmlspecialchars((string) $review['body'], ENT_QUOTES, 'UTF-8') ?></p>
-                                </article>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
+                        <p class="asset-panel-empty">Ulasan pembeli belum tersedia pada versi ini.</p>
                     </div>
                 </div>
 
                 <!-- KOLOM KANAN: Kartu pembelian -->
                 <div class="col-12 col-lg-4">
                     <div class="asset-buy-card">
-                        <span class="asset-buy-category"><?= htmlspecialchars($categoryLabel, ENT_QUOTES, 'UTF-8') ?></span>
+                        <span class="asset-buy-category"><?= htmlspecialchars($asset['category_name'], ENT_QUOTES, 'UTF-8') ?></span>
                         <h1 class="asset-buy-title"><?= htmlspecialchars($asset['title'], ENT_QUOTES, 'UTF-8') ?></h1>
                         <p class="asset-buy-seller">Oleh <?= htmlspecialchars($asset['seller_name'], ENT_QUOTES, 'UTF-8') ?></p>
 
@@ -251,7 +160,7 @@ $reviewInitials = static function (string $name): string {
                         <dl class="asset-buy-meta">
                             <div class="asset-buy-meta-row">
                                 <dt>Versi Unity</dt>
-                                <dd><?= htmlspecialchars($unityVersions, ENT_QUOTES, 'UTF-8') ?></dd>
+                                <dd><?= htmlspecialchars((string) $asset['unity_version'], ENT_QUOTES, 'UTF-8') ?></dd>
                             </div>
                             <div class="asset-buy-meta-row">
                                 <dt>Render Pipeline</dt>

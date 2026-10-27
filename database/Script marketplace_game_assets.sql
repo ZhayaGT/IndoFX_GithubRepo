@@ -21,10 +21,15 @@ CREATE TABLE IF NOT EXISTS users (
 
 select * from users;
 
-GRANT USAGE ON SCHEMA public TO diaz;
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO diaz;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO diaz;
-GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO diaz;
+-- Hak akses diberikan ke pemilik sesi saat skrip dijalankan, bukan ke satu
+-- nama role tertentu, supaya skrip bisa dipakai di mesin anggota lain.
+DO $$
+BEGIN
+    EXECUTE format('GRANT USAGE ON SCHEMA public TO %I', current_user);
+    EXECUTE format('GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO %I', current_user);
+    EXECUTE format('GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO %I', current_user);
+END
+$$;
 
 CREATE TABLE IF NOT EXISTS assets (
     id BIGSERIAL PRIMARY KEY,
@@ -138,12 +143,13 @@ INSERT INTO categories (id, name, slug, created_at, updated_at) VALUES
 (5, 'Animations & Mocap', 'animations-mocap', '2026-01-10 10:20:00', '2026-01-10 10:20:00')
 ON CONFLICT (id) DO NOTHING;
 
+-- Kata sandi demo: admin12345 / seller12345 / buyer12345
 INSERT INTO users (id, name, email, password, role, remember_token, created_at, updated_at) VALUES
-(1, 'Super Admin', 'admin@assetforge.io', '$2y$12$e8J3j3T0K0Zz9198adminhash', 'admin', NULL, '2026-01-01 08:00:00', '2026-01-01 08:00:00'),
-(2, 'Budi Santoso (Studio 3D)', 'budi.studio@gmail.com', '$2y$12$K1x89LmP0883sellerhash1', 'seller', 'token_seller_budi_123', '2026-01-05 09:30:00', '2026-01-05 09:30:00'),
-(3, 'Chandra Pixel Artisan', 'chandra.art@pixelartisan.id', '$2y$12$Z8mQ10Lw7744sellerhash2', 'seller', NULL, '2026-01-08 14:15:00', '2026-01-08 14:15:00'),
-(4, 'Dimas Game Developer', 'dimas.dev@indiegame.com', '$2y$12$W9xT55Pl2211buyerhash1', 'buyer', 'token_buyer_dimas_789', '2026-01-12 11:20:00', '2026-01-12 11:20:00'),
-(5, 'Eka Putri Unity Dev', 'ekaputri@gamedev.org', '$2y$12$Y2vB44Rt5533buyerhash2', 'buyer', NULL, '2026-01-15 16:45:00', '2026-01-15 16:45:00')
+(1, 'Super Admin', 'admin@assetforge.io', '$2y$12$8PC1kr20C93hcy6HAUCtD.3N7HjO/k3JGRqy9J12j1HocufCe7FeS', 'admin', NULL, '2026-01-01 08:00:00', '2026-01-01 08:00:00'),
+(2, 'Budi Santoso (Studio 3D)', 'budi.studio@gmail.com', '$2y$12$c52KKVgxcqmEdm00OL5o.u5zF2uWSqZZlr6zTnaMBu8W8rkVFUz42', 'seller', 'token_seller_budi_123', '2026-01-05 09:30:00', '2026-01-05 09:30:00'),
+(3, 'Chandra Pixel Artisan', 'chandra.art@pixelartisan.id', '$2y$12$c52KKVgxcqmEdm00OL5o.u5zF2uWSqZZlr6zTnaMBu8W8rkVFUz42', 'seller', NULL, '2026-01-08 14:15:00', '2026-01-08 14:15:00'),
+(4, 'Dimas Game Developer', 'dimas.dev@indiegame.com', '$2y$12$UvhrhrNAk216vY.IQ.9XTem3mowzyGR/E.TCbjX0cajawv2e.1dAG', 'buyer', 'token_buyer_dimas_789', '2026-01-12 11:20:00', '2026-01-12 11:20:00'),
+(5, 'Eka Putri Unity Dev', 'ekaputri@gamedev.org', '$2y$12$UvhrhrNAk216vY.IQ.9XTem3mowzyGR/E.TCbjX0cajawv2e.1dAG', 'buyer', NULL, '2026-01-15 16:45:00', '2026-01-15 16:45:00')
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO assets (id, seller_id, category_id, title, slug, description, how_to_use, price, render_pipeline, unity_version, status, preview_video_url, created_at, updated_at, deleted_at) VALUES
@@ -151,7 +157,13 @@ INSERT INTO assets (id, seller_id, category_id, title, slug, description, how_to
 (2, 2, 2, 'Low Poly Sci-Fi Cyber City Modular Pack', 'low-poly-sci-fi-cyber-city-modular-pack', 'Modular kit kota masa depan gaya low-poly mencakup lebih dari 120 prefab gedung, jalanan, kendaraan terbang, dan lampu neon dinamis.', 'Gunakan snapping grid 1 unit pada Unity Editor untuk menyusun jalan dan modul gedung secara presisi.', 350000, 'Built-in / URP', '2021.3 LTS', 'published', 'https://youtu.be/dummy_cybercity_preview', '2026-01-18 13:30:00', '2026-01-18 13:30:00', NULL),
 (3, 3, 3, 'Stylized Elemental Magic Spells VFX', 'stylized-elemental-magic-spells-vfx', 'Koleksi 40 efek visual sihir partikel (Api, Es, Petir, Kegelapan) dibuat menggunakan Visual Effect Graph (VFX Graph).', 'Pastikan project Anda mengaktifkan paket VFX Graph via Unity Package Manager.', 180000, 'Universal Render Pipeline (URP)', '2022.3 LTS', 'published', 'https://youtu.be/dummy_vfx_preview', '2026-01-20 09:15:00', '2026-01-20 09:15:00', NULL),
 (4, 3, 4, 'Modern Mobile Game Clean UI Kit', 'modern-mobile-game-clean-ui-kit', 'Asset user interface lengkap untuk game mobile: HUD, toko virtual, level selector, dialog popup, dan ikon SVG/PNG siap pakai.', 'Tarik prefab Canvas_Main_Menu ke Hierarchy, sesuaikan event listener tombol dengan script game manager Anda.', 120000, 'Any (UI Canvas)', '2020.3 LTS', 'published', NULL, '2026-01-22 15:00:00', '2026-01-22 15:00:00', NULL),
-(5, 2, 5, 'Ultimate Melee Sword Combat Animations', 'ultimate-melee-sword-combat-animations', '35 motion capture animasi pertarungan pedang satu tangan (combo serangan, dodge, parry, dan death animation).', 'Mendukung Humanoid Avatar standar Unity. Retargeting otomatis dengan model karakter 3D apa pun yang bertipe Humanoid.', 200000, 'Any', '2022.3 LTS', 'published', 'https://youtu.be/dummy_anim_preview', '2026-01-25 11:45:00', '2026-01-25 11:45:00', NULL)
+(5, 2, 5, 'Ultimate Melee Sword Combat Animations', 'ultimate-melee-sword-combat-animations', '35 motion capture animasi pertarungan pedang satu tangan (combo serangan, dodge, parry, dan death animation).', 'Mendukung Humanoid Avatar standar Unity. Retargeting otomatis dengan model karakter 3D apa pun yang bertipe Humanoid.', 200000, 'Any', '2022.3 LTS', 'published', 'https://youtu.be/dummy_anim_preview', '2026-01-25 11:45:00', '2026-01-25 11:45:00', NULL),
+(6, 3, 2, 'Ancient Temple Ruins Environment Kit', 'ancient-temple-ruins-environment-kit', 'Paket environment candi batu lengkap dengan pilar, relief, dan vegetasi tropis siap pakai untuk scene eksplorasi.', 'Import paket ke project, buka scene Demo_Temple, lalu susun modul mengikuti grid 1 unit.', 0, 'Universal Render Pipeline (URP)', '2022.3 LTS', 'published', NULL, '2026-01-27 09:10:00', '2026-01-27 09:10:00', NULL),
+(7, 2, 2, 'Dappled Forest Path Foliage', 'dappled-forest-path-foliage', 'Set pohon dan semak dengan pencahayaan tembus daun, cocok untuk jalur hutan dan area terbuka.', 'Aktifkan material Vegetation_Forest lalu atur intensitas angin pada WindController.', 0, 'Built-in / URP', '2021.3 LTS', 'published', NULL, '2026-01-28 10:20:00', '2026-01-28 10:20:00', NULL),
+(8, 2, 3, 'Nebula Space Skybox Volumetric', 'nebula-space-skybox-volumetric', 'Skybox nebula dengan lapisan debu bintang dan gradasi warna, siap dipakai untuk scene luar angkasa.', 'Ganti material Skybox pada Window > Rendering > Lighting dengan Nebula_Mat.', 165000, 'Universal Render Pipeline (URP)', '2022.3 LTS', 'published', NULL, '2026-01-29 14:00:00', '2026-01-29 14:00:00', NULL),
+(9, 3, 4, 'Cozy Cafe Interior Props Set', 'cozy-cafe-interior-props-set', 'Set properti interior kafe: meja, kursi, rak, dan dekorasi kecil dengan material siap pakai.', 'Drag prefab dari folder Props ke scene, lalu sesuaikan pencahayaan baked.', 0, 'Built-in / URP', '2021.3 LTS', 'published', NULL, '2026-01-30 08:45:00', '2026-01-30 08:45:00', NULL),
+(10, 3, 2, 'Dynjandi Waterfall Environment', 'dynjandi-waterfall-environment', 'Environment air terjun dengan aliran air bergerak, kabut embun, dan bebatuan basah.', 'Aktifkan WaterController pada prefab Waterfall_Main untuk mengatur kecepatan aliran.', 0, 'Universal Render Pipeline (URP)', '2022.3 LTS', 'published', NULL, '2026-02-01 11:30:00', '2026-02-01 11:30:00', NULL),
+(11, 2, 2, 'Sunlit Stone Architecture Pack', 'sunlit-stone-architecture-pack', 'Modul arsitektur batu dengan material bertekstur dan pencahayaan siang, cocok untuk area kuil.', 'Gunakan prefab Stone_Module_* dan aktifkan GridSnap untuk penyusunan cepat.', 145000, 'Built-in / URP', '2021.3 LTS', 'published', NULL, '2026-02-02 16:15:00', '2026-02-02 16:15:00', NULL)
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO asset_files (id, asset_id, file_path, original_name, mime_type, extension, file_size, version, created_at, updated_at) VALUES
@@ -161,17 +173,37 @@ INSERT INTO asset_files (id, asset_id, file_path, original_name, mime_type, exte
 (4, 3, 'assets/files/2026/01/elemental_magic_vfx.unitypackage', 'Elemental_Magic_VFX_Pack.unitypackage', 'application/octet-stream', 'unitypackage', 84500000, '1.0.0', '2026-01-20 09:20:00', '2026-01-20 09:20:00'),
 (5, 4, 'assets/files/2026/01/clean_mobile_ui.zip', 'Mobile_Clean_UI_Assets.zip', 'application/zip', 'zip', 45200000, '1.0.0', '2026-01-22 15:05:00', '2026-01-22 15:05:00'),
 (6, 5, 'assets/files/2026/01/melee_combat_anim.unitypackage', 'Melee_Sword_Combat_Anim.unitypackage', 'application/octet-stream', 'unitypackage', 62300000, '1.0.0', '2026-01-25 11:50:00', '2026-01-25 11:50:00')
+,
+(7, 6, 'assets/files/2026/01/temple_ruins_kit.unitypackage', 'Ancient_Temple_Ruins_Kit.unitypackage', 'application/octet-stream', 'unitypackage', 187400000, '1.0.0', '2026-01-27 09:15:00', '2026-01-27 09:15:00'),
+(8, 7, 'assets/files/2026/01/forest_foliage.unitypackage', 'Dappled_Forest_Foliage.unitypackage', 'application/octet-stream', 'unitypackage', 96400000, '1.0.0', '2026-01-28 10:25:00', '2026-01-28 10:25:00'),
+(9, 8, 'assets/files/2026/01/nebula_skybox.unitypackage', 'Nebula_Space_Skybox.unitypackage', 'application/octet-stream', 'unitypackage', 41200000, '1.0.0', '2026-01-29 14:05:00', '2026-01-29 14:05:00'),
+(10, 9, 'assets/files/2026/01/cafe_interior_props.unitypackage', 'Cozy_Cafe_Interior_Props.unitypackage', 'application/octet-stream', 'unitypackage', 73500000, '1.0.0', '2026-01-30 08:50:00', '2026-01-30 08:50:00'),
+(11, 10, 'assets/files/2026/02/dynjandi_waterfall.unitypackage', 'Dynjandi_Waterfall_Env.unitypackage', 'application/octet-stream', 'unitypackage', 128600000, '1.0.0', '2026-02-01 11:35:00', '2026-02-01 11:35:00'),
+(12, 11, 'assets/files/2026/02/stone_architecture.zip', 'Sunlit_Stone_Architecture.zip', 'application/zip', 'zip', 158300000, '1.0.0', '2026-02-02 16:20:00', '2026-02-02 16:20:00')
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO asset_images (id, asset_id, image_path, sort_order, created_at, updated_at) VALUES
-(1, 1, 'assets/images/warrior_hero_main.webp', 1, '2026-01-15 10:02:00', '2026-01-15 10:02:00'),
-(2, 1, 'assets/images/warrior_hero_wireframe.webp', 2, '2026-01-15 10:02:00', '2026-01-15 10:02:00'),
-(3, 1, 'assets/images/warrior_hero_animations.webp', 3, '2026-01-15 10:02:00', '2026-01-15 10:02:00'),
-(4, 2, 'assets/images/cyber_city_overview.webp', 1, '2026-01-18 13:32:00', '2026-01-18 13:32:00'),
-(5, 2, 'assets/images/cyber_city_street_view.webp', 2, '2026-01-18 13:32:00', '2026-01-18 13:32:00'),
-(6, 3, 'assets/images/vfx_fire_ice_spells.webp', 1, '2026-01-20 09:18:00', '2026-01-20 09:18:00'),
-(7, 4, 'assets/images/mobile_ui_mockup.webp', 1, '2026-01-22 15:02:00', '2026-01-22 15:02:00'),
-(8, 5, 'assets/images/combat_animations_sheet.webp', 1, '2026-01-25 11:48:00', '2026-01-25 11:48:00')
+(1, 1, 'assets/img/catalog/01.jpg', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(2, 1, 'assets/img/catalog/01_2.jpg', 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(3, 1, 'assets/img/catalog/01_3.jpg', 3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(4, 2, 'assets/img/catalog/02.jpg', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(5, 2, 'assets/img/catalog/02_2.jpg', 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(6, 2, 'assets/img/catalog/02_3.jpg', 3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(7, 3, 'assets/img/catalog/03.jpg', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(8, 3, 'assets/img/catalog/03_2.jpg', 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(9, 3, 'assets/img/catalog/03_3.jpg', 3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(10, 4, 'assets/img/catalog/04.png', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(11, 4, 'assets/img/catalog/04_2.png', 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(12, 4, 'assets/img/catalog/04_3.png', 3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(13, 5, 'assets/img/catalog/05.jpg', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(14, 5, 'assets/img/catalog/05_2.jpg', 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(15, 5, 'assets/img/catalog/05_3.jpg', 3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(16, 6, 'assets/img/catalog/06.jpg', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(17, 7, 'assets/img/catalog/07.jpg', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(18, 8, 'assets/img/catalog/08.jpg', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(19, 9, 'assets/img/catalog/09.jpg', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(20, 10, 'assets/img/catalog/10.jpg', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(21, 11, 'assets/img/catalog/11.jpg', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO transactions (id, buyer_id, asset_id, invoice_number, amount, payment_type, status, midtrans_transaction_id, paid_at, created_at, updated_at) VALUES

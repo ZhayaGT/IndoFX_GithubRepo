@@ -1,12 +1,9 @@
 <?php
 
-// Kumpulan fungsi helper untuk format data
+// Helper format tampilan.
 
 /**
- * Format harga aset menjadi teks rupiah.
- *
- * Harga 0 tampil sebagai "Gratis" supaya sejalan dengan kartu katalog
- * (lihat formatPrice di public/assets/js/catalog.js).
+ * Harga aset: 0 menjadi "Gratis".
  */
 function format_rupiah(int $price): string
 {
@@ -14,19 +11,15 @@ function format_rupiah(int $price): string
 }
 
 /**
- * Kelas warna tag untuk render pipeline.
- *
- * Warna diambil dari desain: URP merah, HDRP ungu, Built-in biru.
- * Nilai yang tidak dikenal memakai warna dasar .badge-pipeline.
- * Padanan di sisi klien: PIPELINE_CLASSES di public/assets/js/catalog.js.
+ * Kelas warna tag render pipeline. Warna dasar .badge-pipeline dipakai
+ * bila nilainya tidak dikenal.
  */
 function pipeline_badge_class(string $pipeline): string
 {
-    $classes = [
-        'URP'      => 'badge-pipeline-urp',
-        'HDRP'     => 'badge-pipeline-hdrp',
-        'Built-in' => 'badge-pipeline-builtin',
-    ];
-
-    return $classes[$pipeline] ?? '';
+    return match (true) {
+        str_contains($pipeline, 'HDRP') => 'badge-pipeline-hdrp',
+        str_contains($pipeline, 'URP')  => 'badge-pipeline-urp',
+        str_contains($pipeline, 'Built-in') => 'badge-pipeline-builtin',
+        default => '',
+    };
 }

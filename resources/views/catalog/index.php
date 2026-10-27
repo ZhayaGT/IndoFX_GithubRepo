@@ -21,54 +21,6 @@
 
 <body>
 
-    <!-- SVG Definitions untuk Ilustrasi -->
-    <svg class="d-none">
-        <defs>
-            <g id="castle-sunset-art">
-                <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#D4A39B" />
-                    <stop offset="50%" stop-color="#E8C5B0" />
-                    <stop offset="100%" stop-color="#F7D69D" />
-                </linearGradient>
-                <rect width="400" height="220" fill="url(#skyGrad)" />
-                <circle cx="310" cy="85" r="42" fill="#FFFDF2" opacity="0.95" />
-                <circle cx="310" cy="85" r="65" fill="#FFF7D6" opacity="0.4" />
-                <ellipse cx="90" cy="50" rx="65" ry="18" fill="#B88E8D" opacity="0.35" />
-                <ellipse cx="220" cy="35" rx="80" ry="20" fill="#B88E8D" opacity="0.25" />
-                <path d="M0 165 Q120 135 250 160 T400 155 L400 220 L0 220 Z" fill="#6E575F" />
-                <rect x="85" y="105" width="185" height="90" fill="#4A3B47" />
-                <rect x="105" y="70" width="32" height="125" fill="#3B2E39" />
-                <polygon points="100,70 121,32 142,70" fill="#2B2129" />
-                <rect x="165" y="55" width="38" height="140" fill="#3B2E39" />
-                <polygon points="160,55 184,15 208,55" fill="#2B2129" />
-                <rect x="235" y="65" width="36" height="130" fill="#59484F" />
-                <polygon points="230,65 253,25 276,65" fill="#3B2E39" />
-                <rect x="179" y="85" width="8" height="14" rx="4" fill="#FFAE42" />
-                <rect x="117" y="95" width="6" height="12" rx="3" fill="#FFAE42" />
-                <rect x="249" y="90" width="7" height="12" rx="3" fill="#FFAE42" />
-                <path d="M0 185 Q160 170 400 185 L400 220 L0 220 Z" fill="#2B2122" />
-            </g>
-
-            <g id="forest-mist-art">
-                <linearGradient id="forestSky" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#8FA3B0" />
-                    <stop offset="60%" stop-color="#C9D6DF" />
-                    <stop offset="100%" stop-color="#3A4740" />
-                </linearGradient>
-                <rect width="400" height="220" fill="url(#forestSky)" />
-                <path d="M0 140 Q100 110 220 135 T400 120 L400 220 L0 220 Z" fill="#52615B" opacity="0.6" />
-                <polygon points="50,40 25,150 75,150" fill="#2D3A34" />
-                <polygon points="85,55 65,155 105,155" fill="#3B4B44" />
-                <polygon points="310,30 280,155 340,155" fill="#25302B" />
-                <polygon points="355,50 330,160 380,160" fill="#1C2621" />
-                <ellipse cx="200" cy="135" rx="180" ry="25" fill="#E4EEF5" opacity="0.45" />
-                <path d="M0 155 Q110 140 175 220 L0 220 Z" fill="#1A241E" />
-                <path d="M400 150 Q280 140 225 220 L400 220 Z" fill="#16201A" />
-                <polygon points="175,220 198,148 212,148 225,220" fill="#3E3A35" />
-            </g>
-        </defs>
-    </svg>
-
     <!-- 1. Header Navbar Oranye -->
     <nav class="navbar navbar-orange sticky-top">
         <div class="container-figma d-flex justify-content-between align-items-center w-100">
@@ -117,9 +69,8 @@
 
                 <div class="col-lg-6">
                     <div class="hero-image-wrapper">
-                        <svg class="w-100 h-100 d-block" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice">
-                            <use href="#castle-sunset-art" />
-                        </svg>
+                        <img class="hero-image" src="/assets/img/hero.jpg"
+                             alt="Ilustrasi pengembangan aset Unity CG dan VFX" loading="eager">
                     </div>
                 </div>
 
@@ -136,9 +87,9 @@
                 <h3 class="section-heading-center mb-1">Telusuri Berdasarkan Kategori</h3>
                 <p class="section-sub-center mb-4">Temukan spesifikasi aset yang tepat untuk game engine Anda</p>
                 <div class="d-flex justify-content-center gap-3 flex-wrap">
-                    <a href="javascript:void(0)" class="btn category-pill">Shader</a>
-                    <a href="javascript:void(0)" class="btn category-pill">Particle</a>
-                    <a href="javascript:void(0)" class="btn category-pill">Gratis</a>
+                    <a href="/catalog/explore?kategori=vfx-and-shaders" class="btn category-pill">VFX &amp; Shader</a>
+                    <a href="/catalog/explore?kategori=environments-landscapes" class="btn category-pill">Environment</a>
+                    <a href="/catalog/explore?gratis=1" class="btn category-pill">Gratis</a>
                 </div>
             </section>
 
@@ -152,7 +103,15 @@
                     <a href="/catalog/explore?sort=terbaru" class="catalog-side-link">Selengkapnya</a>
                 </div>
 
-                <div class="row g-3" data-catalog-list="latest"></div>
+                <div class="row g-3">
+                    <?php foreach ($latest as $item): ?>
+                        <?php $colClass = 'col-12 col-sm-6 col-lg-3'; require BASE_PATH . '/resources/views/partials/asset-card.php'; ?>
+                    <?php endforeach; ?>
+
+                    <?php if ($latest === []): ?>
+                        <p class="text-muted small mb-0">Belum ada aset terbit.</p>
+                    <?php endif; ?>
+                </div>
             </section>
 
             <!-- Aset Gratis -->
@@ -165,7 +124,15 @@
                     <a href="/catalog/explore?gratis=1&amp;sort=populer" class="catalog-side-link">Selengkapnya</a>
                 </div>
 
-                <div class="row g-3" data-catalog-list="free"></div>
+                <div class="row g-3">
+                    <?php foreach ($freeAssets as $item): ?>
+                        <?php $colClass = 'col-12 col-sm-6 col-lg-3'; require BASE_PATH . '/resources/views/partials/asset-card.php'; ?>
+                    <?php endforeach; ?>
+
+                    <?php if ($freeAssets === []): ?>
+                        <p class="text-muted small mb-0">Belum ada aset gratis.</p>
+                    <?php endif; ?>
+                </div>
             </section>
 
         </div>
@@ -209,8 +176,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Pergantian navbar guest/pembeli -->
     <script src="/assets/js/navbar-auth.js"></script>
-    <!-- Katalog dari data dummy -->
-    <script src="/assets/js/catalog.js" defer></script>
 </body>
 
 </html>

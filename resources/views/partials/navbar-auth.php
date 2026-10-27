@@ -1,23 +1,11 @@
 <?php
 
-/**
- * Status pengguna pada navbar.
- *
- * Dua keadaan dirender sekaligus lalu diatur oleh JavaScript
- * (public/assets/js/navbar-auth.js):
- *
- *   #nav-guest    -> pengunjung yang belum login  (tombol Masuk)
- *   #nav-pembeli  -> pengguna yang sudah login    (Jadi Penjual, Library Saya, avatar)
- *
- * Status login dibaca dari $_SESSION yang diisi AuthController.
- */
+// Navbar: grup guest dan pembeli, diatur public/assets/js/navbar-auth.js.
 
 $userName = (string) ($_SESSION['name'] ?? '');
 $isLoggedIn = isset($_SESSION['user_id']);
 
-/**
- * Inisial nama untuk avatar: "Andi Pratama" -> "AP".
- */
+// Inisial nama: "Andi Pratama" menjadi "AP".
 $initials = '';
 foreach (array_slice(preg_split('/\s+/', trim($userName)) ?: [], 0, 2) as $word) {
     $initials .= mb_strtoupper(mb_substr($word, 0, 1));

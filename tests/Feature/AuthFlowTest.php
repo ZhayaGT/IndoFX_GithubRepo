@@ -38,7 +38,7 @@ class AuthFlowTest extends TestCase
         self::$pdo = new PDO("pgsql:host={$host};port={$port};dbname=" . self::$dbName, $user, $pass, [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         ]);
-        self::$pdo->exec((string) file_get_contents(BASE_PATH . '/database/schema.sql'));
+        self::$pdo->exec((string) file_get_contents(BASE_PATH . '/database/Script marketplace_game_assets.sql'));
 
         $appPort = self::freePort();
         self::$baseUrl = "http://127.0.0.1:{$appPort}";
@@ -99,13 +99,13 @@ class AuthFlowTest extends TestCase
         self::assertSame(302, $response['status']);
         self::assertSame('/login', $response['headers']['location']);
 
-        $row = self::$pdo->query('SELECT name, email, role, password_hash FROM users')->fetch(PDO::FETCH_ASSOC);
+        $row = self::$pdo->query('SELECT name, email, role, password FROM users')->fetch(PDO::FETCH_ASSOC);
 
         self::assertSame('Budi Santoso', $row['name']);
         self::assertSame('budi@example.com', $row['email']);
         self::assertSame('buyer', $row['role']);
-        self::assertTrue(password_verify('rahasia123', $row['password_hash']));
-        self::assertStringNotContainsString('rahasia123', $row['password_hash']);
+        self::assertTrue(password_verify('rahasia123', $row['password']));
+        self::assertStringNotContainsString('rahasia123', $row['password']);
 
         // Pesan sukses dan email terisi di halaman login.
         $page = $this->request('GET', '/login', $jar)['body'];
@@ -209,15 +209,14 @@ class AuthFlowTest extends TestCase
     private function insertUser(string $email, string $password, string $name = 'Pengguna Uji', bool $active = true): void
     {
         $stmt = self::$pdo->prepare(
-            'INSERT INTO users (name, email, password_hash, role, is_active)
-             VALUES (:name, :email, :hash, :role, :active)'
+            'INSERT INTO users (name, email, password, role)
+             VALUES (:name, :email, :hash, :role)'
         );
         $stmt->execute([
-            ':name'   => $name,
-            ':email'  => $email,
-            ':hash'   => password_hash($password, PASSWORD_DEFAULT),
-            ':role'   => 'buyer',
-            ':active' => $active ? 'true' : 'false',
+            ':name'  => $name,
+            ':email' => $email,
+            ':hash'  => password_hash($password, PASSWORD_DEFAULT),
+            ':role'  => 'buyer',
         ]);
     }
 

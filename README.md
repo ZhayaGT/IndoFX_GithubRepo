@@ -103,6 +103,16 @@ Setiap anggota memiliki satu peran utama dan **folder yang menjadi tanggung jawa
 
 Area milik peran lain boleh dibaca, tetapi perubahan harus melalui pull request dan persetujuan pemiliknya.
 
+### Kontributor
+
+| Nama | Akun GitHub | Kontribusi |
+|---|---|---|
+| Jonathan Emmanual Kristanto | [@ZhayaGT](https://github.com/ZhayaGT) | Project manager, katalog, detail aset, integrasi front end |
+| Diaz Prahardyan | [@Dzy-hue](https://github.com/Dzy-hue) | Back end: arsitektur PDO, router, autentikasi login/register/logout, skema database `Script marketplace_game_assets.sql`, trigger entitlement, view katalog |
+| Naufal Haidar Azmi | [@naufal2323](https://github.com/naufal2323) | Front end: halaman login, register, eksplorasi katalog, styling |
+| Hikmal Fadhillah Rasyid Andro Mulyawan | - | UI/UX design |
+| Dhafir Tsabit | - | UI/UX design |
+
 ---
 
 ## Aturan Kolaborasi GitHub (Ringkasan)

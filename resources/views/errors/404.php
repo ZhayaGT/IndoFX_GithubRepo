@@ -1,11 +1,4 @@
-<?php
-
-/**
- * Halaman 404.
- * Dipakai oleh Router dan oleh rute yang view-nya belum tersedia.
- */
-http_response_code(404);
-?>
+<?php http_response_code(404); ?>
 <!DOCTYPE html>
 <html lang="id">
 
