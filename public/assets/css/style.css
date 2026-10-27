@@ -74,39 +74,52 @@ body {
     0px 2px 0 #3b2314;
 }
 
+/* Penyesuaian Responsif Searchbar Header */
 .search-box-header {
   position: relative;
+<<<<<<< Updated upstream
   width: 340px;
   max-width: 100%;
   min-width: 0;
   flex: 0 1 340px;
+=======
+  max-width: 440px; /* Batas lebar maksimal di layar besar/desktop */
+  width: 100%;
+>>>>>>> Stashed changes
   background-color: #ffffff;
-  border: 1.5px solid var(--ifx-border-dark);
   border-radius: 6px;
   padding: 2px 10px;
-}
-
-.search-icon-header {
-  color: var(--ifx-brown-dark);
-  font-size: 0.85rem;
-  margin-right: 6px;
+  border: 1px solid #d8c8bd;
 }
 
 .search-input-header {
   border: none !important;
   box-shadow: none !important;
-  padding: 3px 0;
   font-size: 0.8rem;
-  color: var(--ifx-brown-dark);
-  background: transparent;
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  padding: 4px 6px;
+  width: 100%;
 }
 
-.search-input-header::placeholder {
-  color: #5a463a;
-  text-decoration: underline;
-  text-underline-offset: 2px;
+.search-icon-header {
+  color: #6c757d;
+  font-size: 0.85rem;
+}
+
+/* Responsif untuk Layar Sangat Kecil (< 576px) */
+@media (max-width: 576px) {
+  .search-box-header {
+    padding: 1px 8px;
+  }
+
+  .search-input-header {
+    font-size: 0.75rem;
+    padding: 3px 4px;
+  }
+
+  .btn-nav-login {
+    padding: 4px 12px !important;
+    font-size: 0.78rem !important;
+  }
 }
 
 .btn-nav-seller {
@@ -465,11 +478,27 @@ body {
   padding: 12px 14px 14px 14px;
 }
 
+/* Styling & Animasi Hover Highlight untuk Nama Kreator */
 .asset-studio {
-  display: block;
-  font-size: 0.68rem;
-  color: var(--ifx-brown-muted);
-  margin-bottom: 2px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #7a6e65 !important;
+  display: inline-block;
+  padding: 2px 6px;
+  margin-left: -6px; /* Menjaga posisi teks tetap sejajar tanpa menggeser layout */
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.asset-studio:hover {
+  color: var(--ifx-orange, #ed6b1d) !important;
+  background-color: #ffffff;
+  transform: translateY(-1.5px);
+  box-shadow:
+    0 4px 10px rgba(237, 107, 29, 0.22),
+    0 1px 3px rgba(0, 0, 0, 0.08);
+  text-shadow: 0 0 0.5px rgba(237, 107, 29, 0.4);
 }
 
 .asset-name {
@@ -480,15 +509,38 @@ body {
   line-height: 1.3;
 }
 
+/* Base Style Badge Pipeline */
 .badge-pipeline {
   display: inline-block;
+<<<<<<< Updated upstream
   background-color: var(--ifx-brown-muted);
   color: #ffffff;
+=======
+>>>>>>> Stashed changes
   font-size: 0.6rem;
   font-weight: 800;
-  padding: 2px 7px;
+  padding: 2px 6px;
   border-radius: 4px;
+  color: #ffffff !important;
   letter-spacing: 0.2px;
+  line-height: 1.2;
+  background-color: #8b1e1e; /* Warna cadangan agar tidak transparan */
+}
+
+/* Variasi Warna Pipeline */
+.badge-pipeline.badge-urp,
+.badge-urp {
+  background-color: #8b1e1e !important; /* Merah Maroon */
+}
+
+.badge-pipeline.badge-hdrp,
+.badge-hdrp {
+  background-color: #383e82 !important; /* Indigo / Biru-Ungu Gelap */
+}
+
+.badge-pipeline.badge-builtin,
+.badge-builtin {
+  background-color: #007bff !important; /* Biru Terang */
 }
 
 /* Warna tag per render pipeline. Warna dasar di atas jadi cadangan untuk
@@ -662,6 +714,7 @@ body {
 }
 
 /* ==========================================================================
+<<<<<<< Updated upstream
    STYLING HALAMAN DETAIL ASET
    ========================================================================== */
 
@@ -1166,3 +1219,109 @@ body {
 .footer-main-centered .footer-brand-desc {
   max-width: 560px;
 }
+=======
+   STYLING HALAMAN PROFIL PUBLIK KREATOR
+   ========================================================================== */
+
+/* Card Profil dengan Banner */
+.creator-profile-card {
+  background-color: #ffffff;
+  border: 1px solid #e5d5cb;
+  border-radius: 12px;
+  overflow: visible;
+  box-shadow: 0 4px 14px rgba(59, 35, 20, 0.05);
+}
+
+.creator-banner-maroon {
+  background-color: #8b1e1e;
+  height: 190px;
+  border-top-left-radius: 11px;
+  border-top-right-radius: 11px;
+}
+
+.creator-info-body {
+  position: relative;
+  padding: 24px 32px 32px 220px;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  border-bottom-left-radius: 11px;
+  border-bottom-right-radius: 11px;
+}
+
+/* Avatar Bulat Mengambang Menembus Banner */
+.creator-avatar-float {
+  position: absolute;
+  left: 40px;
+  bottom: 24px;
+  width: 140px;
+  height: 140px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  border: 5px solid #ffffff;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.creator-avatar-float span {
+  font-size: 2.7rem;
+  font-weight: 800;
+  color: #8b1e1e;
+  letter-spacing: -1px;
+}
+
+.creator-name {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--ifx-brown-dark, #3b2314);
+}
+
+.creator-bio {
+  font-size: 0.9rem;
+}
+
+.creator-link {
+  color: var(--ifx-brown-dark);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.creator-link:hover {
+  color: var(--ifx-orange);
+}
+
+/* Footer Rata Tengah */
+.footer-creator-center {
+  background-color: #ffffff;
+  border-top: 1px solid #e5d5cb;
+}
+
+.footer-link-inline {
+  font-size: 0.78rem;
+  color: #333333;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.footer-link-inline:hover {
+  color: var(--ifx-orange);
+}
+
+@media (max-width: 768px) {
+  .creator-info-body {
+    padding: 85px 20px 24px 20px;
+    text-align: center;
+    justify-content: center;
+  }
+  .creator-avatar-float {
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: auto;
+    top: -65px;
+    width: 115px;
+    height: 115px;
+  }
+}
+>>>>>>> Stashed changes

@@ -124,9 +124,10 @@
     /**
      * Baca keadaan awal halaman dari query string.
      *
-     * Dipakai tautan "Selengkapnya" di beranda:
-     *   /catalog/explore?sort=terbaru -> urutkan Terbaru
-     *   /catalog/explore?gratis=1     -> radio "Gratis" menyala
+     * Sumbernya:
+     *   /catalog/explore?sort=terbaru -> tautan "Selengkapnya" aset terbaru
+     *   /catalog/explore?gratis=1     -> tautan "Selengkapnya" aset gratis
+     *   /catalog/explore?q=rain       -> kotak pencarian navbar (form GET)
      */
     function readExploreParams() {
         var params = new URLSearchParams(window.location.search);
@@ -134,8 +135,27 @@
 
         return {
             sort: SORT_VALUES.indexOf(sort) === -1 ? 'terbaru' : sort,
-            gratis: params.get('gratis') === '1'
+            gratis: params.get('gratis') === '1',
+            query: (params.get('q') || '').trim()
         };
+    }
+
+    /* Pencarian sederhana di sisi klien: setiap kata pada kata kunci harus
+       muncul sebagai awal kata pada judul, penjual, kategori, atau deskripsi
+       singkat. Pencocokan per kata (bukan substring) mencegah "rain" ikut
+       menemukan "Terrain". Nanti diganti query backend. */
+    function matchesQuery(item, query) {
+        if (!query) { return true; }
+
+        var haystack = [item.title, item.seller_name, item.category, item.short_description]
+            .join(' ')
+            .toLowerCase();
+        var words = haystack.split(/[^a-z0-9]+/).filter(Boolean);
+        var tokens = query.toLowerCase().split(/\s+/).filter(Boolean);
+
+        return tokens.every(function (token) {
+            return words.some(function (word) { return word.indexOf(token) === 0; });
+        });
     }
 
     function renderExplore() {
@@ -150,6 +170,7 @@
         var allItems = [];
         var currentSort = initial.sort;
         var freeOnly = initial.gratis;
+        var currentQuery = initial.query;
         var currentPage = 1;
         var colClass = 'col-12 col-sm-6 col-md-4';
 
@@ -168,6 +189,12 @@
                 params.set('gratis', '1');
             } else {
                 params.delete('gratis');
+            }
+
+            if (currentQuery) {
+                params.set('q', currentQuery);
+            } else {
+                params.delete('q');
             }
 
             var query = params.toString();
@@ -204,9 +231,10 @@
         }
 
         function paint() {
-            var visible = freeOnly
-                ? allItems.filter(function (item) { return item.price === 0; })
-                : allItems;
+            var visible = allItems.filter(function (item) {
+                if (freeOnly && item.price !== 0) { return false; }
+                return matchesQuery(item, currentQuery);
+            });
             var sorted = applySort(visible, currentSort);
             var totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
 
@@ -275,10 +303,14 @@
 
                 freeOnly = false;
                 currentSort = 'terbaru';
+                currentQuery = '';
                 currentPage = 1;
 
                 if (freeRadio) { freeRadio.checked = false; }
                 if (sortSelect) { sortSelect.value = currentSort; }
+
+                var searchInput = document.querySelector('.search-input-header');
+                if (searchInput) { searchInput.value = ''; }
 
                 paint();
                 syncUrl();

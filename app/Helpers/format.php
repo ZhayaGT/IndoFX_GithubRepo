@@ -1,5 +1,6 @@
 <?php
 
+<<<<<<< Updated upstream
 // Kumpulan fungsi helper untuk format data
 
 /**
@@ -29,4 +30,16 @@ function pipeline_badge_class(string $pipeline): string
     ];
 
     return $classes[$pipeline] ?? '';
+=======
+declare(strict_types=1);
+
+if (!function_exists('formatRupiah')) {
+    /**
+     * Format angka ke format mata uang Rupiah
+     */
+    function formatRupiah(int|float $amount): string
+    {
+        return 'Rp' . number_format($amount, 0, ',', '.');
+    }
+>>>>>>> Stashed changes
 }

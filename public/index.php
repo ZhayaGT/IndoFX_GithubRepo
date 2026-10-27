@@ -19,7 +19,7 @@ use IndoFX\Core\Router;
 
 $config = require BASE_PATH . '/app/Config/app.php';
 
-if ($config['debug']) {
+if ($config['debug'] ?? true) {
     ini_set('display_errors', '1');
     error_reporting(E_ALL);
 } else {
@@ -27,9 +27,26 @@ if ($config['debug']) {
     error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
 }
 
+<<<<<<< Updated upstream
 // Sesi dipakai AuthController untuk menyimpan status login
 session_name($config['session']['name']);
 session_start();
+=======
+// Inisialisasi Session jika class tersedia
+if (class_exists(Session::class)) {
+    Session::start($config['session']['name'] ?? 'INDOFX_SESS', (int)($config['session']['lifetime'] ?? 7200));
+}
+
+// Coba koneksi ke database (abaikan jika DB belum menyala di lokal)
+try {
+    $dbConfig = BASE_PATH . '/app/Config/database.php';
+    if (file_exists($dbConfig) && class_exists(Database::class)) {
+        Database::connect(require $dbConfig);
+    }
+} catch (\Throwable $e) {
+    // Database belum diatur/aktif, lewati agar tampilan frontend tetap bisa diakses
+}
+>>>>>>> Stashed changes
 
 $router = new Router();
 require BASE_PATH . '/routes/web.php';

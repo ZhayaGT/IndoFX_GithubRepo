@@ -80,10 +80,14 @@
                 <span class="brand-text">IndoFX</span>
             </a>
 
-            <div class="search-box-header d-flex align-items-center">
+<<<<<<< Updated upstream
+            <?php require BASE_PATH . '/resources/views/partials/navbar-search.php'; ?>
+=======
+            <div class="search-box-header d-flex align-items-center flex-grow-1 mx-2 mx-md-4">
                 <i class="bi bi-search search-icon-header"></i>
-                <input type="text" class="form-control search-input-header" placeholder="Cari aset, VFX, shader, tekstur...">
+                <input type="text" class="form-control search-input-header" placeholder="Cari aset...">
             </div>
+>>>>>>> Stashed changes
 
             <div class="d-flex align-items-center gap-2">
                 <?php require BASE_PATH . '/resources/views/partials/navbar-auth.php'; ?>
