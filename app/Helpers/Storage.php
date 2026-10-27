@@ -33,7 +33,7 @@ class Storage
     /**
      * URL gambar utama dengan cadangan bila aset belum punya gambar.
      */
-    public static function image(?string $path, string $fallback = '/assets/img/placeholder.svg'): string
+    public static function image(?string $path, string $fallback = '/assets/img/placeholder.png'): string
     {
         $url = self::url($path);
 
