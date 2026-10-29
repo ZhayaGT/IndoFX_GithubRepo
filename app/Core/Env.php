@@ -5,8 +5,18 @@ namespace IndoFX\Core;
 class Env {
     // Mengambil nilai string dari variabel environment (.env)
     public static function get($key, $default = null) {
-        // Menggunakan $_ENV bawaan dari library vlucas/phpdotenv
-        return $_ENV[$key] ?? $default;
+        // Variabel proses (shell/CI) diutamakan, lalu nilai dari .env.
+        $value = getenv($key);
+
+        if ($value === false) {
+            $value = $_ENV[$key] ?? null;
+        }
+
+        if ($value === false || $value === null) {
+            return $default;
+        }
+
+        return $value;
     }
 
     // Mengambil nilai boolean dari variabel environment (.env)

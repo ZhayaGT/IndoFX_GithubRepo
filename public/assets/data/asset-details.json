@@ -1,0 +1,799 @@
+{
+  "volumetric-rain-storm": {
+    "file_format": ".unitypackage",
+    "gallery": [
+      "/assets/img/catalog/asset-01.svg",
+      "/assets/img/catalog/asset-01-2.svg",
+      "/assets/img/catalog/asset-01-3.svg",
+      "/assets/img/catalog/asset-01-4.svg"
+    ],
+    "description": [
+      "Volumetric Rain & Storm URP dirancang untuk mewujudkan sistem cuaca dramatis dalam pipeline rendering URP di Unity. Dilengkapi kontrol intensitas angin, density partikel kabut, dan kustomisasi semburan petir secara real-time.",
+      "Sangat cocok untuk game bertema horor, petualangan, maupun simulasi lingkungan Indonesia yang tropis dan kaya curah hujan."
+    ],
+    "changelog": [
+      {
+        "version": "1.2.0",
+        "date": "15 September 2026",
+        "notes": [
+          "Penambahan contoh scene untuk mendukung variasi parameter aset.",
+          "Penyempurnaan dokumentasi pengaturan material dalam Bahasa Indonesia."
+        ]
+      },
+      {
+        "version": "1.1.0",
+        "date": "20 Agustus 2026",
+        "notes": [
+          "Penyempurnaan struktur parameter pada inspector agar lebih mudah dipahami.",
+          "Perbaikan referensi material pada contoh scene."
+        ]
+      },
+      {
+        "version": "1.0.0",
+        "date": "1 Agustus 2026",
+        "notes": [
+          "Penyertaan file paket aset dan scene demonstrasi.",
+          "Penyertaan panduan instalasi dan penggunaan dasar."
+        ]
+      }
+    ],
+    "reviews": [
+      {
+        "name": "Dimas Pratama",
+        "date": "18 September 2026",
+        "rating": 5,
+        "title": "Mudah dipelajari untuk prototype",
+        "body": "Contoh scene membantu saya memahami pengaturan material. Panduan Bahasa Indonesia juga memudahkan proses integrasi aset."
+      },
+      {
+        "name": "Ayu Lestari",
+        "date": "12 September 2026",
+        "rating": 5,
+        "title": "Membantu alur kerja proyek",
+        "body": "Parameter cukup mudah diatur. Akan lebih membantu jika ada lebih banyak contoh penggunaan untuk berbagai skenario game."
+      },
+      {
+        "name": "Hendra Gunawan",
+        "date": "6 September 2026",
+        "rating": 4,
+        "title": "Cocok penggunaan yang jelas",
+        "body": "Struktur paket mudah dipahami dan nyaman untuk eksplorasi. Saya bisa mulai mencoba tanpa banyak penyesuaian."
+      }
+    ],
+    "pipelines": [
+      "URP",
+      "HDRP"
+    ],
+    "unity_versions": "2021.3+ / 2022.3 LTS"
+  },
+  "forest-mist-fog": {
+    "file_format": ".unitypackage",
+    "gallery": [
+      "/assets/img/catalog/asset-02.svg",
+      "/assets/img/catalog/asset-02-2.svg",
+      "/assets/img/catalog/asset-02-3.svg",
+      "/assets/img/catalog/asset-02-4.svg"
+    ],
+    "description": [
+      "Forest Mist & Fog Volume menghadirkan kabut hutan berlapis dengan partikel debu halus yang bergerak mengikuti arah angin. Seluruh parameter volume dapat diatur langsung dari inspector tanpa menyentuh shader.",
+      "Pilihan tepat untuk membangun suasana pagi di hutan pinus, jalur pegunungan, atau area rawa yang membutuhkan kedalaman visual tambahan."
+    ],
+    "changelog": [
+      {
+        "version": "1.2.0",
+        "date": "11 September 2026",
+        "notes": [
+          "Penambahan contoh scene untuk mendukung variasi parameter aset.",
+          "Penyempurnaan dokumentasi pengaturan material dalam Bahasa Indonesia."
+        ]
+      },
+      {
+        "version": "1.1.0",
+        "date": "17 Agustus 2026",
+        "notes": [
+          "Penyempurnaan struktur parameter pada inspector agar lebih mudah dipahami.",
+          "Perbaikan referensi material pada contoh scene."
+        ]
+      },
+      {
+        "version": "1.0.0",
+        "date": "28 Juli 2026",
+        "notes": [
+          "Penyertaan file paket aset dan scene demonstrasi.",
+          "Penyertaan panduan instalasi dan penggunaan dasar."
+        ]
+      }
+    ],
+    "reviews": [
+      {
+        "name": "Nadia Putri",
+        "date": "12 September 2026",
+        "rating": 5,
+        "title": "Parameter mudah diatur",
+        "body": "Parameter mudah diatur langsung dari inspector. Panduan Bahasa Indonesia mempersingkat waktu belajar."
+      },
+      {
+        "name": "Fajar Nugroho",
+        "date": "6 September 2026",
+        "rating": 4,
+        "title": "Cocok untuk scene dramatis",
+        "body": "Cocok untuk adegan dramatis. Saya hanya perlu mengubah beberapa nilai untuk menyesuaikan suasana."
+      },
+      {
+        "name": "Melati Sari",
+        "date": "29 Agustus 2026",
+        "rating": 4,
+        "title": "Mudah dipelajari untuk prototype",
+        "body": "Struktur paket mudah dipahami dan nyaman untuk eksplorasi. Saya bisa mulai mencoba tanpa banyak penyesuaian."
+      }
+    ],
+    "pipelines": [
+      "Built-in"
+    ],
+    "unity_versions": "2021.3+ / 2022.3 LTS"
+  },
+  "neon-city-shader": {
+    "file_format": ".unitypackage",
+    "gallery": [
+      "/assets/img/catalog/asset-03.svg",
+      "/assets/img/catalog/asset-03-2.svg",
+      "/assets/img/catalog/asset-03-3.svg",
+      "/assets/img/catalog/asset-03-4.svg"
+    ],
+    "description": [
+      "Neon City Wet Surface Shader mensimulasikan permukaan jalan basah dengan pantulan lampu neon, riak air hujan, dan lapisan genangan yang dapat diatur per material.",
+      "Dirancang untuk kebutuhan game cyberpunk maupun thriller urban yang mengandalkan pencahayaan kota malam sebagai identitas visual utama."
+    ],
+    "changelog": [
+      {
+        "version": "1.2.0",
+        "date": "7 September 2026",
+        "notes": [
+          "Penambahan contoh scene untuk mendukung variasi parameter aset.",
+          "Penyempurnaan dokumentasi pengaturan material dalam Bahasa Indonesia."
+        ]
+      },
+      {
+        "version": "1.1.0",
+        "date": "13 Agustus 2026",
+        "notes": [
+          "Penyempurnaan struktur parameter pada inspector agar lebih mudah dipahami.",
+          "Perbaikan referensi material pada contoh scene."
+        ]
+      },
+      {
+        "version": "1.0.0",
+        "date": "24 Juli 2026",
+        "notes": [
+          "Penyertaan file paket aset dan scene demonstrasi.",
+          "Penyertaan panduan instalasi dan penggunaan dasar."
+        ]
+      }
+    ],
+    "reviews": [
+      {
+        "name": "Raka Saputra",
+        "date": "6 September 2026",
+        "rating": 5,
+        "title": "Dokumentasi pengaturan lengkap",
+        "body": "Dokumentasi pengaturan cukup lengkap untuk dipakai tim kecil. Kami tidak perlu menyesuaikan shader dari awal."
+      },
+      {
+        "name": "Citra Dewi",
+        "date": "29 Agustus 2026",
+        "rating": 5,
+        "title": "Kualitas visual memuaskan",
+        "body": "Kualitas visual di scene percobaan memuaskan, meski perlu sedikit penyesuaian untuk gaya artistik kami."
+      },
+      {
+        "name": "Reza Alfarizi",
+        "date": "22 Agustus 2026",
+        "rating": 5,
+        "title": "Mudah dipelajari untuk prototype",
+        "body": "Contoh scene membantu saya memahami pengaturan material. Panduan Bahasa Indonesia juga memudahkan proses integrasi aset."
+      }
+    ],
+    "pipelines": [
+      "HDRP",
+      "URP"
+    ],
+    "unity_versions": "2021.3+ / 2022.3 LTS"
+  },
+  "desert-dune-terrain": {
+    "file_format": ".unitypackage",
+    "gallery": [
+      "/assets/img/catalog/asset-04.svg",
+      "/assets/img/catalog/asset-04-2.svg",
+      "/assets/img/catalog/asset-04-3.svg",
+      "/assets/img/catalog/asset-04-4.svg"
+    ],
+    "description": [
+      "Desert Dune Terrain Pack menyediakan set terrain gurun lengkap dengan material pasir, tekstur riak angin, dan batuan pelengkap yang siap dipakai pada scene Unity.",
+      "Cocok untuk game petualangan, survival, maupun simulasi perjalanan lintas gurun dengan kebutuhan lanskap luas."
+    ],
+    "changelog": [
+      {
+        "version": "1.2.0",
+        "date": "15 September 2026",
+        "notes": [
+          "Penambahan contoh scene untuk mendukung variasi parameter aset.",
+          "Penyempurnaan dokumentasi pengaturan material dalam Bahasa Indonesia."
+        ]
+      },
+      {
+        "version": "1.1.0",
+        "date": "20 Agustus 2026",
+        "notes": [
+          "Penyempurnaan struktur parameter pada inspector agar lebih mudah dipahami.",
+          "Perbaikan referensi material pada contoh scene."
+        ]
+      },
+      {
+        "version": "1.0.0",
+        "date": "1 Agustus 2026",
+        "notes": [
+          "Penyertaan file paket aset dan scene demonstrasi.",
+          "Penyertaan panduan instalasi dan penggunaan dasar."
+        ]
+      }
+    ],
+    "reviews": [
+      {
+        "name": "Sinta Maharani",
+        "date": "29 Agustus 2026",
+        "rating": 5,
+        "title": "Detail aset rapi",
+        "body": "Detail aset rapi dan material mudah disesuaikan dengan gaya visual proyek kami."
+      },
+      {
+        "name": "Yoga Prasetyo",
+        "date": "22 Agustus 2026",
+        "rating": 4,
+        "title": "Topologi bersih dan ringan",
+        "body": "Topologi bersih sehingga ringan dipakai pada scene dengan banyak objek."
+      },
+      {
+        "name": "Putri Handayani",
+        "date": "14 Agustus 2026",
+        "rating": 3,
+        "title": "Siap pakai untuk prototype",
+        "body": "Penamaan objek dan folder memudahkan pencarian aset saat menyusun scene percobaan."
+      }
+    ],
+    "pipelines": [
+      "URP"
+    ],
+    "unity_versions": "2021.3+ / 2022.3 LTS"
+  },
+  "ocean-depth-water": {
+    "file_format": ".unitypackage",
+    "gallery": [
+      "/assets/img/catalog/asset-05.svg",
+      "/assets/img/catalog/asset-05-2.svg",
+      "/assets/img/catalog/asset-05-3.svg",
+      "/assets/img/catalog/asset-05-4.svg"
+    ],
+    "description": [
+      "Ocean Depth Water Shader menghasilkan air laut dalam dengan caustic, gelombang berlapis, dan gradasi warna kedalaman yang berubah mengikuti jarak kamera.",
+      "Ditujukan untuk game eksplorasi bawah laut, simulasi pelayaran, maupun adegan pesisir yang membutuhkan air dengan detail tinggi."
+    ],
+    "changelog": [
+      {
+        "version": "1.2.0",
+        "date": "11 September 2026",
+        "notes": [
+          "Penambahan contoh scene untuk mendukung variasi parameter aset.",
+          "Penyempurnaan dokumentasi pengaturan material dalam Bahasa Indonesia."
+        ]
+      },
+      {
+        "version": "1.1.0",
+        "date": "17 Agustus 2026",
+        "notes": [
+          "Penyempurnaan struktur parameter pada inspector agar lebih mudah dipahami.",
+          "Perbaikan referensi material pada contoh scene."
+        ]
+      },
+      {
+        "version": "1.0.0",
+        "date": "28 Juli 2026",
+        "notes": [
+          "Penyertaan file paket aset dan scene demonstrasi.",
+          "Penyertaan panduan instalasi dan penggunaan dasar."
+        ]
+      }
+    ],
+    "reviews": [
+      {
+        "name": "Bagas Wicaksono",
+        "date": "22 Agustus 2026",
+        "rating": 4,
+        "title": "Cocok penggunaan yang jelas",
+        "body": "Struktur paket mudah dipahami dan nyaman untuk eksplorasi. Saya bisa mulai mencoba tanpa banyak penyesuaian."
+      },
+      {
+        "name": "Intan Permata",
+        "date": "14 Agustus 2026",
+        "rating": 4,
+        "title": "Hasil render sesuai referensi",
+        "body": "Hasil akhir mendekati referensi yang saya butuhkan untuk scene malam. Pengaturan intensitas terasa responsif."
+      },
+      {
+        "name": "Adit Nugraha",
+        "date": "18 September 2026",
+        "rating": 4,
+        "title": "Dokumentasi pengaturan lengkap",
+        "body": "Dokumentasi pengaturan cukup lengkap untuk dipakai tim kecil. Kami tidak perlu menyesuaikan shader dari awal."
+      }
+    ],
+    "pipelines": [
+      "HDRP",
+      "URP"
+    ],
+    "unity_versions": "2022.3+ / 2023.1"
+  },
+  "volcano-ash-vfx": {
+    "file_format": ".unitypackage",
+    "gallery": [
+      "/assets/img/catalog/asset-06.svg",
+      "/assets/img/catalog/asset-06-2.svg",
+      "/assets/img/catalog/asset-06-3.svg",
+      "/assets/img/catalog/asset-06-4.svg"
+    ],
+    "description": [
+      "Volcano Ash & Ember VFX membawa efek letusan gunung berapi lengkap dengan abu vulkanik, bara api yang melayang, dan asap tebal yang menyebar mengikuti arah angin.",
+      "Pilihan tepat untuk game bertema bencana alam, survival, atau lanskap vulkanik yang membutuhkan atmosfer panas dan mencekam."
+    ],
+    "changelog": [
+      {
+        "version": "1.2.0",
+        "date": "7 September 2026",
+        "notes": [
+          "Penambahan contoh scene untuk mendukung variasi parameter aset.",
+          "Penyempurnaan dokumentasi pengaturan material dalam Bahasa Indonesia."
+        ]
+      },
+      {
+        "version": "1.1.0",
+        "date": "13 Agustus 2026",
+        "notes": [
+          "Penyempurnaan struktur parameter pada inspector agar lebih mudah dipahami.",
+          "Perbaikan referensi material pada contoh scene."
+        ]
+      },
+      {
+        "version": "1.0.0",
+        "date": "24 Juli 2026",
+        "notes": [
+          "Penyertaan file paket aset dan scene demonstrasi.",
+          "Penyertaan panduan instalasi dan penggunaan dasar."
+        ]
+      }
+    ],
+    "reviews": [
+      {
+        "name": "Ayu Lestari",
+        "date": "14 Agustus 2026",
+        "rating": 5,
+        "title": "Mudah dipelajari untuk prototype",
+        "body": "Struktur paket mudah dipahami dan nyaman untuk eksplorasi. Saya bisa mulai mencoba tanpa banyak penyesuaian."
+      },
+      {
+        "name": "Hendra Gunawan",
+        "date": "18 September 2026",
+        "rating": 5,
+        "title": "Hasil efek mendekati referensi",
+        "body": "Hasil efek mendekati referensi, dengan catatan perlu penyesuaian warna untuk scene yang lebih terang."
+      },
+      {
+        "name": "Dimas Pratama",
+        "date": "12 September 2026",
+        "rating": 4,
+        "title": "Efek terasa natural",
+        "body": "Efek terasa natural dan tidak berlebihan. Contoh scene membantu saya melihat cara mengatur intensitas partikel."
+      }
+    ],
+    "pipelines": [
+      "URP"
+    ],
+    "unity_versions": "2021.3+ / 2022.3 LTS"
+  },
+  "aurora-night-sky": {
+    "file_format": ".unitypackage",
+    "gallery": [
+      "/assets/img/catalog/asset-07.svg",
+      "/assets/img/catalog/asset-07-2.svg",
+      "/assets/img/catalog/asset-07-3.svg",
+      "/assets/img/catalog/asset-07-4.svg"
+    ],
+    "description": [
+      "Aurora Night Skybox menghadirkan langit malam dengan pita aurora bergradasi, lapisan bintang, dan horizon gelap yang menyatu dengan scene.",
+      "Cocok dipakai untuk game bertema fantasi, ekspedisi kutub, maupun adegan hening yang mengandalkan keindahan langit sebagai fokus."
+    ],
+    "changelog": [
+      {
+        "version": "1.2.0",
+        "date": "15 September 2026",
+        "notes": [
+          "Penambahan contoh scene untuk mendukung variasi parameter aset.",
+          "Penyempurnaan dokumentasi pengaturan material dalam Bahasa Indonesia."
+        ]
+      },
+      {
+        "version": "1.1.0",
+        "date": "20 Agustus 2026",
+        "notes": [
+          "Penyempurnaan struktur parameter pada inspector agar lebih mudah dipahami.",
+          "Perbaikan referensi material pada contoh scene."
+        ]
+      },
+      {
+        "version": "1.0.0",
+        "date": "1 Agustus 2026",
+        "notes": [
+          "Penyertaan file paket aset dan scene demonstrasi.",
+          "Penyertaan panduan instalasi dan penggunaan dasar."
+        ]
+      }
+    ],
+    "reviews": [
+      {
+        "name": "Fajar Nugroho",
+        "date": "18 September 2026",
+        "rating": 5,
+        "title": "Mudah dipelajari untuk prototype",
+        "body": "Contoh scene membantu saya memahami pengaturan material. Panduan Bahasa Indonesia juga memudahkan proses integrasi aset."
+      },
+      {
+        "name": "Melati Sari",
+        "date": "12 September 2026",
+        "rating": 4,
+        "title": "Membantu alur kerja proyek",
+        "body": "Parameter cukup mudah diatur. Akan lebih membantu jika ada lebih banyak contoh penggunaan untuk berbagai skenario game."
+      },
+      {
+        "name": "Nadia Putri",
+        "date": "6 September 2026",
+        "rating": 5,
+        "title": "Cocok penggunaan yang jelas",
+        "body": "Struktur paket mudah dipahami dan nyaman untuk eksplorasi. Saya bisa mulai mencoba tanpa banyak penyesuaian."
+      }
+    ],
+    "pipelines": [
+      "Built-in",
+      "URP"
+    ],
+    "unity_versions": "2021.3+ / 2022.3 LTS"
+  },
+  "snow-peak-terrain": {
+    "file_format": ".unitypackage",
+    "gallery": [
+      "/assets/img/catalog/asset-08.svg",
+      "/assets/img/catalog/asset-08-2.svg",
+      "/assets/img/catalog/asset-08-3.svg",
+      "/assets/img/catalog/asset-08-4.svg"
+    ],
+    "description": [
+      "Snow Peak Terrain Set berisi pegunungan salju dengan material tumpukan salju, jejak permukaan, dan batuan beku yang siap dipakai langsung pada scene Unity.",
+      "Dirancang untuk game bertema ekspedisi, survival dingin, maupun petualangan gunung dengan lanskap luas."
+    ],
+    "changelog": [
+      {
+        "version": "1.2.0",
+        "date": "11 September 2026",
+        "notes": [
+          "Penambahan contoh scene untuk mendukung variasi parameter aset.",
+          "Penyempurnaan dokumentasi pengaturan material dalam Bahasa Indonesia."
+        ]
+      },
+      {
+        "version": "1.1.0",
+        "date": "17 Agustus 2026",
+        "notes": [
+          "Penyempurnaan struktur parameter pada inspector agar lebih mudah dipahami.",
+          "Perbaikan referensi material pada contoh scene."
+        ]
+      },
+      {
+        "version": "1.0.0",
+        "date": "28 Juli 2026",
+        "notes": [
+          "Penyertaan file paket aset dan scene demonstrasi.",
+          "Penyertaan panduan instalasi dan penggunaan dasar."
+        ]
+      }
+    ],
+    "reviews": [
+      {
+        "name": "Citra Dewi",
+        "date": "12 September 2026",
+        "rating": 4,
+        "title": "Siap pakai untuk prototype",
+        "body": "Penamaan objek dan folder memudahkan pencarian aset saat menyusun scene percobaan."
+      },
+      {
+        "name": "Reza Alfarizi",
+        "date": "6 September 2026",
+        "rating": 5,
+        "title": "Cocok penggunaan yang jelas",
+        "body": "Struktur paket mudah dipahami dan nyaman untuk eksplorasi. Saya bisa mulai mencoba tanpa banyak penyesuaian."
+      },
+      {
+        "name": "Raka Saputra",
+        "date": "29 Agustus 2026",
+        "rating": 4,
+        "title": "LOD membantu performa",
+        "body": "LOD bawaan membantu menjaga performa saat aset dipakai dalam jumlah banyak."
+      }
+    ],
+    "pipelines": [
+      "HDRP"
+    ],
+    "unity_versions": "2021.3+ / 2022.3 LTS"
+  },
+  "cyber-grid-particle": {
+    "file_format": ".unitypackage",
+    "gallery": [
+      "/assets/img/catalog/asset-09.svg",
+      "/assets/img/catalog/asset-09-2.svg",
+      "/assets/img/catalog/asset-09-3.svg",
+      "/assets/img/catalog/asset-09-4.svg"
+    ],
+    "description": [
+      "Cyber Grid Particle System menghadirkan partikel grid siber dengan aliran data neon yang bergerak dinamis mengikuti sumbu ruang.",
+      "Cocok untuk tampilan antarmuka futuristik, transisi scene, maupun latar game bertema teknologi dan ruang virtual."
+    ],
+    "changelog": [
+      {
+        "version": "1.2.0",
+        "date": "7 September 2026",
+        "notes": [
+          "Penambahan contoh scene untuk mendukung variasi parameter aset.",
+          "Penyempurnaan dokumentasi pengaturan material dalam Bahasa Indonesia."
+        ]
+      },
+      {
+        "version": "1.1.0",
+        "date": "13 Agustus 2026",
+        "notes": [
+          "Penyempurnaan struktur parameter pada inspector agar lebih mudah dipahami.",
+          "Perbaikan referensi material pada contoh scene."
+        ]
+      },
+      {
+        "version": "1.0.0",
+        "date": "24 Juli 2026",
+        "notes": [
+          "Penyertaan file paket aset dan scene demonstrasi.",
+          "Penyertaan panduan instalasi dan penggunaan dasar."
+        ]
+      }
+    ],
+    "reviews": [
+      {
+        "name": "Yoga Prasetyo",
+        "date": "6 September 2026",
+        "rating": 5,
+        "title": "Mudah dipelajari untuk prototype",
+        "body": "Struktur paket mudah dipahami dan nyaman untuk eksplorasi. Saya bisa mulai mencoba tanpa banyak penyesuaian."
+      },
+      {
+        "name": "Putri Handayani",
+        "date": "29 Agustus 2026",
+        "rating": 5,
+        "title": "Hasil efek mendekati referensi",
+        "body": "Hasil efek mendekati referensi, dengan catatan perlu penyesuaian warna untuk scene yang lebih terang."
+      },
+      {
+        "name": "Sinta Maharani",
+        "date": "22 Agustus 2026",
+        "rating": 4,
+        "title": "Efek terasa natural",
+        "body": "Efek terasa natural dan tidak berlebihan. Contoh scene membantu saya melihat cara mengatur intensitas partikel."
+      }
+    ],
+    "pipelines": [
+      "URP"
+    ],
+    "unity_versions": "2022.3+ / 2023.1"
+  },
+  "autumn-grove-foliage": {
+    "file_format": ".unitypackage",
+    "gallery": [
+      "/assets/img/catalog/asset-10.svg",
+      "/assets/img/catalog/asset-10-2.svg",
+      "/assets/img/catalog/asset-10-3.svg",
+      "/assets/img/catalog/asset-10-4.svg"
+    ],
+    "description": [
+      "Autumn Grove Foliage Kit menyediakan pohon dan semak musim gugur dengan LOD siap pakai, variasi warna daun, serta pengaturan angin bawaan.",
+      "Pilihan tepat untuk membangun hutan gugur pada game petualangan, RPG, maupun adegan luar ruang dengan kebutuhan performa stabil."
+    ],
+    "changelog": [
+      {
+        "version": "1.2.0",
+        "date": "15 September 2026",
+        "notes": [
+          "Penambahan contoh scene untuk mendukung variasi parameter aset.",
+          "Penyempurnaan dokumentasi pengaturan material dalam Bahasa Indonesia."
+        ]
+      },
+      {
+        "version": "1.1.0",
+        "date": "20 Agustus 2026",
+        "notes": [
+          "Penyempurnaan struktur parameter pada inspector agar lebih mudah dipahami.",
+          "Perbaikan referensi material pada contoh scene."
+        ]
+      },
+      {
+        "version": "1.0.0",
+        "date": "1 Agustus 2026",
+        "notes": [
+          "Penyertaan file paket aset dan scene demonstrasi.",
+          "Penyertaan panduan instalasi dan penggunaan dasar."
+        ]
+      }
+    ],
+    "reviews": [
+      {
+        "name": "Intan Permata",
+        "date": "29 Agustus 2026",
+        "rating": 5,
+        "title": "Detail aset rapi",
+        "body": "Detail aset rapi dan material mudah disesuaikan dengan gaya visual proyek kami."
+      },
+      {
+        "name": "Adit Nugraha",
+        "date": "22 Agustus 2026",
+        "rating": 4,
+        "title": "Topologi bersih dan ringan",
+        "body": "Topologi bersih sehingga ringan dipakai pada scene dengan banyak objek."
+      },
+      {
+        "name": "Bagas Wicaksono",
+        "date": "14 Agustus 2026",
+        "rating": 5,
+        "title": "Siap pakai untuk prototype",
+        "body": "Penamaan objek dan folder memudahkan pencarian aset saat menyusun scene percobaan."
+      }
+    ],
+    "pipelines": [
+      "Built-in"
+    ],
+    "unity_versions": "2021.3+ / 2022.3 LTS"
+  },
+  "cave-crystal-set": {
+    "file_format": ".unitypackage",
+    "gallery": [
+      "/assets/img/catalog/asset-11.svg",
+      "/assets/img/catalog/asset-11-2.svg",
+      "/assets/img/catalog/asset-11-3.svg",
+      "/assets/img/catalog/asset-11-4.svg"
+    ],
+    "description": [
+      "Cave Crystal Prop Set berisi kristal gua dengan material refraktif dan emissive, lengkap dengan variasi ukuran untuk menyusun interior gua.",
+      "Dirancang untuk game eksplorasi, fantasi bawah tanah, maupun dungeon yang mengandalkan pencahayaan dari objek di dalam scene."
+    ],
+    "changelog": [
+      {
+        "version": "1.2.0",
+        "date": "11 September 2026",
+        "notes": [
+          "Penambahan contoh scene untuk mendukung variasi parameter aset.",
+          "Penyempurnaan dokumentasi pengaturan material dalam Bahasa Indonesia."
+        ]
+      },
+      {
+        "version": "1.1.0",
+        "date": "17 Agustus 2026",
+        "notes": [
+          "Penyempurnaan struktur parameter pada inspector agar lebih mudah dipahami.",
+          "Perbaikan referensi material pada contoh scene."
+        ]
+      },
+      {
+        "version": "1.0.0",
+        "date": "28 Juli 2026",
+        "notes": [
+          "Penyertaan file paket aset dan scene demonstrasi.",
+          "Penyertaan panduan instalasi dan penggunaan dasar."
+        ]
+      }
+    ],
+    "reviews": [
+      {
+        "name": "Hendra Gunawan",
+        "date": "22 Agustus 2026",
+        "rating": 4,
+        "title": "Siap pakai untuk prototype",
+        "body": "Penamaan objek dan folder memudahkan pencarian aset saat menyusun scene percobaan."
+      },
+      {
+        "name": "Dimas Pratama",
+        "date": "14 Agustus 2026",
+        "rating": 4,
+        "title": "Cocok penggunaan yang jelas",
+        "body": "Struktur paket mudah dipahami dan nyaman untuk eksplorasi. Saya bisa mulai mencoba tanpa banyak penyesuaian."
+      },
+      {
+        "name": "Ayu Lestari",
+        "date": "18 September 2026",
+        "rating": 5,
+        "title": "LOD membantu performa",
+        "body": "LOD bawaan membantu menjaga performa saat aset dipakai dalam jumlah banyak."
+      }
+    ],
+    "pipelines": [
+      "URP"
+    ],
+    "unity_versions": "2021.3+ / 2022.3 LTS"
+  },
+  "storm-cloud-skybox": {
+    "file_format": ".unitypackage",
+    "gallery": [
+      "/assets/img/catalog/asset-12.svg",
+      "/assets/img/catalog/asset-12-2.svg",
+      "/assets/img/catalog/asset-12-3.svg",
+      "/assets/img/catalog/asset-12-4.svg"
+    ],
+    "description": [
+      "Storm Cloud Dynamic Skybox menghadirkan langit badai dengan awan bergerak, kilat berkala, dan gradasi warna kelabu yang dapat diatur melalui material skybox.",
+      "Cocok untuk adegan klimaks, game bertema cuaca ekstrem, maupun transisi suasana dari cerah menjadi badai."
+    ],
+    "changelog": [
+      {
+        "version": "1.2.0",
+        "date": "7 September 2026",
+        "notes": [
+          "Penambahan contoh scene untuk mendukung variasi parameter aset.",
+          "Penyempurnaan dokumentasi pengaturan material dalam Bahasa Indonesia."
+        ]
+      },
+      {
+        "version": "1.1.0",
+        "date": "13 Agustus 2026",
+        "notes": [
+          "Penyempurnaan struktur parameter pada inspector agar lebih mudah dipahami.",
+          "Perbaikan referensi material pada contoh scene."
+        ]
+      },
+      {
+        "version": "1.0.0",
+        "date": "24 Juli 2026",
+        "notes": [
+          "Penyertaan file paket aset dan scene demonstrasi.",
+          "Penyertaan panduan instalasi dan penggunaan dasar."
+        ]
+      }
+    ],
+    "reviews": [
+      {
+        "name": "Melati Sari",
+        "date": "14 Agustus 2026",
+        "rating": 5,
+        "title": "Dokumentasi pengaturan lengkap",
+        "body": "Dokumentasi pengaturan cukup lengkap untuk dipakai tim kecil. Kami tidak perlu menyesuaikan shader dari awal."
+      },
+      {
+        "name": "Nadia Putri",
+        "date": "18 September 2026",
+        "rating": 5,
+        "title": "Kualitas visual memuaskan",
+        "body": "Kualitas visual di scene percobaan memuaskan, meski perlu sedikit penyesuaian untuk gaya artistik kami."
+      },
+      {
+        "name": "Fajar Nugroho",
+        "date": "12 September 2026",
+        "rating": 4,
+        "title": "Mudah dipelajari untuk prototype",
+        "body": "Contoh scene membantu saya memahami pengaturan material. Panduan Bahasa Indonesia juga memudahkan proses integrasi aset."
+      }
+    ],
+    "pipelines": [
+      "HDRP",
+      "URP"
+    ],
+    "unity_versions": "2022.3+ / 2023.1"
+  }
+}

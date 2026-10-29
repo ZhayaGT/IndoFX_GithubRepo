@@ -84,17 +84,17 @@
                 <span class="brand-text">IndoFX</span>
             </a>
 
-            <div class="search-box-header d-none d-md-flex align-items-center">
+<<<<<<< Updated upstream
+            <?php require BASE_PATH . '/resources/views/partials/navbar-search.php'; ?>
+=======
+            <div class="search-box-header d-flex align-items-center flex-grow-1 mx-2 mx-md-4">
                 <i class="bi bi-search search-icon-header"></i>
-                <input type="text" class="form-control search-input-header" placeholder="Cari aset, VFX, shader, tekstur...">
+                <input type="text" class="form-control search-input-header" placeholder="Cari aset...">
             </div>
+>>>>>>> Stashed changes
 
             <div class="d-flex align-items-center gap-2">
-                <?php if (isset($_SESSION['user_id'])): ?>
-                    <a href="/Dashboard" class="btn btn-nav-login">Halo, <?= htmlspecialchars($_SESSION['name'] ?? 'Akun') ?></a>
-                <?php else: ?>
-                    <a href="/login" class="btn btn-nav-login">Masuk</a>
-                <?php endif; ?>
+                <?php require BASE_PATH . '/resources/views/partials/navbar-auth.php'; ?>
             </div>
         </div>
     </nav>
@@ -117,8 +117,6 @@
                         <a href="#katalog" class="btn btn-hero-orange">Jelajahi Katalog</a>
                         <?php if (!isset($_SESSION['user_id'])): ?>
                             <a href="/login" class="btn btn-hero-cream">Masuk</a>
-                        <?php else: ?>
-                            <a href="/dashboard" class="btn btn-hero-cream">Dashboard Saya</a>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -157,79 +155,93 @@
                         <h4 class="catalog-heading mb-1">Aset CG & VFX Terbaru</h4>
                         <p class="catalog-subheading m-0">Aset terbaru yang diunggah oleh kreator game berbakat Indonesia</p>
                     </div>
-                    <a href="/dashboard" class="catalog-side-link">Library Saya</a>
+                    <a href="/catalog/explore?sort=terbaru" class="catalog-side-link">Selengkapnya</a>
                 </div>
 
+<<<<<<< Updated upstream
+                <div class="row g-3" data-catalog-list="latest"></div>
+=======
                 <div class="row g-3">
                     <?php for ($i = 0; $i < 4; $i++): ?>
                         <div class="col-12 col-sm-6 col-lg-3">
-                            <a href="/asset/detail" class="text-decoration-none d-block h-100">
-                                <div class="asset-card-figma h-100 d-flex flex-column">
-                                    <div class="asset-thumb-wrapper">
-                                        <svg width="100%" height="175" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice">
-                                            <use href="#castle-sunset-art" />
-                                        </svg>
-                                    </div>
-                                    <div class="asset-card-body d-flex flex-column justify-content-between flex-grow-1">
-                                        <div>
-                                            <span class="asset-studio">Arga Studio</span>
+                            <div class="asset-card-figma h-100 d-flex flex-column">
+                                <!-- Thumbnail mengarah ke Detail Aset -->
+                                <a href="/asset/detail" class="asset-thumb-wrapper d-block">
+                                    <svg width="100%" height="175" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice">
+                                        <use href="#castle-sunset-art" />
+                                    </svg>
+                                </a>
+                                <div class="asset-card-body d-flex flex-column justify-content-between flex-grow-1">
+                                    <div>
+                                        <!-- Nama Studio mengarah ke Profil Kreator -->
+                                        <a href="/creator/profile" class="asset-studio text-decoration-none d-inline-block">Arga Studio</a>
+                                        <!-- Judul mengarah ke Detail Aset -->
+                                        <a href="/asset/detail" class="text-decoration-none d-block">
                                             <h6 class="asset-name">Volumetric Rain & Storm URP</h6>
-                                            <div class="d-flex gap-1 mb-2">
-                                                <span class="badge-pipeline">URP</span>
-                                                <span class="badge-pipeline">HDRP</span>
-                                            </div>
+                                        </a>
+                                        <div class="d-flex gap-1 mb-2">
+                                            <span class="badge-pipeline badge-urp">URP</span>
+                                            <span class="badge-pipeline badge-hdrp">HDRP</span>
                                         </div>
-                                        <div class="d-flex justify-content-between align-items-center pt-1">
-                                            <span class="asset-price">Rp150.000</span>
-                                            <i class="bi bi-download asset-dl-icon"></i>
-                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center pt-1">
+                                        <span class="asset-price">Rp150.000</span>
+                                        <i class="bi bi-download asset-dl-icon"></i>
                                     </div>
                                 </div>
-                            </a>
+                            </div>
                         </div>
                     <?php endfor; ?>
                 </div>
+>>>>>>> Stashed changes
             </section>
 
-            <!-- Aset Gratis -->
+            <!-- Aset Gratis Unggulan -->
             <section class="catalog-block mb-2">
                 <div class="d-flex justify-content-between align-items-end mb-3">
                     <div>
                         <h4 class="catalog-heading mb-1">Aset Gratis Unggulan</h4>
                         <p class="catalog-subheading m-0">Mulai kembangkan prototype game Anda tanpa biaya</p>
                     </div>
-                    <a href="/catalog/explore" class="catalog-side-link">Selengkapnya</a>
+                    <a href="/catalog/explore?gratis=1&amp;sort=populer" class="catalog-side-link">Selengkapnya</a>
                 </div>
 
+<<<<<<< Updated upstream
+                <div class="row g-3" data-catalog-list="free"></div>
+=======
                 <div class="row g-3">
                     <?php for ($i = 0; $i < 4; $i++): ?>
                         <div class="col-12 col-sm-6 col-lg-3">
-                            <a href="/asset/detail" class="text-decoration-none d-block h-100">
-                                <div class="asset-card-figma h-100 d-flex flex-column">
-                                    <div class="asset-thumb-wrapper">
-                                        <svg width="100%" height="175" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice">
-                                            <use href="#forest-mist-art" />
-                                        </svg>
-                                    </div>
-                                    <div class="asset-card-body d-flex flex-column justify-content-between flex-grow-1">
-                                        <div>
-                                            <span class="asset-studio">Arga Studio</span>
+                            <div class="asset-card-figma h-100 d-flex flex-column">
+                                <!-- Thumbnail mengarah ke Detail Aset -->
+                                <a href="/asset/detail" class="asset-thumb-wrapper d-block">
+                                    <svg width="100%" height="175" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice">
+                                        <use href="#forest-mist-art" />
+                                    </svg>
+                                </a>
+                                <div class="asset-card-body d-flex flex-column justify-content-between flex-grow-1">
+                                    <div>
+                                        <!-- Nama Studio mengarah ke Profil Kreator -->
+                                        <a href="/creator/profile" class="asset-studio text-decoration-none d-inline-block">Arga Studio</a>
+                                        <!-- Judul mengarah ke Detail Aset -->
+                                        <a href="/asset/detail" class="text-decoration-none d-block">
                                             <h6 class="asset-name">Volumetric Rain & Storm URP</h6>
-                                            <div class="d-flex gap-1 mb-2">
-                                                <span class="badge-pipeline">URP</span>
-                                                <span class="badge-pipeline">HDRP</span>
-                                            </div>
+                                        </a>
+                                        <div class="d-flex gap-1 mb-2">
+                                            <span class="badge-pipeline badge-urp">URP</span>
+                                            <span class="badge-pipeline badge-builtin">Built-In</span>
                                         </div>
-                                        <div class="d-flex justify-content-between align-items-center pt-1">
-                                            <span class="asset-price">Gratis</span>
-                                            <i class="bi bi-download asset-dl-icon"></i>
-                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center pt-1">
+                                        <span class="asset-price">Gratis</span>
+                                        <i class="bi bi-download asset-dl-icon"></i>
                                     </div>
                                 </div>
-                            </a>
+                            </div>
                         </div>
                     <?php endfor; ?>
                 </div>
+>>>>>>> Stashed changes
             </section>
 
         </div>
@@ -271,6 +283,10 @@
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Pergantian navbar guest/pembeli -->
+    <script src="/assets/js/navbar-auth.js"></script>
+    <!-- Katalog dari data dummy -->
+    <script src="/assets/js/catalog.js" defer></script>
 </body>
 
 </html>

@@ -38,7 +38,8 @@ class Database {
     }
 
     // Mengambil instance singleton
-    public static function getInstance() {
+    public static function getInstance()
+    {
         if (self::$instance === null) {
             self::$instance = new Database();
         }
@@ -46,7 +47,8 @@ class Database {
     }
 
     // Fungsi utama untuk menjalankan query dengan prepared statement
-    public function query($sql, $params = []) {
+    public function query($sql, $params = [])
+    {
         $stmt = $this->connection->prepare($sql);
         $stmt->execute($params);
         return $stmt;
@@ -58,15 +60,18 @@ class Database {
     }
 
     // --- Kontrol Transaksi SQL ---
-    public function beginTransaction() {
+    public function beginTransaction()
+    {
         return $this->connection->beginTransaction();
     }
 
-    public function commit() {
+    public function commit()
+    {
         return $this->connection->commit();
     }
 
-    public function rollback() {
+    public function rollback()
+    {
         return $this->connection->rollBack();
     }
 }
