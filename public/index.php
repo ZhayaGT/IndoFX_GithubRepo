@@ -11,13 +11,25 @@ define('BASE_PATH', dirname(__DIR__));
 
 require BASE_PATH . '/vendor/autoload.php';
 
+// Memuat helper aplikasi
+if (file_exists(BASE_PATH . '/app/Helpers/format.php')) {
+    require_once BASE_PATH . '/app/Helpers/format.php';
+}
+if (file_exists(BASE_PATH . '/app/Helpers/markdown.php')) {
+    require_once BASE_PATH . '/app/Helpers/markdown.php';
+}
+
 // Inisialisasi phpdotenv untuk membaca file .env
-$dotenv = Dotenv\Dotenv::createImmutable(BASE_PATH);
-$dotenv->safeLoad();
+if (class_exists('Dotenv\\Dotenv') && file_exists(BASE_PATH . '/.env')) {
+    $dotenv = \Dotenv\Dotenv::createImmutable(BASE_PATH);
+    $dotenv->safeLoad();
+}
 
 use IndoFX\Core\Router;
 
-$config = require BASE_PATH . '/app/Config/app.php';
+$config = file_exists(BASE_PATH . '/app/Config/app.php')
+    ? require BASE_PATH . '/app/Config/app.php'
+    : [];
 
 if ($config['debug'] ?? true) {
     ini_set('display_errors', '1');
@@ -27,31 +39,38 @@ if ($config['debug'] ?? true) {
     error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
 }
 
-<<<<<<< Updated upstream
-// Sesi dipakai AuthController untuk menyimpan status login
-session_name($config['session']['name']);
-session_start();
-=======
-// Inisialisasi Session jika class tersedia
-if (class_exists(Session::class)) {
-    Session::start($config['session']['name'] ?? 'INDOFX_SESS', (int)($config['session']['lifetime'] ?? 7200));
+// Manajemen Sesi Aman
+$sessionName = $config['session']['name'] ?? 'INDOFX_SESS';
+
+if (class_exists('IndoFX\\Core\\Session')) {
+    $sessionClass = 'IndoFX\\Core\\Session';
+    $sessionClass::start($sessionName, (int)($config['session']['lifetime'] ?? 7200));
+} elseif (session_status() === PHP_SESSION_NONE) {
+    session_name($sessionName);
+    session_start();
 }
 
-// Coba koneksi ke database (abaikan jika DB belum menyala di lokal)
+// Pengecekan koneksi database secara dinamis tanpa memicu galat statis
 try {
     $dbConfig = BASE_PATH . '/app/Config/database.php';
-    if (file_exists($dbConfig) && class_exists(Database::class)) {
-        Database::connect(require $dbConfig);
+    if (file_exists($dbConfig)) {
+        $dbClass = class_exists('IndoFX\\Core\\Database')
+            ? 'IndoFX\\Core\\Database'
+            : (class_exists('Database') ? 'Database' : null);
+
+        if ($dbClass !== null && method_exists($dbClass, 'connect')) {
+            $dbClass::connect(require $dbConfig);
+        }
     }
 } catch (\Throwable $e) {
-    // Database belum diatur/aktif, lewati agar tampilan frontend tetap bisa diakses
+    // Dilewati agar antarmuka tetap berjalan meski database belum aktif
 }
->>>>>>> Stashed changes
 
+// Menjalankan router utama
 $router = new Router();
 require BASE_PATH . '/routes/web.php';
 
-$uri = $_SERVER['REQUEST_URI'];
-$method = $_SERVER['REQUEST_METHOD'];
+$uri = $_SERVER['REQUEST_URI'] ?? '/';
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
 $router->dispatch($uri, $method);

@@ -37,15 +37,18 @@ class AuthController extends Controller
         if ($user && password_verify($password, $user['password_hash'])) {
             // Daftarkan sesi pengguna
             $_SESSION['user_id'] = $user['id'];
-            $_SESSION['role'] = $user['role'];
-            $_SESSION['name'] = $user['name'];
+            $_SESSION['role']    = $user['role'];
+            $_SESSION['name']    = $user['name'];
+
+            // Mengambil bio dari database (jika belum diisi, pakai bio default)
+            $_SESSION['bio']     = $user['bio'] ?? 'Hanya game developer pemula :v';
 
             $this->redirect('/');
         }
 
         // Login gagal: simpan pesan lalu kembali ke form
         $_SESSION['login_error'] = 'Email atau password salah!';
-        $_SESSION['login_old'] = ['email' => $email];
+        $_SESSION['login_old']   = ['email' => $email];
 
         $this->redirect('/login');
     }
@@ -77,7 +80,7 @@ class AuthController extends Controller
         // Mencegah pendaftaran dengan email yang sama
         if ($userModel->findByEmail($email)) {
             $_SESSION['register_error'] = 'Email sudah terdaftar!';
-            $_SESSION['register_old'] = ['name' => $name, 'email' => $email];
+            $_SESSION['register_old']   = ['name' => $name, 'email' => $email];
 
             $this->redirect('/register');
         }
@@ -89,7 +92,7 @@ class AuthController extends Controller
         $userModel->create($name, $email, $passwordHash, 'buyer');
 
         $_SESSION['login_success'] = 'Registrasi berhasil! Silakan masuk.';
-        $_SESSION['login_old'] = ['email' => $email];
+        $_SESSION['login_old']     = ['email' => $email];
 
         $this->redirect('/login');
     }

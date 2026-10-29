@@ -1,45 +1,43 @@
 <?php
 
-<<<<<<< Updated upstream
+declare(strict_types=1);
+
 // Kumpulan fungsi helper untuk format data
 
-/**
- * Format harga aset menjadi teks rupiah.
- *
- * Harga 0 tampil sebagai "Gratis" supaya sejalan dengan kartu katalog
- * (lihat formatPrice di public/assets/js/catalog.js).
- */
-function format_rupiah(int $price): string
-{
-    return $price === 0 ? 'Gratis' : 'Rp' . number_format($price, 0, ',', '.');
+if (!function_exists('format_rupiah')) {
+    /**
+     * Format harga aset menjadi teks rupiah.
+     * Harga 0 tampil sebagai "Gratis".
+     */
+    function format_rupiah(int|float $price): string
+    {
+        return $price === 0 || $price === 0.0 ? 'Gratis' : 'Rp' . number_format($price, 0, ',', '.');
+    }
 }
-
-/**
- * Kelas warna tag untuk render pipeline.
- *
- * Warna diambil dari desain: URP merah, HDRP ungu, Built-in biru.
- * Nilai yang tidak dikenal memakai warna dasar .badge-pipeline.
- * Padanan di sisi klien: PIPELINE_CLASSES di public/assets/js/catalog.js.
- */
-function pipeline_badge_class(string $pipeline): string
-{
-    $classes = [
-        'URP'      => 'badge-pipeline-urp',
-        'HDRP'     => 'badge-pipeline-hdrp',
-        'Built-in' => 'badge-pipeline-builtin',
-    ];
-
-    return $classes[$pipeline] ?? '';
-=======
-declare(strict_types=1);
 
 if (!function_exists('formatRupiah')) {
     /**
-     * Format angka ke format mata uang Rupiah
+     * Alias camelCase untuk format Rupiah
      */
     function formatRupiah(int|float $amount): string
     {
-        return 'Rp' . number_format($amount, 0, ',', '.');
+        return format_rupiah($amount);
     }
->>>>>>> Stashed changes
+}
+
+if (!function_exists('pipeline_badge_class')) {
+    /**
+     * Kelas warna tag untuk render pipeline.
+     */
+    function pipeline_badge_class(string $pipeline): string
+    {
+        $classes = [
+            'URP'      => 'badge-pipeline badge-urp',
+            'HDRP'     => 'badge-pipeline badge-hdrp',
+            'Built-in' => 'badge-pipeline badge-builtin',
+            'Built-In' => 'badge-pipeline badge-builtin',
+        ];
+
+        return $classes[$pipeline] ?? 'badge-pipeline';
+    }
 }
