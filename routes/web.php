@@ -17,10 +17,6 @@ $router->add('GET', '/logout', 'AuthController', 'logout');
 // Halaman katalog lanjutan (front end)
 $router->add('GET', '/catalog/explore', 'CatalogController', 'explore');
 
-<<<<<<< Updated upstream
-// Halaman detail aset (data masih dummy, dipilih lewat ?slug=)
-$router->add('GET', '/asset/detail', 'AssetController', 'detail');
-=======
 // 1. Dashboard Utama (Dashboard Penjual)
 $router->get('/dashboard', function () {
     require __DIR__ . '/../resources/views/dashboard/main.php';
@@ -51,4 +47,3 @@ $router->get('/dashboard/profile', function () {
 $router->get('/creator/profile', function () {
     require __DIR__ . '/../resources/views/creator/profile.php';
 });
->>>>>>> Stashed changes

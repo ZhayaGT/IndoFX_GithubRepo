@@ -1,8 +1,6 @@
 <?php
 
-<<<<<<< Updated upstream
 // Kumpulan fungsi helper untuk konversi markdown
-=======
 declare(strict_types=1);
 
 if (!function_exists('parseMarkdown')) {
@@ -14,4 +12,3 @@ if (!function_exists('parseMarkdown')) {
         return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
     }
 }
->>>>>>> Stashed changes

@@ -1,6 +1,7 @@
 <?php
 
-<<<<<<< Updated upstream
+declare(strict_types=1);
+
 // Kumpulan fungsi helper untuk format data
 
 /**
@@ -9,8 +10,7 @@
  * Harga 0 tampil sebagai "Gratis" supaya sejalan dengan kartu katalog
  * (lihat formatPrice di public/assets/js/catalog.js).
  */
-function format_rupiah(int $price): string
-{
+function format_rupiah(int $price): string {
     return $price === 0 ? 'Gratis' : 'Rp' . number_format($price, 0, ',', '.');
 }
 
@@ -21,8 +21,7 @@ function format_rupiah(int $price): string
  * Nilai yang tidak dikenal memakai warna dasar .badge-pipeline.
  * Padanan di sisi klien: PIPELINE_CLASSES di public/assets/js/catalog.js.
  */
-function pipeline_badge_class(string $pipeline): string
-{
+function pipeline_badge_class(string $pipeline): string {
     $classes = [
         'URP'      => 'badge-pipeline-urp',
         'HDRP'     => 'badge-pipeline-hdrp',
@@ -30,8 +29,7 @@ function pipeline_badge_class(string $pipeline): string
     ];
 
     return $classes[$pipeline] ?? '';
-=======
-declare(strict_types=1);
+} // <-- Ini adalah penutup yang sebelumnya hilang
 
 if (!function_exists('formatRupiah')) {
     /**
@@ -41,5 +39,4 @@ if (!function_exists('formatRupiah')) {
     {
         return 'Rp' . number_format($amount, 0, ',', '.');
     }
->>>>>>> Stashed changes
 }
