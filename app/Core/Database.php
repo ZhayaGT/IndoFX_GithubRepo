@@ -4,17 +4,18 @@ namespace IndoFX\Core;
 
 use PDO;
 use PDOException;
+use PDOStatement;
 
 class Database {
     // Variabel statis untuk menyimpan instance dengan pola Singleton
-    private static $instance = null;
-    private $connection;
+    private static ?self $instance = null;
+    private ?PDO $connection = null;
 
     // Constructor dibuat private agar tidak bisa diinisialisasi sembarangan
     private function __construct() {
         // Mengambil konfigurasi dari .env
         $host = Env::get('DB_HOST') ?: '127.0.0.1';
-        $port = Env::get('DB_PORT') ?: '5434';
+        $port = Env::get('DB_PORT') ?: '5432';
         $db   = Env::get('DB_NAME') ?: '';
         $user = Env::get('DB_USER') ?: '';
         $pass = Env::get('DB_PASSWORD') ?: '';
@@ -22,7 +23,6 @@ class Database {
 
         // DSN khusus untuk PostgreSQL
         $dsn = "pgsql:host={$host};port={$port};dbname={$db};sslmode={$sslmode}";
-        
         $options = [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -38,7 +38,7 @@ class Database {
     }
 
     // Mengambil instance singleton
-    public static function getInstance()
+    public static function getInstance(): self
     {
         if (self::$instance === null) {
             self::$instance = new Database();
@@ -47,7 +47,7 @@ class Database {
     }
 
     // Fungsi utama untuk menjalankan query dengan prepared statement
-    public function query($sql, $params = [])
+    public function query(string $sql, array $params = []): PDOStatement
     {
         $stmt = $this->connection->prepare($sql);
         $stmt->execute($params);
@@ -60,18 +60,23 @@ class Database {
     }
 
     // --- Kontrol Transaksi SQL ---
-    public function beginTransaction()
+    public function beginTransaction(): bool
     {
         return $this->connection->beginTransaction();
     }
 
-    public function commit()
+    public function commit(): bool
     {
         return $this->connection->commit();
     }
 
-    public function rollback()
+    public function rollback(): bool
     {
         return $this->connection->rollBack();
+    }
+
+    public function lastInsertId()
+    {
+        return $this->connection->lastInsertId();
     }
 }
