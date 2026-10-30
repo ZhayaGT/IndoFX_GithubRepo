@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 220" width="400" height="220" role="img" aria-label="Ocean Depth Water Shader — tampilan 4">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1E6F8C"/>
+      <stop offset="55%" stop-color="#16607A"/>
+      <stop offset="100%" stop-color="#0B2F3F"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="220" fill="url(#bg)"/>
+  <circle cx="60" cy="47" r="28" fill="#CFF3FF" opacity="0.9"/>
+  <circle cx="60" cy="47" r="50" fill="#CFF3FF" opacity="0.3"/>
+  <ellipse cx="200" cy="150" rx="190" ry="26" fill="#2E8FA8" opacity="0.35"/>
+  <path d="M0 156 Q140 132 250 156 T400 148 L400 220 L0 220 Z" fill="#0E4256"/>
+  <path d="M0 188 Q170 170 400 184 L400 220 L0 220 Z" fill="#06202B"/>
+</svg>

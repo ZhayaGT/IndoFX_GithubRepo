@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 220" width="400" height="220" role="img" aria-label="Volcano Ash dan Ember VFX — tampilan 4">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4A1B12"/>
+      <stop offset="55%" stop-color="#8A2E1C"/>
+      <stop offset="100%" stop-color="#B4482A"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="220" fill="url(#bg)"/>
+  <circle cx="205" cy="61" r="34" fill="#FFC98A" opacity="0.9"/>
+  <circle cx="205" cy="61" r="56" fill="#FFC98A" opacity="0.3"/>
+  <ellipse cx="200" cy="150" rx="190" ry="26" fill="#B4482A" opacity="0.35"/>
+  <path d="M0 156 Q140 132 250 156 T400 148 L400 220 L0 220 Z" fill="#5C2113"/>
+  <path d="M0 188 Q170 170 400 184 L400 220 L0 220 Z" fill="#1C0A07"/>
+</svg>
