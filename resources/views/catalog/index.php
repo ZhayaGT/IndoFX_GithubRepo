@@ -6,55 +6,90 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IndoFX - Marketplace Aset Unity CG & VFX</title>
 
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <!-- Bootstrap 5 CSS & Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    <!-- CSS Terpisah IndoFX (Dipanggil Langsung dari public) -->
+    <!-- CSS Utama IndoFX -->
     <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 
 <body>
 
-    <!-- SVG Helper untuk Gambar Kartu Aset -->
+    <!-- SVG Definitions untuk Ilustrasi -->
     <svg class="d-none">
         <defs>
-            <g id="castle-asset-thumb">
-                <rect width="400" height="200" fill="#3D3B54" />
-                <path d="M 0 140 Q 100 120 200 140 T 400 140 L 400 200 L 0 200 Z" fill="#2A283C" />
-                <rect x="130" y="80" width="140" height="80" fill="#1C1B2A" />
-                <rect x="150" y="50" width="30" height="110" fill="#151421" />
-                <polygon points="150,50 165,20 180,50" fill="#ED6B1D" />
-                <rect x="220" y="50" width="30" height="110" fill="#151421" />
-                <polygon points="220,50 235,20 250,50" fill="#ED6B1D" />
-                <circle cx="320" cy="60" r="30" fill="#FFEAA7" opacity="0.85" />
+            <g id="castle-sunset-art">
+                <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#D4A39B" />
+                    <stop offset="50%" stop-color="#E8C5B0" />
+                    <stop offset="100%" stop-color="#F7D69D" />
+                </linearGradient>
+                <rect width="400" height="220" fill="url(#skyGrad)" />
+                <circle cx="310" cy="85" r="42" fill="#FFFDF2" opacity="0.95" />
+                <circle cx="310" cy="85" r="65" fill="#FFF7D6" opacity="0.4" />
+                <ellipse cx="90" cy="50" rx="65" ry="18" fill="#B88E8D" opacity="0.35" />
+                <ellipse cx="220" cy="35" rx="80" ry="20" fill="#B88E8D" opacity="0.25" />
+                <path d="M0 165 Q120 135 250 160 T400 155 L400 220 L0 220 Z" fill="#6E575F" />
+                <rect x="85" y="105" width="185" height="90" fill="#4A3B47" />
+                <rect x="105" y="70" width="32" height="125" fill="#3B2E39" />
+                <polygon points="100,70 121,32 142,70" fill="#2B2129" />
+                <rect x="165" y="55" width="38" height="140" fill="#3B2E39" />
+                <polygon points="160,55 184,15 208,55" fill="#2B2129" />
+                <rect x="235" y="65" width="36" height="130" fill="#59484F" />
+                <polygon points="230,65 253,25 276,65" fill="#3B2E39" />
+                <rect x="179" y="85" width="8" height="14" rx="4" fill="#FFAE42" />
+                <rect x="117" y="95" width="6" height="12" rx="3" fill="#FFAE42" />
+                <rect x="249" y="90" width="7" height="12" rx="3" fill="#FFAE42" />
+                <path d="M0 185 Q160 170 400 185 L400 220 L0 220 Z" fill="#2B2122" />
+            </g>
+
+            <g id="forest-mist-art">
+                <linearGradient id="forestSky" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#8FA3B0" />
+                    <stop offset="60%" stop-color="#C9D6DF" />
+                    <stop offset="100%" stop-color="#3A4740" />
+                </linearGradient>
+                <rect width="400" height="220" fill="url(#forestSky)" />
+                <path d="M0 140 Q100 110 220 135 T400 120 L400 220 L0 220 Z" fill="#52615B" opacity="0.6" />
+                <polygon points="50,40 25,150 75,150" fill="#2D3A34" />
+                <polygon points="85,55 65,155 105,155" fill="#3B4B44" />
+                <polygon points="310,30 280,155 340,155" fill="#25302B" />
+                <polygon points="355,50 330,160 380,160" fill="#1C2621" />
+                <ellipse cx="200" cy="135" rx="180" ry="25" fill="#E4EEF5" opacity="0.45" />
+                <path d="M0 155 Q110 140 175 220 L0 220 Z" fill="#1A241E" />
+                <path d="M400 150 Q280 140 225 220 L400 220 Z" fill="#16201A" />
+                <polygon points="175,220 198,148 212,148 225,220" fill="#3E3A35" />
             </g>
         </defs>
     </svg>
 
     <!-- 1. Header Navbar Oranye -->
     <nav class="navbar navbar-orange sticky-top">
-        <div class="container d-flex justify-content-between align-items-center">
+        <div class="container-figma d-flex justify-content-between align-items-center w-100">
+            <a class="navbar-brand m-0 d-flex align-items-center gap-2 text-decoration-none" href="/">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L20.66 7V17L12 22L3.34 17V7L12 2Z" fill="#ED6B1D" stroke="#1A1A1A" stroke-width="1.8" stroke-linejoin="round" />
+                    <path d="M12 2L20.66 7L12 12L3.34 7L12 2Z" fill="#FDBA74" stroke="#1A1A1A" stroke-width="1.5" stroke-linejoin="round" />
+                    <path d="M12 12V22" stroke="#1A1A1A" stroke-width="1.5" />
+                    <path d="M12 12L20.66 7" stroke="#1A1A1A" stroke-width="1.5" />
+                    <path d="M12 12L3.34 7" stroke="#1A1A1A" stroke-width="1.5" />
+                    <path d="M12 4.5L16.5 7L12 9.5L7.5 7L12 4.5Z" fill="#FED7AA" stroke="#1A1A1A" stroke-width="1" stroke-linejoin="round" />
+                </svg>
+                <span class="brand-text">IndoFX</span>
+            </a>
 
-<<<<<<< Updated upstream
-            <!-- Logo Brand -->
-            <a class="navbar-brand m-0 fw-bold text-white fs-4" href="/">IndoFX</a>
-
-            <!-- Search Bar Tengah -->
-            <div class="search-box-header d-none d-md-block">
-=======
             <div class="search-box-header d-flex align-items-center flex-grow-1 mx-2 mx-md-4">
->>>>>>> Stashed changes
                 <i class="bi bi-search search-icon-header"></i>
-                <input type="text" class="form-control search-input-header search-input" placeholder="Cari aset VFX, shader, tekstur...">
+                <input type="text" class="form-control search-input-header" placeholder="Cari aset...">
             </div>
 
-            <!-- Tombol Aksi Kanan -->
             <div class="d-flex align-items-center gap-2">
-<<<<<<< Updated upstream
-                <a href="/dashboard/add-asset" class="btn btn-nav-light">Unggah Aset</a>
-                <a href="/auth/login" class="btn btn-nav-orange-light">Login</a>
-=======
                 <?php
                 $authPartial = BASE_PATH . '/resources/views/partials/navbar-auth.php';
                 if (file_exists($authPartial)) {
@@ -63,43 +98,36 @@
                     echo '<a href="/login" class="btn btn-nav-login">Masuk</a>';
                 }
                 ?>
->>>>>>> Stashed changes
             </div>
-
         </div>
     </nav>
 
     <!-- 2. Hero Section Putih -->
-    <section class="hero-section py-5" id="beranda">
-        <div class="container">
+    <section class="hero-section" id="beranda">
+        <div class="container-figma">
             <div class="row align-items-center g-4">
 
-                <!-- Teks Hero Left -->
-                <div class="col-lg-6">
-                    <h1 class="hero-title mb-3 fw-extrabold">
-                        Marketplace Aset Unity CG & VFX untuk Developer Indonesia
+                <div class="col-lg-6 pe-lg-4">
+                    <h1 class="hero-title mb-3">
+                        <span class="text-nowrap">Marketplace Aset Unity CG &amp;</span><br>
+                        VFX untuk Developer<br>
+                        Indonesia
                     </h1>
-                    <p class="hero-desc mb-4 text-secondary">
+                    <p class="hero-desc mb-4">
                         Percepat pengembangan game Anda dengan aset visual lokal berkualitas tinggi. Dukungan pembayaran lokal (QRIS, GoPay, Transfer Bank) serta dokumentasi lengkap dalam Bahasa Indonesia.
                     </p>
-                    <div class="d-flex flex-wrap gap-2">
+                    <div class="d-flex flex-wrap gap-3">
                         <a href="#katalog" class="btn btn-hero-orange">Jelajahi Katalog</a>
-                        <a href="/dashboard/add-asset" class="btn btn-hero-cream">Unggah Aset</a>
+                        <?php if (!isset($_SESSION['user_id'])): ?>
+                            <a href="/login" class="btn btn-hero-cream">Masuk</a>
+                        <?php endif; ?>
                     </div>
                 </div>
 
-                <!-- Gambar Preview Right -->
                 <div class="col-lg-6">
-                    <div class="hero-image-container">
-                        <svg class="img-fluid hero-img-shadow w-100" viewBox="0 0 600 320" xmlns="http://www.w3.org/2000/svg">
-                            <rect width="600" height="320" fill="#3D3B54" />
-                            <path d="M 0 240 Q 150 200 300 240 T 600 320 L 600 320 L 0 320 Z" fill="#2A283C" />
-                            <rect x="200" y="120" width="200" height="120" fill="#1C1B2A" />
-                            <rect x="230" y="80" width="40" height="160" fill="#151421" />
-                            <polygon points="230,80 250,40 270,80" fill="#ED6B1D" />
-                            <rect x="330" y="80" width="40" height="160" fill="#151421" />
-                            <polygon points="330,80 350,40 370,80" fill="#ED6B1D" />
-                            <circle cx="480" cy="90" r="45" fill="#FFEAA7" opacity="0.9" />
+                    <div class="hero-image-wrapper">
+                        <svg class="w-100 h-100 d-block" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice">
+                            <use href="#castle-sunset-art" />
                         </svg>
                     </div>
                 </div>
@@ -109,290 +137,30 @@
     </section>
 
     <!-- 3. Content Body (Warm Cream) -->
-    <div class="content-body-wrapper py-5">
-        <div class="container">
+    <main class="content-body-wrapper">
+        <div class="container-figma">
 
-            <!-- Section Kategori -->
-            <section class="mb-5">
-                <div class="text-center mb-4">
-                    <h4 class="fw-bold text-dark mb-1">Telusuri Berdasarkan Kategori</h4>
-                    <p class="text-muted small m-0">Temukan spesifikasi aset yang tepat untuk game engine Anda</p>
-                </div>
-
-                <div class="row row-cols-2 row-cols-sm-3 row-cols-md-5 g-3 justify-content-center">
-                    <div class="col">
-                        <a href="javascript:void(0)" class="category-card" data-category="Shader">
-                            <div class="category-icon-box mb-2">
-                                <i class="bi bi-code-slash fs-4"></i>
-                            </div>
-                            <span class="d-block fw-bold small text-dark">Shader</span>
-                        </a>
-                    </div>
-                    <div class="col">
-                        <a href="javascript:void(0)" class="category-card" data-category="Material">
-                            <div class="category-icon-box mb-2">
-                                <i class="bi bi-stack fs-4"></i>
-                            </div>
-                            <span class="d-block fw-bold small text-dark">Material</span>
-                        </a>
-                    </div>
-                    <div class="col">
-                        <a href="javascript:void(0)" class="category-card" data-category="VFX">
-                            <div class="category-icon-box mb-2">
-                                <i class="bi bi-activity fs-4"></i>
-                            </div>
-                            <span class="d-block fw-bold small text-dark">VFX Partikel</span>
-                        </a>
-                    </div>
-                    <div class="col">
-                        <a href="javascript:void(0)" class="category-card" data-category="Model 3D">
-                            <div class="category-icon-box mb-2">
-                                <i class="bi bi-box fs-4"></i>
-                            </div>
-                            <span class="d-block fw-bold small text-dark">Model 3D</span>
-                        </a>
-                    </div>
-                    <div class="col">
-                        <a href="javascript:void(0)" class="category-card" data-category="Tekstur">
-                            <div class="category-icon-box mb-2">
-                                <i class="bi bi-image fs-4"></i>
-                            </div>
-                            <span class="d-block fw-bold small text-dark">Tekstur</span>
-                        </a>
-                    </div>
+            <!-- Kategori -->
+            <section class="category-section text-center">
+                <h3 class="section-heading-center mb-1">Telusuri Berdasarkan Kategori</h3>
+                <p class="section-sub-center mb-4">Temukan spesifikasi aset yang tepat untuk game engine Anda</p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="javascript:void(0)" class="btn category-pill">Shader</a>
+                    <a href="javascript:void(0)" class="btn category-pill">Particle</a>
+                    <a href="javascript:void(0)" class="btn category-pill">Gratis</a>
                 </div>
             </section>
 
-<<<<<<< Updated upstream
-            <!-- Section Aset CG & VFX Terbaru -->
-            <section class="mb-5" id="katalog">
-                <div class="d-flex justify-content-between align-items-end mb-3">
-                    <div>
-                        <h5 class="fw-bold text-dark mb-1">Aset CG & VFX Terbaru</h5>
-                        <p class="text-muted small m-0">Aset terbaru yang diunggah oleh kreator game berbakat Indonesia</p>
-=======
             <!-- Aset Terbaru -->
             <section class="catalog-block mb-5" id="katalog">
                 <div class="d-flex justify-content-between align-items-end mb-3">
                     <div>
                         <h4 class="catalog-heading mb-1">Aset CG &amp; VFX Terbaru</h4>
                         <p class="catalog-subheading m-0">Aset terbaru yang diunggah oleh kreator game berbakat Indonesia</p>
->>>>>>> Stashed changes
                     </div>
-                    <a href="#katalog" class="text-dark small fw-bold text-decoration-underline">Lihat Semua terbaru</a>
+                    <a href="/catalog/explore?sort=terbaru" class="catalog-side-link">Selengkapnya</a>
                 </div>
 
-<<<<<<< Updated upstream
-                <div class="row g-3">
-                    <!-- Card 1 -->
-                    <div class="col-6 col-md-4 col-lg-3 asset-item-col">
-                        <a href="/asset/detail" class="text-decoration-none d-block">
-                            <div class="asset-card">
-                                <div class="asset-preview-box">
-                                    <svg width="100%" height="100%" viewBox="0 0 400 200">
-                                        <use href="#castle-asset-thumb" />
-                                    </svg>
-                                </div>
-                                <div class="asset-card-body">
-                                    <span class="asset-author">Arga Studio</span>
-                                    <h6 class="asset-title" title="Volumetric Rain & Storm URP">Volumetric Rain & Storm URP</h6>
-                                    <div class="asset-tags d-flex gap-1">
-                                        <span class="badge-pipeline">URP</span>
-                                        <span class="badge-pipeline">HDRP</span>
-                                    </div>
-                                    <div class="asset-card-footer">
-                                        <span class="asset-price">Rp150.000</span>
-                                        <span class="btn-download-icon"><i class="bi bi-download"></i></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-
-                    <!-- Card 2 -->
-                    <div class="col-6 col-md-4 col-lg-3 asset-item-col">
-                        <a href="/asset/detail" class="text-decoration-none d-block">
-                            <div class="asset-card">
-                                <div class="asset-preview-box">
-                                    <svg width="100%" height="100%" viewBox="0 0 400 200">
-                                        <use href="#castle-asset-thumb" />
-                                    </svg>
-                                </div>
-                                <div class="asset-card-body">
-                                    <span class="asset-author">Nusantara Digital</span>
-                                    <h6 class="asset-title" title="Stylized Toon Water Shader">Stylized Toon Water Shader</h6>
-                                    <div class="asset-tags d-flex gap-1">
-                                        <span class="badge-pipeline">URP</span>
-                                        <span class="badge-pipeline">Built-in</span>
-                                    </div>
-                                    <div class="asset-card-footer">
-                                        <span class="asset-price">Rp75.000</span>
-                                        <span class="btn-download-icon"><i class="bi bi-download"></i></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-
-                    <!-- Card 3 -->
-                    <div class="col-6 col-md-4 col-lg-3 asset-item-col">
-                        <a href="/asset/detail" class="text-decoration-none d-block">
-                            <div class="asset-card">
-                                <div class="asset-preview-box">
-                                    <svg width="100%" height="100%" viewBox="0 0 400 200">
-                                        <use href="#castle-asset-thumb" />
-                                    </svg>
-                                </div>
-                                <div class="asset-card-body">
-                                    <span class="asset-author">Bayu Pratama</span>
-                                    <h6 class="asset-title" title="Explosion VFX Pack Vol. 1">Explosion VFX Pack Vol. 1</h6>
-                                    <div class="asset-tags d-flex gap-1">
-                                        <span class="badge-pipeline">HDRP</span>
-                                    </div>
-                                    <div class="asset-card-footer">
-                                        <span class="asset-price">Rp200.000</span>
-                                        <span class="btn-download-icon"><i class="bi bi-download"></i></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-
-                    <!-- Card 4 -->
-                    <div class="col-6 col-md-4 col-lg-3 asset-item-col">
-                        <a href="/asset/detail" class="text-decoration-none d-block">
-                            <div class="asset-card">
-                                <div class="asset-preview-box">
-                                    <svg width="100%" height="100%" viewBox="0 0 400 200">
-                                        <use href="#castle-asset-thumb" />
-                                    </svg>
-                                </div>
-                                <div class="asset-card-body">
-                                    <span class="asset-author">Citra CG</span>
-                                    <h6 class="asset-title" title="Lowpoly Indonesian Village Pack">Lowpoly Indonesian Village Pack</h6>
-                                    <div class="asset-tags d-flex gap-1">
-                                        <span class="badge-pipeline">URP</span>
-                                        <span class="badge-pipeline">HDRP</span>
-                                        <span class="badge-pipeline">Built-in</span>
-                                    </div>
-                                    <div class="asset-card-footer">
-                                        <span class="asset-price">Rp350.000</span>
-                                        <span class="btn-download-icon"><i class="bi bi-download"></i></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Section Aset Gratis Unggulan -->
-            <section class="mb-4">
-                <div class="mb-3">
-                    <h5 class="fw-bold text-dark mb-1">Aset Gratis Unggulan</h5>
-                    <p class="text-muted small m-0">Mulai kembangkan prototype game Anda tanpa biaya</p>
-                </div>
-
-                <div class="row g-3">
-                    <!-- Card Gratis 1 -->
-                    <div class="col-6 col-md-4 col-lg-3 asset-item-col">
-                        <a href="/asset/detail" class="text-decoration-none d-block">
-                            <div class="asset-card">
-                                <div class="asset-preview-box">
-                                    <svg width="100%" height="100%" viewBox="0 0 400 200">
-                                        <use href="#castle-asset-thumb" />
-                                    </svg>
-                                </div>
-                                <div class="asset-card-body">
-                                    <span class="asset-author">VFX Kampoeng</span>
-                                    <h6 class="asset-title" title="Stylized Fire Starter Kit">Stylized Fire Starter Kit</h6>
-                                    <div class="asset-tags d-flex gap-1">
-                                        <span class="badge-pipeline">URP</span>
-                                    </div>
-                                    <div class="asset-card-footer">
-                                        <span class="asset-price">GRATIS</span>
-                                        <span class="btn-download-icon"><i class="bi bi-download"></i></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-
-                    <!-- Card Gratis 2 -->
-                    <div class="col-6 col-md-4 col-lg-3 asset-item-col">
-                        <a href="/asset/detail" class="text-decoration-none d-block">
-                            <div class="asset-card">
-                                <div class="asset-preview-box">
-                                    <svg width="100%" height="100%" viewBox="0 0 400 200">
-                                        <use href="#castle-asset-thumb" />
-                                    </svg>
-                                </div>
-                                <div class="asset-card-body">
-                                    <span class="asset-author">Bumi Tekstur</span>
-                                    <h6 class="asset-title" title="Indonesian Road Texture Pack">Indonesian Road Texture Pack</h6>
-                                    <div class="asset-tags d-flex gap-1">
-                                        <span class="badge-pipeline">Built-in</span>
-                                        <span class="badge-pipeline">URP</span>
-                                    </div>
-                                    <div class="asset-card-footer">
-                                        <span class="asset-price">GRATIS</span>
-                                        <span class="btn-download-icon"><i class="bi bi-download"></i></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-
-                    <!-- Card Gratis 3 -->
-                    <div class="col-6 col-md-4 col-lg-3 asset-item-col">
-                        <a href="/asset/detail" class="text-decoration-none d-block">
-                            <div class="asset-card">
-                                <div class="asset-preview-box">
-                                    <svg width="100%" height="100%" viewBox="0 0 400 200">
-                                        <use href="#castle-asset-thumb" />
-                                    </svg>
-                                </div>
-                                <div class="asset-card-body">
-                                    <span class="asset-author">Andi Dev</span>
-                                    <h6 class="asset-title" title="Simple UI SFX & VFX Overlay">Simple UI SFX & VFX Overlay</h6>
-                                    <div class="asset-tags d-flex gap-1">
-                                        <span class="badge-pipeline">URP</span>
-                                        <span class="badge-pipeline">HDRP</span>
-                                    </div>
-                                    <div class="asset-card-footer">
-                                        <span class="asset-price">GRATIS</span>
-                                        <span class="btn-download-icon"><i class="bi bi-download"></i></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-
-                    <!-- Card Gratis 4 -->
-                    <div class="col-6 col-md-4 col-lg-3 asset-item-col">
-                        <a href="/asset/detail" class="text-decoration-none d-block">
-                            <div class="asset-card">
-                                <div class="asset-preview-box">
-                                    <svg width="100%" height="100%" viewBox="0 0 400 200">
-                                        <use href="#castle-asset-thumb" />
-                                    </svg>
-                                </div>
-                                <div class="asset-card-body">
-                                    <span class="asset-author">Bayu Pratama</span>
-                                    <h6 class="asset-title" title="Basic Hologram Shader Helper">Basic Hologram Shader Helper</h6>
-                                    <div class="asset-tags d-flex gap-1">
-                                        <span class="badge-pipeline">URP</span>
-                                    </div>
-                                    <div class="asset-card-footer">
-                                        <span class="asset-price">GRATIS</span>
-                                        <span class="btn-download-icon"><i class="bi bi-download"></i></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-=======
                 <!-- Kontainer kartu otomatis diisi oleh catalog.js -->
                 <div class="row g-3" data-catalog-list="latest"></div>
             </section>
@@ -409,35 +177,13 @@
 
                 <!-- Kontainer kartu otomatis diisi oleh catalog.js -->
                 <div class="row g-3" data-catalog-list="free"></div>
->>>>>>> Stashed changes
             </section>
 
         </div>
-    </div>
+    </main>
 
-    <!-- 4. Footer Putih -->
+    <!-- 4. Footer -->
     <footer class="footer-main" id="tentang">
-<<<<<<< Updated upstream
-        <div class="container">
-            <div class="row g-4 mb-4">
-                <div class="col-12 col-lg-6">
-                    <h5 class="fw-bold text-dark mb-2">IndoFX</h5>
-                    <p class="text-muted footer-brand-desc">
-                        Portal distribusi dan marketplace aset CG & VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
-                    </p>
-                </div>
-                <div class="col-6 col-lg-3">
-                    <h6 class="fw-bold text-dark mb-3 footer-section-title">Katalog</h6>
-                    <a href="#katalog" class="footer-link">Shader</a>
-                    <a href="#katalog" class="footer-link">VFX Partikel</a>
-                    <a href="#katalog" class="footer-link">Model 3D</a>
-                </div>
-                <div class="col-6 col-lg-3">
-                    <h6 class="fw-bold text-dark mb-3 footer-section-title">Dukungan</h6>
-                    <a href="#" class="footer-link">Dokumentasi</a>
-                    <a href="#" class="footer-link">Hubungi Kami</a>
-                    <a href="#" class="footer-link">Syarat & Ketentuan</a>
-=======
         <div class="container-figma">
             <div class="row g-4 justify-content-between mb-4">
                 <div class="col-12 col-md-5 col-lg-4">
@@ -461,19 +207,21 @@
                             <a href="#" class="footer-link">Syarat &amp; Ketentuan</a>
                         </div>
                     </div>
->>>>>>> Stashed changes
                 </div>
             </div>
-            <div class="border-top pt-3 text-muted d-flex justify-content-between align-items-center flex-wrap gap-2 footer-copyright">
+            <div class="footer-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
                 <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
             </div>
         </div>
     </footer>
 
-    <!-- Bootstrap 5 JS Bundle -->
+    <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/assets/js/main.js"></script>
+    <!-- Pergantian navbar guest/pembeli -->
+    <script src="/assets/js/navbar-auth.js"></script>
+    <!-- Katalog dari data dummy -->
+    <script src="/assets/js/catalog.js" defer></script>
 </body>
 
 </html>

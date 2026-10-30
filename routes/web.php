@@ -136,3 +136,117 @@ $router->get('/invoice', function () {
     }
     require BASE_PATH . '/resources/views/dashboard/invoice.php';
 });
+
+// ==========================================
+// ALUR LIBRARY PENGGUNA TERISOLASI PER USER
+// ==========================================
+
+// Fungsi pembantu penyimpanan library per akun
+if (!function_exists('getUserLibraryFile')) {
+    function getUserLibraryFile(string|int $userId): string
+    {
+        $dir = BASE_PATH . '/storage/app';
+        if (!is_dir($dir)) {
+            mkdir($dir, 0777, true);
+        }
+        return $dir . '/library_' . preg_replace('/[^a-zA-Z0-9_-]/', '', $userId) . '.json';
+    }
+}
+
+// 1. Halaman Tampilan Library
+$router->get('/library', function () {
+    if (!isset($_SESSION['user_id'])) {
+        header('Location: /login');
+        exit;
+    }
+
+    $userId = $_SESSION['user_id'];
+    $filePath = getUserLibraryFile($userId);
+    $libraryItems = [];
+
+    if (file_exists($filePath)) {
+        $content = file_get_contents($filePath);
+        $libraryItems = json_decode($content, true) ?: [];
+    }
+
+    require BASE_PATH . '/resources/views/library.php';
+});
+
+// 2. API Tambah Aset Gratis ke Library
+$router->post('/api/library/add', function () {
+    header('Content-Type: application/json');
+
+    if (!isset($_SESSION['user_id'])) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'message' => 'Silakan login terlebih dahulu']);
+        exit;
+    }
+
+    $userId = $_SESSION['user_id'];
+    $input = json_decode(file_get_contents('php://input'), true);
+
+    $assetId = $input['id'] ?? 'free-forest-mist';
+    $title = $input['title'] ?? 'Forest Mist & Fog Volume';
+    $seller = $input['seller'] ?? 'Rimba Digital';
+    $image = $input['image'] ?? '/assets/img/forest-mist.jpg';
+    $pipelines = $input['pipelines'] ?? ['URP', 'HDRP'];
+    $isFree = true;
+
+    $filePath = getUserLibraryFile($userId);
+    $currentData = [];
+    if (file_exists($filePath)) {
+        $currentData = json_decode(file_get_contents($filePath), true) ?: [];
+    }
+
+    // Periksa apakah aset sudah pernah ditambahkan
+    foreach ($currentData as $item) {
+        if ($item['id'] === $assetId) {
+            echo json_encode(['success' => true, 'message' => 'Aset sudah ada di library Anda']);
+            exit;
+        }
+    }
+
+    // Tambahkan item baru ke daftar milik user
+    $newItem = [
+        'id' => $assetId,
+        'title' => $title,
+        'seller' => $seller,
+        'image' => $image,
+        'pipelines' => $pipelines,
+        'type' => 'Gratis',
+        'acquired_date' => date('d M Y')
+    ];
+
+    array_unshift($currentData, $newItem);
+    file_put_contents($filePath, json_encode($currentData, JSON_PRETTY_PRINT));
+
+    echo json_encode(['success' => true, 'message' => 'Berhasil ditambahkan ke library']);
+    exit;
+});
+
+// 3. API Hapus Aset dari Library
+$router->post('/api/library/remove', function () {
+    header('Content-Type: application/json');
+
+    if (!isset($_SESSION['user_id'])) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+        exit;
+    }
+
+    $userId = $_SESSION['user_id'];
+    $input = json_decode(file_get_contents('php://input'), true);
+    $assetId = $input['id'] ?? '';
+
+    $filePath = getUserLibraryFile($userId);
+    if (file_exists($filePath)) {
+        $currentData = json_decode(file_get_contents($filePath), true) ?: [];
+        $currentData = array_values(array_filter($currentData, function ($item) use ($assetId) {
+            return $item['id'] !== $assetId;
+        }));
+        file_put_contents($filePath, json_encode($currentData, JSON_PRETTY_PRINT));
+    }
+
+    echo json_encode(['success' => true, 'message' => 'Aset berhasil dihapus']);
+    exit;
+});

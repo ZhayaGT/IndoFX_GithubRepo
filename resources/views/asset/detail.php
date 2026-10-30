@@ -1,29 +1,123 @@
 <?php
-// 1. Ambil data aset secara dinamis (dari variabel controller, database, atau parameter URL)
-if (!isset($asset)) {
-    $assetId = $_GET['id'] ?? null;
-    if ($assetId && class_exists('IndoFX\Core\Database')) {
-        try {
-            $db = \IndoFX\Core\Database::getInstance();
-            $stmt = $db->query("SELECT * FROM assets WHERE id = :id", ['id' => $assetId]);
-            $asset = $stmt->fetch();
-        } catch (\Throwable $e) {
-            $asset = null;
-        }
-    }
-}
+// 1. Database Aset Katalog IndoFX
+$catalogDB = [
+    '1' => [
+        'title' => 'Volumetric Rain & Storm URP',
+        'creator' => 'Arga Studio',
+        'category' => 'VFX PARTIKEL',
+        'price' => 150000,
+        'unity_version' => '2021.3+ / 2022.3 LTS',
+        'pipeline' => 'URP, HDRP, Built-In',
+        'format' => '.unitypackage',
+        'art' => 'castle'
+    ],
+    '2' => [
+        'title' => 'Stylized Toon Water Shader',
+        'creator' => 'Nusantara Digital',
+        'category' => 'SHADER',
+        'price' => 75000,
+        'unity_version' => '2021.3+ / 2022.3 LTS',
+        'pipeline' => 'URP, Built-In',
+        'format' => '.unitypackage',
+        'art' => 'water'
+    ],
+    '3' => [
+        'title' => 'Explosion VFX Pack Vol. 1',
+        'creator' => 'Bayu Pratama',
+        'category' => 'VFX PARTIKEL',
+        'price' => 200000,
+        'unity_version' => '2022.3 LTS',
+        'pipeline' => 'HDRP',
+        'format' => '.unitypackage',
+        'art' => 'fire'
+    ],
+    '4' => [
+        'title' => 'Lowpoly Indonesian Village Pack',
+        'creator' => 'Citra CG',
+        'category' => 'MODEL 3D',
+        'price' => 350000,
+        'unity_version' => '2021.3+ / 2022.3 LTS',
+        'pipeline' => 'URP, HDRP, Built-In',
+        'format' => '.fbx, .blend, .unitypackage',
+        'art' => 'castle'
+    ],
+    '5' => [
+        'title' => 'Stylized Fire Starter Kit',
+        'creator' => 'VFX Kampoeng',
+        'category' => 'VFX PARTIKEL',
+        'price' => 0,
+        'unity_version' => '2021.3+ / 2022.3 LTS',
+        'pipeline' => 'URP',
+        'format' => '.unitypackage',
+        'art' => 'fire'
+    ],
+    '6' => [
+        'title' => 'Indonesian Road Texture Pack',
+        'creator' => 'Bumi Tekstur',
+        'category' => 'TEKSTUR',
+        'price' => 0,
+        'unity_version' => '2021.3+ / 2022.3 LTS',
+        'pipeline' => 'Built-In, URP',
+        'format' => '.png, .tga, .mat',
+        'art' => 'castle'
+    ],
+    '7' => [
+        'title' => 'Simple UI SFX & VFX Overlay',
+        'creator' => 'Andi Dev',
+        'category' => 'VFX PARTIKEL',
+        'price' => 0,
+        'unity_version' => '2021.3+ / 2022.3 LTS',
+        'pipeline' => 'URP, HDRP',
+        'format' => '.unitypackage',
+        'art' => 'water'
+    ],
+    '8' => [
+        'title' => 'Basic Hologram Shader Helper',
+        'creator' => 'Bayu Pratama',
+        'category' => 'SHADER',
+        'price' => 0,
+        'unity_version' => '2021.3+ / 2022.3 LTS',
+        'pipeline' => 'URP',
+        'format' => '.shadergraph, .unitypackage',
+        'art' => 'water'
+    ],
+    'free-forest-mist' => [
+        'title' => 'Forest Mist & Fog Volume',
+        'creator' => 'Rimba Digital',
+        'category' => 'PARTICLE',
+        'price' => 0,
+        'unity_version' => '2021.3+ / 2022.3 LTS',
+        'pipeline' => 'Built-In',
+        'format' => '.unitypackage',
+        'art' => 'forest'
+    ],
+    'free-desert-dune' => [
+        'title' => 'Desert Dune Terrain Pack',
+        'creator' => 'Pasir Labs',
+        'category' => 'MODEL 3D',
+        'price' => 0,
+        'unity_version' => '2021.3+ / 2022.3 LTS',
+        'pipeline' => 'URP',
+        'format' => '.unitypackage',
+        'art' => 'castle'
+    ]
+];
 
-// Fallback nilai dinamis sesuai data kartu yang diklik
-$assetId          = $asset['id'] ?? ($_GET['id'] ?? 1);
-$assetTitle       = $asset['title'] ?? ($_GET['title'] ?? 'Basic Hologram Shader Helper');
-$assetCategory    = $asset['category'] ?? ($_GET['category'] ?? 'VFX PARTIKEL');
-$assetCreator     = $asset['creator_name'] ?? ($asset['creator'] ?? ($_GET['creator'] ?? 'Arga Studio'));
-$assetPriceRaw    = $asset['price'] ?? ($_GET['price'] ?? 150000);
-$assetUnity       = $asset['unity_version'] ?? '2021.3+ / 2022.3 LTS';
-$assetPipeline    = $asset['pipeline'] ?? 'URP, HDRP';
-$assetFormat      = $asset['format'] ?? '.unitypackage';
+// 2. Baca Parameter URL yang diklik pengguna
+$reqId = $_GET['id'] ?? '1';
+$matched = $catalogDB[$reqId] ?? null;
 
-// Logika penentuan status Gratis atau Berbayar
+$assetId       = $reqId;
+$assetTitle    = $_GET['title'] ?? ($matched['title'] ?? 'Volumetric Rain & Storm URP');
+$assetCreator  = $_GET['creator'] ?? ($matched['creator'] ?? 'Arga Studio');
+$assetCategory = $_GET['category'] ?? ($matched['category'] ?? 'VFX PARTIKEL');
+$assetPriceRaw = isset($_GET['price']) ? $_GET['price'] : ($matched['price'] ?? 150000);
+$assetUnity    = $matched['unity_version'] ?? '2021.3+ / 2022.3 LTS';
+$assetPipeline = $_GET['pipeline'] ?? ($matched['pipeline'] ?? 'URP, HDRP, Built-In');
+$assetFormat   = $matched['format'] ?? '.unitypackage';
+$assetArt      = $matched['art'] ?? 'castle';
+
+// Cek status gratis
 $isGratis = false;
 if (is_numeric($assetPriceRaw)) {
     $isGratis = ((float)$assetPriceRaw <= 0);
@@ -31,19 +125,8 @@ if (is_numeric($assetPriceRaw)) {
     $isGratis = (strtolower(trim((string)$assetPriceRaw)) === 'gratis' || $assetPriceRaw === '0');
 }
 
-// Data akun pengguna jika sedang dalam sesi login
 $isLoggedIn = isset($_SESSION['user_id']);
-$userName   = (string) ($_SESSION['name'] ?? 'Pengguna');
-$initials   = '';
-if ($isLoggedIn) {
-    $words = preg_split('/\s+/', trim($userName)) ?: [];
-    foreach (array_slice($words, 0, 2) as $word) {
-        $initials .= mb_strtoupper(mb_substr($word, 0, 1));
-    }
-    if ($initials === '') {
-        $initials = 'U';
-    }
-}
+$userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user') : '';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -51,173 +134,243 @@ if ($isLoggedIn) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($assetTitle, ENT_QUOTES, 'UTF-8') ?> - IndoFX</title>
+    <title><?= htmlspecialchars($assetTitle) ?> - IndoFX</title>
 
-    <!-- Google Fonts: Inter -->
+    <!-- Google Fonts & Bootstrap Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <!-- Bootstrap 5 CSS & Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
-    <!-- CSS Utama & CSS Detail -->
     <link rel="stylesheet" href="/assets/css/style.css">
-    <link rel="stylesheet" href="/assets/css/detail.css">
 
     <style>
-        /* Gaya tambahan untuk avatar dan dropdown profil */
-        .avatar-circle-header {
-            width: 36px;
-            height: 36px;
-            background-color: #CFCFCF;
-            color: #2D2D2D;
-            font-weight: 700;
-            font-size: 0.85rem;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+        .content-detail-wrapper {
+            background-color: var(--indofx-cream-bg, #FAF0E6);
+            min-height: calc(100vh - 70px);
         }
 
-        .profile-dropdown-wrapper {
-            position: relative;
-        }
-
-        .btn-profile-trigger {
-            background: transparent;
-            border: none;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #ffffff;
-            cursor: pointer;
-        }
-
-        .profile-custom-menu {
-            position: absolute;
-            top: calc(100% + 12px);
-            right: 0;
-            background-color: #ffffff;
-            border: 1px solid #e0d0c5;
+        .main-preview-card {
             border-radius: 8px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-            min-width: 200px;
-            z-index: 1050;
-            display: none;
-            padding: 6px 0;
+            overflow: hidden;
+            border: 1.5px solid #2B2129;
+            background-color: #2b2129;
+            height: 380px;
         }
 
-        .profile-custom-menu.show {
-            display: block;
+        .thumb-card {
+            border-radius: 6px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            cursor: pointer;
+            height: 70px;
+            background-color: #2b2129;
+            transition: border-color 0.15s ease;
         }
 
-        .profile-custom-item {
-            display: block;
-            padding: 9px 18px;
-            color: #2b2129;
+        .thumb-card.active,
+        .thumb-card:hover {
+            border-color: #ED6B1D;
+        }
+
+        .detail-nav-tabs .tab-link {
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: #736b66;
             text-decoration: none;
-            font-size: 0.9rem;
-            transition: background-color 0.15s ease;
+            padding-bottom: 4px;
+            border-bottom: 2px solid transparent;
         }
 
-        .profile-custom-item:hover {
-            background-color: #fdf5f0;
-            color: #ed6b1d;
+        .detail-nav-tabs .tab-link.active {
+            color: #2B2129;
+            font-weight: 800;
+            border-bottom-color: #ED6B1D;
         }
 
-        .profile-custom-item.fw-bold {
-            border-bottom: 1px solid #f0e6df;
-            margin-bottom: 4px;
-            color: #1a1a1a;
+        .detail-content-box {
+            background-color: #ffffff;
+            border-radius: 8px;
+            border: 1.5px solid #2B2129;
+            font-size: 0.88rem;
+            line-height: 1.6;
         }
 
+        .asset-purchase-card {
+            background-color: #ffffff;
+            border: 1.5px solid #2B2129;
+            border-radius: 8px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+        }
+
+        .asset-category-tag {
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: #736b66;
+            letter-spacing: 0.5px;
+        }
+
+        .asset-detail-title {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: #2B2129;
+            line-height: 1.25;
+        }
+
+        .detail-creator {
+            font-size: 0.84rem;
+            color: #736b66;
+        }
+
+        .price-label {
+            font-size: 0.75rem;
+            color: #736b66;
+        }
+
+        .price-amount {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #2B2129;
+        }
+
+        .specs-table {
+            border-top: 1px solid #efe0d5;
+            border-bottom: 1px solid #efe0d5;
+        }
+
+        .border-bottom-spec {
+            border-bottom: 1px solid #efe0d5;
+        }
+
+        .spec-label {
+            font-size: 0.8rem;
+            color: #736b66;
+        }
+
+        .spec-value {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #2B2129;
+        }
+
+        /* Tombol Tambahkan ke Library (Default) */
         .btn-add-library {
             background-color: #2B2129;
-            color: #ffffff;
+            color: #ffffff !important;
             font-weight: 700;
             font-size: 0.92rem;
             border: none;
             border-radius: 6px;
             padding: 12px;
-            transition: opacity 0.2s ease;
-            text-decoration: none;
-            display: block;
+            transition: background-color 0.2s ease;
             text-align: center;
+            cursor: pointer;
+            width: 100%;
+            text-decoration: none;
+            display: inline-block;
         }
 
         .btn-add-library:hover {
-            opacity: 0.88;
-            color: #ffffff;
+            background-color: #151114;
+        }
+
+        /* Tombol Khusus Saat Aset SUDAH DIMILIKI di Library */
+        .btn-already-owned {
+            background-color: #f0fdf4 !important;
+            color: #15803d !important;
+            border: 1.5px solid #86efac !important;
+            font-weight: 700 !important;
+            font-size: 0.88rem !important;
+            padding: 12px 14px !important;
+            border-radius: 6px !important;
+            text-align: center !important;
+            width: 100% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 8px !important;
+            text-decoration: none !important;
+            box-shadow: 0 2px 6px rgba(22, 163, 74, 0.08) !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .btn-already-owned:hover {
+            background-color: #dcfce7 !important;
+            color: #166534 !important;
+        }
+
+        .btn-buy-primary {
+            background-color: #ED6B1D;
+            color: #ffffff !important;
+            font-weight: 700;
+            font-size: 0.92rem;
+            border: none;
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+        }
+
+        .btn-cart-secondary {
+            background-color: #F4E4D7;
+            color: #2B2129 !important;
+            font-weight: 700;
+            font-size: 0.92rem;
+            border: none;
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            text-decoration: none;
+            display: block;
         }
     </style>
 </head>
 
 <body class="detail-page-body">
 
-    <!-- SVG Definitions untuk Preview Galeri -->
+    <!-- Definisi Ilustrasi SVG Game Art -->
     <svg class="d-none">
         <defs>
-            <g id="preview-slide-1">
-                <rect width="700" height="420" fill="#4E5D3E" />
-                <pattern id="isoGrid" width="40" height="20" patternUnits="userSpaceOnUse">
-                    <path d="M 0 10 L 20 0 L 40 10 L 20 20 Z" fill="none" stroke="#455336" stroke-width="0.8" />
-                </pattern>
-                <rect width="700" height="420" fill="url(#isoGrid)" />
-                <polygon points="90,70 130,50 170,70 130,90" fill="#E8C39E" />
-                <polygon points="90,70 130,90 130,135 90,115" fill="#B35446" />
-                <polygon points="130,90 170,70 170,115 130,135" fill="#8C3B30" />
-                <polygon points="190,70 230,50 270,70 230,90" fill="#E8C39E" />
-                <polygon points="190,70 230,90 230,135 190,115" fill="#4B6584" />
-                <polygon points="230,90 270,70 270,115 230,135" fill="#384C63" />
-                <polygon points="290,65 320,50 350,65 320,80" fill="#A5B1C2" />
-                <polygon points="290,65 320,80 320,130 290,115" fill="#778CA3" />
-                <polygon points="320,80 350,65 350,115 320,130" fill="#4B6584" />
-                <path d="M430,90 Q480,50 530,90 Q560,140 500,160 Q450,170 430,90 Z" fill="#2C3A2F" />
-                <rect x="470" y="140" width="22" height="45" fill="#4A3525" />
-                <polygon points="370,170 395,155 420,170 395,185" fill="#D35400" />
-                <polygon points="370,170 395,185 395,205 370,190" fill="#A04000" />
-                <polygon points="395,185 420,170 420,190 395,205" fill="#873600" />
-                <circle cx="340" cy="270" r="16" fill="#00D2D3" opacity="0.9" />
-                <rect x="336" y="246" width="8" height="12" fill="#E056FD" />
-                <circle cx="190" cy="380" r="22" fill="#F1F2F6" />
-                <rect x="180" y="392" width="20" height="15" fill="#F1F2F6" />
-                <circle cx="182" cy="378" r="4.5" fill="#2F3542" />
-                <circle cx="198" cy="378" r="4.5" fill="#2F3542" />
-                <ellipse cx="500" cy="370" rx="36" ry="18" fill="#2F3542" />
-                <path d="M464,370 Q460,410 500,420 Q540,410 536,370 Z" fill="#1E272C" />
-                <ellipse cx="500" cy="370" rx="26" ry="11" fill="#70A1FF" opacity="0.8" />
+            <g id="art-forest">
+                <rect width="700" height="420" fill="#1E2A28" />
+                <ellipse cx="350" cy="240" rx="320" ry="80" fill="#4E6D66" opacity="0.45" />
+                <polygon points="120,80 70,360 170,360" fill="#141E1C" />
+                <polygon points="260,50 200,380 320,380" fill="#182421" />
+                <polygon points="460,40 390,390 530,390" fill="#0E1615" />
+                <polygon points="590,70 540,360 640,360" fill="#141E1C" />
+                <ellipse cx="350" cy="290" rx="280" ry="40" fill="#88AFA6" opacity="0.3" />
+                <circle cx="350" cy="180" r="12" fill="#E8F1EF" opacity="0.75" />
             </g>
-            <g id="preview-slide-2">
-                <rect width="700" height="420" fill="#2C3A47" />
-                <circle cx="580" cy="90" r="45" fill="#F8EFBA" opacity="0.9" />
-                <polygon points="150,120 220,80 290,120 220,160" fill="#58B19F" />
-                <polygon points="150,120 220,160 220,250 150,210" fill="#2C3A47" stroke="#58B19F" stroke-width="3" />
-                <polygon points="220,160 290,120 290,210 220,250" fill="#182C61" stroke="#58B19F" stroke-width="3" />
-                <circle cx="420" cy="240" r="55" fill="#00D2D3" opacity="0.35" />
-                <circle cx="420" cy="240" r="30" fill="#00D2D3" opacity="0.85" />
+            <g id="art-castle">
+                <rect width="700" height="420" fill="#241E24" />
+                <ellipse cx="350" cy="210" rx="300" ry="70" fill="#433742" opacity="0.5" />
+                <polygon points="180,90 140,360 220,360" fill="#151115" />
+                <polygon points="350,60 290,370 410,370" fill="#100D10" />
+                <polygon points="520,80 480,360 560,360" fill="#151115" />
+                <circle cx="350" cy="150" r="14" fill="#C4B5A5" opacity="0.8" />
             </g>
-            <g id="preview-slide-3">
-                <rect width="700" height="420" fill="#3B4B44" />
-                <polygon points="150,60 90,260 210,260" fill="#2D3A34" />
-                <polygon points="350,40 280,280 420,280" fill="#1C2621" />
-                <polygon points="530,70 470,270 590,270" fill="#25302B" />
-                <ellipse cx="350" cy="280" rx="300" ry="45" fill="#E4EEF5" opacity="0.35" />
+            <g id="art-water">
+                <rect width="700" height="420" fill="#14232C" />
+                <ellipse cx="350" cy="240" rx="320" ry="80" fill="#234657" opacity="0.5" />
+                <polygon points="180,100 130,360 230,360" fill="#0C171E" />
+                <polygon points="350,70 290,370 410,370" fill="#081015" />
+                <polygon points="520,90 470,360 570,360" fill="#0C171E" />
+                <circle cx="350" cy="160" r="14" fill="#64B5F6" opacity="0.75" />
             </g>
-            <g id="preview-slide-4">
-                <rect width="700" height="420" fill="#D4A39B" />
-                <circle cx="520" cy="140" r="65" fill="#FFFDF2" opacity="0.9" />
-                <path d="M0 300 Q200 240 450 290 T700 280 L700 420 L0 420 Z" fill="#4A3B47" />
-                <rect x="220" y="160" width="220" height="150" fill="#3B2E39" />
-                <polygon points="210,160 260,80 310,160" fill="#2B2129" />
-                <polygon points="350,160 400,65 450,160" fill="#2B2129" />
+            <g id="art-fire">
+                <rect width="700" height="420" fill="#2D1A14" />
+                <ellipse cx="350" cy="240" rx="320" ry="80" fill="#572B1B" opacity="0.5" />
+                <polygon points="180,100 130,360 230,360" fill="#190E0A" />
+                <polygon points="350,70 290,370 410,370" fill="#110906" />
+                <polygon points="520,90 470,360 570,360" fill="#190E0A" />
+                <circle cx="350" cy="160" r="14" fill="#FF8A65" opacity="0.8" />
             </g>
         </defs>
     </svg>
 
-    <!-- 1. Header Navbar Oranye Dinamis -->
+    <!-- Header Navbar -->
     <nav class="navbar navbar-orange sticky-top">
         <div class="container-figma d-flex justify-content-between align-items-center w-100">
             <a class="navbar-brand m-0 d-flex align-items-center gap-2 text-decoration-none" href="/">
@@ -234,311 +387,84 @@ if ($isLoggedIn) {
 
             <div class="search-box-header d-none d-md-flex align-items-center">
                 <i class="bi bi-search search-icon-header"></i>
-                <input type="text" class="form-control search-input-header" placeholder="Cari aset, VFX, shader, tekstur...">
+                <input type="text" class="form-control search-input-header" placeholder="Cari aset...">
             </div>
 
-            <!-- Bagian Kanan Navbar (Guest vs Login) -->
             <div class="d-flex align-items-center gap-3">
-                <?php if ($isLoggedIn): ?>
-                    <a href="/cart" class="text-white text-decoration-none d-flex align-items-center" title="Keranjang">
-                        <i class="bi bi-cart3 fs-4"></i>
-                    </a>
-
-                    <div class="profile-dropdown-wrapper">
-                        <button type="button" class="btn-profile-trigger" id="profileDropdownBtn" aria-expanded="false">
-                            <span class="avatar-circle-header"><?= htmlspecialchars($initials, ENT_QUOTES, 'UTF-8') ?></span>
-                            <span class="fw-bold fs-6"><?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?></span>
-                        </button>
-
-                        <div class="profile-custom-menu" id="profileDropdownMenu">
-                            <a href="/creator/profile?me=1" class="profile-custom-item fw-bold">
-                                <?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>
-                            </a>
-                            <a href="/dashboard/ubah-profil" class="profile-custom-item">
-                                Edit Profile
-                            </a>
-                            <a href="/invoice" class="profile-custom-item">
-                                Histori Pembelian
-                            </a>
-                            <a href="/#tentang" class="profile-custom-item">
-                                Dukungan
-                            </a>
-                            <a href="/logout" class="profile-custom-item text-danger">
-                                Keluar
-                            </a>
-                        </div>
-                    </div>
-                <?php else: ?>
-                    <a href="/dashboard/add-asset" class="btn btn-nav-seller">Jadi Penjual</a>
-                    <a href="/login" class="btn btn-nav-login">Masuk</a>
-                <?php endif; ?>
+                <?php
+                $authPartial = BASE_PATH . '/resources/views/partials/navbar-auth.php';
+                if (file_exists($authPartial)) {
+                    require $authPartial;
+                }
+                ?>
             </div>
         </div>
     </nav>
 
-    <!-- 2. Main Content Detail Area -->
+    <!-- Konten Detail -->
     <main class="content-detail-wrapper py-4">
         <div class="container-figma">
             <div class="row g-4 align-items-start">
 
-                <!-- ==================== KOLOM KIRI (8 KOLOM) ==================== -->
+                <!-- Kolom Kiri -->
                 <div class="col-12 col-lg-8">
-
-                    <!-- Carousel Slider Gambar Utama -->
-                    <div id="assetDetailCarousel" class="carousel slide main-preview-card mb-3" data-bs-ride="carousel" data-bs-interval="3500">
+                    <div id="assetDetailCarousel" class="carousel slide main-preview-card mb-3" data-bs-ride="carousel">
                         <div class="carousel-inner h-100">
                             <div class="carousel-item active h-100">
                                 <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
-                                    <use href="#preview-slide-1" />
-                                </svg>
-                            </div>
-                            <div class="carousel-item h-100">
-                                <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
-                                    <use href="#preview-slide-2" />
-                                </svg>
-                            </div>
-                            <div class="carousel-item h-100">
-                                <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
-                                    <use href="#preview-slide-3" />
-                                </svg>
-                            </div>
-                            <div class="carousel-item h-100">
-                                <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
-                                    <use href="#preview-slide-4" />
+                                    <use href="#art-<?= htmlspecialchars($assetArt) ?>" />
                                 </svg>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 4 Thumbnail Galeri -->
-                    <div class="row g-2 mb-4 thumb-row" style="max-width: 480px;">
-                        <?php for ($k = 1; $k <= 4; $k++): ?>
-                            <div class="col-3">
-                                <div class="thumb-card <?= $k === 1 ? 'active' : '' ?>" data-bs-target="#assetDetailCarousel" data-bs-slide-to="<?= $k - 1 ?>">
-                                    <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
-                                        <use href="#preview-slide-<?= $k ?>" />
-                                    </svg>
-                                </div>
+                    <!-- Thumbnail Galeri -->
+                    <div class="row g-2 mb-4 thumb-row" style="max-width: 240px;">
+                        <div class="col-6">
+                            <div class="thumb-card active">
+                                <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
+                                    <use href="#art-<?= htmlspecialchars($assetArt) ?>" />
+                                </svg>
                             </div>
-                        <?php endfor; ?>
+                        </div>
                     </div>
 
-                    <!-- Tab Navigasi Konten -->
+                    <!-- Tab Navigasi -->
                     <div class="detail-nav-tabs d-flex align-items-center gap-4 mb-3">
                         <a href="javascript:void(0)" class="tab-link active" onclick="switchDetailTab(event, 'tab-deskripsi')">Deskripsi</a>
                         <a href="javascript:void(0)" class="tab-link" onclick="switchDetailTab(event, 'tab-changelog')">Changelog</a>
                         <a href="javascript:void(0)" class="tab-link" onclick="switchDetailTab(event, 'tab-ulasan')">Ulasan</a>
                     </div>
 
-                    <!-- Kontainer Konten Tab Putih -->
                     <div class="detail-content-box p-4" id="tabContentArea">
-
-                        <!-- TAB 1: DESKRIPSI -->
                         <div id="tab-deskripsi" class="tab-pane-detail active">
                             <p class="mb-3">
-                                Volumetric Rain &amp; Storm VFX dirancang khusus untuk mewujudkan sistem cuaca dramatis dalam pipeline rendering URP dan HDRP di Unity. Dilengkapi dengan kontrol intensitas angin, density partikel kabut, dan kustomisasi sambaran petir secara real-time.
+                                Paket aset visual <strong><?= htmlspecialchars($assetTitle) ?></strong> dirancang khusus oleh <strong><?= htmlspecialchars($assetCreator) ?></strong> untuk pipeline rendering <?= htmlspecialchars($assetPipeline) ?> di engine Unity.
                             </p>
                             <p class="mb-0">
-                                Sangat cocok untuk game bertema horor, petualangan, maupun simulasi lingkungan Indonesia yang tropis dan kaya curah hujan.
+                                Sangat mudah diintegrasikan ke dalam game Anda dan telah dilengkapi dokumentasi standar industri game Indonesia.
                             </p>
                         </div>
-
-                        <!-- TAB 2: CHANGELOG -->
                         <div id="tab-changelog" class="tab-pane-detail d-none">
-                            <h5 class="fw-bold mb-4 changelog-main-title">Riwayat pembaruan</h5>
-
-                            <div class="changelog-item">
-                                <div class="d-flex justify-content-between align-items-baseline mb-2">
-                                    <h6 class="fw-bold mb-0 changelog-version-title">Versi 1.2.0</h6>
-                                    <span class="changelog-date">15 September 2026</span>
-                                </div>
-                                <ul class="changelog-list mb-0">
-                                    <li>Penambahan contoh scene untuk memudahkan eksplorasi parameter shader.</li>
-                                    <li>Penyempurnaan dokumentasi pengaturan material dalam Bahasa Indonesia.</li>
-                                </ul>
-                            </div>
-
-                            <hr class="changelog-divider">
-
-                            <div class="changelog-item">
-                                <div class="d-flex justify-content-between align-items-baseline mb-2">
-                                    <h6 class="fw-bold mb-0 changelog-version-title">Versi 1.1.0</h6>
-                                    <span class="changelog-date">20 Agustus 2026</span>
-                                </div>
-                                <ul class="changelog-list mb-0">
-                                    <li>Penyesuaian susunan parameter pada Inspector agar lebih mudah dipahami.</li>
-                                    <li>Perbaikan referensi material pada contoh scene.</li>
-                                </ul>
-                            </div>
-
-                            <hr class="changelog-divider">
-
-                            <div class="changelog-item">
-                                <div class="d-flex justify-content-between align-items-baseline mb-2">
-                                    <h6 class="fw-bold mb-0 changelog-version-title">Versi 1.0.0</h6>
-                                    <span class="changelog-date">1 Agustus 2026</span>
-                                </div>
-                                <ul class="changelog-list mb-0">
-                                    <li>Contoh rilis awal paket aset dan scene demonstrasi.</li>
-                                    <li>Penyertaan panduan instalasi dan penggunaan dasar.</li>
-                                </ul>
-                            </div>
+                            <h6 class="fw-bold mb-2">Versi 1.2.0</h6>
+                            <p class="text-muted small">Pembaruan shader dan optimasi performa.</p>
                         </div>
-
-                        <!-- TAB 3: ULASAN PEMBELI -->
                         <div id="tab-ulasan" class="tab-pane-detail d-none">
-                            <div class="rating-summary-box p-3 mb-4">
-                                <div class="row align-items-center g-3">
-                                    <div class="col-12 col-sm-4 text-center text-sm-start ps-sm-3">
-                                        <div class="d-flex align-items-baseline justify-content-center justify-content-sm-start gap-1">
-                                            <span class="rating-big-score">4,7</span>
-                                            <span class="rating-out-of">/ 5</span>
-                                        </div>
-                                        <div class="rating-stars my-1">
-                                            <i class="bi bi-star-fill"></i>
-                                            <i class="bi bi-star-fill"></i>
-                                            <i class="bi bi-star-fill"></i>
-                                            <i class="bi bi-star-fill"></i>
-                                            <i class="bi bi-star-fill"></i>
-                                        </div>
-                                        <span class="rating-subtext d-block">Dari 3 ulasan contoh</span>
-                                    </div>
-
-                                    <div class="col-12 col-sm-8 pe-sm-3">
-                                        <div class="rating-bar-row d-flex align-items-center gap-2 mb-1">
-                                            <span class="rating-bar-label">5 ★</span>
-                                            <div class="progress flex-grow-1 rating-progress">
-                                                <div class="progress-bar bg-orange-rating" style="width: 66%;"></div>
-                                            </div>
-                                            <span class="rating-bar-count">2</span>
-                                        </div>
-                                        <div class="rating-bar-row d-flex align-items-center gap-2 mb-1">
-                                            <span class="rating-bar-label">4 ★</span>
-                                            <div class="progress flex-grow-1 rating-progress">
-                                                <div class="progress-bar bg-orange-rating" style="width: 33%;"></div>
-                                            </div>
-                                            <span class="rating-bar-count">1</span>
-                                        </div>
-                                        <div class="rating-bar-row d-flex align-items-center gap-2 mb-1">
-                                            <span class="rating-bar-label">3 ★</span>
-                                            <div class="progress flex-grow-1 rating-progress">
-                                                <div class="progress-bar bg-orange-rating" style="width: 0%;"></div>
-                                            </div>
-                                            <span class="rating-bar-count">0</span>
-                                        </div>
-                                        <div class="rating-bar-row d-flex align-items-center gap-2 mb-1">
-                                            <span class="rating-bar-label">2 ★</span>
-                                            <div class="progress flex-grow-1 rating-progress">
-                                                <div class="progress-bar bg-orange-rating" style="width: 0%;"></div>
-                                            </div>
-                                            <span class="rating-bar-count">0</span>
-                                        </div>
-                                        <div class="rating-bar-row d-flex align-items-center gap-2">
-                                            <span class="rating-bar-label">1 ★</span>
-                                            <div class="progress flex-grow-1 rating-progress">
-                                                <div class="progress-bar bg-orange-rating" style="width: 0%;"></div>
-                                            </div>
-                                            <span class="rating-bar-count">0</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h6 class="fw-bold mb-0 changelog-main-title">Ulasan pembeli</h6>
-                                <span class="changelog-date">3 ulasan</span>
-                            </div>
-
-                            <div class="review-item mb-3">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="fw-bold reviewer-name">Dimas Pratama</span>
-                                        <span class="badge-owner">Pemilik aset</span>
-                                    </div>
-                                    <span class="changelog-date">18 September 2026</span>
-                                </div>
-                                <div class="rating-stars small mb-2">
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                </div>
-                                <h6 class="fw-bold review-title mb-1">Mudah dipelajari untuk prototipe</h6>
-                                <p class="mb-0 review-desc">
-                                    Contoh scene membantu saya memahami pengaturan material. Panduan Bahasa Indonesia juga memudahkan proses mencoba aset.
-                                </p>
-                            </div>
-
-                            <hr class="changelog-divider">
-
-                            <div class="review-item mb-3">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="fw-bold reviewer-name">Nadia Putri</span>
-                                        <span class="badge-owner">Pemilik aset</span>
-                                    </div>
-                                    <span class="changelog-date">12 September 2026</span>
-                                </div>
-                                <div class="rating-stars small mb-2">
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                </div>
-                                <h6 class="fw-bold review-title mb-1">Membantu alur kerja proyek</h6>
-                                <p class="mb-0 review-desc">
-                                    Parameter cukup mudah diikuti. Akan lebih membantu jika ada lebih banyak contoh penggunaan untuk berbagai suasana scene.
-                                </p>
-                            </div>
-
-                            <hr class="changelog-divider">
-
-                            <div class="review-item">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="fw-bold reviewer-name">Raka Saputra</span>
-                                        <span class="badge-owner">Pemilik aset</span>
-                                    </div>
-                                    <span class="changelog-date">8 September 2026</span>
-                                </div>
-                                <div class="rating-stars small mb-2">
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                </div>
-                                <h6 class="fw-bold review-title mb-1">Contoh penggunaan yang jelas</h6>
-                                <p class="mb-0 review-desc">
-                                    Struktur paket mudah dipahami dan nyaman untuk eksplorasi. Saya bisa mulai mencoba tanpa banyak penyesuaian.
-                                </p>
-                            </div>
+                            <h6 class="fw-bold mb-2">Ulasan Pengguna</h6>
+                            <p class="text-muted small">Aset ini memiliki ulasan bintang 5 dari para developer.</p>
                         </div>
-
                     </div>
                 </div>
-                <!-- ==================== AKHIR KOLOM KIRI ==================== -->
 
-                <!-- ==================== KOLOM KANAN (4 KOLOM) ==================== -->
+                <!-- Kolom Kanan -->
                 <div class="col-12 col-lg-4">
                     <div class="asset-purchase-card p-4">
-                        <span class="asset-category-tag d-block mb-1 text-uppercase">
-                            <?= htmlspecialchars($assetCategory, ENT_QUOTES, 'UTF-8') ?>
-                        </span>
-
-                        <h2 class="asset-detail-title mb-1">
-                            <?= htmlspecialchars($assetTitle, ENT_QUOTES, 'UTF-8') ?>
-                        </h2>
-
+                        <span class="asset-category-tag d-block mb-1 text-uppercase"><?= htmlspecialchars($assetCategory) ?></span>
+                        <h2 class="asset-detail-title mb-1"><?= htmlspecialchars($assetTitle) ?></h2>
                         <p class="detail-creator mb-3">
-                            Oleh <a href="/creator/profile?name=<?= urlencode($assetCreator) ?>" class="text-decoration-none fw-semibold">
-                                <?= htmlspecialchars($assetCreator, ENT_QUOTES, 'UTF-8') ?>
-                            </a>
+                            Oleh <a href="/creator/profile" class="text-decoration-none fw-semibold text-primary"><?= htmlspecialchars($assetCreator) ?></a>
                         </p>
 
-                        <!-- Tampilan Harga Dinamis -->
                         <span class="price-label d-block mb-1">Harga Aset</span>
                         <h3 class="price-amount mb-4">
                             <?php if ($isGratis): ?>
@@ -548,79 +474,49 @@ if ($isLoggedIn) {
                             <?php endif; ?>
                         </h3>
 
-                        <!-- Spesifikasi Aset -->
+                        <!-- Spesifikasi Teknis -->
                         <div class="specs-table mb-4">
                             <div class="d-flex justify-content-between py-2 border-bottom-spec">
                                 <span class="spec-label">Versi Unity</span>
-                                <span class="spec-value"><?= htmlspecialchars($assetUnity, ENT_QUOTES, 'UTF-8') ?></span>
+                                <span class="spec-value"><?= htmlspecialchars($assetUnity) ?></span>
                             </div>
                             <div class="d-flex justify-content-between py-2 border-bottom-spec">
                                 <span class="spec-label">Render Pipeline</span>
-                                <span class="spec-value"><?= htmlspecialchars($assetPipeline, ENT_QUOTES, 'UTF-8') ?></span>
+                                <span class="spec-value"><?= htmlspecialchars($assetPipeline) ?></span>
                             </div>
                             <div class="d-flex justify-content-between py-2">
                                 <span class="spec-label">Format File</span>
-                                <span class="spec-value"><?= htmlspecialchars($assetFormat, ENT_QUOTES, 'UTF-8') ?></span>
+                                <span class="spec-value"><?= htmlspecialchars($assetFormat) ?></span>
                             </div>
                         </div>
 
-                        <!-- Tombol Aksi Dinamis (Gratis vs Berbayar) -->
-                        <div class="d-grid gap-2">
+                        <!-- Wadah Tombol Aksi Dinamis -->
+                        <div class="d-grid gap-2" id="actionButtonWrapper">
                             <?php if ($isGratis): ?>
-                                <!-- JIKA ASET GRATIS: Satu Tombol Gelap Sesuai Figma -->
-                                <a href="/library" class="btn btn-add-library">Tambahkan ke Library</a>
+                                <!-- Aset Gratis: Default tombol tambah -->
+                                <button type="button" id="btnClaimLibrary" class="btn btn-add-library" onclick="claimAsset()">
+                                    Tambahkan ke Library
+                                </button>
                             <?php else: ?>
-                                <!-- JIKA ASET BERBAYAR: Tombol Beli & Keranjang -->
-                                <a href="/checkout?asset_id=<?= urlencode($assetId) ?>" class="btn btn-buy-primary">Beli</a>
-                                <a href="/cart" class="btn btn-cart-secondary text-center text-decoration-none">Tambahkan ke Keranjang</a>
+                                <!-- Aset Berbayar -->
+                                <a href="/checkout?asset_id=<?= urlencode((string)$assetId) ?>" class="btn btn-buy-primary" id="btnBuyPrimary">Beli</a>
+                                <a href="/cart" class="btn btn-cart-secondary">Tambahkan ke Keranjang</a>
                             <?php endif; ?>
                         </div>
                     </div>
                 </div>
-                <!-- ==================== AKHIR KOLOM KANAN ==================== -->
 
             </div>
         </div>
     </main>
 
-    <!-- 3. Footer Bersih Tanpa Konflik Git -->
-    <footer class="footer-main" id="tentang">
-        <div class="container-figma">
-            <div class="row g-4 justify-content-between mb-4">
-                <div class="col-12 col-md-5 col-lg-4">
-                    <h5 class="footer-brand-title mb-2">IndoFX</h5>
-                    <p class="footer-brand-desc m-0">
-                        Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
-                    </p>
-                </div>
-                <div class="col-12 col-md-6 col-lg-4">
-                    <div class="row">
-                        <div class="col-6">
-                            <h6 class="footer-col-title mb-2">Katalog</h6>
-                            <a href="/#katalog" class="footer-link">Shader</a>
-                            <a href="/#katalog" class="footer-link">VFX Partikel</a>
-                            <a href="/#katalog" class="footer-link">Model 3D</a>
-                        </div>
-                        <div class="col-6">
-                            <h6 class="footer-col-title mb-2">Dukungan</h6>
-                            <a href="#" class="footer-link">Dokumentasi</a>
-                            <a href="#" class="footer-link">Hubungi Kami</a>
-                            <a href="#" class="footer-link">Syarat &amp; Ketentuan</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom d-flex justify-content-between align-items-center flex-wrap gap-2 pt-3 border-top">
-                <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
-                <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Bootstrap 5 JS Bundle & Skrip Interaktif -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/navbar-auth.js"></script>
     <script>
-        // 1. Fungsi Berpindah Tab (Deskripsi, Changelog, Ulasan)
+        const userKey = '<?= $userKey ?>';
+        const currentAssetId = '<?= htmlspecialchars((string)$assetId, ENT_QUOTES, 'UTF-8') ?>';
+        const isAssetGratis = <?= $isGratis ? 'true' : 'false' ?>;
+
         function switchDetailTab(evt, tabId) {
             document.querySelectorAll('.detail-nav-tabs .tab-link').forEach(link => link.classList.remove('active'));
             document.querySelectorAll('.tab-pane-detail').forEach(pane => pane.classList.add('d-none'));
@@ -632,37 +528,74 @@ if ($isLoggedIn) {
             }
         }
 
-        // 2. Sinkronisasi Border Aktif pada Thumbnail saat Carousel Bergeser
-        const detailCarousel = document.getElementById('assetDetailCarousel');
-        const thumbCards = document.querySelectorAll('.thumb-row .thumb-card');
-
-        if (detailCarousel) {
-            detailCarousel.addEventListener('slide.bs.carousel', function(event) {
-                thumbCards.forEach(card => card.classList.remove('active'));
-                if (thumbCards[event.to]) {
-                    thumbCards[event.to].classList.add('active');
-                }
-            });
-        }
-
-        // 3. Toggle Dropdown Profil Pengguna (Jika Sedang Login)
+        // PERIKSA STATUS KEPEMILIKAN SAAT HALAMAN DIBUKA
         document.addEventListener('DOMContentLoaded', function() {
-            const dropdownBtn = document.getElementById('profileDropdownBtn');
-            const dropdownMenu = document.getElementById('profileDropdownMenu');
+            if (!userKey) return;
 
-            if (dropdownBtn && dropdownMenu) {
-                dropdownBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    dropdownMenu.classList.toggle('show');
-                });
+            const storageKey = 'indofx_library_' + userKey;
+            let currentLibrary = [];
+            try {
+                currentLibrary = JSON.parse(localStorage.getItem(storageKey)) || [];
+            } catch (e) {
+                currentLibrary = [];
+            }
 
-                document.addEventListener('click', function(e) {
-                    if (!dropdownMenu.contains(e.target) && !dropdownBtn.contains(e.target)) {
-                        dropdownMenu.classList.remove('show');
-                    }
-                });
+            // Cek apakah aset dengan ID ini sudah ada di Library milik user ini
+            const isOwned = currentLibrary.some(item => String(item.id) === String(currentAssetId));
+
+            if (isOwned) {
+                const actionWrapper = document.getElementById('actionButtonWrapper');
+                if (actionWrapper) {
+                    // Ubah tombol menjadi pemberitahuan bahwa aset sudah dimiliki
+                    actionWrapper.innerHTML = `
+                        <a href="/library" class="btn-already-owned" title="Klik untuk membuka Library Anda">
+                            <i class="bi bi-check-circle-fill fs-5"></i>
+                            <span>Aset ini sudah Anda miliki di library Anda</span>
+                        </a>
+                    `;
+                }
             }
         });
+
+        // FUNGSI KLAIM ASET KE LIBRARY
+        function claimAsset() {
+            if (!userKey) {
+                window.location.href = '/login';
+                return;
+            }
+
+            const btn = document.getElementById('btnClaimLibrary');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
+
+            const storageKey = 'indofx_library_' + userKey;
+            let currentLibrary = [];
+            try {
+                currentLibrary = JSON.parse(localStorage.getItem(storageKey)) || [];
+            } catch (e) {
+                currentLibrary = [];
+            }
+
+            // Data Aset Dinamis
+            const newAsset = {
+                id: currentAssetId,
+                title: '<?= htmlspecialchars($assetTitle, ENT_QUOTES, 'UTF-8') ?>',
+                creator: '<?= htmlspecialchars($assetCreator, ENT_QUOTES, 'UTF-8') ?>',
+                type: 'Gratis',
+                date: '<?= date("d M Y") ?>',
+                pipelines: <?= json_encode(array_values(array_filter(array_map('trim', explode(',', $assetPipeline))))) ?>,
+                art: '<?= htmlspecialchars($assetArt, ENT_QUOTES, 'UTF-8') ?>'
+            };
+
+            const alreadyExists = currentLibrary.some(item => String(item.id) === String(newAsset.id));
+            if (!alreadyExists) {
+                currentLibrary.unshift(newAsset);
+                localStorage.setItem(storageKey, JSON.stringify(currentLibrary));
+            }
+
+            // Alihkan ke Library untuk melihat hasilnya
+            window.location.href = '/library';
+        }
     </script>
 </body>
 

@@ -4,6 +4,15 @@
   --indofx-cream-bg: #faf0e6;
   --indofx-cream-btn: #f4e4d7;
   --indofx-dark: #2b2623;
+
+  /* Alias IFX */
+  --ifx-orange: #ed6b1d;
+  --ifx-orange-hover: #d85a0e;
+  --ifx-border-dark: #2b2623;
+  --ifx-brown-dark: #2b2623;
+  --ifx-brown-muted: #736b66;
+  --ifx-cream-btn: #f4e4d7;
+  --ifx-cream-bg: #faf0e6;
 }
 
 body {
@@ -15,6 +24,12 @@ body {
   background-color: var(--indofx-cream-bg);
 }
 
+.container-figma {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
 /* ==========================================
    1. HEADER NAVBAR
    ========================================== */
@@ -24,67 +39,218 @@ body {
   z-index: 1030;
 }
 
+.brand-text {
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+}
+
 .search-box-header {
-  width: 380px;
   position: relative;
-<<<<<<< Updated upstream
-=======
   max-width: 440px;
   width: 100%;
   min-width: 0;
   flex: 0 1 440px;
-  background-color: #ffffff;
-  border-radius: 6px;
-  padding: 2px 10px;
-  border: 1px solid #d8c8bd;
->>>>>>> Stashed changes
 }
 
 .search-input-header {
   border-radius: 6px;
   font-size: 0.85rem;
-  padding-left: 2.2rem;
+  padding-left: 2.3rem;
   height: 38px;
-  border: none;
+  border: 1px solid #d8c8bd;
+  background-color: #ffffff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
 }
 
 .search-icon-header {
   position: absolute;
-<<<<<<< Updated upstream
   left: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
   color: #888888;
+  z-index: 2;
+  pointer-events: none;
 }
 
-.btn-nav-light {
+.btn-nav-login {
   background-color: #ffffff;
   color: var(--indofx-dark);
   font-size: 0.82rem;
-=======
-  top: calc(100% + 8px);
+  font-weight: 700;
+  padding: 0.45rem 1.2rem;
+  border-radius: 6px;
+  text-decoration: none;
+  border: 1.5px solid var(--ifx-border-dark);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: all 0.15s ease;
+  display: inline-block;
+}
+
+.btn-nav-login:hover {
+  background-color: #fdf3ec;
+  color: var(--ifx-orange);
+}
+
+/* ==========================================
+   NAVBAR AUTHENTICATED STATE (FIGMA ACCURATE)
+   ========================================== */
+.navbar-auth {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-auth-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 1. Tombol Jadi Penjual (Kotak Krem / Putih Lembut) */
+.btn-nav-seller {
+  background: linear-gradient(180deg, #ffffff 0%, #faede2 100%) !important;
+  color: #2b2623 !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  padding: 6px 14px !important;
+  border-radius: 5px !important;
+  text-decoration: none !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12) !important;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.btn-nav-seller:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.16) !important;
+  color: #2b2623 !important;
+}
+
+/* 2. Tombol Library Saya (Kotak Outline Garis Putih) */
+.btn-nav-library {
+  background-color: transparent !important;
+  color: #ffffff !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  padding: 5px 14px !important;
+  border-radius: 5px !important;
+  text-decoration: none !important;
+  border: 1.5px solid #ffffff !important;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.btn-nav-library:hover {
+  background-color: rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
+}
+
+/* 3. Ikon Keranjang Belanja Putih */
+.btn-nav-cart {
+  color: #ffffff !important;
+  font-size: 1.35rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 6px;
+  line-height: 1;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.btn-nav-cart:hover {
+  opacity: 0.85;
+  transform: scale(1.08);
+}
+
+/* 4. Trigger Avatar & Nama Pengguna */
+.navbar-avatar-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.navbar-avatar {
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  outline: none;
+  text-decoration: none;
+}
+
+.avatar-circle-inner {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background-color: #b8b8b8;
+  color: #2b2623;
+  border: 1.5px solid #ffffff;
+  font-size: 0.82rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  transition: transform 0.15s ease;
+}
+
+.navbar-avatar:hover .avatar-circle-inner {
+  transform: scale(1.05);
+}
+
+.avatar-username-label {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.92rem;
+  letter-spacing: -0.2px;
+}
+
+/* 5. Dropdown Menu Putih Bersih Figma */
+.navbar-avatar-menu {
+  position: absolute;
+  top: calc(100% + 10px);
   right: 0;
   z-index: 1050;
-  min-width: 190px;
+  min-width: 210px;
   background-color: #ffffff;
-  border: 1.5px solid var(--ifx-border-dark, #3b2314);
-  border-radius: 8px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  border: 1px solid #e2e2e2;
+  border-radius: 10px;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.12);
   overflow: hidden;
-  padding: 0;
+  padding: 6px 0;
+}
+
+.navbar-avatar-menu[hidden] {
+  display: none !important;
 }
 
 .navbar-menu-item {
   display: block;
   width: 100%;
-  padding: 10px 16px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--ifx-brown-dark, #3b2314);
+  padding: 9px 18px;
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: #2b2623;
   text-decoration: none;
-  border-bottom: 1px solid #efe0d5;
-  transition: background-color 0.15s ease;
+  border-bottom: 1px solid #f2ebe5;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
   background-color: #ffffff;
   box-sizing: border-box;
 }
@@ -94,34 +260,24 @@ body {
 }
 
 .navbar-menu-item:hover {
-  background-color: #fdf3ec;
-  color: var(--ifx-orange, #ed6b1d);
+  background-color: #faf3ec;
+  color: var(--indofx-orange, #ed6b1d);
 }
 
 .navbar-menu-item.font-weight-bold {
   font-weight: 800;
+  font-size: 0.95rem;
+  background-color: #ffffff;
+  padding-bottom: 10px;
 }
 
-.navbar-avatar-name {
-  margin: 0;
-  font-size: 0.85rem;
->>>>>>> Stashed changes
-  font-weight: 700;
-  padding: 0.45rem 1rem;
-  border-radius: 6px;
-  text-decoration: none;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+.navbar-menu-item.text-danger {
+  color: #e65151 !important;
 }
 
-.btn-nav-orange-light {
-  background-color: #e28247;
-  color: #ffffff;
-  font-size: 0.82rem;
-  font-weight: 700;
-  padding: 0.45rem 1.2rem;
-  border-radius: 6px;
-  text-decoration: none;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+.navbar-menu-item.text-danger:hover {
+  background-color: #fdf2f2 !important;
+  color: #d32f2f !important;
 }
 
 /* ==========================================
@@ -131,19 +287,33 @@ body {
   background-color: #ffffff;
   position: relative;
   z-index: 10;
+  padding: 3.5rem 0;
   box-shadow:
     0 12px 24px -6px rgba(0, 0, 0, 0.08),
     0 4px 12px -2px rgba(0, 0, 0, 0.04);
 }
 
-.fw-extrabold {
+.hero-title {
   font-weight: 800;
-  font-size: 2.2rem;
+  font-size: 2.1rem;
   color: var(--indofx-dark);
   line-height: 1.25;
 }
 
-/* Tombol Hero Oranye: Jelajahi Katalog */
+.hero-desc {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #555555;
+}
+
+.hero-image-wrapper {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1.5px solid var(--ifx-border-dark);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  max-height: 280px;
+}
+
 .btn-hero-orange {
   background-color: var(--indofx-orange, #ed6b1d);
   color: #2b2623;
@@ -152,8 +322,7 @@ body {
   padding: 0.65rem 1.4rem;
   border-radius: 6px;
   text-decoration: none;
-  border: none;
-  /* Efek Bayangan Oranye Melayang Sesuai Mockup */
+  border: 1.5px solid var(--ifx-border-dark);
   box-shadow: 0 4px 12px rgba(237, 107, 29, 0.35);
   transition:
     transform 0.2s ease,
@@ -175,7 +344,7 @@ body {
   padding: 0.65rem 1.4rem;
   border-radius: 6px;
   text-decoration: none;
-  border: none;
+  border: 1.5px solid var(--ifx-border-dark);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   transition:
     transform 0.2s ease,
@@ -188,12 +357,6 @@ body {
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
 }
 
-.hero-img-shadow {
-  border-radius: 10px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-  max-height: 320px;
-}
-
 /* ==========================================
    3. CONTENT BODY & KATEGORI
    ========================================== */
@@ -201,189 +364,152 @@ body {
   background-color: var(--indofx-cream-bg);
   position: relative;
   z-index: 1;
+  padding: 2.5rem 0 3.5rem;
 }
 
-.category-card {
-  background-color: #ffffff;
-  border-radius: 10px;
-  padding: 1.4rem 0.5rem;
-  text-align: center;
-  display: block;
-  text-decoration: none;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
-}
-
-.category-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
-}
-
-.category-icon-box {
+.section-heading-center {
+  font-weight: 800;
+  font-size: 1.25rem;
   color: var(--indofx-dark);
 }
 
-/* ==========================================
-   KARTU ASET (ASSET CARDS)
-   ========================================== */
-.asset-card {
+.section-sub-center {
+  font-size: 0.82rem;
+  color: #666666;
+}
+
+.category-pill {
   background-color: #ffffff;
-  border-radius: 10px;
+  border: 1.5px solid var(--ifx-border-dark);
+  border-radius: 50rem;
+  padding: 0.4rem 1.25rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--indofx-dark);
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.category-pill:hover {
+  background-color: var(--indofx-orange);
+  color: #ffffff;
+}
+
+.catalog-heading {
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: var(--indofx-dark);
+}
+
+.catalog-subheading {
+  font-size: 0.8rem;
+  color: #666666;
+}
+
+.catalog-side-link {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--indofx-dark);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ==========================================
+   KARTU ASET FIGMA
+   ========================================== */
+.asset-card-figma {
+  background-color: #ffffff;
+  border: 1.5px solid var(--ifx-border-dark);
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
   transition:
-    transform 0.2s,
-    box-shadow 0.2s;
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
-.asset-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.12);
+.asset-card-figma:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
 }
 
-.asset-preview-box {
-  height: 155px;
+.asset-thumb-wrapper {
+  height: 140px;
+  background-color: #2b2129;
   overflow: hidden;
 }
 
-.asset-card-body {
-  background-color: var(--indofx-orange, #ed6b1d);
-  color: #2b2623; /* Mengubah warna default teks anak elemen menjadi gelap */
-  padding: 0.85rem;
-}
-
-/* Nama Creator / Author */
-.asset-author {
-  font-size: 0.72rem;
-  color: #2b2623 !important; /* Teks Gelap/Hitam */
-  font-weight: 500;
-  opacity: 0.9;
+.asset-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   display: block;
 }
 
-/* Judul Aset */
-.asset-title {
-  font-size: 0.88rem;
+.asset-card-body {
+  padding: 12px;
+}
+
+.asset-studio {
+  display: block;
+  font-size: 0.7rem;
+  color: #736b66;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.asset-name {
+  font-size: 0.84rem;
   font-weight: 800;
-  color: #2b2623 !important; /* Teks Gelap/Hitam */
-  margin-bottom: 0.35rem;
+  color: var(--indofx-dark);
+  margin-bottom: 8px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+.asset-price {
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: var(--indofx-dark);
+}
+
+.asset-dl-icon {
+  font-size: 0.85rem;
+  color: #736b66;
+}
+
+/* Tag Pipeline */
 .badge-pipeline {
-<<<<<<< Updated upstream
-  background-color: #e2f6ea;
-  color: #117a43;
-  font-size: 0.65rem;
-  font-weight: 700;
-  padding: 3px 8px;
-=======
   display: inline-block;
   font-size: 0.6rem;
   font-weight: 800;
   padding: 2px 6px;
->>>>>>> Stashed changes
   border-radius: 4px;
-  display: inline-block;
   line-height: 1.2;
-<<<<<<< Updated upstream
+  color: #ffffff;
 }
 
-.asset-card-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 0.5rem;
-=======
-  background-color: #8b1e1e; /* Warna cadangan */
+.badge-pipeline-urp,
+.tag-urp {
+  background-color: #a3161c !important;
+  color: #ffffff !important;
 }
 
-/* Variasi Warna Pipeline */
-.badge-pipeline.badge-urp,
-.badge-urp {
-  background-color: #8b1e1e !important; /* Merah Maroon */
+.badge-pipeline-hdrp,
+.tag-hdrp {
+  background-color: #4f378b !important;
+  color: #ffffff !important;
 }
 
-.badge-pipeline.badge-hdrp,
-.badge-hdrp {
-  background-color: #383e82 !important; /* Indigo / Biru-Ungu Gelap */
-}
-
-.badge-pipeline.badge-builtin,
-.badge-builtin {
-  background-color: #007bff !important; /* Biru Terang */
-}
-
-/* Warna tag per render pipeline */
-.badge-pipeline-urp {
-  background-color: #a3161c;
-}
-
-.badge-pipeline-hdrp {
-  background-color: #4f378b;
-}
-
-.badge-pipeline-builtin {
-  background-color: #0088ff;
->>>>>>> Stashed changes
-}
-
-/* Harga Aset */
-.asset-price {
-  font-weight: 800;
-  font-size: 0.88rem;
-  color: #2b2623 !important;
-}
-
-/* Ikon Download */
-.btn-download-icon {
-  color: #2b2623 !important;
-  font-size: 1rem;
-  text-decoration: none;
+.badge-pipeline-builtin,
+.tag-builtin {
+  background-color: #0088ff !important;
+  color: #ffffff !important;
 }
 
 /* ==========================================
-   5. FOOTER
+   4. FILTER & PAGINATION EKSPLORASI
    ========================================== */
-.footer-main {
-  background-color: #ffffff;
-  padding: 3.5rem 0 1.5rem;
-  font-size: 0.85rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
-  position: relative;
-  z-index: 10;
-}
-
-.footer-link {
-  color: #555555;
-  text-decoration: none;
-  display: block;
-  margin-bottom: 0.35rem;
-}
-
-.footer-link:hover {
-  color: var(--indofx-orange);
-}
-
-.footer-brand-desc {
-  max-width: 380px;
-  font-size: 0.82rem;
-}
-
-.footer-section-title {
-  font-size: 0.88rem;
-}
-
-.footer-copyright {
-  font-size: 0.75rem;
-}
-<<<<<<< Updated upstream
-=======
-
 .filter-check-text {
   font-size: 0.76rem;
   color: #333333;
@@ -409,7 +535,6 @@ body {
   padding: 4px 8px;
 }
 
-/* Pagination Bawah */
 .explore-pagination {
   font-size: 0.8rem;
 }
@@ -444,16 +569,14 @@ body {
   background-color: rgba(59, 35, 20, 0.08);
 }
 
-/* ==========================================================================
-   STYLING HALAMAN DETAIL ASET
-   ========================================================================== */
-
+/* ==========================================
+   5. HALAMAN DETAIL ASET
+   ========================================== */
 .asset-detail-page {
   padding: 28px 0 56px 0;
   background-color: #fdf3ec;
 }
 
-/* Galeri */
 .asset-detail-main {
   width: 100%;
   aspect-ratio: 16 / 9;
@@ -500,7 +623,6 @@ body {
   border-color: var(--ifx-orange);
 }
 
-/* Kartu pembelian */
 .asset-buy-card {
   background-color: #ffffff;
   border: 1.5px solid var(--ifx-border-dark);
@@ -576,14 +698,6 @@ body {
   text-align: right;
 }
 
-/* Beberapa tag pipeline pada satu baris spesifikasi. */
-.asset-buy-meta-badges {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 4px;
-}
-
 .btn-detail-buy,
 .btn-detail-cart {
   display: block;
@@ -618,17 +732,6 @@ body {
   color: var(--ifx-brown-dark);
 }
 
-.asset-buy-status {
-  font-size: 0.68rem;
-  color: var(--ifx-brown-muted);
-  margin: 10px 0 0 0;
-}
-
-.asset-buy-status:empty {
-  margin: 0;
-}
-
-/* Tab Deskripsi / Changelog / Ulasan */
 .asset-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -671,290 +774,11 @@ body {
   font-size: 0.78rem;
   line-height: 1.7;
   color: var(--ifx-brown-dark);
-  margin-bottom: 14px;
 }
 
-.asset-description-text:last-child {
-  margin-bottom: 0;
-}
-
-.asset-panel-heading {
-  font-size: 0.9rem;
-  font-weight: 800;
-  color: var(--ifx-brown-dark);
-  margin-bottom: 14px;
-}
-
-.asset-panel-empty {
-  font-size: 0.78rem;
-  color: var(--ifx-brown-muted);
-  margin: 0;
-}
-
-/* Changelog */
-.changelog-item {
-  padding-bottom: 14px;
-  margin-bottom: 14px;
-  border-bottom: 1px solid #efe0d5;
-}
-
-.changelog-item:last-child {
-  padding-bottom: 0;
-  margin-bottom: 0;
-  border-bottom: none;
-}
-
-.changelog-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  margin-bottom: 6px;
-}
-
-.changelog-version {
-  font-size: 0.8rem;
-  font-weight: 800;
-  color: var(--ifx-brown-dark);
-}
-
-.changelog-date {
-  font-size: 0.68rem;
-  color: var(--ifx-brown-muted);
-}
-
-.changelog-notes {
-  margin: 0;
-  padding-left: 18px;
-}
-
-.changelog-notes li {
-  font-size: 0.74rem;
-  line-height: 1.6;
-  color: var(--ifx-brown-dark);
-}
-
-/* Ulasan: ringkasan rating */
-.rating-summary {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-  padding-bottom: 18px;
-  margin-bottom: 18px;
-  border-bottom: 1px solid #efe0d5;
-}
-
-.rating-summary-score {
-  flex: 0 0 140px;
-}
-
-.rating-average {
-  font-size: 1.7rem;
-  font-weight: 800;
-  color: var(--ifx-brown-dark);
-  line-height: 1.1;
-  margin-bottom: 4px;
-}
-
-.rating-average-max {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--ifx-brown-muted);
-}
-
-.rating-stars,
-.review-stars {
-  color: var(--ifx-orange);
-  font-size: 0.72rem;
-  letter-spacing: 1px;
-}
-
-.rating-total {
-  font-size: 0.66rem;
-  color: var(--ifx-brown-muted);
-  margin: 4px 0 0 0;
-}
-
-.rating-distribution {
-  flex: 1 1 260px;
-  min-width: 220px;
-}
-
-.rating-bar-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 6px;
-}
-
-.rating-bar-star {
-  flex: 0 0 28px;
-  font-size: 0.66rem;
-  font-weight: 700;
-  color: var(--ifx-brown-dark);
-}
-
-.rating-bar-star i {
-  color: var(--ifx-orange);
-  font-size: 0.6rem;
-}
-
-.rating-bar-track {
-  flex: 1 1 auto;
-  height: 6px;
-  border-radius: 50rem;
-  background-color: #f3e2d5;
-  overflow: hidden;
-}
-
-.rating-bar-fill {
-  display: block;
-  height: 100%;
-  border-radius: 50rem;
-  background-color: var(--ifx-orange);
-}
-
-.rating-bar-count {
-  flex: 0 0 16px;
-  font-size: 0.66rem;
-  font-weight: 700;
-  color: var(--ifx-brown-muted);
-  text-align: right;
-}
-
-.review-list-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  margin-bottom: 14px;
-}
-
-.review-list-count {
-  font-size: 0.68rem;
-  color: var(--ifx-brown-muted);
-}
-
-.review-item {
-  padding-bottom: 16px;
-  margin-bottom: 16px;
-  border-bottom: 1px solid #efe0d5;
-}
-
-.review-item:last-child {
-  padding-bottom: 0;
-  margin-bottom: 0;
-  border-bottom: none;
-}
-
-.review-head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 6px;
-}
-
-.review-avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 32px;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background-color: var(--ifx-cream-btn);
-  border: 1px solid #e0c8b8;
-  font-size: 0.66rem;
-  font-weight: 800;
-  color: var(--ifx-brown-dark);
-}
-
-.review-identity {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
-
-.review-name {
-  font-size: 0.74rem;
-  font-weight: 800;
-  color: var(--ifx-brown-dark);
-}
-
-.review-role {
-  font-size: 0.62rem;
-  color: var(--ifx-brown-muted);
-}
-
-.review-date {
-  margin-left: auto;
-  font-size: 0.66rem;
-  color: var(--ifx-brown-muted);
-}
-
-.review-title {
-  font-size: 0.76rem;
-  font-weight: 800;
-  color: var(--ifx-brown-dark);
-  margin: 6px 0 4px 0;
-}
-
-.review-body {
-  font-size: 0.74rem;
-  line-height: 1.65;
-  color: var(--ifx-brown-dark);
-  margin: 0;
-}
-
-/* Penyesuaian layar kecil */
-@media (max-width: 575.98px) {
-  .asset-buy-title {
-    font-size: 1.05rem;
-  }
-
-  .asset-buy-price {
-    font-size: 1.3rem;
-  }
-
-  .asset-detail-thumb {
-    width: 62px;
-    height: 42px;
-  }
-
-  .asset-tabs {
-    gap: 14px;
-  }
-
-  /* Nama, peran, dan tanggal tidak muat sebaris pada layar sempit. */
-  .review-head {
-    flex-wrap: wrap;
-  }
-
-  .review-identity {
-    flex-wrap: wrap;
-    flex: 1 1 auto;
-  }
-
-  .review-date {
-    flex: 0 0 100%;
-    margin-left: 42px;
-  }
-}
-
-/* Footer tengah pada halaman detail (mengikuti desain) */
-.footer-main-centered {
-  text-align: center;
-}
-
-.footer-main-centered .footer-brand-desc {
-  max-width: 560px;
-}
-
-/* ==========================================================================
-   STYLING HALAMAN PROFIL KREATOR
-   ========================================================================== */
-
-/* Lingkaran Avatar di Navbar */
+/* ==========================================
+   6. HALAMAN PROFIL KREATOR
+   ========================================== */
 .avatar-circle {
   display: inline-flex;
   align-items: center;
@@ -968,7 +792,6 @@ body {
   font-weight: 700;
 }
 
-/* Kartu Profil Utama */
 .creator-profile-card {
   background-color: #ffffff;
   border: 1.5px solid var(--ifx-border-dark);
@@ -977,14 +800,12 @@ body {
   box-shadow: 0 4px 14px rgba(59, 35, 20, 0.06);
 }
 
-/* Banner Atas Merah Maroon */
 .creator-banner-maroon {
   height: 120px;
   background: linear-gradient(135deg, #7a1919 0%, #a32424 100%);
   width: 100%;
 }
 
-/* Badan Kartu Profil & Avatar Melayang */
 .creator-info-body {
   position: relative;
   padding: 0 28px 24px 28px;
@@ -995,7 +816,7 @@ body {
 
 .creator-avatar-float {
   position: relative;
-  margin-top: -46px; /* Mengangkat avatar agar separuh menimpa banner */
+  margin-top: -46px;
   width: 92px;
   height: 92px;
   border-radius: 50%;
@@ -1011,10 +832,6 @@ body {
   flex-shrink: 0;
 }
 
-.creator-details {
-  padding-top: 12px;
-}
-
 .creator-name {
   font-size: 1.4rem;
   font-weight: 800;
@@ -1027,20 +844,240 @@ body {
   color: var(--ifx-brown-muted);
 }
 
-/* Footer Khusus Halaman Profil */
-.footer-creator-center {
+/* ==========================================
+   7. FOOTER
+   ========================================== */
+.footer-main {
   background-color: #ffffff;
-  border-top: 1px solid #eaddd4;
+  padding: 3.5rem 0 1.5rem;
+  font-size: 0.85rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  position: relative;
+  z-index: 10;
 }
 
-.footer-link-inline {
-  font-size: 0.75rem;
-  color: #444444;
+.footer-link {
+  color: #555555;
   text-decoration: none;
-  font-weight: 600;
+  display: block;
+  margin-bottom: 0.35rem;
 }
 
-.footer-link-inline:hover {
-  color: var(--ifx-orange);
+.footer-link:hover {
+  color: var(--indofx-orange);
 }
->>>>>>> Stashed changes
+
+.footer-brand-title {
+  font-weight: 800;
+  color: var(--indofx-dark);
+}
+
+.footer-brand-desc {
+  max-width: 380px;
+  font-size: 0.82rem;
+  color: #666666;
+}
+
+.footer-col-title {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--indofx-dark);
+}
+
+.footer-bottom {
+  border-top: 1px solid #efe0d5;
+  padding-top: 1.5rem;
+  margin-top: 2rem;
+  font-size: 0.75rem;
+  color: #736b66;
+}
+
+/* ==========================================
+   RESPONSIVE NAVBAR RULES
+   ========================================== */
+@media (max-width: 991.98px) {
+  /* Tablet: sembunyikan teks nama panjang agar navbar tidak sesak */
+  .avatar-username-label {
+    display: none !important;
+  }
+
+  .navbar-auth-group {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  /* Mobile: buat search box fleksibel dan proporsional */
+  .search-box-header {
+    flex: 1 1 auto;
+    min-width: 140px;
+    margin: 0 8px !important;
+  }
+
+  .search-input-header {
+    font-size: 0.8rem;
+    height: 35px;
+    padding-left: 2.1rem;
+  }
+
+  .search-icon-header {
+    left: 0.65rem;
+    font-size: 0.85rem;
+  }
+
+  .btn-nav-cart {
+    font-size: 1.25rem;
+    padding: 2px 4px;
+  }
+
+  .avatar-circle-inner {
+    width: 32px;
+    height: 32px;
+    font-size: 0.78rem;
+  }
+}
+
+@media (max-width: 440px) {
+  /* Layar HP sangat kecil: sembunyikan teks IndoFX, sisakan logo kotak */
+  .brand-text {
+    display: none;
+  }
+}
+
+/* ==========================================
+   HALAMAN LIBRARY SAYA (FIGMA EXACT MATCH)
+   ========================================== */
+.library-page-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #1a1a1a;
+}
+
+.library-page-sub {
+  font-size: 0.85rem;
+  color: #736b66;
+}
+
+/* Tab Filter Kanan */
+.library-filter-btn {
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #666666;
+  padding: 4px 0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.library-filter-btn.active {
+  font-weight: 800;
+  color: #000000;
+}
+
+/* Kartu Baris Library Horizontal */
+.library-item-card {
+  background-color: #ffffff;
+  border: 1px solid #d8c8bd;
+  border-radius: 8px;
+  padding: 12px 20px 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.library-item-thumb {
+  width: 175px;
+  height: 98px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: #2b2129;
+}
+
+.library-item-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.library-item-content {
+  flex-grow: 1;
+}
+
+.badge-status-green {
+  color: #16a34a;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.library-status-line {
+  font-size: 0.74rem;
+  margin-bottom: 2px;
+}
+
+.library-item-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #1f1f1f;
+}
+
+.library-item-seller {
+  font-size: 0.75rem;
+  color: #736b66;
+}
+
+/* Tombol Aksi Kanan Sesuai Mockup */
+.btn-figma-delete {
+  background-color: #d92d20;
+  color: #ffffff !important;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 8px 20px;
+  border-radius: 5px;
+  border: none;
+  transition: opacity 0.15s ease;
+}
+
+.btn-figma-delete:hover {
+  opacity: 0.9;
+}
+
+.btn-figma-review {
+  background-color: #1570ef;
+  color: #ffffff !important;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 8px 18px;
+  border-radius: 5px;
+  text-decoration: none;
+  border: none;
+  transition: opacity 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-figma-review:hover {
+  opacity: 0.9;
+}
+
+/* Tombol Tambah ke Library di Halaman Detail */
+.btn-claim-library {
+  background-color: #262226;
+  color: #ffffff !important;
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 10px 16px;
+  border-radius: 6px;
+  border: none;
+  transition: background-color 0.15s ease;
+}
+
+.btn-claim-library:hover {
+  background-color: #151215;
+}
