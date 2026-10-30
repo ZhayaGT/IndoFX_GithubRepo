@@ -27,6 +27,17 @@ body {
 .search-box-header {
   width: 380px;
   position: relative;
+<<<<<<< Updated upstream
+=======
+  max-width: 440px;
+  width: 100%;
+  min-width: 0;
+  flex: 0 1 440px;
+  background-color: #ffffff;
+  border-radius: 6px;
+  padding: 2px 10px;
+  border: 1px solid #d8c8bd;
+>>>>>>> Stashed changes
 }
 
 .search-input-header {
@@ -40,6 +51,7 @@ body {
 
 .search-icon-header {
   position: absolute;
+<<<<<<< Updated upstream
   left: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
@@ -50,6 +62,50 @@ body {
   background-color: #ffffff;
   color: var(--indofx-dark);
   font-size: 0.82rem;
+=======
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 1050;
+  min-width: 190px;
+  background-color: #ffffff;
+  border: 1.5px solid var(--ifx-border-dark, #3b2314);
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  padding: 0;
+}
+
+.navbar-menu-item {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ifx-brown-dark, #3b2314);
+  text-decoration: none;
+  border-bottom: 1px solid #efe0d5;
+  transition: background-color 0.15s ease;
+  background-color: #ffffff;
+  box-sizing: border-box;
+}
+
+.navbar-menu-item:last-child {
+  border-bottom: none;
+}
+
+.navbar-menu-item:hover {
+  background-color: #fdf3ec;
+  color: var(--ifx-orange, #ed6b1d);
+}
+
+.navbar-menu-item.font-weight-bold {
+  font-weight: 800;
+}
+
+.navbar-avatar-name {
+  margin: 0;
+  font-size: 0.85rem;
+>>>>>>> Stashed changes
   font-weight: 700;
   padding: 0.45rem 1rem;
   border-radius: 6px;
@@ -219,14 +275,22 @@ body {
 }
 
 .badge-pipeline {
+<<<<<<< Updated upstream
   background-color: #e2f6ea;
   color: #117a43;
   font-size: 0.65rem;
   font-weight: 700;
   padding: 3px 8px;
+=======
+  display: inline-block;
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 2px 6px;
+>>>>>>> Stashed changes
   border-radius: 4px;
   display: inline-block;
   line-height: 1.2;
+<<<<<<< Updated upstream
 }
 
 .asset-card-footer {
@@ -234,6 +298,38 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-top: 0.5rem;
+=======
+  background-color: #8b1e1e; /* Warna cadangan */
+}
+
+/* Variasi Warna Pipeline */
+.badge-pipeline.badge-urp,
+.badge-urp {
+  background-color: #8b1e1e !important; /* Merah Maroon */
+}
+
+.badge-pipeline.badge-hdrp,
+.badge-hdrp {
+  background-color: #383e82 !important; /* Indigo / Biru-Ungu Gelap */
+}
+
+.badge-pipeline.badge-builtin,
+.badge-builtin {
+  background-color: #007bff !important; /* Biru Terang */
+}
+
+/* Warna tag per render pipeline */
+.badge-pipeline-urp {
+  background-color: #a3161c;
+}
+
+.badge-pipeline-hdrp {
+  background-color: #4f378b;
+}
+
+.badge-pipeline-builtin {
+  background-color: #0088ff;
+>>>>>>> Stashed changes
 }
 
 /* Harga Aset */
@@ -285,3 +381,666 @@ body {
 .footer-copyright {
   font-size: 0.75rem;
 }
+<<<<<<< Updated upstream
+=======
+
+.filter-check-text {
+  font-size: 0.76rem;
+  color: #333333;
+}
+
+.filter-checkbox,
+.filter-radio {
+  border: 1.5px solid #888888;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.filter-checkbox:checked,
+.filter-radio:checked {
+  background-color: #1a1a1a;
+  border-color: #1a1a1a;
+}
+
+.filter-range-input {
+  border: 1px solid #d8c8bd !important;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+
+/* Pagination Bawah */
+.explore-pagination {
+  font-size: 0.8rem;
+}
+
+.page-nav-link {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-size: 0.8rem;
+}
+
+.page-num-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  text-decoration: none;
+  font-weight: 600;
+  color: #444444;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.page-num-link.active {
+  font-weight: 800;
+  color: #000000;
+  border-bottom: 2px solid #000000;
+  border-radius: 0;
+}
+
+.page-num-link:hover:not(.active) {
+  background-color: rgba(59, 35, 20, 0.08);
+}
+
+/* ==========================================================================
+   STYLING HALAMAN DETAIL ASET
+   ========================================================================== */
+
+.asset-detail-page {
+  padding: 28px 0 56px 0;
+  background-color: #fdf3ec;
+}
+
+/* Galeri */
+.asset-detail-main {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 4px;
+  background-color: #e7d6c8;
+}
+
+.asset-detail-main-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.asset-detail-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.asset-detail-thumb {
+  width: 72px;
+  height: 48px;
+  padding: 0;
+  overflow: hidden;
+  border: 1.5px solid transparent;
+  border-radius: 4px;
+  background-color: transparent;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.asset-detail-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.asset-detail-thumb:hover,
+.asset-detail-thumb.is-active {
+  border-color: var(--ifx-orange);
+}
+
+/* Kartu pembelian */
+.asset-buy-card {
+  background-color: #ffffff;
+  border: 1.5px solid var(--ifx-border-dark);
+  border-radius: 8px;
+  padding: 18px 18px 20px 18px;
+}
+
+.asset-buy-category {
+  display: block;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--ifx-brown-muted);
+  margin-bottom: 4px;
+}
+
+.asset-buy-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--ifx-brown-dark);
+  line-height: 1.25;
+  margin-bottom: 4px;
+}
+
+.asset-buy-seller {
+  font-size: 0.72rem;
+  color: var(--ifx-brown-muted);
+  margin-bottom: 16px;
+}
+
+.asset-buy-price-label {
+  font-size: 0.68rem;
+  color: var(--ifx-brown-muted);
+  margin-bottom: 0;
+}
+
+.asset-buy-price {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--ifx-brown-dark);
+  line-height: 1.2;
+  margin-bottom: 14px;
+}
+
+.asset-buy-meta {
+  margin-bottom: 16px;
+}
+
+.asset-buy-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid #efe0d5;
+  font-size: 0.7rem;
+}
+
+.asset-buy-meta-row:last-child {
+  border-bottom: none;
+}
+
+.asset-buy-meta-row dt {
+  font-weight: 400;
+  color: var(--ifx-brown-muted);
+}
+
+.asset-buy-meta-row dd {
+  margin: 0;
+  font-weight: 700;
+  color: var(--ifx-brown-dark);
+  text-align: right;
+}
+
+/* Beberapa tag pipeline pada satu baris spesifikasi. */
+.asset-buy-meta-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.btn-detail-buy,
+.btn-detail-cart {
+  display: block;
+  width: 100%;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 5px;
+  transition: all 0.15s ease;
+}
+
+.btn-detail-buy {
+  background-color: var(--ifx-orange);
+  border: 1.5px solid var(--ifx-border-dark);
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.btn-detail-buy:hover {
+  background-color: var(--ifx-orange-hover);
+  color: #ffffff;
+}
+
+.btn-detail-cart {
+  background-color: var(--ifx-cream-btn);
+  border: 1.5px solid var(--ifx-border-dark);
+  color: var(--ifx-brown-dark);
+}
+
+.btn-detail-cart:hover {
+  background-color: #f3d4c2;
+  color: var(--ifx-brown-dark);
+}
+
+.asset-buy-status {
+  font-size: 0.68rem;
+  color: var(--ifx-brown-muted);
+  margin: 10px 0 0 0;
+}
+
+.asset-buy-status:empty {
+  margin: 0;
+}
+
+/* Tab Deskripsi / Changelog / Ulasan */
+.asset-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 26px;
+  border-bottom: 1px solid #d8c8bd;
+}
+
+.asset-tab-link {
+  padding: 0 0 8px 0;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ifx-brown-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.asset-tab-link:hover {
+  color: var(--ifx-brown-dark);
+}
+
+.asset-tab-link.active {
+  font-weight: 800;
+  color: var(--ifx-brown-dark);
+  border-bottom-color: var(--ifx-orange);
+}
+
+.asset-tab-panel {
+  background-color: #ffffff;
+  border: 1.5px solid var(--ifx-border-dark);
+  border-radius: 6px;
+  padding: 18px 20px;
+  margin-top: 14px;
+}
+
+.asset-description-text {
+  font-size: 0.78rem;
+  line-height: 1.7;
+  color: var(--ifx-brown-dark);
+  margin-bottom: 14px;
+}
+
+.asset-description-text:last-child {
+  margin-bottom: 0;
+}
+
+.asset-panel-heading {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--ifx-brown-dark);
+  margin-bottom: 14px;
+}
+
+.asset-panel-empty {
+  font-size: 0.78rem;
+  color: var(--ifx-brown-muted);
+  margin: 0;
+}
+
+/* Changelog */
+.changelog-item {
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid #efe0d5;
+}
+
+.changelog-item:last-child {
+  padding-bottom: 0;
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.changelog-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.changelog-version {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--ifx-brown-dark);
+}
+
+.changelog-date {
+  font-size: 0.68rem;
+  color: var(--ifx-brown-muted);
+}
+
+.changelog-notes {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.changelog-notes li {
+  font-size: 0.74rem;
+  line-height: 1.6;
+  color: var(--ifx-brown-dark);
+}
+
+/* Ulasan: ringkasan rating */
+.rating-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid #efe0d5;
+}
+
+.rating-summary-score {
+  flex: 0 0 140px;
+}
+
+.rating-average {
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: var(--ifx-brown-dark);
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+
+.rating-average-max {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ifx-brown-muted);
+}
+
+.rating-stars,
+.review-stars {
+  color: var(--ifx-orange);
+  font-size: 0.72rem;
+  letter-spacing: 1px;
+}
+
+.rating-total {
+  font-size: 0.66rem;
+  color: var(--ifx-brown-muted);
+  margin: 4px 0 0 0;
+}
+
+.rating-distribution {
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+
+.rating-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.rating-bar-star {
+  flex: 0 0 28px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: var(--ifx-brown-dark);
+}
+
+.rating-bar-star i {
+  color: var(--ifx-orange);
+  font-size: 0.6rem;
+}
+
+.rating-bar-track {
+  flex: 1 1 auto;
+  height: 6px;
+  border-radius: 50rem;
+  background-color: #f3e2d5;
+  overflow: hidden;
+}
+
+.rating-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 50rem;
+  background-color: var(--ifx-orange);
+}
+
+.rating-bar-count {
+  flex: 0 0 16px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: var(--ifx-brown-muted);
+  text-align: right;
+}
+
+.review-list-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.review-list-count {
+  font-size: 0.68rem;
+  color: var(--ifx-brown-muted);
+}
+
+.review-item {
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #efe0d5;
+}
+
+.review-item:last-child {
+  padding-bottom: 0;
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.review-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.review-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--ifx-cream-btn);
+  border: 1px solid #e0c8b8;
+  font-size: 0.66rem;
+  font-weight: 800;
+  color: var(--ifx-brown-dark);
+}
+
+.review-identity {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.review-name {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--ifx-brown-dark);
+}
+
+.review-role {
+  font-size: 0.62rem;
+  color: var(--ifx-brown-muted);
+}
+
+.review-date {
+  margin-left: auto;
+  font-size: 0.66rem;
+  color: var(--ifx-brown-muted);
+}
+
+.review-title {
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: var(--ifx-brown-dark);
+  margin: 6px 0 4px 0;
+}
+
+.review-body {
+  font-size: 0.74rem;
+  line-height: 1.65;
+  color: var(--ifx-brown-dark);
+  margin: 0;
+}
+
+/* Penyesuaian layar kecil */
+@media (max-width: 575.98px) {
+  .asset-buy-title {
+    font-size: 1.05rem;
+  }
+
+  .asset-buy-price {
+    font-size: 1.3rem;
+  }
+
+  .asset-detail-thumb {
+    width: 62px;
+    height: 42px;
+  }
+
+  .asset-tabs {
+    gap: 14px;
+  }
+
+  /* Nama, peran, dan tanggal tidak muat sebaris pada layar sempit. */
+  .review-head {
+    flex-wrap: wrap;
+  }
+
+  .review-identity {
+    flex-wrap: wrap;
+    flex: 1 1 auto;
+  }
+
+  .review-date {
+    flex: 0 0 100%;
+    margin-left: 42px;
+  }
+}
+
+/* Footer tengah pada halaman detail (mengikuti desain) */
+.footer-main-centered {
+  text-align: center;
+}
+
+.footer-main-centered .footer-brand-desc {
+  max-width: 560px;
+}
+
+/* ==========================================================================
+   STYLING HALAMAN PROFIL KREATOR
+   ========================================================================== */
+
+/* Lingkaran Avatar di Navbar */
+.avatar-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background-color: #6c5548;
+  color: #ffffff;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Kartu Profil Utama */
+.creator-profile-card {
+  background-color: #ffffff;
+  border: 1.5px solid var(--ifx-border-dark);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(59, 35, 20, 0.06);
+}
+
+/* Banner Atas Merah Maroon */
+.creator-banner-maroon {
+  height: 120px;
+  background: linear-gradient(135deg, #7a1919 0%, #a32424 100%);
+  width: 100%;
+}
+
+/* Badan Kartu Profil & Avatar Melayang */
+.creator-info-body {
+  position: relative;
+  padding: 0 28px 24px 28px;
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+}
+
+.creator-avatar-float {
+  position: relative;
+  margin-top: -46px; /* Mengangkat avatar agar separuh menimpa banner */
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  background-color: #553e32;
+  border: 4px solid #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 1.8rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.creator-details {
+  padding-top: 12px;
+}
+
+.creator-name {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--ifx-brown-dark);
+  margin-bottom: 2px;
+}
+
+.creator-bio {
+  font-size: 0.82rem;
+  color: var(--ifx-brown-muted);
+}
+
+/* Footer Khusus Halaman Profil */
+.footer-creator-center {
+  background-color: #ffffff;
+  border-top: 1px solid #eaddd4;
+}
+
+.footer-link-inline {
+  font-size: 0.75rem;
+  color: #444444;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.footer-link-inline:hover {
+  color: var(--ifx-orange);
+}
+>>>>>>> Stashed changes

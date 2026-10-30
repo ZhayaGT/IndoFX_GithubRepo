@@ -36,19 +36,34 @@
     <nav class="navbar navbar-orange sticky-top">
         <div class="container d-flex justify-content-between align-items-center">
 
+<<<<<<< Updated upstream
             <!-- Logo Brand -->
             <a class="navbar-brand m-0 fw-bold text-white fs-4" href="/">IndoFX</a>
 
             <!-- Search Bar Tengah -->
             <div class="search-box-header d-none d-md-block">
+=======
+            <div class="search-box-header d-flex align-items-center flex-grow-1 mx-2 mx-md-4">
+>>>>>>> Stashed changes
                 <i class="bi bi-search search-icon-header"></i>
                 <input type="text" class="form-control search-input-header search-input" placeholder="Cari aset VFX, shader, tekstur...">
             </div>
 
             <!-- Tombol Aksi Kanan -->
             <div class="d-flex align-items-center gap-2">
+<<<<<<< Updated upstream
                 <a href="/dashboard/add-asset" class="btn btn-nav-light">Unggah Aset</a>
                 <a href="/auth/login" class="btn btn-nav-orange-light">Login</a>
+=======
+                <?php
+                $authPartial = BASE_PATH . '/resources/views/partials/navbar-auth.php';
+                if (file_exists($authPartial)) {
+                    require $authPartial;
+                } else {
+                    echo '<a href="/login" class="btn btn-nav-login">Masuk</a>';
+                }
+                ?>
+>>>>>>> Stashed changes
             </div>
 
         </div>
@@ -148,16 +163,26 @@
                 </div>
             </section>
 
+<<<<<<< Updated upstream
             <!-- Section Aset CG & VFX Terbaru -->
             <section class="mb-5" id="katalog">
                 <div class="d-flex justify-content-between align-items-end mb-3">
                     <div>
                         <h5 class="fw-bold text-dark mb-1">Aset CG & VFX Terbaru</h5>
                         <p class="text-muted small m-0">Aset terbaru yang diunggah oleh kreator game berbakat Indonesia</p>
+=======
+            <!-- Aset Terbaru -->
+            <section class="catalog-block mb-5" id="katalog">
+                <div class="d-flex justify-content-between align-items-end mb-3">
+                    <div>
+                        <h4 class="catalog-heading mb-1">Aset CG &amp; VFX Terbaru</h4>
+                        <p class="catalog-subheading m-0">Aset terbaru yang diunggah oleh kreator game berbakat Indonesia</p>
+>>>>>>> Stashed changes
                     </div>
                     <a href="#katalog" class="text-dark small fw-bold text-decoration-underline">Lihat Semua terbaru</a>
                 </div>
 
+<<<<<<< Updated upstream
                 <div class="row g-3">
                     <!-- Card 1 -->
                     <div class="col-6 col-md-4 col-lg-3 asset-item-col">
@@ -367,6 +392,24 @@
                         </a>
                     </div>
                 </div>
+=======
+                <!-- Kontainer kartu otomatis diisi oleh catalog.js -->
+                <div class="row g-3" data-catalog-list="latest"></div>
+            </section>
+
+            <!-- Aset Gratis Unggulan -->
+            <section class="catalog-block mb-4">
+                <div class="d-flex justify-content-between align-items-end mb-3">
+                    <div>
+                        <h4 class="catalog-heading mb-1">Aset Gratis Unggulan</h4>
+                        <p class="catalog-subheading m-0">Mulai kembangkan prototype game Anda tanpa biaya</p>
+                    </div>
+                    <a href="/catalog/explore?gratis=1&amp;sort=populer" class="catalog-side-link">Selengkapnya</a>
+                </div>
+
+                <!-- Kontainer kartu otomatis diisi oleh catalog.js -->
+                <div class="row g-3" data-catalog-list="free"></div>
+>>>>>>> Stashed changes
             </section>
 
         </div>
@@ -374,6 +417,7 @@
 
     <!-- 4. Footer Putih -->
     <footer class="footer-main" id="tentang">
+<<<<<<< Updated upstream
         <div class="container">
             <div class="row g-4 mb-4">
                 <div class="col-12 col-lg-6">
@@ -393,6 +437,31 @@
                     <a href="#" class="footer-link">Dokumentasi</a>
                     <a href="#" class="footer-link">Hubungi Kami</a>
                     <a href="#" class="footer-link">Syarat & Ketentuan</a>
+=======
+        <div class="container-figma">
+            <div class="row g-4 justify-content-between mb-4">
+                <div class="col-12 col-md-5 col-lg-4">
+                    <h5 class="footer-brand-title mb-2">IndoFX</h5>
+                    <p class="footer-brand-desc m-0">
+                        Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
+                    </p>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="row">
+                        <div class="col-6">
+                            <h6 class="footer-col-title mb-2">Katalog</h6>
+                            <a href="#katalog" class="footer-link">Shader</a>
+                            <a href="#katalog" class="footer-link">VFX Partikel</a>
+                            <a href="#katalog" class="footer-link">Model 3D</a>
+                        </div>
+                        <div class="col-6">
+                            <h6 class="footer-col-title mb-2">Dukungan</h6>
+                            <a href="#" class="footer-link">Dokumentasi</a>
+                            <a href="#" class="footer-link">Hubungi Kami</a>
+                            <a href="#" class="footer-link">Syarat &amp; Ketentuan</a>
+                        </div>
+                    </div>
+>>>>>>> Stashed changes
                 </div>
             </div>
             <div class="border-top pt-3 text-muted d-flex justify-content-between align-items-center flex-wrap gap-2 footer-copyright">
