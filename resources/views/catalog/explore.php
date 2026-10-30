@@ -80,14 +80,10 @@
                 <span class="brand-text">IndoFX</span>
             </a>
 
-<<<<<<< Updated upstream
-            <?php require BASE_PATH . '/resources/views/partials/navbar-search.php'; ?>
-=======
             <div class="search-box-header d-flex align-items-center flex-grow-1 mx-2 mx-md-4">
                 <i class="bi bi-search search-icon-header"></i>
                 <input type="text" class="form-control search-input-header" placeholder="Cari aset...">
             </div>
->>>>>>> Stashed changes
 
             <div class="d-flex align-items-center gap-2">
                 <?php require BASE_PATH . '/resources/views/partials/navbar-auth.php'; ?>
@@ -101,7 +97,7 @@
 
             <!-- Header Ringkasan & Urutkan -->
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-                <span class="text-dark fw-bold fs-7">Menampilkan <span data-catalog-count>0</span> aset yang cocok</span>
+                <span class="text-dark fw-bold fs-7">Menampilkan <span><?= $totalAssets ?></span> aset yang cocok</span>
 
                 <div class="d-flex align-items-center gap-2">
                     <span class="text-muted small">Urutkan:</span>
@@ -118,7 +114,36 @@
 
                 <!-- KOLOM KIRI: Grid 3 Kartu per Baris -->
                 <div class="col-12 col-lg-9">
-                    <div class="row g-3" data-catalog-list="explore"></div>
+                    <div class="row g-3">
+                        <?php foreach ($assets as $asset): ?>
+                            <div class="col-12 col-sm-6 col-lg-4">
+                                <div class="asset-card-figma h-100 d-flex flex-column">
+                                    <a href="/asset/detail?id=<?= $asset['id'] ?>" class="asset-thumb-wrapper d-block">
+                                        <svg width="100%" height="175" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice">
+                                            <use href="#castle-asset-thumb" />
+                                        </svg>
+                                    </a>
+                                    <div class="asset-card-body d-flex flex-column justify-content-between flex-grow-1">
+                                        <div>
+                                            <a href="/creator/profile" class="asset-studio text-decoration-none d-inline-block">Studio Kreator</a>
+                                            <a href="/asset/detail?id=<?= $asset['id'] ?>" class="text-decoration-none d-block">
+                                                <h6 class="asset-name"><?= htmlspecialchars($asset['title']) ?></h6>
+                                            </a>
+                                            <div class="d-flex gap-1 mb-2">
+                                                <span class="badge-pipeline badge-urp">URP</span>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center pt-1">
+                                            <span class="asset-price">
+                                                <?= $asset['price'] == 0 ? 'Gratis' : 'Rp' . number_format($asset['price'], 0, ',', '.') ?>
+                                            </span>
+                                            <i class="bi bi-download asset-dl-icon"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
 
                     <!-- Pagination dinamis -->
                     <div class="d-flex justify-content-center align-items-center gap-3 mt-5 mb-3 explore-pagination" data-catalog-pagination></div>
@@ -235,7 +260,7 @@
     <!-- Pergantian navbar guest/pembeli -->
     <script src="/assets/js/navbar-auth.js"></script>
     <!-- Katalog dari data dummy -->
-    <script src="/assets/js/catalog.js" defer></script>
+    <!-- <script src="/assets/js/catalog.js" defer></script> -->
 </body>
 
 </html>

@@ -6,10 +6,7 @@ use IndoFX\Core\Database;
 
 // Beranda & Katalog
 $router->add('GET', '/', 'HomeController', 'index');
-
-$router->add('GET', '/catalog/explore', function () {
-    require __DIR__ . '/../resources/views/catalog/explore.php';
-});
+$router->add('GET', '/catalog/explore', 'CatalogController', 'explore');
 
 // Halaman Detail Aset (Membaca file detail.php)
 $router->add('GET', '/asset/detail', function () {

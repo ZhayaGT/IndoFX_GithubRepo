@@ -5,7 +5,6 @@ namespace IndoFX\Models;
 use IndoFX\Core\Model;
 
 class User extends Model {
-    
     // Mencari pengguna berdasarkan email.
     // Digunakan saat validasi Login atau mengecek duplikasi email saat Register.
     public function findByEmail($email) {

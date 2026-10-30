@@ -6,7 +6,7 @@ class Model {
     protected $db;
 
     public function __construct() {
-        // Memanggil Singleton Database PDO yang sudah kita buat di chore sebelumnya
-        $this->db = Database::getInstance();
+        // Mengambil koneksi PDO asli dari Database Singleton
+        $this->db = Database::getInstance()->getConnection();
     }
 }

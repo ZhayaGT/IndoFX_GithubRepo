@@ -137,9 +137,9 @@
                 <h3 class="section-heading-center mb-1">Telusuri Berdasarkan Kategori</h3>
                 <p class="section-sub-center mb-4">Temukan spesifikasi aset yang tepat untuk game engine Anda</p>
                 <div class="d-flex justify-content-center gap-3 flex-wrap">
-                    <a href="javascript:void(0)" class="btn category-pill">Shader</a>
-                    <a href="javascript:void(0)" class="btn category-pill">Particle</a>
-                    <a href="javascript:void(0)" class="btn category-pill">Gratis</a>
+                    <a href="/catalog/explore?category=shader" class="btn category-pill">Shader</a>
+                    <a href="/catalog/explore?category=particle" class="btn category-pill">Particle</a>
+                    <a href="/catalog/explore?category=free" class="btn category-pill">Gratis</a>
                 </div>
             </section>
 
@@ -154,36 +154,29 @@
                 </div>
 
                 <div class="row g-3">
-                    <?php for ($i = 0; $i < 4; $i++): ?>
+                    <?php foreach ($latestAssets as $asset): ?>
                         <div class="col-12 col-sm-6 col-lg-3">
                             <div class="asset-card-figma h-100 d-flex flex-column">
-                                <!-- Thumbnail mengarah ke Detail Aset -->
-                                <a href="/asset/detail" class="asset-thumb-wrapper d-block">
-                                    <svg width="100%" height="175" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice">
-                                        <use href="#castle-sunset-art" />
-                                    </svg>
+                                <a href="/asset/detail?id=<?= $asset['id'] ?>" class="asset-thumb-wrapper d-block">
+                                    <!-- Jika ada URL gambar di DB, ganti tag svg dengan img -->
+                                    <!-- <img src="<?= htmlspecialchars($asset['thumbnail_url']) ?>" alt="Thumbnail" class="w-100 h-100 object-fit-cover"> -->
+                                    <svg width="100%" height="175" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice"><use href="#castle-sunset-art" /></svg>
                                 </a>
                                 <div class="asset-card-body d-flex flex-column justify-content-between flex-grow-1">
                                     <div>
-                                        <!-- Nama Studio mengarah ke Profil Kreator -->
-                                        <a href="/creator/profile" class="asset-studio text-decoration-none d-inline-block">Arga Studio</a>
-                                        <!-- Judul mengarah ke Detail Aset -->
-                                        <a href="/asset/detail" class="text-decoration-none d-block">
-                                            <h6 class="asset-name">Volumetric Rain & Storm URP</h6>
+                                        <a href="/creator/profile" class="asset-studio text-decoration-none d-inline-block">Studio Kreator</a>
+                                        <a href="/asset/detail?id=<?= $asset['id'] ?>" class="text-decoration-none d-block">
+                                            <h6 class="asset-name"><?= htmlspecialchars($asset['title']) ?></h6>
                                         </a>
-                                        <div class="d-flex gap-1 mb-2">
-                                            <span class="badge-pipeline badge-urp">URP</span>
-                                            <span class="badge-pipeline badge-hdrp">HDRP</span>
-                                        </div>
                                     </div>
                                     <div class="d-flex justify-content-between align-items-center pt-1">
-                                        <span class="asset-price">Rp150.000</span>
+                                        <span class="asset-price">Rp<?= number_format($asset['price'], 0, ',', '.') ?></span>
                                         <i class="bi bi-download asset-dl-icon"></i>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    <?php endfor; ?>
+                    <?php endforeach; ?>
                 </div>
             </section>
 
@@ -198,27 +191,18 @@
                 </div>
 
                 <div class="row g-3">
-                    <?php for ($i = 0; $i < 4; $i++): ?>
+                    <?php foreach ($freeAssets as $asset): ?>
                         <div class="col-12 col-sm-6 col-lg-3">
                             <div class="asset-card-figma h-100 d-flex flex-column">
-                                <!-- Thumbnail mengarah ke Detail Aset -->
-                                <a href="/asset/detail" class="asset-thumb-wrapper d-block">
-                                    <svg width="100%" height="175" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice">
-                                        <use href="#forest-mist-art" />
-                                    </svg>
+                                <a href="/asset/detail?id=<?= $asset['id'] ?>" class="asset-thumb-wrapper d-block">
+                                    <svg width="100%" height="175" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice"><use href="#forest-mist-art" /></svg>
                                 </a>
                                 <div class="asset-card-body d-flex flex-column justify-content-between flex-grow-1">
                                     <div>
-                                        <!-- Nama Studio mengarah ke Profil Kreator -->
-                                        <a href="/creator/profile" class="asset-studio text-decoration-none d-inline-block">Arga Studio</a>
-                                        <!-- Judul mengarah ke Detail Aset -->
-                                        <a href="/asset/detail" class="text-decoration-none d-block">
-                                            <h6 class="asset-name">Volumetric Rain & Storm URP</h6>
+                                        <a href="/creator/profile" class="asset-studio text-decoration-none d-inline-block">Studio Kreator</a>
+                                        <a href="/asset/detail?id=<?= $asset['id'] ?>" class="text-decoration-none d-block">
+                                            <h6 class="asset-name"><?= htmlspecialchars($asset['title']) ?></h6>
                                         </a>
-                                        <div class="d-flex gap-1 mb-2">
-                                            <span class="badge-pipeline badge-urp">URP</span>
-                                            <span class="badge-pipeline badge-builtin">Built-In</span>
-                                        </div>
                                     </div>
                                     <div class="d-flex justify-content-between align-items-center pt-1">
                                         <span class="asset-price">Gratis</span>
@@ -227,7 +211,7 @@
                                 </div>
                             </div>
                         </div>
-                    <?php endfor; ?>
+                    <?php endforeach; ?>
                 </div>
             </section>
 

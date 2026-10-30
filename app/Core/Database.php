@@ -38,17 +38,19 @@ class Database {
     }
 
     // Mengambil instance singleton
-    public static function getInstance(): self
-    {
+    public static function getInstance(): self {
         if (self::$instance === null) {
             self::$instance = new Database();
         }
         return self::$instance;
     }
 
+    public function getConnection(): PDO {
+        return $this->connection;
+    }
+
     // Fungsi utama untuk menjalankan query dengan prepared statement
-    public function query(string $sql, array $params = []): PDOStatement
-    {
+    public function query(string $sql, array $params = []): PDOStatement {
         $stmt = $this->connection->prepare($sql);
         $stmt->execute($params);
         return $stmt;
@@ -60,18 +62,15 @@ class Database {
     }
 
     // --- Kontrol Transaksi SQL ---
-    public function beginTransaction(): bool
-    {
+    public function beginTransaction(): bool {
         return $this->connection->beginTransaction();
     }
 
-    public function commit(): bool
-    {
+    public function commit(): bool {
         return $this->connection->commit();
     }
 
-    public function rollback(): bool
-    {
+    public function rollback(): bool {
         return $this->connection->rollBack();
     }
 }
