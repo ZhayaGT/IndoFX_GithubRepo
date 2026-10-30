@@ -4,18 +4,14 @@ declare(strict_types=1);
 
 namespace IndoFX\Core;
 
-class Router
-{
+class Router {
     /**
      * @var array<int, array<string, mixed>>
      */
     protected array $routes = [];
 
-    /**
-     * Mendaftarkan rute baru
-     */
-    public function add(string $method, string $uri, mixed $controller, ?string $action = null): void
-    {
+    // Mendaftarkan rute baru
+    public function add(string $method, string $uri, mixed $controller, ?string $action = null): void {
         $this->routes[] = [
             'method'     => strtoupper($method),
             'uri'        => $uri,
@@ -24,27 +20,18 @@ class Router
         ];
     }
 
-    /**
-     * Helper praktis untuk request GET
-     */
-    public function get(string $uri, mixed $controller, ?string $action = null): void
-    {
+    // Helper praktis untuk request GET
+    public function get(string $uri, mixed $controller, ?string $action = null): void {
         $this->add('GET', $uri, $controller, $action);
     }
 
-    /**
-     * Helper praktis untuk request POST
-     */
-    public function post(string $uri, mixed $controller, ?string $action = null): void
-    {
+    // Helper praktis untuk request POST
+    public function post(string $uri, mixed $controller, ?string $action = null): void {
         $this->add('POST', $uri, $controller, $action);
     }
 
-    /**
-     * Menjalankan handler rute
-     */
-    public function dispatch(string $uri, string $method): mixed
-    {
+    // Menjalankan handler rute
+    public function dispatch(string $uri, string $method): mixed {
         $uri = (string) parse_url($uri, PHP_URL_PATH);
 
         foreach ($this->routes as $route) {
@@ -74,10 +61,5 @@ class Router
         }
 
         return null;
-    }
-
-    // Jika tidak ada yang cocok, tampilkan 404
-    http_response_code(404);
-    echo "404 - Halaman tidak ditemukan";
     }
 }
