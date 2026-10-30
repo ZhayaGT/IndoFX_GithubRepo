@@ -4,8 +4,7 @@ namespace IndoFX\Controllers;
 
 use IndoFX\Core\Controller;
 
-class CatalogController extends Controller
-{
+class CatalogController extends Controller {
     public function explore()
     {
         $this->view('catalog/explore', [

@@ -20,7 +20,6 @@
 </head>
 
 <body>
-
     <!-- SVG Definitions untuk Ilustrasi -->
     <svg class="d-none">
         <defs>
@@ -84,14 +83,10 @@
                 <span class="brand-text">IndoFX</span>
             </a>
 
-<<<<<<< Updated upstream
-            <?php require BASE_PATH . '/resources/views/partials/navbar-search.php'; ?>
-=======
             <div class="search-box-header d-flex align-items-center flex-grow-1 mx-2 mx-md-4">
                 <i class="bi bi-search search-icon-header"></i>
                 <input type="text" class="form-control search-input-header" placeholder="Cari aset...">
             </div>
->>>>>>> Stashed changes
 
             <div class="d-flex align-items-center gap-2">
                 <?php require BASE_PATH . '/resources/views/partials/navbar-auth.php'; ?>
@@ -158,9 +153,6 @@
                     <a href="/catalog/explore?sort=terbaru" class="catalog-side-link">Selengkapnya</a>
                 </div>
 
-<<<<<<< Updated upstream
-                <div class="row g-3" data-catalog-list="latest"></div>
-=======
                 <div class="row g-3">
                     <?php for ($i = 0; $i < 4; $i++): ?>
                         <div class="col-12 col-sm-6 col-lg-3">
@@ -193,7 +185,6 @@
                         </div>
                     <?php endfor; ?>
                 </div>
->>>>>>> Stashed changes
             </section>
 
             <!-- Aset Gratis Unggulan -->
@@ -206,9 +197,6 @@
                     <a href="/catalog/explore?gratis=1&amp;sort=populer" class="catalog-side-link">Selengkapnya</a>
                 </div>
 
-<<<<<<< Updated upstream
-                <div class="row g-3" data-catalog-list="free"></div>
-=======
                 <div class="row g-3">
                     <?php for ($i = 0; $i < 4; $i++): ?>
                         <div class="col-12 col-sm-6 col-lg-3">
@@ -241,7 +229,6 @@
                         </div>
                     <?php endfor; ?>
                 </div>
->>>>>>> Stashed changes
             </section>
 
         </div>

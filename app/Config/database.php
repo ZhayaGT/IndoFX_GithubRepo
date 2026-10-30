@@ -2,10 +2,8 @@
 
 declare(strict_types=1);
 
-/**
- * Konfigurasi koneksi PostgreSQL (PDO).
- * Milik: Back End.
- */
+ // Konfigurasi koneksi PostgreSQL (PDO).
+ // Milik: Back End.
 
 use IndoFX\Core\Env;
 

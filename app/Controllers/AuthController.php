@@ -31,7 +31,7 @@ class AuthController extends Controller {
         $user = $userModel->findByEmail($email);
 
         // Verifikasi keberadaan user dan kecocokan password hash
-        if ($user && password_verify($password, $user['password_hash'])) {
+        if ($user && password_verify($password, $user['password'])) {
             // Daftarkan sesi pengguna
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['role']    = $user['role'];
@@ -51,8 +51,7 @@ class AuthController extends Controller {
     }
 
     // 3. Menampilkan halaman Register
-    public function register()
-    {
+    public function register() {
         if (isset($_SESSION['user_id'])) {
             $this->redirect('/');
         }

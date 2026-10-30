@@ -5,9 +5,7 @@ declare(strict_types=1);
 // Kumpulan fungsi helper untuk konversi markdown
 
 if (!function_exists('parse_markdown')) {
-    /**
-     * Konversi teks Markdown dasar ke HTML yang aman (XSS safe).
-     */
+    // Konversi teks Markdown dasar ke HTML yang aman (XSS safe).
     function parse_markdown(string $text): string
     {
         // 1. Amankan karakter khusus HTML terlebih dahulu
@@ -25,9 +23,7 @@ if (!function_exists('parse_markdown')) {
 }
 
 if (!function_exists('parseMarkdown')) {
-    /**
-     * Alias camelCase untuk parse_markdown
-     */
+     // Alias camelCase untuk parse_markdown
     function parseMarkdown(string $text): string
     {
         return parse_markdown($text);

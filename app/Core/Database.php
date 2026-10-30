@@ -74,9 +74,4 @@ class Database {
     {
         return $this->connection->rollBack();
     }
-
-    public function lastInsertId()
-    {
-        return $this->connection->lastInsertId();
-    }
 }

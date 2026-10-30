@@ -2,10 +2,8 @@
 
 declare(strict_types=1);
 
-/**
- * Konfigurasi umum aplikasi.
- * Milik: Back End.
- */
+// Konfigurasi umum aplikasi.
+// Milik: Back End.
 
 use IndoFX\Core\Env;
 

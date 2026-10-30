@@ -2,10 +2,8 @@
 
 declare(strict_types=1);
 
-/**
- * Front controller IndoFX.
- * Semua permintaan masuk melalui berkas ini.
- */
+// Front controller IndoFX.
+// Semua permintaan masuk melalui berkas ini.
 
 define('BASE_PATH', dirname(__DIR__));
 
@@ -48,22 +46,6 @@ if (class_exists('IndoFX\\Core\\Session')) {
 } elseif (session_status() === PHP_SESSION_NONE) {
     session_name($sessionName);
     session_start();
-}
-
-// Pengecekan koneksi database secara dinamis tanpa memicu galat statis
-try {
-    $dbConfig = BASE_PATH . '/app/Config/database.php';
-    if (file_exists($dbConfig)) {
-        $dbClass = class_exists('IndoFX\\Core\\Database')
-            ? 'IndoFX\\Core\\Database'
-            : (class_exists('Database') ? 'Database' : null);
-
-        if ($dbClass !== null && method_exists($dbClass, 'connect')) {
-            $dbClass::connect(require $dbConfig);
-        }
-    }
-} catch (\Throwable $e) {
-    // Dilewati agar antarmuka tetap berjalan meski database belum aktif
 }
 
 // Menjalankan router utama
