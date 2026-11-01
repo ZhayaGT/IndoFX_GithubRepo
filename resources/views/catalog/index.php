@@ -83,10 +83,11 @@
                 <span class="brand-text">IndoFX</span>
             </a>
 
-            <div class="search-box-header d-flex align-items-center flex-grow-1 mx-2 mx-md-4">
+            <form action="/catalog/explore" method="GET" class="search-box-header d-flex align-items-center flex-grow-1 mx-2 mx-md-4">
                 <i class="bi bi-search search-icon-header"></i>
-                <input type="text" class="form-control search-input-header" placeholder="Cari aset...">
-            </div>
+                <input type="text" name="q" class="form-control search-input-header" placeholder="Cari aset..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
+                <button type="submit" class="d-none"></button>
+            </form>
 
             <div class="d-flex align-items-center gap-2">
                 <?php require BASE_PATH . '/resources/views/partials/navbar-auth.php'; ?>
@@ -136,11 +137,11 @@
             <section class="category-section text-center">
                 <h3 class="section-heading-center mb-1">Telusuri Berdasarkan Kategori</h3>
                 <p class="section-sub-center mb-4">Temukan spesifikasi aset yang tepat untuk game engine Anda</p>
-                <div class="d-flex justify-content-center gap-3 flex-wrap">
-                    <a href="/catalog/explore?category=shader" class="btn category-pill">Shader</a>
-                    <a href="/catalog/explore?category=particle" class="btn category-pill">Particle</a>
-                    <a href="/catalog/explore?category=free" class="btn category-pill">Gratis</a>
-                </div>
+                    <div class="d-flex justify-content-center gap-3 flex-wrap">
+                        <a href="/catalog/explore?category[]=shader" class="btn category-pill">Shader</a>
+                        <a href="/catalog/explore?category[]=particle" class="btn category-pill">Particle</a>
+                        <a href="/catalog/explore?price_filter_radio=free" class="btn category-pill">Gratis</a>
+                    </div>
             </section>
 
             <!-- Aset Terbaru -->
@@ -157,11 +158,13 @@
                     <?php foreach ($latestAssets as $asset): ?>
                         <div class="col-12 col-sm-6 col-lg-3">
                             <div class="asset-card-figma h-100 d-flex flex-column">
-                                <a href="/asset/detail?id=<?= $asset['id'] ?>" class="asset-thumb-wrapper d-block">
-                                    <!-- Jika ada URL gambar di DB, ganti tag svg dengan img -->
-                                    <!-- <img src="<?= htmlspecialchars($asset['thumbnail_url']) ?>" alt="Thumbnail" class="w-100 h-100 object-fit-cover"> -->
-                                    <svg width="100%" height="175" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice"><use href="#castle-sunset-art" /></svg>
-                                </a>
+                                    <a href="/asset/detail?id=<?= $asset['id'] ?>" class="asset-thumb-wrapper d-block">
+                                        <?php if (!empty($asset['thumbnail'])): ?>
+                                            <img src="https://fjjcuvbhwjtyvmlddevj.supabase.co/storage/v1/object/public/asset-previews/<?= htmlspecialchars($asset['thumbnail']) ?>" alt="<?= htmlspecialchars($asset['title']) ?>" style="width: 100%; height: 175px; object-fit: cover;">
+                                        <?php else: ?>
+                                            <svg width="100%" height="175" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice"><use href="#castle-sunset-art" /></svg>
+                                        <?php endif; ?>
+                                    </a>
                                 <div class="asset-card-body d-flex flex-column justify-content-between flex-grow-1">
                                     <div>
                                         <a href="/creator/profile" class="asset-studio text-decoration-none d-inline-block">Studio Kreator</a>
@@ -194,9 +197,13 @@
                     <?php foreach ($freeAssets as $asset): ?>
                         <div class="col-12 col-sm-6 col-lg-3">
                             <div class="asset-card-figma h-100 d-flex flex-column">
-                                <a href="/asset/detail?id=<?= $asset['id'] ?>" class="asset-thumb-wrapper d-block">
-                                    <svg width="100%" height="175" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice"><use href="#forest-mist-art" /></svg>
-                                </a>
+                                    <a href="/asset/detail?id=<?= $asset['id'] ?>" class="asset-thumb-wrapper d-block">
+                                        <?php if (!empty($asset['thumbnail'])): ?>
+                                            <img src="https://fjjcuvbhwjtyvmlddevj.supabase.co/storage/v1/object/public/asset-previews/<?= htmlspecialchars($asset['thumbnail']) ?>" alt="<?= htmlspecialchars($asset['title']) ?>" style="width: 100%; height: 175px; object-fit: cover;">
+                                        <?php else: ?>
+                                            <svg width="100%" height="175" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice"><use href="#forest-mist-art" /></svg>
+                                        <?php endif; ?>
+                                    </a>
                                 <div class="asset-card-body d-flex flex-column justify-content-between flex-grow-1">
                                     <div>
                                         <a href="/creator/profile" class="asset-studio text-decoration-none d-inline-block">Studio Kreator</a>

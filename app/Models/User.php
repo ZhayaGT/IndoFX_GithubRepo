@@ -3,6 +3,7 @@
 namespace IndoFX\Models;
 
 use IndoFX\Core\Model;
+use PDO;
 
 class User extends Model {
     // Mencari pengguna berdasarkan email.
@@ -10,8 +11,9 @@ class User extends Model {
     public function findByEmail($email) {
         $sql = "SELECT * FROM users WHERE email = :email LIMIT 1";
         // Query akan otomatis memanggil prepared statement dari Database.php
-        $stmt = $this->db->query($sql, [':email' => $email]);
-        return $stmt->fetch();
+        $stmt = $this->db->prepare("SELECT * FROM users WHERE email = ?");
+        $stmt->execute([$email]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     // Menyimpan pengguna baru (Register).
@@ -19,10 +21,11 @@ class User extends Model {
         $sql = "INSERT INTO users (name, email, password, role) 
                 VALUES (:name, :email, :password, :role)";
         
-        $this->db->query($sql, [
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([
             ':name'     => $name,
             ':email'    => $email,
-            ':password' => $passwordHash, // Untuk Memastikan controller mengirimkan password yang sudah di-hash
+            ':password' => $passwordHash,
             ':role'     => $role
         ]);
 

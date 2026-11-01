@@ -80,10 +80,11 @@
                 <span class="brand-text">IndoFX</span>
             </a>
 
-            <div class="search-box-header d-flex align-items-center flex-grow-1 mx-2 mx-md-4">
+            <form action="/catalog/explore" method="GET" class="search-box-header d-flex align-items-center flex-grow-1 mx-2 mx-md-4">
                 <i class="bi bi-search search-icon-header"></i>
-                <input type="text" class="form-control search-input-header" placeholder="Cari aset...">
-            </div>
+                <input type="text" name="q" class="form-control search-input-header" placeholder="Cari aset..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
+                <button type="submit" class="d-none"></button>
+            </form>
 
             <div class="d-flex align-items-center gap-2">
                 <?php require BASE_PATH . '/resources/views/partials/navbar-auth.php'; ?>
@@ -101,12 +102,14 @@
 
                 <div class="d-flex align-items-center gap-2">
                     <span class="text-muted small">Urutkan:</span>
-                    <select class="form-select form-select-sm sort-select">
-                        <option value="terbaru" selected>Terbaru</option>
-                        <option value="populer">Terpopuler</option>
-                        <option value="harga_rendah">Harga: Rendah ke Tinggi</option>
-                        <option value="harga_tinggi">Harga: Tinggi ke Rendah</option>
-                    </select>
+                    <form id="filterForm" action="/catalog/explore" method="GET">
+                        <select name="sort" class="form-select form-select-sm sort-select" onchange="document.getElementById('filterForm').submit()">
+                            <option value="terbaru" <?= ($filters['sort'] ?? '') === 'terbaru' ? 'selected' : '' ?>>Terbaru</option>
+                            <option value="populer">Terpopuler</option>
+                            <option value="harga_rendah" <?= ($filters['sort'] ?? '') === 'harga_rendah' ? 'selected' : '' ?>>Harga: Rendah ke Tinggi</option>
+                            <option value="harga_tinggi" <?= ($filters['sort'] ?? '') === 'harga_tinggi' ? 'selected' : '' ?>>Harga: Tinggi ke Rendah</option>
+                        </select>
+                    </form>
                 </div>
             </div>
 
@@ -118,11 +121,15 @@
                         <?php foreach ($assets as $asset): ?>
                             <div class="col-12 col-sm-6 col-lg-4">
                                 <div class="asset-card-figma h-100 d-flex flex-column">
-                                    <a href="/asset/detail?id=<?= $asset['id'] ?>" class="asset-thumb-wrapper d-block">
-                                        <svg width="100%" height="175" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice">
-                                            <use href="#castle-asset-thumb" />
-                                        </svg>
-                                    </a>
+                                        <a href="/asset/detail?id=<?= $asset['id'] ?>" class="asset-thumb-wrapper d-block">
+                                            <?php if (!empty($asset['thumbnail'])): ?>
+                                                <img src="https://fjjcuvbhwjtyvmlddevj.supabase.co/storage/v1/object/public/asset-previews/<?= htmlspecialchars($asset['thumbnail']) ?>" alt="<?= htmlspecialchars($asset['title']) ?>" style="width: 100%; height: 175px; object-fit: cover;">
+                                            <?php else: ?>
+                                                <svg width="100%" height="175" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice">
+                                                    <use href="#castle-asset-thumb" />
+                                                </svg>
+                                            <?php endif; ?>
+                                        </a>
                                     <div class="asset-card-body d-flex flex-column justify-content-between flex-grow-1">
                                         <div>
                                             <a href="/creator/profile" class="asset-studio text-decoration-none d-inline-block">Studio Kreator</a>
@@ -152,22 +159,27 @@
                 <!-- KOLOM KANAN: Card Filter Pencarian -->
                 <div class="col-12 col-lg-3">
                     <div class="filter-search-card p-3">
+                        <form action="/catalog/explore" method="GET">
+
+                        <?php if(isset($_GET['q'])): ?>
+                            <input type="hidden" name="q" value="<?= htmlspecialchars($_GET['q']) ?>">
+                        <?php endif; ?>
 
                         <!-- Header Filter -->
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <span class="fw-bold text-dark fs-7">Filter Pencarian</span>
-                            <a href="javascript:void(0)" class="filter-reset-link">Reset</a>
+                            <a href="/catalog/explore" class="filter-reset-link">Reset</a>
                         </div>
 
                         <!-- 1. Kategori -->
                         <div class="filter-group mb-3">
                             <label class="filter-group-label d-block mb-2">Kategori</label>
                             <div class="form-check mb-1">
-                                <input class="form-check-input filter-checkbox" type="checkbox" id="cat_shader">
+                                <input class="form-check-input filter-checkbox" type="checkbox" name="category[]" value="shader" id="cat_shader" <?= in_array('shader', $_GET['category'] ?? []) ? 'checked' : '' ?>>
                                 <label class="form-check-label filter-check-text" for="cat_shader">Shader</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input filter-checkbox" type="checkbox" id="cat_particle">
+                                <input class="form-check-input filter-checkbox" type="checkbox" name="category[]" value="particle" id="cat_particle" <?= in_array('particle', $_GET['category'] ?? []) ? 'checked' : '' ?>>
                                 <label class="form-check-label filter-check-text" for="cat_particle">Particle</label>
                             </div>
                         </div>
@@ -176,12 +188,12 @@
                         <div class="filter-group mb-3">
                             <label class="filter-group-label d-block mb-2">Rentang Harga (Rp)</label>
                             <div class="d-flex align-items-center gap-1 mb-2">
-                                <input type="number" class="form-control form-control-sm filter-range-input" placeholder="Min">
+                                <input type="number" name="min_price" class="form-control form-control-sm filter-range-input" placeholder="Min" value="<?= htmlspecialchars($_GET['min_price'] ?? '') ?>">
                                 <span class="text-muted">-</span>
-                                <input type="number" class="form-control form-control-sm filter-range-input" placeholder="Max">
+                                <input type="number" name="max_price" class="form-control form-control-sm filter-range-input" placeholder="Max" value="<?= htmlspecialchars($_GET['max_price'] ?? '') ?>">
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input filter-radio" type="radio" name="price_filter_radio" id="price_free_radio">
+                                <input class="form-check-input filter-radio" type="radio" name="price_filter_radio" value="free" id="price_free_radio" <?= (isset($_GET['price_filter_radio']) && $_GET['price_filter_radio'] === 'free') ? 'checked' : '' ?>>
                                 <label class="form-check-label filter-check-text" for="price_free_radio">Gratis</label>
                             </div>
                         </div>
@@ -190,15 +202,15 @@
                         <div class="filter-group mb-3">
                             <label class="filter-group-label d-block mb-2">Render Pipeline</label>
                             <div class="form-check mb-1">
-                                <input class="form-check-input filter-checkbox" type="checkbox" id="pipe_builtin">
+                                <input class="form-check-input filter-checkbox" type="checkbox" name="pipeline[]" value="Built-in" id="pipe_builtin" <?= in_array('Built-in', $filters['pipeline'] ?? []) ? 'checked' : '' ?>>
                                 <label class="form-check-label filter-check-text" for="pipe_builtin">Built-in</label>
                             </div>
                             <div class="form-check mb-1">
-                                <input class="form-check-input filter-checkbox" type="checkbox" id="pipe_urp">
+                                <input class="form-check-input filter-checkbox" type="checkbox" name="pipeline[]" value="URP" id="pipe_urp" <?= in_array('URP', $filters['pipeline'] ?? []) ? 'checked' : '' ?>>
                                 <label class="form-check-label filter-check-text" for="pipe_urp">URP</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input filter-checkbox" type="checkbox" id="pipe_hdrp">
+                                <input class="form-check-input filter-checkbox" type="checkbox" name="pipeline[]" value="HDRP" id="pipe_hdrp" <?= in_array('HDRP', $filters['pipeline'] ?? []) ? 'checked' : '' ?>>
                                 <label class="form-check-label filter-check-text" for="pipe_hdrp">HDRP</label>
                             </div>
                         </div>
@@ -206,13 +218,16 @@
                         <!-- 4. Versi Unity -->
                         <div class="filter-group mb-1">
                             <label class="filter-group-label d-block mb-2">Versi Unity</label>
-                            <select class="form-select form-select-sm filter-range-input">
-                                <option selected>Semua Versi</option>
-                                <option value="2021">2021.3 LTS</option>
-                                <option value="2022">2022.3 LTS</option>
-                                <option value="2023">2023.x</option>
+                            <select name="unity_version" class="form-select form-select-sm filter-range-input">
+                                <option value="Semua Versi" <?= ($filters['unity_version'] ?? '') === 'Semua Versi' ? 'selected' : '' ?>>Semua Versi</option>
+                                <option value="2021" <?= ($filters['unity_version'] ?? '') === '2021' ? 'selected' : '' ?>>2021.3 LTS</option>
+                                <option value="2022" <?= ($filters['unity_version'] ?? '') === '2022' ? 'selected' : '' ?>>2022.3 LTS</option>
+                                <option value="2023" <?= ($filters['unity_version'] ?? '') === '2023' ? 'selected' : '' ?>>2023.x</option>
                             </select>
                         </div>
+
+                        <!-- Tombol Terapkan -->
+                        <button type="submit" class="btn btn-sm btn-hero-orange w-100 mt-2">Terapkan Filter</button>
 
                     </div>
                 </div>
