@@ -147,9 +147,23 @@
                         <div class="filter-group mb-3">
                             <label class="filter-group-label d-block mb-2">Rentang Harga (Rp)</label>
                             <div class="d-flex align-items-center gap-1 mb-2">
-                                <input type="number" class="form-control form-control-sm filter-range-input" placeholder="Min">
+                                <input type="number"
+                                    class="filter-range-input"
+                                    id="minPrice"
+                                    name="min_price"
+                                    placeholder="Min"
+                                    min="1"
+                                    onkeydown="if(event.key === '-' || event.key === 'e' || event.key === '+') event.preventDefault();"
+                                    oninput="if(this.value !== '' && Number(this.value) < 1) this.value = 1;">
                                 <span class="text-muted">-</span>
-                                <input type="number" class="form-control form-control-sm filter-range-input" placeholder="Max">
+                                <input type="number"
+                                    class="filter-range-input"
+                                    id="maxPrice"
+                                    name="max_price"
+                                    placeholder="Max"
+                                    min="1"
+                                    onkeydown="if(event.key === '-' || event.key === 'e' || event.key === '+') event.preventDefault();"
+                                    oninput="if(this.value !== '' && Number(this.value) < 1) this.value = 1;">
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input filter-radio" type="radio" name="price_filter_radio" id="price_free_radio">
