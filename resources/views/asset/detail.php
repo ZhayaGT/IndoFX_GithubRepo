@@ -73,13 +73,13 @@ $catalogDB = [
     ],
     '8' => [
         'title' => 'Basic Hologram Shader Helper',
-        'creator' => 'Bayu Pratama',
-        'category' => 'SHADER',
-        'price' => 0,
+        'creator' => 'Arga Studio',
+        'category' => 'VFX PARTIKEL',
+        'price' => 150000,
         'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'URP',
-        'format' => '.shadergraph, .unitypackage',
-        'art' => 'water'
+        'pipeline' => 'URP, HDRP',
+        'format' => '.unitypackage',
+        'art' => 'castle'
     ],
     'free-forest-mist' => [
         'title' => 'Forest Mist & Fog Volume',
@@ -94,7 +94,7 @@ $catalogDB = [
     'free-desert-dune' => [
         'title' => 'Desert Dune Terrain Pack',
         'creator' => 'Pasir Labs',
-        'category' => 'MODEL 3D',
+        'category' => 'MODEL',
         'price' => 0,
         'unity_version' => '2021.3+ / 2022.3 LTS',
         'pipeline' => 'URP',
@@ -145,62 +145,95 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
     <link rel="stylesheet" href="/assets/css/style.css">
 
     <style>
+        body {
+            background-color: var(--indofx-cream-bg, #FAF0E6);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #1A1A1A;
+        }
+
         .content-detail-wrapper {
             background-color: var(--indofx-cream-bg, #FAF0E6);
             min-height: calc(100vh - 70px);
         }
 
+        /* Frame Pratinjau Utama Persis Figma */
         .main-preview-card {
             border-radius: 8px;
             overflow: hidden;
             border: 1.5px solid #2B2129;
             background-color: #2b2129;
-            height: 380px;
+            height: 420px;
         }
 
-        .thumb-card {
+        /* Baris Thumbnail Galeri (4 Gambar Berjajar) */
+        .thumb-gallery-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .thumb-card-item {
+            width: 76px;
+            height: 52px;
             border-radius: 6px;
             overflow: hidden;
-            border: 2px solid transparent;
+            border: 1.5px solid #2B2129;
             cursor: pointer;
-            height: 70px;
             background-color: #2b2129;
-            transition: border-color 0.15s ease;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
         }
 
-        .thumb-card.active,
-        .thumb-card:hover {
-            border-color: #ED6B1D;
+        .thumb-card-item.active {
+            border: 2px solid #ED6B1D;
+        }
+
+        .thumb-card-item:hover {
+            opacity: 0.9;
+        }
+
+        /* Tab Navigasi Sesuai Figma */
+        .detail-nav-tabs {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            margin-bottom: 16px;
         }
 
         .detail-nav-tabs .tab-link {
-            font-size: 0.92rem;
+            font-size: 0.95rem;
             font-weight: 600;
-            color: #736b66;
+            color: #4A3B32;
             text-decoration: none;
-            padding-bottom: 4px;
+            padding-bottom: 6px;
             border-bottom: 2px solid transparent;
+            transition: all 0.15s ease;
         }
 
         .detail-nav-tabs .tab-link.active {
-            color: #2B2129;
+            color: #1A1A1A;
             font-weight: 800;
-            border-bottom-color: #ED6B1D;
+            border-bottom: 2.5px solid #ED6B1D;
         }
 
+        /* Kotak Konten Tab */
         .detail-content-box {
             background-color: #ffffff;
             border-radius: 8px;
             border: 1.5px solid #2B2129;
             font-size: 0.88rem;
-            line-height: 1.6;
+            line-height: 1.65;
+            color: #1A1A1A;
+            padding: 24px;
         }
 
+        /* Kartu Sisi Kanan (Informasi & Pembelian) */
         .asset-purchase-card {
             background-color: #ffffff;
             border: 1.5px solid #2B2129;
             border-radius: 8px;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+            padding: 24px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
         }
 
         .asset-category-tag {
@@ -208,73 +241,139 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
             font-weight: 800;
             color: #736b66;
             letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
 
         .asset-detail-title {
             font-size: 1.45rem;
             font-weight: 800;
-            color: #2B2129;
+            color: #1A1A1A;
             line-height: 1.25;
+            margin-top: 4px;
+            margin-bottom: 4px;
         }
 
-        .detail-creator {
-            font-size: 0.84rem;
+        /* Nama Kreator (Bukan Biru Bootstrap) */
+        .detail-creator-line {
+            font-size: 0.85rem;
             color: #736b66;
+            margin-bottom: 20px;
         }
 
-        .price-label {
-            font-size: 0.75rem;
-            color: #736b66;
-        }
-
-        .price-amount {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: #2B2129;
-        }
-
-        .specs-table {
-            border-top: 1px solid #efe0d5;
-            border-bottom: 1px solid #efe0d5;
-        }
-
-        .border-bottom-spec {
-            border-bottom: 1px solid #efe0d5;
-        }
-
-        .spec-label {
-            font-size: 0.8rem;
-            color: #736b66;
-        }
-
-        .spec-value {
-            font-size: 0.8rem;
+        .detail-creator-line a {
+            color: #1A1A1A !important;
             font-weight: 700;
-            color: #2B2129;
+            text-decoration: none;
         }
 
-        /* Tombol Tambahkan ke Library (Default) */
-        .btn-add-library {
+        .detail-creator-line a:hover {
+            text-decoration: underline;
+        }
+
+        .price-label-text {
+            font-size: 0.78rem;
+            color: #736b66;
+            margin-bottom: 2px;
+        }
+
+        .price-amount-text {
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: #1A1A1A;
+            margin-bottom: 24px;
+        }
+
+        /* Tabel Spesifikasi Teknis */
+        .specs-table-box {
+            border-top: 1px solid #ebdcd1;
+            margin-bottom: 24px;
+        }
+
+        .spec-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #ebdcd1;
+            font-size: 0.82rem;
+        }
+
+        .spec-item-row .label-col {
+            color: #736b66;
+        }
+
+        .spec-item-row .val-col {
+            font-weight: 700;
+            color: #1A1A1A;
+        }
+
+        /* ========================================================
+           TOMBOL-TOMBOL AKSI PERSIS FIGMA
+           ======================================================== */
+
+        /* 1. Tombol Aset Gratis: Tambahkan ke Library (Hitam Solid) */
+        .btn-figma-free-library {
             background-color: #2B2129;
             color: #ffffff !important;
             font-weight: 700;
-            font-size: 0.92rem;
+            font-size: 0.95rem;
             border: none;
             border-radius: 6px;
-            padding: 12px;
-            transition: background-color 0.2s ease;
+            padding: 12px 16px;
             text-align: center;
             cursor: pointer;
             width: 100%;
+            display: block;
             text-decoration: none;
-            display: inline-block;
+            transition: opacity 0.15s ease;
         }
 
-        .btn-add-library:hover {
-            background-color: #151114;
+        .btn-figma-free-library:hover {
+            opacity: 0.9;
         }
 
-        /* Tombol Khusus Saat Aset SUDAH DIMILIKI di Library */
+        /* 2. Tombol Aset Berbayar: Beli (Oranye Solid) */
+        .btn-figma-buy-orange {
+            background-color: #ED6B1D;
+            color: #ffffff !important;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            transition: background-color 0.15s ease;
+        }
+
+        .btn-figma-buy-orange:hover {
+            background-color: #d85a0e;
+        }
+
+        /* 3. Tombol Aset Berbayar: Tambahkan ke Keranjang (Putih Border Hitam) */
+        .btn-figma-add-cart-outline {
+            background-color: #ffffff;
+            color: #1A1A1A !important;
+            border: 1.5px solid #2B2129;
+            font-weight: 700;
+            font-size: 0.92rem;
+            border-radius: 6px;
+            padding: 11px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-figma-add-cart-outline:hover {
+            background-color: #fbf8f5;
+        }
+
+        /* 4. Status Aset Sudah Dimiliki di Library */
         .btn-already-owned {
             background-color: #f0fdf4 !important;
             color: #15803d !important;
@@ -292,38 +391,87 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
             text-decoration: none !important;
             box-shadow: 0 2px 6px rgba(22, 163, 74, 0.08) !important;
             cursor: pointer !important;
-            transition: all 0.2s ease !important;
         }
 
-        .btn-already-owned:hover {
-            background-color: #dcfce7 !important;
-            color: #166534 !important;
+        /* ========================================================
+           STYLING TAB ULASAN FIGMA
+           ======================================================== */
+        .rating-summary-box {
+            background-color: #fdf5ef;
+            border: 1px solid #ebdcd1;
+            border-radius: 8px;
         }
 
-        .btn-buy-primary {
-            background-color: #ED6B1D;
-            color: #ffffff !important;
+        .rating-big-score {
+            font-size: 2.3rem;
+            font-weight: 800;
+            color: #1a1a1a;
+            line-height: 1;
+        }
+
+        .rating-out-of {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #736b66;
+        }
+
+        .rating-stars-gold {
+            color: #ed6b1d;
+            font-size: 0.95rem;
+        }
+
+        .rating-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.78rem;
+            margin-bottom: 4px;
+        }
+
+        .rating-bar-label {
+            width: 25px;
+            color: #2b2623;
+            font-weight: 600;
+        }
+
+        .rating-bar-track {
+            flex-grow: 1;
+            height: 6px;
+            background-color: #eeddd2;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .rating-bar-fill {
+            height: 100%;
+            background-color: #ed6b1d;
+            border-radius: 999px;
+        }
+
+        .rating-bar-num {
+            width: 20px;
+            text-align: right;
+            color: #736b66;
+            font-weight: 600;
+        }
+
+        .badge-owner {
+            background-color: #fef3eb;
+            color: #ed6b1d;
+            border: 1px solid #fed7aa;
+            font-size: 0.72rem;
             font-weight: 700;
-            font-size: 0.92rem;
-            border: none;
-            border-radius: 6px;
-            padding: 10px;
-            text-align: center;
-            text-decoration: none;
-            display: block;
+            padding: 2px 8px;
+            border-radius: 4px;
         }
 
-        .btn-cart-secondary {
-            background-color: #F4E4D7;
-            color: #2B2129 !important;
-            font-weight: 700;
-            font-size: 0.92rem;
-            border: none;
-            border-radius: 6px;
-            padding: 10px;
-            text-align: center;
-            text-decoration: none;
-            display: block;
+        .review-item-block {
+            padding: 14px 0;
+            border-bottom: 1px solid #efe0d5;
+        }
+
+        .review-item-block:last-child {
+            border-bottom: none;
         }
     </style>
 </head>
@@ -387,7 +535,7 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
 
             <div class="search-box-header d-none d-md-flex align-items-center">
                 <i class="bi bi-search search-icon-header"></i>
-                <input type="text" class="form-control search-input-header" placeholder="Cari aset...">
+                <input type="text" class="form-control search-input-header" placeholder="Cari aset VFX, shader, tekstur...">
             </div>
 
             <div class="d-flex align-items-center gap-3">
@@ -406,8 +554,9 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
         <div class="container-figma">
             <div class="row g-4 align-items-start">
 
-                <!-- Kolom Kiri -->
+                <!-- Kolom Kiri: Galeri & Tab Deskripsi -->
                 <div class="col-12 col-lg-8">
+                    <!-- Frame Gambar Utama -->
                     <div id="assetDetailCarousel" class="carousel slide main-preview-card mb-3" data-bs-ride="carousel">
                         <div class="carousel-inner h-100">
                             <div class="carousel-item active h-100">
@@ -418,89 +567,178 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
                         </div>
                     </div>
 
-                    <!-- Thumbnail Galeri -->
-                    <div class="row g-2 mb-4 thumb-row" style="max-width: 240px;">
-                        <div class="col-6">
-                            <div class="thumb-card active">
-                                <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
-                                    <use href="#art-<?= htmlspecialchars($assetArt) ?>" />
-                                </svg>
-                            </div>
+                    <!-- 4 Thumbnail Galeri Berjajar Sesuai Figma -->
+                    <div class="thumb-gallery-row">
+                        <div class="thumb-card-item active">
+                            <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
+                                <use href="#art-<?= htmlspecialchars($assetArt) ?>" />
+                            </svg>
+                        </div>
+                        <div class="thumb-card-item">
+                            <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
+                                <use href="#art-<?= htmlspecialchars($assetArt) ?>" />
+                            </svg>
+                        </div>
+                        <div class="thumb-card-item">
+                            <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
+                                <use href="#art-<?= htmlspecialchars($assetArt) ?>" />
+                            </svg>
+                        </div>
+                        <div class="thumb-card-item">
+                            <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
+                                <use href="#art-<?= htmlspecialchars($assetArt) ?>" />
+                            </svg>
                         </div>
                     </div>
 
                     <!-- Tab Navigasi -->
-                    <div class="detail-nav-tabs d-flex align-items-center gap-4 mb-3">
+                    <div class="detail-nav-tabs">
                         <a href="javascript:void(0)" class="tab-link active" onclick="switchDetailTab(event, 'tab-deskripsi')">Deskripsi</a>
                         <a href="javascript:void(0)" class="tab-link" onclick="switchDetailTab(event, 'tab-changelog')">Changelog</a>
                         <a href="javascript:void(0)" class="tab-link" onclick="switchDetailTab(event, 'tab-ulasan')">Ulasan</a>
                     </div>
 
-                    <div class="detail-content-box p-4" id="tabContentArea">
+                    <div class="detail-content-box" id="tabContentArea">
+                        <!-- TAB 1: DESKRIPSI -->
                         <div id="tab-deskripsi" class="tab-pane-detail active">
                             <p class="mb-3">
-                                Paket aset visual <strong><?= htmlspecialchars($assetTitle) ?></strong> dirancang khusus oleh <strong><?= htmlspecialchars($assetCreator) ?></strong> untuk pipeline rendering <?= htmlspecialchars($assetPipeline) ?> di engine Unity.
+                                Paket aset visual <strong><?= htmlspecialchars($assetTitle) ?></strong> dirancang khusus oleh <strong><?= htmlspecialchars($assetCreator) ?></strong> untuk mewujudkan sistem visual berkualitas tinggi dalam pipeline rendering <?= htmlspecialchars($assetPipeline) ?> di engine Unity. Dilengkapi dengan kontrol intensitas, shader material yang teroptimasi, dan performa tinggi tanpa membebani draw calls.
                             </p>
                             <p class="mb-0">
-                                Sangat mudah diintegrasikan ke dalam game Anda dan telah dilengkapi dokumentasi standar industri game Indonesia.
+                                Sangat cocok untuk proyek game bertema petualangan, aksi, simulasi, maupun kebutuhan prototipe karya game developer Indonesia.
                             </p>
                         </div>
+
+                        <!-- TAB 2: CHANGELOG -->
                         <div id="tab-changelog" class="tab-pane-detail d-none">
                             <h6 class="fw-bold mb-2">Versi 1.2.0</h6>
-                            <p class="text-muted small">Pembaruan shader dan optimasi performa.</p>
+                            <p class="text-muted small">Pembaruan shader dan optimasi performa partikel untuk rilis Unity 2022 LTS.</p>
                         </div>
+
+                        <!-- TAB 3: ULASAN PEMBELI -->
                         <div id="tab-ulasan" class="tab-pane-detail d-none">
-                            <h6 class="fw-bold mb-2">Ulasan Pengguna</h6>
-                            <p class="text-muted small">Aset ini memiliki ulasan bintang 5 dari para developer.</p>
+                            <div id="ratingSummaryWrapper" class="rating-summary-box p-3 mb-4">
+                                <div class="row align-items-center g-3">
+                                    <div class="col-12 col-sm-4 text-center text-sm-start ps-sm-3">
+                                        <div class="d-flex align-items-baseline justify-content-center justify-content-sm-start gap-1">
+                                            <span class="rating-big-score" id="ratingBigScore">5,0</span>
+                                            <span class="rating-out-of">/ 5</span>
+                                        </div>
+                                        <div class="rating-stars-gold my-1">
+                                            <i class="bi bi-star-fill"></i>
+                                            <i class="bi bi-star-fill"></i>
+                                            <i class="bi bi-star-fill"></i>
+                                            <i class="bi bi-star-fill"></i>
+                                            <i class="bi bi-star-fill"></i>
+                                        </div>
+                                        <span class="d-block text-muted small" id="totalReviewsSummaryText">Dari 0 ulasan</span>
+                                    </div>
+
+                                    <div class="col-12 col-sm-8 pe-sm-3">
+                                        <div class="rating-bar-row">
+                                            <span class="rating-bar-label">5 ★</span>
+                                            <div class="rating-bar-track">
+                                                <div class="rating-bar-fill" id="ratingBarFill_5" style="width: 0%;"></div>
+                                            </div>
+                                            <span class="rating-bar-num" id="ratingBarNum_5">0</span>
+                                        </div>
+                                        <div class="rating-bar-row">
+                                            <span class="rating-bar-label">4 ★</span>
+                                            <div class="rating-bar-track">
+                                                <div class="rating-bar-fill" id="ratingBarFill_4" style="width: 0%;"></div>
+                                            </div>
+                                            <span class="rating-bar-num" id="ratingBarNum_4">0</span>
+                                        </div>
+                                        <div class="rating-bar-row">
+                                            <span class="rating-bar-label">3 ★</span>
+                                            <div class="rating-bar-track">
+                                                <div class="rating-bar-fill" id="ratingBarFill_3" style="width: 0%;"></div>
+                                            </div>
+                                            <span class="rating-bar-num" id="ratingBarNum_3">0</span>
+                                        </div>
+                                        <div class="rating-bar-row">
+                                            <span class="rating-bar-label">2 ★</span>
+                                            <div class="rating-bar-track">
+                                                <div class="rating-bar-fill" id="ratingBarFill_2" style="width: 0%;"></div>
+                                            </div>
+                                            <span class="rating-bar-num" id="ratingBarNum_2">0</span>
+                                        </div>
+                                        <div class="rating-bar-row">
+                                            <span class="rating-bar-label">1 ★</span>
+                                            <div class="rating-bar-track">
+                                                <div class="rating-bar-fill" id="ratingBarFill_1" style="width: 0%;"></div>
+                                            </div>
+                                            <span class="rating-bar-num" id="ratingBarNum_1">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-bold mb-0 text-dark">Ulasan pembeli</h5>
+                                <span class="text-muted small" id="reviewsCountBadge">0 ulasan</span>
+                            </div>
+
+                            <div id="reviewsListContainer"></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Kolom Kanan -->
+                <!-- Kolom Kanan: Card Detail & Pembelian Sesuai Figma -->
                 <div class="col-12 col-lg-4">
-                    <div class="asset-purchase-card p-4">
-                        <span class="asset-category-tag d-block mb-1 text-uppercase"><?= htmlspecialchars($assetCategory) ?></span>
-                        <h2 class="asset-detail-title mb-1"><?= htmlspecialchars($assetTitle) ?></h2>
-                        <p class="detail-creator mb-3">
-                            Oleh <a href="/creator/profile" class="text-decoration-none fw-semibold text-primary"><?= htmlspecialchars($assetCreator) ?></a>
-                        </p>
+                    <div class="asset-purchase-card">
+                        <!-- Kategori Tag -->
+                        <span class="asset-category-tag d-block"><?= htmlspecialchars($assetCategory) ?></span>
 
-                        <span class="price-label d-block mb-1">Harga Aset</span>
-                        <h3 class="price-amount mb-4">
+                        <!-- Judul Aset -->
+                        <h2 class="asset-detail-title"><?= htmlspecialchars($assetTitle) ?></h2>
+
+                        <!-- Pembuat Aset (Warna Teks Gelap Figma) -->
+                        <div class="detail-creator-line">
+                            Oleh <a href="/creator/profile"><?= htmlspecialchars($assetCreator) ?></a>
+                        </div>
+
+                        <!-- Label & Angka Harga -->
+                        <div class="price-label-text">Harga Aset</div>
+                        <div class="price-amount-text">
                             <?php if ($isGratis): ?>
                                 Gratis
                             <?php else: ?>
                                 Rp<?= number_format((float)$assetPriceRaw, 0, ',', '.') ?>
                             <?php endif; ?>
-                        </h3>
+                        </div>
 
-                        <!-- Spesifikasi Teknis -->
-                        <div class="specs-table mb-4">
-                            <div class="d-flex justify-content-between py-2 border-bottom-spec">
-                                <span class="spec-label">Versi Unity</span>
-                                <span class="spec-value"><?= htmlspecialchars($assetUnity) ?></span>
+                        <!-- Spesifikasi Teknis Tabel -->
+                        <div class="specs-table-box">
+                            <div class="spec-item-row">
+                                <span class="label-col">Versi Unity</span>
+                                <span class="val-col"><?= htmlspecialchars($assetUnity) ?></span>
                             </div>
-                            <div class="d-flex justify-content-between py-2 border-bottom-spec">
-                                <span class="spec-label">Render Pipeline</span>
-                                <span class="spec-value"><?= htmlspecialchars($assetPipeline) ?></span>
+                            <div class="spec-item-row">
+                                <span class="label-col">Render Pipeline</span>
+                                <span class="val-col"><?= htmlspecialchars($assetPipeline) ?></span>
                             </div>
-                            <div class="d-flex justify-content-between py-2">
-                                <span class="spec-label">Format File</span>
-                                <span class="spec-value"><?= htmlspecialchars($assetFormat) ?></span>
+                            <div class="spec-item-row">
+                                <span class="label-col">Format File</span>
+                                <span class="val-col"><?= htmlspecialchars($assetFormat) ?></span>
                             </div>
                         </div>
 
-                        <!-- Wadah Tombol Aksi Dinamis -->
-                        <div class="d-grid gap-2" id="actionButtonWrapper">
+                        <!-- Tombol Aksi: Dibedakan Antara Gratis dan Berbayar -->
+                        <div id="actionButtonWrapper" class="d-grid gap-2">
                             <?php if ($isGratis): ?>
-                                <!-- Aset Gratis: Default tombol tambah -->
-                                <button type="button" id="btnClaimLibrary" class="btn btn-add-library" onclick="claimAsset()">
+                                <!-- ASET GRATIS: 1 Tombol Hitam Solid -->
+                                <button type="button" id="btnClaimLibrary" class="btn-figma-free-library" onclick="claimAsset()">
                                     Tambahkan ke Library
                                 </button>
                             <?php else: ?>
-                                <!-- Aset Berbayar -->
-                                <a href="/checkout?asset_id=<?= urlencode((string)$assetId) ?>" class="btn btn-buy-primary" id="btnBuyPrimary">Beli</a>
-                                <a href="/cart" class="btn btn-cart-secondary">Tambahkan ke Keranjang</a>
+                                <!-- ASET BERBAYAR: 2 Tombol (Oranye Solid & Putih Outline) -->
+                                <a href="/checkout?asset_id=<?= urlencode((string)$assetId) ?>" class="btn-figma-buy-orange" id="btnBuyPrimary">
+                                    Beli
+                                </a>
+                                <button type="button" class="btn-figma-add-cart-outline" onclick="addToCart()">
+                                    Tambahkan ke Keranjang
+                                </button>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -509,6 +747,19 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
             </div>
         </div>
     </main>
+
+    <footer class="footer-creator-center py-5 mt-auto">
+        <div class="container text-center">
+            <h5 class="fw-bold mb-2 text-dark">IndoFX</h5>
+            <p class="text-muted small mb-3 mx-auto" style="max-width: 540px;">
+                Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
+            </p>
+            <div class="d-flex justify-content-between align-items-center text-muted small pt-3 border-top flex-wrap gap-2">
+                <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
+                <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
+            </div>
+        </div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/assets/js/navbar-auth.js"></script>
@@ -521,43 +772,171 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
             document.querySelectorAll('.detail-nav-tabs .tab-link').forEach(link => link.classList.remove('active'));
             document.querySelectorAll('.tab-pane-detail').forEach(pane => pane.classList.add('d-none'));
 
-            evt.currentTarget.classList.add('active');
+            if (evt && evt.currentTarget) {
+                evt.currentTarget.classList.add('active');
+            } else {
+                const targetLink = document.querySelector(`.detail-nav-tabs .tab-link[onclick*='${tabId}']`);
+                if (targetLink) targetLink.classList.add('active');
+            }
+
             const targetPane = document.getElementById(tabId);
             if (targetPane) {
                 targetPane.classList.remove('d-none');
             }
         }
 
-        // PERIKSA STATUS KEPEMILIKAN SAAT HALAMAN DIBUKA
-        document.addEventListener('DOMContentLoaded', function() {
-            if (!userKey) return;
+        // MEMUAT ULASAN SECARA DINAMIS TERISOLASI KHUSUS ASET INI
+        function loadAssetReviews() {
+            const listContainer = document.getElementById('reviewsListContainer');
+            if (!listContainer) return;
 
-            const storageKey = 'indofx_library_' + userKey;
-            let currentLibrary = [];
+            const initialReviewsDatabase = {
+                '1': [{
+                        user_name: 'Dimas Pratama',
+                        rating: 5,
+                        title: 'Mudah dipelajari untuk prototipe',
+                        comment: 'Contoh scene membantu saya memahami pengaturan material. Panduan Bahasa Indonesia juga memudahkan proses mencoba aset.',
+                        date: '18 September 2026'
+                    },
+                    {
+                        user_name: 'Nadia Putri',
+                        rating: 4,
+                        title: 'Membantu alur kerja proyek',
+                        comment: 'Parameter cukup mudah diikuti. Akan lebih membantu jika ada lebih banyak contoh penggunaan untuk berbagai suasana scene.',
+                        date: '12 September 2026'
+                    },
+                    {
+                        user_name: 'Raka Saputra',
+                        rating: 5,
+                        title: 'Contoh penggunaan yang jelas',
+                        comment: 'Struktur paket mudah dipahami dan nyaman untuk eksplorasi. Saya bisa mulai mencoba tanpa banyak penyesuaian.',
+                        date: '8 September 2026'
+                    }
+                ]
+            };
+
+            const baseReviews = initialReviewsDatabase[currentAssetId] || [];
+
+            let publicReviews = [];
             try {
-                currentLibrary = JSON.parse(localStorage.getItem(storageKey)) || [];
+                publicReviews = JSON.parse(localStorage.getItem('indofx_public_reviews_' + currentAssetId)) || [];
             } catch (e) {
-                currentLibrary = [];
+                publicReviews = [];
             }
 
-            // Cek apakah aset dengan ID ini sudah ada di Library milik user ini
-            const isOwned = currentLibrary.some(item => String(item.id) === String(currentAssetId));
+            const allReviews = [...publicReviews, ...baseReviews];
+            const totalCount = allReviews.length;
 
-            if (isOwned) {
-                const actionWrapper = document.getElementById('actionButtonWrapper');
-                if (actionWrapper) {
-                    // Ubah tombol menjadi pemberitahuan bahwa aset sudah dimiliki
-                    actionWrapper.innerHTML = `
-                        <a href="/library" class="btn-already-owned" title="Klik untuk membuka Library Anda">
-                            <i class="bi bi-check-circle-fill fs-5"></i>
-                            <span>Aset ini sudah Anda miliki di library Anda</span>
-                        </a>
-                    `;
+            const countBadge = document.getElementById('reviewsCountBadge');
+            const summaryBox = document.getElementById('ratingSummaryWrapper');
+            const summaryText = document.getElementById('totalReviewsSummaryText');
+
+            if (countBadge) countBadge.innerText = totalCount + ' ulasan';
+
+            if (totalCount === 0) {
+                if (summaryBox) summaryBox.style.display = 'none';
+                listContainer.innerHTML = `
+                    <div class="text-center py-5 bg-white rounded-3 border" style="border-color: #ebdcd1 !important;">
+                        <i class="bi bi-chat-square-text text-muted fs-1 d-block mb-2"></i>
+                        <h6 class="fw-bold text-dark mb-1">Belum ada ulasan untuk aset ini</h6>
+                        <p class="text-muted small m-0">Klaim aset ini ke Library Anda untuk menjadi yang pertama memberikan ulasan.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            if (summaryBox) summaryBox.style.display = 'block';
+
+            let sumRating = 0;
+            const starCounts = {
+                5: 0,
+                4: 0,
+                3: 0,
+                2: 0,
+                1: 0
+            };
+
+            allReviews.forEach(r => {
+                const star = Math.min(5, Math.max(1, parseInt(r.rating, 10) || 5));
+                starCounts[star] = (starCounts[star] || 0) + 1;
+                sumRating += star;
+            });
+
+            const avgScore = (sumRating / totalCount).toFixed(1).replace('.', ',');
+            const bigScoreEl = document.getElementById('ratingBigScore');
+            if (bigScoreEl) bigScoreEl.innerText = avgScore;
+            if (summaryText) summaryText.innerText = `Dari ${totalCount} ulasan`;
+
+            for (let s = 1; s <= 5; s++) {
+                const pct = Math.round((starCounts[s] / totalCount) * 100);
+                const fillEl = document.getElementById('ratingBarFill_' + s);
+                const numEl = document.getElementById('ratingBarNum_' + s);
+                if (fillEl) fillEl.style.width = pct + '%';
+                if (numEl) numEl.innerText = starCounts[s];
+            }
+
+            listContainer.innerHTML = allReviews.map(rev => {
+                let starsHtml = '';
+                for (let s = 1; s <= 5; s++) {
+                    starsHtml += s <= rev.rating ?
+                        '<i class="bi bi-star-fill text-warning me-1"></i>' :
+                        '<i class="bi bi-star text-muted me-1"></i>';
                 }
-            }
-        });
 
-        // FUNGSI KLAIM ASET KE LIBRARY
+                const titleHtml = rev.title ? `<h6 class="fw-bold text-dark mt-2 mb-1" style="font-size: 0.95rem;">${rev.title}</h6>` : '';
+
+                return `
+                    <div class="review-item-block">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <div class="d-flex align-items-center gap-2">
+                                <strong class="text-dark" style="font-size: 0.95rem;">${rev.user_name}</strong>
+                                <span class="badge-owner">Pemilik aset</span>
+                            </div>
+                            <span class="text-muted small">${rev.date}</span>
+                        </div>
+                        <div class="mb-1" style="font-size: 0.85rem;">${starsHtml}</div>
+                        ${titleHtml}
+                        <p class="mb-0 text-secondary" style="font-size: 0.88rem; line-height: 1.6;">${rev.comment}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // FUNGSI MENAMBAHKAN KE KERANJANG (AKUN ISOLATED)
+        function addToCart() {
+            if (!userKey) {
+                window.location.href = '/login';
+                return;
+            }
+
+            const cartStorageKey = 'indofx_cart_' + userKey;
+            let currentCart = [];
+            try {
+                currentCart = JSON.parse(localStorage.getItem(cartStorageKey)) || [];
+            } catch (e) {
+                currentCart = [];
+            }
+
+            const cartItem = {
+                id: currentAssetId,
+                title: '<?= htmlspecialchars($assetTitle, ENT_QUOTES, 'UTF-8') ?>',
+                creator: '<?= htmlspecialchars($assetCreator, ENT_QUOTES, 'UTF-8') ?>',
+                price: <?= (float)$assetPriceRaw ?>,
+                date: '<?= date("d M Y") ?>',
+                pipelines: <?= json_encode(array_values(array_filter(array_map('trim', explode(',', $assetPipeline))))) ?>,
+                art: '<?= htmlspecialchars($assetArt, ENT_QUOTES, 'UTF-8') ?>'
+            };
+
+            const exists = currentCart.some(item => String(item.id) === String(cartItem.id));
+            if (!exists) {
+                currentCart.push(cartItem);
+                localStorage.setItem(cartStorageKey, JSON.stringify(currentCart));
+            }
+
+            window.location.href = '/cart';
+        }
+
+        // FUNGSI KLAIM ASET GRATIS KE LIBRARY
         function claimAsset() {
             if (!userKey) {
                 window.location.href = '/login';
@@ -576,7 +955,6 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
                 currentLibrary = [];
             }
 
-            // Data Aset Dinamis
             const newAsset = {
                 id: currentAssetId,
                 title: '<?= htmlspecialchars($assetTitle, ENT_QUOTES, 'UTF-8') ?>',
@@ -593,9 +971,41 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
                 localStorage.setItem(storageKey, JSON.stringify(currentLibrary));
             }
 
-            // Alihkan ke Library untuk melihat hasilnya
             window.location.href = '/library';
         }
+
+        // PERIKSA KEPEMILIKAN & LOAD ULASAN SAAT HALAMAN DIBUKA
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAssetReviews();
+
+            if (window.location.hash === '#tab-ulasan' || window.location.hash === '#ulasan') {
+                switchDetailTab(null, 'tab-ulasan');
+            }
+
+            if (!userKey) return;
+
+            const storageKey = 'indofx_library_' + userKey;
+            let currentLibrary = [];
+            try {
+                currentLibrary = JSON.parse(localStorage.getItem(storageKey)) || [];
+            } catch (e) {
+                currentLibrary = [];
+            }
+
+            const isOwned = currentLibrary.some(item => String(item.id) === String(currentAssetId));
+
+            if (isOwned) {
+                const actionWrapper = document.getElementById('actionButtonWrapper');
+                if (actionWrapper) {
+                    actionWrapper.innerHTML = `
+                        <a href="/library" class="btn-already-owned" title="Klik untuk membuka Library Anda">
+                            <i class="bi bi-check-circle-fill fs-5"></i>
+                            <span>Aset ini sudah Anda miliki di library Anda</span>
+                        </a>
+                    `;
+                }
+            }
+        });
     </script>
 </body>
 

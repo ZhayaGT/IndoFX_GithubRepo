@@ -4,14 +4,16 @@
 
 use IndoFX\Core\Database;
 
-// Beranda & Katalog
+// ==========================================
+// 1. BERANDA & KATALOG
+// ==========================================
 $router->add('GET', '/', 'HomeController', 'index');
 
 $router->add('GET', '/catalog/explore', function () {
     require __DIR__ . '/../resources/views/catalog/explore.php';
 });
 
-// Halaman Detail Aset (Membaca file detail.php)
+// Halaman Detail Aset
 $router->add('GET', '/asset/detail', function () {
     $detailPath = __DIR__ . '/../resources/views/catalog/detail.php';
     if (!file_exists($detailPath)) {
@@ -28,7 +30,9 @@ $router->add('GET', '/asset', function () {
     require $detailPath;
 });
 
-// Autentikasi Pengguna
+// ==========================================
+// 2. AUTENTIKASI PENGGUNA
+// ==========================================
 $router->add('GET', '/login', 'AuthController', 'login');
 $router->add('POST', '/login', 'AuthController', 'processLogin');
 $router->add('GET', '/register', 'AuthController', 'register');
@@ -46,7 +50,9 @@ $router->add('GET', '/creator/profile', function () {
     require __DIR__ . '/../resources/views/creator/profile.php';
 });
 
-// Dashboard Penjual Bawaan
+// ==========================================
+// 3. DASHBOARD PENJUAL & PROFIL
+// ==========================================
 $router->add('GET', '/dashboard', function () {
     require __DIR__ . '/../resources/views/dashboard/main.php';
 });
@@ -101,14 +107,9 @@ $router->post('/dashboard/ubah-profil', function () {
     exit;
 });
 
-// Library Saya (Milik Pembeli)
-$router->get('/library', function () {
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: /login');
-        exit;
-    }
-    require BASE_PATH . '/resources/views/dashboard/library.php';
-});
+// ==========================================
+// 4. KERANJANG, CHECKOUT & INVOICE
+// ==========================================
 
 // Keranjang Belanja
 $router->get('/cart', function () {
@@ -116,32 +117,55 @@ $router->get('/cart', function () {
         header('Location: /login');
         exit;
     }
-    require BASE_PATH . '/resources/views/cart/keranjang.php';
+    $cartPath = BASE_PATH . '/resources/views/cart/keranjang.php';
+    if (!file_exists($cartPath)) {
+        $cartPath = BASE_PATH . '/resources/views/keranjang.php';
+    }
+    require $cartPath;
 });
 
-// Selesaikan Pembayaran (pembayaran.php)
-$router->get('/pembayaran', function () {
+// Checkout Pembayaran (Sesuai folder checkout/pembayaran.php)
+$router->get('/checkout', function () {
     if (!isset($_SESSION['user_id'])) {
         header('Location: /login');
         exit;
     }
-    require BASE_PATH . '/resources/views/checkout/pembayaran.php';
+
+    $checkoutCandidates = [
+        BASE_PATH . '/resources/views/checkout/pembayaran.php',
+        BASE_PATH . '/resources/views/checkout/checkout.php',
+        BASE_PATH . '/resources/views/pembayaran.php',
+        BASE_PATH . '/resources/views/checkout.php',
+    ];
+
+    foreach ($checkoutCandidates as $path) {
+        if (file_exists($path)) {
+            require $path;
+            return;
+        }
+    }
+
+    http_response_code(404);
+    die('Berkas halaman checkout pembayaran tidak ditemukan.');
 });
 
-// Riwayat Transaksi & Invoice (invoice.php)
+// Riwayat Transaksi & Invoice
 $router->get('/invoice', function () {
     if (!isset($_SESSION['user_id'])) {
         header('Location: /login');
         exit;
     }
-    require BASE_PATH . '/resources/views/dashboard/invoice.php';
+    $invoicePath = BASE_PATH . '/resources/views/dashboard/invoice.php';
+    if (!file_exists($invoicePath)) {
+        $invoicePath = BASE_PATH . '/resources/views/invoice.php';
+    }
+    require $invoicePath;
 });
 
 // ==========================================
-// ALUR LIBRARY PENGGUNA TERISOLASI PER USER
+// 5. ALUR LIBRARY PENGGUNA TERISOLASI
 // ==========================================
 
-// Fungsi pembantu penyimpanan library per akun
 if (!function_exists('getUserLibraryFile')) {
     function getUserLibraryFile(string|int $userId): string
     {
@@ -149,11 +173,11 @@ if (!function_exists('getUserLibraryFile')) {
         if (!is_dir($dir)) {
             mkdir($dir, 0777, true);
         }
-        return $dir . '/library_' . preg_replace('/[^a-zA-Z0-9_-]/', '', $userId) . '.json';
+        return $dir . '/library_' . preg_replace('/[^a-zA-Z0-9_-]/', '', (string)$userId) . '.json';
     }
 }
 
-// 1. Halaman Tampilan Library
+// Halaman Tampilan Library
 $router->get('/library', function () {
     if (!isset($_SESSION['user_id'])) {
         header('Location: /login');
@@ -169,10 +193,23 @@ $router->get('/library', function () {
         $libraryItems = json_decode($content, true) ?: [];
     }
 
-    require BASE_PATH . '/resources/views/library.php';
+    $libCandidates = [
+        BASE_PATH . '/resources/views/library.php',
+        BASE_PATH . '/resources/views/dashboard/library.php'
+    ];
+
+    foreach ($libCandidates as $path) {
+        if (file_exists($path)) {
+            require $path;
+            return;
+        }
+    }
+
+    http_response_code(404);
+    die('Berkas tampilan library tidak ditemukan.');
 });
 
-// 2. API Tambah Aset Gratis ke Library
+// API Tambah Aset ke Library
 $router->post('/api/library/add', function () {
     header('Content-Type: application/json');
 
@@ -187,10 +224,9 @@ $router->post('/api/library/add', function () {
 
     $assetId = $input['id'] ?? 'free-forest-mist';
     $title = $input['title'] ?? 'Forest Mist & Fog Volume';
-    $seller = $input['seller'] ?? 'Rimba Digital';
+    $seller = $input['seller'] ?? ($input['creator'] ?? 'Rimba Digital');
     $image = $input['image'] ?? '/assets/img/forest-mist.jpg';
     $pipelines = $input['pipelines'] ?? ['URP', 'HDRP'];
-    $isFree = true;
 
     $filePath = getUserLibraryFile($userId);
     $currentData = [];
@@ -198,7 +234,6 @@ $router->post('/api/library/add', function () {
         $currentData = json_decode(file_get_contents($filePath), true) ?: [];
     }
 
-    // Periksa apakah aset sudah pernah ditambahkan
     foreach ($currentData as $item) {
         if ($item['id'] === $assetId) {
             echo json_encode(['success' => true, 'message' => 'Aset sudah ada di library Anda']);
@@ -206,14 +241,14 @@ $router->post('/api/library/add', function () {
         }
     }
 
-    // Tambahkan item baru ke daftar milik user
     $newItem = [
         'id' => $assetId,
         'title' => $title,
         'seller' => $seller,
+        'creator' => $seller,
         'image' => $image,
         'pipelines' => $pipelines,
-        'type' => 'Gratis',
+        'type' => $input['type'] ?? 'Gratis',
         'acquired_date' => date('d M Y')
     ];
 
@@ -224,7 +259,7 @@ $router->post('/api/library/add', function () {
     exit;
 });
 
-// 3. API Hapus Aset dari Library
+// API Hapus Aset dari Library
 $router->post('/api/library/remove', function () {
     header('Content-Type: application/json');
 
@@ -236,17 +271,81 @@ $router->post('/api/library/remove', function () {
 
     $userId = $_SESSION['user_id'];
     $input = json_decode(file_get_contents('php://input'), true);
-    $assetId = $input['id'] ?? '';
+    $assetId = (string)($input['id'] ?? '');
 
     $filePath = getUserLibraryFile($userId);
     if (file_exists($filePath)) {
         $currentData = json_decode(file_get_contents($filePath), true) ?: [];
         $currentData = array_values(array_filter($currentData, function ($item) use ($assetId) {
-            return $item['id'] !== $assetId;
+            return (string)($item['id'] ?? '') !== $assetId;
         }));
         file_put_contents($filePath, json_encode($currentData, JSON_PRETTY_PRINT));
     }
 
     echo json_encode(['success' => true, 'message' => 'Aset berhasil dihapus']);
+    exit;
+});
+
+// ==========================================
+// 6. API ULASAN PUBLIK ASET
+// ==========================================
+
+$router->post('/api/reviews/add', function () {
+    header('Content-Type: application/json');
+
+    if (!isset($_SESSION['user_id'])) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'message' => 'Silakan login terlebih dahulu']);
+        exit;
+    }
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    $assetId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($input['asset_id'] ?? 'free-forest-mist'));
+    $rating  = (int) ($input['rating'] ?? 5);
+    $comment = trim((string) ($input['comment'] ?? ''));
+
+    if ($comment === '') {
+        echo json_encode(['success' => false, 'message' => 'Feedback tidak boleh kosong']);
+        exit;
+    }
+
+    $storageDir = BASE_PATH . '/storage/app';
+    if (!is_dir($storageDir)) {
+        mkdir($storageDir, 0777, true);
+    }
+
+    $reviewFile = $storageDir . '/reviews_' . $assetId . '.json';
+    $reviews = [];
+    if (file_exists($reviewFile)) {
+        $reviews = json_decode(file_get_contents($reviewFile), true) ?: [];
+    }
+
+    $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna IndoFX');
+
+    array_unshift($reviews, [
+        'id'        => uniqid('rev_'),
+        'user_name' => $userName,
+        'rating'    => $rating,
+        'comment'   => $comment,
+        'date'      => date('d F Y')
+    ]);
+
+    file_put_contents($reviewFile, json_encode($reviews, JSON_PRETTY_PRINT));
+
+    echo json_encode(['success' => true, 'message' => 'Ulasan berhasil disimpan']);
+    exit;
+});
+
+$router->get('/api/reviews', function () {
+    header('Content-Type: application/json');
+    $assetId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($_GET['asset_id'] ?? 'free-forest-mist'));
+    $reviewFile = BASE_PATH . '/storage/app/reviews_' . $assetId . '.json';
+
+    $reviews = [];
+    if (file_exists($reviewFile)) {
+        $reviews = json_decode(file_get_contents($reviewFile), true) ?: [];
+    }
+
+    echo json_encode(['success' => true, 'data' => $reviews]);
     exit;
 });

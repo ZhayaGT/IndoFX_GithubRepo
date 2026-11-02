@@ -67,7 +67,7 @@ if ($initials === '') {
                 <a href="/dashboard/ubah-profil" class="navbar-menu-item">
                     Edit Profile
                 </a>
-                <a href="/dashboard/transactions" class="navbar-menu-item">
+                <a href="/invoice" class="navbar-menu-item">
                     Histori Pembelian
                 </a>
                 <a href="/cart" class="navbar-menu-item">

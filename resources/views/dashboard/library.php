@@ -45,7 +45,6 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
             margin-top: 4px;
         }
 
-        /* Filter Kategori Sesuai Figma */
         .filter-btn-tab {
             background: none;
             border: none;
@@ -62,7 +61,6 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
             color: #1A1A1A;
         }
 
-        /* Kartu Baris Aset Horizontal Sesuai Figma */
         .library-item-card {
             background-color: #ffffff;
             border: 1px solid #d8c8bd;
@@ -160,6 +158,7 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
             text-decoration: none;
             border: none;
             display: inline-block;
+            cursor: pointer;
             transition: opacity 0.15s ease;
         }
 
@@ -179,12 +178,154 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
             text-align: center;
             padding: 40px 20px;
         }
+
+        /* ==========================================
+           MODAL POPUP ULASAN (FIGMA EXACT MATCH)
+           ========================================== */
+        .modal-custom-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .modal-custom-backdrop.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-review-card {
+            background-color: #ffffff;
+            width: 92%;
+            max-width: 580px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            transform: translateY(15px);
+            transition: transform 0.2s ease;
+        }
+
+        .modal-custom-backdrop.active .modal-review-card {
+            transform: translateY(0);
+        }
+
+        .modal-review-header {
+            padding: 20px 24px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #ededed;
+        }
+
+        .modal-review-title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #111111;
+            margin: 0;
+        }
+
+        .btn-modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            line-height: 1;
+            color: #666666;
+            cursor: pointer;
+        }
+
+        .modal-review-body {
+            padding: 24px;
+        }
+
+        .star-rating-box {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        .star-rating-box i {
+            font-size: 1.9rem;
+            color: #2b2623;
+            transition: color 0.15s ease, transform 0.1s ease;
+        }
+
+        .star-rating-box i.bi-star-fill {
+            color: #ED6B1D;
+        }
+
+        .feedback-textarea {
+            width: 100%;
+            height: 120px;
+            border: 1px solid #c7b8af;
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 0.88rem;
+            resize: none;
+            outline: none;
+        }
+
+        .feedback-textarea:focus {
+            border-color: #ED6B1D;
+        }
+
+        .modal-review-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #ededed;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn-modal-cancel {
+            background-color: #ffffff;
+            border: 1.5px solid #d4c4b9;
+            color: #1a1a1a;
+            font-weight: 700;
+            font-size: 0.88rem;
+            padding: 9px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-modal-submit {
+            background-color: #ED6B1D;
+            border: none;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.88rem;
+            padding: 9px 22px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-modal-submit:hover {
+            background-color: #d85a0e;
+        }
+
+        /* Layar Sukses */
+        .success-message-text {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #111111;
+            padding: 40px 10px;
+            text-align: center;
+        }
     </style>
 </head>
 
 <body>
 
-    <!-- SVG Templates untuk Kartu Library -->
     <svg class="d-none">
         <defs>
             <g id="lib-art-forest">
@@ -202,22 +343,6 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
                 <polygon points="87,15 72,95 102,95" fill="#100D10" />
                 <polygon points="130,22 120,90 140,90" fill="#151115" />
                 <circle cx="87" cy="38" r="4" fill="#C4B5A5" opacity="0.8" />
-            </g>
-            <g id="lib-art-water">
-                <rect width="175" height="98" fill="#14232C" />
-                <ellipse cx="87" cy="55" rx="75" ry="25" fill="#234657" opacity="0.5" />
-                <polygon points="45,25 35,90 55,90" fill="#0C171E" />
-                <polygon points="87,15 72,95 102,95" fill="#081015" />
-                <polygon points="130,22 120,90 140,90" fill="#0C171E" />
-                <circle cx="87" cy="38" r="4" fill="#64B5F6" opacity="0.8" />
-            </g>
-            <g id="lib-art-fire">
-                <rect width="175" height="98" fill="#2D1A14" />
-                <ellipse cx="87" cy="55" rx="75" ry="25" fill="#572B1B" opacity="0.5" />
-                <polygon points="45,25 35,90 55,90" fill="#190E0A" />
-                <polygon points="87,15 72,95 102,95" fill="#110906" />
-                <polygon points="130,22 120,90 140,90" fill="#190E0A" />
-                <circle cx="87" cy="38" r="4" fill="#FF8A65" opacity="0.8" />
             </g>
         </defs>
     </svg>
@@ -252,7 +377,6 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
     <main class="flex-grow-1 py-5">
         <div class="container-figma">
 
-            <!-- Header Halaman & Filter Kanan -->
             <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
                 <div>
                     <h1 class="page-title mb-0">Library Saya</h1>
@@ -265,17 +389,63 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
                 </div>
             </div>
 
-            <!-- Wadah Daftar Kartu Aset -->
             <div id="libraryContainer"></div>
 
         </div>
     </main>
+
+    <!-- ========================================================
+         MODAL POPUP ULASAN (FIGMA EXACT MATCH)
+         ======================================================== -->
+    <div id="reviewModalBackdrop" class="modal-custom-backdrop">
+        <div class="modal-review-card">
+            <!-- Header Modal -->
+            <div class="modal-review-header">
+                <h4 class="modal-review-title">Ceritakan Pengalamanmu!</h4>
+                <button type="button" class="btn-modal-close" onclick="closeReviewModal()">&times;</button>
+            </div>
+
+            <!-- Formulir Ulasan (Tampilan 1) -->
+            <div id="modalFormStep">
+                <div class="modal-review-body">
+                    <label class="fw-bold text-dark small d-block">Rating (1-5)</label>
+                    <div class="star-rating-box" id="starContainer">
+                        <i class="bi bi-star" data-rating="1"></i>
+                        <i class="bi bi-star" data-rating="2"></i>
+                        <i class="bi bi-star" data-rating="3"></i>
+                        <i class="bi bi-star" data-rating="4"></i>
+                        <i class="bi bi-star" data-rating="5"></i>
+                    </div>
+
+                    <label class="fw-bold text-dark small d-block mb-2">Feedback</label>
+                    <textarea id="feedbackText" class="feedback-textarea" placeholder="Ceritakan pengalamanmu selama menggunakan aset ini..."></textarea>
+                </div>
+
+                <div class="modal-review-footer">
+                    <button type="button" class="btn-modal-cancel" onclick="closeReviewModal()">Batal</button>
+                    <button type="button" id="btnSubmitReview" class="btn-modal-submit" onclick="submitReview()">Upload Ulasan</button>
+                </div>
+            </div>
+
+            <!-- Tampilan Konfirmasi Sukses (Tampilan 2) -->
+            <div id="modalSuccessStep" class="d-none">
+                <div class="modal-review-body">
+                    <div class="success-message-text">Terima kasih atas ulasan Anda!</div>
+                </div>
+                <div class="modal-review-footer">
+                    <button type="button" class="btn-modal-cancel" onclick="finishReviewSuccess()">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/assets/js/navbar-auth.js"></script>
     <script>
         const userKey = '<?= $userKey ?>';
         const storageKey = 'indofx_library_' + userKey;
+        let selectedAssetId = null;
+        let currentRating = 5;
 
         function getLibraryData() {
             try {
@@ -285,7 +455,6 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
             }
         }
 
-        // Render semua kartu aset yang dimiliki user
         function renderLibrary(filter = 'all') {
             const container = document.getElementById('libraryContainer');
             const items = getLibraryData();
@@ -309,8 +478,8 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
             }
 
             container.innerHTML = filteredItems.map(item => {
-                const artId = item.art ? ('lib-art-' + item.art) : 'lib-art-castle';
-                const pipelines = Array.isArray(item.pipelines) ? item.pipelines : ['URP', 'HDRP'];
+                const artId = item.art ? ('lib-art-' + item.art) : 'lib-art-forest';
+                const pipelines = Array.isArray(item.pipelines) ? item.pipelines : ['URP', 'Built-In'];
 
                 const badgesHtml = pipelines.map(p => {
                     const pLower = p.toLowerCase();
@@ -329,29 +498,28 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
                         </div>
                         <div class="library-item-content">
                             <div class="mb-1">
-                                <span class="status-badge-green">${(item.type === 'Gratis' ? 'DIBELI' : 'DIBELI')}</span>
-                                <span class="status-date-text ms-2">Perolehan: ${item.date || '15 Jan 2026'}</span>
+                                <span class="status-badge-green">${item.type === 'Gratis' ? 'DIBELI' : 'DIBELI'}</span>
+                                <span class="status-date-text ms-2">Perolehan: ${item.date || '30 Oct 2026'}</span>
                             </div>
                             <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
                                 <h5 class="library-asset-heading m-0">${item.title}</h5>
                                 <div class="d-flex gap-1">${badgesHtml}</div>
                             </div>
-                            <p class="library-asset-creator m-0">Oleh ${item.creator || 'Arga Studio'}</p>
+                            <p class="library-asset-creator m-0">Oleh ${item.creator || 'Rimba Digital'}</p>
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <button type="button" class="btn-action-delete" onclick="removeItem('${item.id}')">
                                 Hapus
                             </button>
-                            <a href="/asset/detail?id=${encodeURIComponent(item.id)}#ulasan" class="btn-action-review">
+                            <button type="button" class="btn-action-review" onclick="openReviewModal('${item.id}', '${item.title.replace(/'/g, "\\'")}')">
                                 Beri Ulasan
-                            </a>
+                            </button>
                         </div>
                     </div>
                 `;
             }).join('');
         }
 
-        // Hapus aset berdasarkan ID uniknya
         function removeItem(assetId) {
             if (!confirm('Apakah Anda yakin ingin menghapus aset ini dari Library Anda?')) return;
             let items = getLibraryData();
@@ -360,7 +528,106 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
             renderLibrary();
         }
 
-        // Event listener filter Semua / Berbayar / Gratis
+        // ==========================================
+        // LOGIKA POPUP MODAL ULASAN
+        // ==========================================
+        function openReviewModal(assetId, assetTitle) {
+            selectedAssetId = assetId;
+            document.getElementById('feedbackText').value = '';
+            setRating(5);
+
+            document.getElementById('modalFormStep').classList.remove('d-none');
+            document.getElementById('modalSuccessStep').classList.add('d-none');
+            document.getElementById('reviewModalBackdrop').classList.add('active');
+        }
+
+        function closeReviewModal() {
+            document.getElementById('reviewModalBackdrop').classList.remove('active');
+        }
+
+        function setRating(val) {
+            currentRating = val;
+            const stars = document.querySelectorAll('#starContainer i');
+            stars.forEach((star, idx) => {
+                if (idx < val) {
+                    star.className = 'bi bi-star-fill';
+                } else {
+                    star.className = 'bi bi-star';
+                }
+            });
+        }
+
+        document.querySelectorAll('#starContainer i').forEach(star => {
+            star.addEventListener('click', function() {
+                const rating = parseInt(this.getAttribute('data-rating'), 10);
+                setRating(rating);
+            });
+        });
+
+        // Simpan ulasan ke server & local public cache
+        function submitReview() {
+            const feedback = document.getElementById('feedbackText').value.trim();
+            if (!feedback) {
+                alert('Silakan tulis feedback ulasan Anda terlebih dahulu!');
+                return;
+            }
+
+            const btn = document.getElementById('btnSubmitReview');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Mengunggah...';
+
+            const payload = {
+                asset_id: selectedAssetId,
+                rating: currentRating,
+                comment: feedback
+            };
+
+            // Simpan juga ke cache publik peramban agar instan
+            const pubKey = 'indofx_public_reviews_' + selectedAssetId;
+            let pubReviews = [];
+            try {
+                pubReviews = JSON.parse(localStorage.getItem(pubKey)) || [];
+            } catch (e) {
+                pubReviews = [];
+            }
+            pubReviews.unshift({
+                user_name: '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>',
+                rating: currentRating,
+                comment: feedback,
+                date: '<?= date("d F Y") ?>'
+            });
+            localStorage.setItem(pubKey, JSON.stringify(pubReviews));
+
+            // Kirim ke server
+            fetch('/api/reviews/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(res => res.json())
+                .then(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = 'Upload Ulasan';
+                    // Tampilkan Tampilan Sukses (Langkah 2)
+                    document.getElementById('modalFormStep').classList.add('d-none');
+                    document.getElementById('modalSuccessStep').classList.remove('d-none');
+                })
+                .catch(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = 'Upload Ulasan';
+                    document.getElementById('modalFormStep').classList.add('d-none');
+                    document.getElementById('modalSuccessStep').classList.remove('d-none');
+                });
+        }
+
+        function finishReviewSuccess() {
+            closeReviewModal();
+            // Arahkan ke halaman detail pada tab ulasan
+            window.location.href = '/asset/detail?id=' + encodeURIComponent(selectedAssetId) + '#tab-ulasan';
+        }
+
         document.querySelectorAll('.filter-btn-tab').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.filter-btn-tab').forEach(b => b.classList.remove('active'));

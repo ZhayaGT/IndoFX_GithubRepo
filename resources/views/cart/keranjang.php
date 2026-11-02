@@ -1,19 +1,11 @@
 <?php
-// Pastikan sesi sudah berjalan dan pengguna sudah login
 if (!isset($_SESSION['user_id'])) {
     header('Location: /login');
     exit;
 }
 
-$userName = (string) ($_SESSION['name'] ?? 'Pengguna');
-$initials = '';
-$words = preg_split('/\s+/', trim($userName)) ?: [];
-foreach (array_slice($words, 0, 2) as $word) {
-    $initials .= mb_strtoupper(mb_substr($word, 0, 1));
-}
-if ($initials === '') {
-    $initials = 'U';
-}
+$userKey  = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user');
+$userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna');
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -23,225 +15,212 @@ if ($initials === '') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Keranjang - IndoFX</title>
 
-    <!-- Google Fonts & Bootstrap 5 -->
+    <!-- Google Fonts & Bootstrap Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
 
     <style>
         body {
-            background-color: var(--ifx-cream-bg, #FDECE2);
+            background-color: var(--indofx-cream-bg, #FAF0E6);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             font-family: 'Inter', sans-serif;
         }
 
-        /* Navbar */
-        .navbar-cart {
-            background-color: #ED6B1D;
-            padding: 12px 0;
-            position: relative;
-        }
-
-        .avatar-circle-header {
-            width: 36px;
-            height: 36px;
-            background-color: #CFCFCF;
-            color: #2D2D2D;
-            font-weight: 700;
-            font-size: 0.85rem;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Dropdown Profil */
-        .profile-dropdown-wrapper {
-            position: relative;
-        }
-
-        .btn-profile-trigger {
-            background: transparent;
-            border: none;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #ffffff;
-            cursor: pointer;
-        }
-
-        .profile-custom-menu {
-            position: absolute;
-            top: calc(100% + 12px);
-            right: 0;
-            background-color: #ffffff;
-            border: 1px solid #e0d0c5;
-            border-radius: 8px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-            min-width: 200px;
-            z-index: 1050;
-            display: none;
-            padding: 6px 0;
-        }
-
-        .profile-custom-menu.show {
-            display: block;
-        }
-
-        .profile-custom-item {
-            display: block;
-            padding: 9px 18px;
-            color: #2b2129;
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: background-color 0.15s ease;
-        }
-
-        .profile-custom-item:hover {
-            background-color: #fdf5f0;
-            color: #ed6b1d;
-        }
-
-        .profile-custom-item.fw-bold {
-            border-bottom: 1px solid #f0e6df;
-            margin-bottom: 4px;
-            color: #1a1a1a;
-        }
-
-        /* Header Judul Halaman */
-        .page-title {
-            font-size: 2rem;
+        .cart-page-title {
+            font-size: 1.85rem;
             font-weight: 800;
             color: #1A1A1A;
             line-height: 1.2;
         }
 
-        .page-subtitle {
+        .cart-page-sub {
             font-size: 0.88rem;
-            color: #4A3B32;
+            color: #555555;
             margin-top: 4px;
         }
 
-        /* Kartu Item Keranjang */
+        /* Kartu Keranjang Persis Desain Figma */
         .cart-item-card {
             background-color: #ffffff;
             border: 1.5px solid #2B2129;
             border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(43, 33, 41, 0.04);
-            margin-bottom: 16px;
+            padding: 12px 18px 12px 14px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            margin-bottom: 12px;
+            transition: transform 0.15s ease;
         }
 
         .cart-item-thumb {
             width: 175px;
-            min-width: 175px;
-            height: 110px;
-            object-fit: cover;
-            border-right: 1.5px solid #2B2129;
-            background-color: #3b2e39;
+            height: 98px;
+            flex-shrink: 0;
+            border-radius: 6px;
+            overflow: hidden;
+            background-color: #241e24;
         }
 
-        .badge-dibeli {
-            color: #2ecc71;
+        .cart-item-thumb img,
+        .cart-item-thumb svg {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .cart-item-content {
+            flex-grow: 1;
+        }
+
+        .cart-status-line {
+            font-size: 0.74rem;
+            margin-bottom: 2px;
+        }
+
+        .cart-status-badge {
+            color: #16a34a;
+            font-size: 0.76rem;
             font-weight: 800;
-            font-size: 0.78rem;
             letter-spacing: 0.5px;
         }
 
-        .item-perolehan {
-            font-size: 0.78rem;
-            color: #555555;
-        }
-
-        .item-title {
+        .cart-asset-title {
             font-size: 1.15rem;
             font-weight: 800;
             color: #1A1A1A;
-            margin: 2px 0 4px 0;
         }
 
-        .item-creator {
-            font-size: 0.82rem;
-            color: #4A3B32;
-            margin-bottom: 0;
+        .cart-asset-creator {
+            font-size: 0.76rem;
+            color: #555555;
         }
 
-        .badge-pipeline-tag {
-            font-size: 0.65rem;
-            font-weight: 700;
+        .badge-tag-custom {
+            display: inline-block;
+            font-size: 0.62rem;
+            font-weight: 800;
             padding: 2px 7px;
             border-radius: 4px;
             color: #ffffff;
             line-height: 1.2;
-            display: inline-block;
         }
 
-        .tag-hdrp {
-            background-color: #503d6d;
+        .badge-hdrp {
+            background-color: #4f378b;
         }
 
-        .tag-urp {
-            background-color: #a82828;
+        .badge-urp {
+            background-color: #a3161c;
         }
 
-        .tag-builtin {
-            background-color: #0b72b9;
+        .badge-builtin {
+            background-color: #0088ff;
         }
 
-        /* Checkbox & Tombol Aksi */
+        /* Checkbox Biru Figma */
         .cart-checkbox {
             width: 18px;
             height: 18px;
-            border: 1.5px solid #2B2129;
-            border-radius: 3px;
+            accent-color: #0d6efd;
             cursor: pointer;
         }
 
+        /* Tombol Hapus Merah Figma */
         .btn-cart-delete {
             background-color: #dc2626;
-            color: #ffffff;
-            font-size: 0.8rem;
+            color: #ffffff !important;
+            font-size: 0.82rem;
             font-weight: 700;
+            padding: 7px 18px;
+            border-radius: 6px;
             border: none;
-            border-radius: 5px;
-            padding: 6px 18px;
-            transition: background-color 0.15s ease;
+            cursor: pointer;
+            transition: opacity 0.15s ease;
         }
 
         .btn-cart-delete:hover {
-            background-color: #b91c1c;
-            color: #ffffff;
+            opacity: 0.88;
         }
 
-        .btn-checkout {
+        /* Tombol Checkout Oranye */
+        .btn-cart-checkout {
             background-color: #ED6B1D;
-            color: #ffffff;
+            color: #ffffff !important;
             font-weight: 700;
             font-size: 0.95rem;
-            border: none;
-            border-radius: 6px;
             padding: 10px 32px;
-            transition: background-color 0.15s ease;
+            border-radius: 6px;
+            text-decoration: none;
+            border: none;
+            display: inline-block;
+            box-shadow: 0 4px 12px rgba(237, 107, 29, 0.3);
+            transition: all 0.15s ease;
         }
 
-        .btn-checkout:hover {
-            background-color: #d95d12;
-            color: #ffffff;
+        .btn-cart-checkout:hover {
+            background-color: #d85a0e;
+            transform: translateY(-1px);
+        }
+
+        /* Kotak Kosong saat Keranjang Baru/Bersih */
+        .empty-cart-card {
+            border: 1.5px dashed #4A3B32;
+            border-radius: 8px;
+            background-color: transparent;
+            min-height: 380px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 20px;
         }
     </style>
 </head>
 
 <body>
 
-    <!-- 1. Header Navbar Tanpa Icon Keranjang -->
-    <nav class="navbar navbar-cart sticky-top">
+    <!-- SVG Gambar Castle Sesuai Figma -->
+    <svg class="d-none">
+        <defs>
+            <g id="cart-art-castle">
+                <rect width="175" height="98" fill="#241E24" />
+                <ellipse cx="87" cy="55" rx="75" ry="25" fill="#433742" opacity="0.5" />
+                <polygon points="45,25 35,90 55,90" fill="#151115" />
+                <polygon points="87,15 72,95 102,95" fill="#100D10" />
+                <polygon points="130,22 120,90 140,90" fill="#151115" />
+                <circle cx="87" cy="38" r="4" fill="#C4B5A5" opacity="0.8" />
+            </g>
+            <g id="cart-art-water">
+                <rect width="175" height="98" fill="#14232C" />
+                <ellipse cx="87" cy="55" rx="75" ry="25" fill="#234657" opacity="0.5" />
+                <polygon points="45,25 35,90 55,90" fill="#0C171E" />
+                <polygon points="87,15 72,95 102,95" fill="#081015" />
+                <polygon points="130,22 120,90 140,90" fill="#0C171E" />
+                <circle cx="87" cy="38" r="4" fill="#64B5F6" opacity="0.8" />
+            </g>
+            <g id="cart-art-fire">
+                <rect width="175" height="98" fill="#2D1A14" />
+                <ellipse cx="87" cy="55" rx="75" ry="25" fill="#572B1B" opacity="0.5" />
+                <polygon points="45,25 35,90 55,90" fill="#190E0A" />
+                <polygon points="87,15 72,95 102,95" fill="#110906" />
+                <polygon points="130,22 120,90 140,90" fill="#190E0A" />
+                <circle cx="87" cy="38" r="4" fill="#FF8A65" opacity="0.8" />
+            </g>
+        </defs>
+    </svg>
+
+    <!-- Header Navbar -->
+    <nav class="navbar navbar-orange sticky-top">
         <div class="container-figma d-flex justify-content-between align-items-center w-100">
-            <!-- Brand Logo -->
             <a class="navbar-brand m-0 d-flex align-items-center gap-2 text-decoration-none" href="/">
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 2L20.66 7V17L12 22L3.34 17V7L12 2Z" fill="#ED6B1D" stroke="#1A1A1A" stroke-width="1.8" stroke-linejoin="round" />
@@ -254,115 +233,151 @@ if ($initials === '') {
                 <span class="brand-text text-white fw-bold">IndoFX</span>
             </a>
 
-            <!-- Sisi Kanan: Dropdown Akun Pengguna Dinamis -->
-            <div class="profile-dropdown-wrapper">
-                <button type="button" class="btn-profile-trigger" id="profileDropdownBtn" aria-expanded="false">
-                    <span class="avatar-circle-header"><?= htmlspecialchars($initials, ENT_QUOTES, 'UTF-8') ?></span>
-                    <span class="fw-bold fs-6"><?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?></span>
-                </button>
-
-                <!-- Menu Dropdown -->
-                <div class="profile-custom-menu" id="profileDropdownMenu">
-                    <a href="/creator/profile?me=1" class="profile-custom-item fw-bold">
-                        <?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>
-                    </a>
-                    <a href="/dashboard/ubah-profil" class="profile-custom-item">
-                        Edit Profile
-                    </a>
-                    <a href="/dashboard/transactions" class="profile-custom-item">
-                        Histori Pembelian
-                    </a>
-                    <a href="/#tentang" class="profile-custom-item">
-                        Dukungan
-                    </a>
-                    <a href="/logout" class="profile-custom-item text-danger">
-                        Keluar
-                    </a>
-                </div>
+            <div class="d-flex align-items-center gap-3">
+                <?php
+                $authPartial = BASE_PATH . '/resources/views/partials/navbar-auth.php';
+                if (file_exists($authPartial)) {
+                    require $authPartial;
+                }
+                ?>
             </div>
         </div>
     </nav>
 
-    <!-- 2. Konten Utama Keranjang -->
-    <main class="flex-grow-1 py-4">
+    <!-- Konten Utama Keranjang -->
+    <main class="flex-grow-1 py-5">
         <div class="container-figma">
-            <h1 class="page-title mb-1">Keranjang</h1>
-            <p class="page-subtitle mb-4">Semua aset visual Unity yang Anda Ingin Beli</p>
 
-            <!-- Daftar Item Keranjang Sesuai Figma -->
-            <div class="cart-items-wrapper mb-4">
-                <?php for ($i = 0; $i < 3; $i++): ?>
-                    <div class="cart-item-card d-flex align-items-center">
-                        <!-- Thumbnail Aset -->
-                        <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&auto=format&fit=crop&q=60"
-                            alt="Thumbnail Aset" class="cart-item-thumb">
-
-                        <!-- Detail Aset -->
-                        <div class="p-3 flex-grow-1 d-flex flex-column justify-content-center">
-                            <div class="d-flex align-items-center gap-2 mb-1">
-                                <span class="badge-dibeli">DIBELI</span>
-                                <span class="item-perolehan">Perolehan: 15 Jan 2026</span>
-                            </div>
-                            <div class="d-flex align-items-center gap-2 flex-wrap">
-                                <h3 class="item-title">Volumetric Rain &amp; Storm URP</h3>
-                                <div class="d-inline-flex gap-1 align-items-center">
-                                    <span class="badge-pipeline-tag tag-hdrp">HDRP</span>
-                                    <span class="badge-pipeline-tag tag-urp">URP</span>
-                                    <span class="badge-pipeline-tag tag-builtin">Built-in</span>
-                                </div>
-                            </div>
-                            <p class="item-creator">Oleh Arga Studio</p>
-                        </div>
-
-                        <!-- Checkbox & Tombol Hapus -->
-                        <div class="d-flex align-items-center gap-3 pe-4">
-                            <input type="checkbox" class="form-check-input cart-checkbox m-0" checked>
-                            <button type="button" class="btn btn-cart-delete">Hapus</button>
-                        </div>
-                    </div>
-                <?php endfor; ?>
+            <!-- Judul & Deskripsi Sesuai Screenshot -->
+            <div class="mb-4">
+                <h1 class="cart-page-title mb-0">Keranjang</h1>
+                <p class="cart-page-sub mb-0">Semua aset visual Unity yang Anda Ingin Beli</p>
             </div>
 
-            <!-- Tombol Checkout di Kanan Bawah -->
-            <div class="d-flex justify-content-end mb-5">
-                <a href="/pembayaran" class="btn btn-checkout text-decoration-none">Checkout</a>
+            <!-- Wadah Daftar Kartu Keranjang Dinamis -->
+            <div id="cartListContainer"></div>
+
+            <!-- Area Checkout Bawah Kanan -->
+            <div id="cartFooterArea" class="d-flex justify-content-end align-items-center mt-4">
+                <button type="button" class="btn-cart-checkout" onclick="proceedCheckout()">Checkout</button>
             </div>
+
         </div>
     </main>
 
-    <!-- 3. Footer Terpusat -->
-    <footer class="footer-creator-center py-5 mt-auto">
-        <div class="container text-center">
-            <h5 class="fw-bold mb-2 text-dark">IndoFX</h5>
-            <p class="text-muted small mb-3 mx-auto" style="max-width: 540px;">
-                Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
-            </p>
-            <div class="d-flex justify-content-between align-items-center text-muted small pt-3 border-top flex-wrap gap-2">
-                <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
-                <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Script Toggle Dropdown -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/navbar-auth.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const dropdownBtn = document.getElementById('profileDropdownBtn');
-            const dropdownMenu = document.getElementById('profileDropdownMenu');
+        const userKey = '<?= $userKey ?>';
+        const cartStorageKey = 'indofx_cart_' + userKey;
 
-            if (dropdownBtn && dropdownMenu) {
-                dropdownBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    dropdownMenu.classList.toggle('show');
-                });
-
-                document.addEventListener('click', function(e) {
-                    if (!dropdownMenu.contains(e.target) && !dropdownBtn.contains(e.target)) {
-                        dropdownMenu.classList.remove('show');
-                    }
-                });
+        // Ambil data keranjang khusus akun aktif
+        function getCartData() {
+            try {
+                return JSON.parse(localStorage.getItem(cartStorageKey)) || [];
+            } catch (e) {
+                return [];
             }
-        });
+        }
+
+        // Render tampilan keranjang secara dinamis
+        function renderCart() {
+            const listContainer = document.getElementById('cartListContainer');
+            const footerArea = document.getElementById('cartFooterArea');
+            const items = getCartData();
+
+            // KONDISI 1: Keranjang Kosong (misal akun baru)
+            if (items.length === 0) {
+                if (footerArea) footerArea.style.display = 'none';
+                listContainer.innerHTML = `
+                    <div class="empty-cart-card">
+                        <i class="bi bi-cart-x text-dark fs-1 mb-2"></i>
+                        <h5 class="fw-bold text-dark mb-1">Keranjang Belanja Anda Kosong</h5>
+                        <p class="text-muted small m-0 mb-3">
+                            Temukan aset visual pilihan untuk game Anda di <a href="/catalog/explore" class="text-dark fw-bold text-decoration-none">Katalog</a>
+                        </p>
+                        <a href="/catalog/explore" class="btn btn-hero-orange">Jelajahi Aset</a>
+                    </div>
+                `;
+                return;
+            }
+
+            // KONDISI 2: Ada aset di dalam keranjang
+            if (footerArea) footerArea.style.display = 'flex';
+
+            listContainer.innerHTML = items.map(item => {
+                const artSvg = item.art ? ('cart-art-' + item.art) : 'cart-art-castle';
+                const pipelines = Array.isArray(item.pipelines) ? item.pipelines : ['HDRP', 'URP', 'Built-In'];
+
+                const badgesHtml = pipelines.map(p => {
+                    const pLower = p.toLowerCase();
+                    let cls = 'badge-urp';
+                    if (pLower.includes('hdrp')) cls = 'badge-hdrp';
+                    if (pLower.includes('built')) cls = 'badge-builtin';
+                    return `<span class="badge-tag-custom ${cls}">${p}</span>`;
+                }).join(' ');
+
+                return `
+                    <div class="cart-item-card" id="cart-item-${item.id}">
+                        <!-- 1. Thumbnail Gambar Sesuai Mockup -->
+                        <div class="cart-item-thumb">
+                            <svg class="w-100 h-100 d-block" viewBox="0 0 175 98">
+                                <use href="#${artSvg}" />
+                            </svg>
+                        </div>
+
+                        <!-- 2. Informasi Aset -->
+                        <div class="cart-item-content">
+                            <div class="cart-status-line">
+                                <span class="cart-status-badge">DIBELI</span>
+                                <span class="text-muted ms-2">Perolehan: ${item.date || '15 Jan 2026'}</span>
+                            </div>
+
+                            <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
+                                <h5 class="cart-asset-title m-0">${item.title}</h5>
+                                <div class="d-flex gap-1">${badgesHtml}</div>
+                            </div>
+
+                            <p class="cart-asset-creator m-0">Oleh ${item.creator || 'Arga Studio'}</p>
+                        </div>
+
+                        <!-- 3. Checkbox Biru & Tombol Hapus Merah -->
+                        <div class="d-flex align-items-center gap-3">
+                            <input type="checkbox" class="cart-checkbox" checked value="${item.id}">
+                            <button type="button" class="btn-cart-delete" onclick="removeCartItem('${item.id}')">
+                                Hapus
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function proceedCheckout() {
+            const items = getCartData();
+            if (items.length === 0) {
+                alert('Keranjang Anda kosong!');
+                return;
+            }
+
+            // 1. Ambil ID aset yang kotak centangnya (checkbox) aktif
+            const checkedBoxes = document.querySelectorAll('.cart-checkbox:checked');
+            if (checkedBoxes.length === 0) {
+                alert('Pilih minimal satu aset yang ingin di-checkout!');
+                return;
+            }
+
+            const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
+            const checkoutItems = items.filter(item => selectedIds.includes(String(item.id)));
+
+            // 2. Simpan item yang dipilih ke sessionStorage untuk dibaca oleh checkout/pembayaran
+            sessionStorage.setItem('indofx_checkout_items', JSON.stringify(checkoutItems));
+
+            // 3. Pindah ke halaman checkout
+            window.location.href = '/checkout';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => renderCart());
     </script>
 </body>
 

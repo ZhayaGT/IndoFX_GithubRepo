@@ -4,8 +4,8 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$userName  = (string) ($_SESSION['name'] ?? 'Pengguna');
-$userEmail = (string) ($_SESSION['email'] ?? 'user@email.com');
+$userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna');
+$userKey  = (string) ($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user');
 
 $initials = '';
 $words = preg_split('/\s+/', trim($userName)) ?: [];
@@ -22,8 +22,9 @@ if ($initials === '') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Riwayat Transaksi &amp; Invoice - IndoFX</title>
+    <title>Riwayat Transaksi - IndoFX</title>
 
+    <!-- Google Fonts & Bootstrap Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -33,243 +34,281 @@ if ($initials === '') {
 
     <style>
         body {
-            background-color: var(--ifx-cream-bg, #FDECE2);
+            background-color: var(--indofx-cream-bg, #FAF0E6);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             font-family: 'Inter', sans-serif;
         }
 
-        .navbar-history {
-            background-color: #ED6B1D;
-            padding: 12px 0;
-            position: relative;
-        }
-
-        .avatar-circle-header {
-            width: 36px;
-            height: 36px;
-            background-color: #CFCFCF;
-            color: #2D2D2D;
-            font-weight: 700;
-            font-size: 0.85rem;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .profile-dropdown-wrapper {
-            position: relative;
-        }
-
-        .btn-profile-trigger {
-            background: transparent;
-            border: none;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #ffffff;
-            cursor: pointer;
-        }
-
-        .profile-custom-menu {
-            position: absolute;
-            top: calc(100% + 12px);
-            right: 0;
-            background-color: #ffffff;
-            border: 1px solid #e0d0c5;
-            border-radius: 8px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-            min-width: 200px;
-            z-index: 1050;
-            display: none;
-            padding: 6px 0;
-        }
-
-        .profile-custom-menu.show {
-            display: block;
-        }
-
-        .profile-custom-item {
-            display: block;
-            padding: 9px 18px;
-            color: #2b2129;
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: background-color 0.15s ease;
-        }
-
-        .profile-custom-item:hover {
-            background-color: #fdf5f0;
-            color: #ed6b1d;
-        }
-
-        .profile-custom-item.fw-bold {
-            border-bottom: 1px solid #f0e6df;
-            margin-bottom: 4px;
-            color: #1a1a1a;
-        }
-
         .page-title {
-            font-size: 1.85rem;
+            font-size: 2rem;
             font-weight: 800;
             color: #1A1A1A;
-            letter-spacing: -0.5px;
+            margin-bottom: 24px;
         }
 
-        .transaction-table-card {
+        .table-custom-container {
             background-color: #ffffff;
             border: 1.5px solid #2B2129;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(43, 33, 41, 0.04);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
         }
 
         .table-custom {
             margin-bottom: 0;
-            font-size: 0.85rem;
+            width: 100%;
+            border-collapse: collapse;
         }
 
-        .table-custom thead th {
-            background-color: #f8f6f4;
-            color: #555555;
+        .table-custom th {
+            background-color: #ffffff;
+            font-size: 0.85rem;
             font-weight: 700;
-            font-size: 0.8rem;
-            padding: 12px 16px;
+            color: #2b2129;
+            padding: 16px;
             border-bottom: 1.5px solid #2B2129;
         }
 
-        .table-custom tbody td {
-            padding: 14px 16px;
+        .table-custom td {
+            padding: 16px;
+            font-size: 0.88rem;
             vertical-align: middle;
-            color: #1a1a1a;
-            border-bottom: 1px solid #eee5df;
+            border-bottom: 1px solid #efe0d5;
         }
 
-        .table-custom tbody tr:last-child td {
+        .table-custom tr:last-child td {
             border-bottom: none;
         }
 
-        .badge-status {
+        .badge-status-berhasil {
+            background-color: #2e7d32;
+            color: #ffffff;
             font-weight: 700;
             font-size: 0.72rem;
-            padding: 4px 10px;
-            border-radius: 6px;
+            padding: 4px 12px;
+            border-radius: 4px;
             display: inline-block;
         }
 
-        .badge-berhasil {
-            background-color: #38a169;
-            color: #ffffff;
-        }
-
-        .badge-pending {
-            background-color: #ed8936;
-            color: #ffffff;
-        }
-
-        .badge-gagal {
-            background-color: #e53e3e;
-            color: #ffffff;
-        }
-
-        .link-invoice {
+        .btn-view-invoice {
             color: #0d6efd;
-            font-weight: 600;
+            font-weight: 700;
             text-decoration: none;
             cursor: pointer;
+            font-size: 0.86rem;
+            line-height: 1.2;
+            display: inline-block;
         }
 
-        .link-invoice:hover {
+        .btn-view-invoice:hover {
             text-decoration: underline;
         }
 
-        .invoice-card {
+        /* Kartu Preview Invoice Kanan */
+        .invoice-preview-card {
             background-color: #ffffff;
             border: 1.5px solid #2B2129;
             border-radius: 8px;
             padding: 24px;
-            box-shadow: 0 4px 14px rgba(43, 33, 41, 0.04);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+            position: sticky;
+            top: 90px;
         }
 
-        .invoice-title {
-            font-size: 1.25rem;
+        .invoice-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .invoice-card-title {
+            font-size: 1.35rem;
             font-weight: 800;
-            color: #1A1A1A;
-            letter-spacing: -0.3px;
-        }
-
-        .invoice-code {
-            font-size: 0.95rem;
-            font-weight: 700;
             color: #1a1a1a;
-            margin-top: 8px;
-        }
-
-        .invoice-date {
-            font-size: 0.75rem;
-            color: #666666;
-            margin-bottom: 16px;
-        }
-
-        .invoice-meta-label {
-            font-size: 0.68rem;
-            font-weight: 700;
-            color: #888888;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
             margin-bottom: 2px;
         }
 
-        .invoice-meta-val {
-            font-size: 0.85rem;
-            font-weight: 700;
+        .invoice-no-text {
+            font-size: 1.05rem;
+            font-weight: 800;
             color: #1a1a1a;
-            margin-bottom: 1px;
+            margin-bottom: 2px;
         }
 
-        .invoice-meta-sub {
-            font-size: 0.78rem;
-            color: #555555;
+        .invoice-date-text {
+            font-size: 0.8rem;
+            color: #736b66;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #efe0d5;
+        }
+
+        .invoice-section-label {
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: #736b66;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .invoice-section-value {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 2px;
+        }
+
+        .invoice-section-sub {
+            font-size: 0.8rem;
+            color: #736b66;
+            margin-bottom: 16px;
+        }
+
+        .invoice-items-table {
+            width: 100%;
+            margin-top: 14px;
             margin-bottom: 14px;
         }
 
-        .invoice-total-text {
+        .invoice-items-table th {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #736b66;
+            padding-bottom: 8px;
+        }
+
+        .invoice-items-table td {
+            font-size: 0.88rem;
+            color: #1a1a1a;
+            padding: 6px 0;
+        }
+
+        .invoice-total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #efe0d5;
+            padding-top: 16px;
+            margin-top: 10px;
+            margin-bottom: 24px;
+        }
+
+        .invoice-total-label {
             font-size: 0.95rem;
             font-weight: 700;
             color: #1a1a1a;
         }
 
         .invoice-total-amount {
-            font-size: 1.15rem;
+            font-size: 1.25rem;
             font-weight: 800;
-            color: #0b72b9;
+            color: #0d6efd;
         }
 
         .btn-print-invoice {
             background-color: #000000;
-            color: #ffffff;
-            font-size: 0.85rem;
+            color: #ffffff !important;
             font-weight: 700;
-            border: none;
+            font-size: 0.9rem;
+            padding: 12px;
             border-radius: 6px;
-            padding: 10px;
             width: 100%;
-            transition: opacity 0.15s ease;
+            text-align: center;
+            border: none;
+            display: block;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
         }
 
         .btn-print-invoice:hover {
-            opacity: 0.85;
-            color: #ffffff;
+            background-color: #222222;
+        }
+
+        .empty-history-box {
+            padding: 60px 20px;
+            text-align: center;
+            color: #736b66;
+        }
+
+        /* ==========================================
+           ATURAN CETAK (PRINT PREVIEW CLEANUP)
+           ========================================== */
+        @media print {
+
+            nav,
+            .navbar,
+            .navbar-orange,
+            .page-title,
+            .col-lg-7,
+            .table-custom-container,
+            .btn-print-invoice,
+            footer {
+                display: none !important;
+            }
+
+            body {
+                background-color: #ffffff !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            main {
+                padding: 0 !important;
+            }
+
+            .container,
+            .container-figma {
+                max-width: 100% !important;
+                width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .row {
+                display: block !important;
+                margin: 0 !important;
+            }
+
+            .col-lg-5 {
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+            }
+
+            .invoice-preview-card {
+                border: 1.5px solid #2B2129 !important;
+                box-shadow: none !important;
+                position: static !important;
+                width: 100% !important;
+                max-width: 580px !important;
+                margin: 20px auto !important;
+                padding: 28px !important;
+                border-radius: 8px !important;
+                page-break-inside: avoid;
+            }
+
+            .badge-status-berhasil {
+                background-color: #2e7d32 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            @page {
+                size: portrait;
+                margin: 12mm;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <nav class="navbar navbar-history sticky-top">
+    <!-- Header Navbar -->
+    <nav class="navbar navbar-orange sticky-top">
         <div class="container-figma d-flex justify-content-between align-items-center w-100">
             <a class="navbar-brand m-0 d-flex align-items-center gap-2 text-decoration-none" href="/">
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -284,169 +323,179 @@ if ($initials === '') {
             </a>
 
             <div class="d-flex align-items-center gap-3">
-                <a href="/cart" class="text-white text-decoration-none d-flex align-items-center" title="Keranjang">
-                    <i class="bi bi-cart3 fs-4"></i>
-                </a>
-
-                <div class="profile-dropdown-wrapper">
-                    <button type="button" class="btn-profile-trigger" id="profileDropdownBtn" aria-expanded="false">
-                        <span class="avatar-circle-header"><?= htmlspecialchars($initials, ENT_QUOTES, 'UTF-8') ?></span>
-                        <span class="fw-bold fs-6"><?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?></span>
-                    </button>
-
-                    <div class="profile-custom-menu" id="profileDropdownMenu">
-                        <a href="/creator/profile?me=1" class="profile-custom-item fw-bold">
-                            <?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>
-                        </a>
-                        <a href="/dashboard/ubah-profil" class="profile-custom-item">
-                            Edit Profile
-                        </a>
-                        <a href="/invoice" class="profile-custom-item">
-                            Histori Pembelian
-                        </a>
-                        <a href="/#tentang" class="profile-custom-item">
-                            Dukungan
-                        </a>
-                        <a href="/logout" class="profile-custom-item text-danger">
-                            Keluar
-                        </a>
-                    </div>
-                </div>
+                <?php
+                $authPartial = BASE_PATH . '/resources/views/partials/navbar-auth.php';
+                if (file_exists($authPartial)) {
+                    require $authPartial;
+                }
+                ?>
             </div>
         </div>
     </nav>
 
-    <main class="flex-grow-1 py-4">
+    <!-- Konten Riwayat Transaksi -->
+    <main class="flex-grow-1 py-5">
         <div class="container-figma">
-            <h1 class="page-title mb-4">Riwayat Transaksi</h1>
+            <h1 class="page-title">Riwayat Transaksi</h1>
 
             <div class="row g-4 align-items-start">
-                <div class="col-12 col-lg-8">
-                    <div class="transaction-table-card">
-                        <div class="table-responsive">
-                            <table class="table table-custom">
-                                <thead>
-                                    <tr>
-                                        <th>No. Invoice</th>
-                                        <th>Nama Aset</th>
-                                        <th>Tanggal</th>
-                                        <th>Total</th>
-                                        <th>Status</th>
-                                        <th>Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="fw-bold">INV-20260115-0001</td>
-                                        <td>Volumetric Rain &amp; Storm URP</td>
-                                        <td>15 Jan 2026</td>
-                                        <td class="fw-bold">Rp150.000</td>
-                                        <td><span class="badge-status badge-berhasil">Berhasil</span></td>
-                                        <td><a href="javascript:void(0)" class="link-invoice">Lihat Invoice</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="fw-bold">INV-20260112-0004</td>
-                                        <td>Stylized Fire Starter Kit</td>
-                                        <td>12 Jan 2026</td>
-                                        <td class="fw-bold">Gratis</td>
-                                        <td><span class="badge-status badge-berhasil">Berhasil</span></td>
-                                        <td><a href="javascript:void(0)" class="link-invoice">Lihat Invoice</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="fw-bold">INV-20260115-0001</td>
-                                        <td>Volumetric Rain &amp; Storm URP</td>
-                                        <td>15 Jan 2026</td>
-                                        <td class="fw-bold">Rp150.000</td>
-                                        <td><span class="badge-status badge-pending">Pending</span></td>
-                                        <td><a href="javascript:void(0)" class="link-invoice">Lihat Invoice</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="fw-bold">INV-20260115-0001</td>
-                                        <td>Volumetric Rain &amp; Storm URP</td>
-                                        <td>15 Jan 2026</td>
-                                        <td class="fw-bold">Rp150.000</td>
-                                        <td><span class="badge-status badge-gagal">Gagal</span></td>
-                                        <td><a href="javascript:void(0)" class="link-invoice">Lihat Invoice</a></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                <div class="col-12 col-lg-7">
+                    <div class="table-custom-container">
+                        <table class="table-custom">
+                            <thead>
+                                <tr>
+                                    <th>No. Invoice</th>
+                                    <th>Nama Aset</th>
+                                    <th>Tanggal</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionTableBody"></tbody>
+                        </table>
                     </div>
                 </div>
 
-                <div class="col-12 col-lg-4">
-                    <div class="invoice-card">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <h2 class="invoice-title mb-0">INVOICE</h2>
-                            <span class="badge-status badge-berhasil">Berhasil</span>
+                <div class="col-12 col-lg-5">
+                    <div class="invoice-preview-card" id="invoiceCard">
+                        <div class="invoice-card-header">
+                            <div>
+                                <h4 class="invoice-card-title">INVOICE</h4>
+                                <div class="invoice-no-text" id="invNoText">-</div>
+                            </div>
+                            <span class="badge-status-berhasil" id="invBadgeStatus">Berhasil</span>
+                        </div>
+                        <div class="invoice-date-text" id="invDateText">Tanggal: -</div>
+
+                        <div class="invoice-section-label">PEMBELI</div>
+                        <div class="invoice-section-value" id="invBuyerName"><?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?></div>
+                        <div class="invoice-section-sub" id="invBuyerEmail">-</div>
+
+                        <div class="invoice-section-label">METODE PEMBAYARAN</div>
+                        <div class="invoice-section-value mb-4" id="invPaymentMethod">-</div>
+
+                        <table class="invoice-items-table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th class="text-end">Harga</th>
+                                </tr>
+                            </thead>
+                            <tbody id="invItemsList"></tbody>
+                        </table>
+
+                        <div class="invoice-total-row">
+                            <span class="invoice-total-label">Total Pembayaran</span>
+                            <span class="invoice-total-amount" id="invTotalText">Rp0</span>
                         </div>
 
-                        <div class="invoice-code">INV-20260115-0001</div>
-                        <div class="invoice-date">Tanggal: 15 Januari 2026, 14:22 WIB</div>
-
-                        <hr class="my-3 text-muted">
-
-                        <div class="invoice-meta-label">PEMBELI</div>
-                        <div class="invoice-meta-val"><?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?></div>
-                        <div class="invoice-meta-sub"><?= htmlspecialchars($userEmail, ENT_QUOTES, 'UTF-8') ?></div>
-
-                        <div class="invoice-meta-label">METODE PEMBAYARAN</div>
-                        <div class="invoice-meta-sub text-dark fw-bold mb-3">QRIS (GoPay)</div>
-
-                        <hr class="my-3 text-muted">
-
-                        <div class="d-flex justify-content-between text-muted small fw-bold mb-1">
-                            <span>Item</span>
-                            <span>Harga</span>
-                        </div>
-                        <div class="d-flex justify-content-between small fw-bold mb-3">
-                            <span>Volumetric Rain &amp; Storm URP</span>
-                            <span>Rp150.000</span>
-                        </div>
-
-                        <div class="d-flex justify-content-between align-items-center pt-2 mb-4">
-                            <span class="invoice-total-text">Total Pembayaran</span>
-                            <span class="invoice-total-amount">Rp150.000</span>
-                        </div>
-
-                        <button type="button" class="btn-print-invoice" onclick="window.print()">Cetak Invoice</button>
+                        <button type="button" class="btn-print-invoice" onclick="printInvoice()">
+                            Cetak Invoice
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <footer class="footer-creator-center py-5 mt-auto">
-        <div class="container text-center">
-            <h5 class="fw-bold mb-2 text-dark">IndoFX</h5>
-            <p class="text-muted small mb-3 mx-auto" style="max-width: 540px;">
-                Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
-            </p>
-            <div class="d-flex justify-content-between align-items-center text-muted small pt-3 border-top flex-wrap gap-2">
-                <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
-                <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
-            </div>
-        </div>
-    </footer>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/navbar-auth.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const dropdownBtn = document.getElementById('profileDropdownBtn');
-            const dropdownMenu = document.getElementById('profileDropdownMenu');
+        const userKey = '<?= $userKey ?>';
+        const txKey = 'indofx_transactions_' + userKey;
+        let userTransactions = [];
 
-            if (dropdownBtn && dropdownMenu) {
-                dropdownBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    dropdownMenu.classList.toggle('show');
-                });
-
-                document.addEventListener('click', function(e) {
-                    if (!dropdownMenu.contains(e.target) && !dropdownBtn.contains(e.target)) {
-                        dropdownMenu.classList.remove('show');
-                    }
-                });
+        function getTransactions() {
+            try {
+                return JSON.parse(localStorage.getItem(txKey)) || [];
+            } catch (e) {
+                return [];
             }
-        });
+        }
+
+        function loadTransactions() {
+            userTransactions = getTransactions();
+            const tbody = document.getElementById('transactionTableBody');
+            const card = document.getElementById('invoiceCard');
+
+            if (userTransactions.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-history-box">
+                            <i class="bi bi-receipt text-secondary fs-1 d-block mb-2"></i>
+                            <h6 class="fw-bold text-dark mb-1">Belum Ada Riwayat Transaksi</h6>
+                            <p class="small text-muted mb-0">Transaksi pembelian aset berbayar Anda akan tercatat secara otomatis di sini.</p>
+                        </td>
+                    </tr>
+                `;
+                if (card) card.style.display = 'none';
+                return;
+            }
+
+            if (card) card.style.display = 'block';
+
+            tbody.innerHTML = userTransactions.map((tx, idx) => {
+                const firstItemTitle = tx.items && tx.items.length > 0 ? tx.items[0].title : 'Aset Visual IndoFX';
+                const moreItemsCount = tx.items && tx.items.length > 1 ? ` (+${tx.items.length - 1} aset lainnya)` : '';
+                const displayTitle = firstItemTitle + moreItemsCount;
+                const totalDisplay = tx.total ? `Rp${tx.total.toLocaleString('id-ID')}` : 'Gratis';
+
+                return `
+                    <tr>
+                        <td><strong>${tx.invoice_no}</strong></td>
+                        <td>${displayTitle}</td>
+                        <td>${tx.short_date || tx.date}</td>
+                        <td><strong>${totalDisplay}</strong></td>
+                        <td><span class="badge-status-berhasil">${tx.status || 'Berhasil'}</span></td>
+                        <td>
+                            <a href="javascript:void(0)" class="btn-view-invoice" onclick="selectInvoice(${idx})">
+                                Lihat Invoice
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            selectInvoice(0);
+        }
+
+        function selectInvoice(index) {
+            const tx = userTransactions[index];
+            if (!tx) return;
+
+            document.getElementById('invNoText').innerText = tx.invoice_no;
+            document.getElementById('invBadgeStatus').innerText = tx.status || 'Berhasil';
+            document.getElementById('invDateText').innerText = 'Tanggal: ' + (tx.full_date || tx.date);
+            document.getElementById('invBuyerName').innerText = tx.buyer_name || '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>';
+            document.getElementById('invBuyerEmail').innerText = tx.buyer_email || 'user@email.com';
+            document.getElementById('invPaymentMethod').innerText = tx.payment_method || 'QRIS (GoPay)';
+
+            const itemsContainer = document.getElementById('invItemsList');
+            if (tx.items && tx.items.length > 0) {
+                itemsContainer.innerHTML = tx.items.map(it => `
+                    <tr>
+                        <td><strong>${it.title}</strong></td>
+                        <td class="text-end"><strong>Rp${(parseFloat(it.price) || 0).toLocaleString('id-ID')}</strong></td>
+                    </tr>
+                `).join('');
+            } else {
+                itemsContainer.innerHTML = `
+                    <tr>
+                        <td><strong>${tx.asset_title || 'Aset Visual IndoFX'}</strong></td>
+                        <td class="text-end"><strong>Rp${(parseFloat(tx.total) || 0).toLocaleString('id-ID')}</strong></td>
+                    </tr>
+                `;
+            }
+
+            document.getElementById('invTotalText').innerText = 'Rp' + (parseFloat(tx.total) || 0).toLocaleString('id-ID');
+        }
+
+        function printInvoice() {
+            window.print();
+        }
+
+        document.addEventListener('DOMContentLoaded', loadTransactions);
     </script>
 </body>
 
