@@ -1,3 +1,11 @@
+<?php
+// Menangkap SUPABASE_URL dari .env menggunakan 3 metode untuk kompatibilitas server lokal/produksi
+$supabaseUrl = $_ENV['SUPABASE_URL'] ?? $_SERVER['SUPABASE_URL'] ?? getenv('SUPABASE_URL') ?? '';
+
+// Merakit kerangka URL storage (pastikan .env kamu berisi URL yang benar)
+$storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-previews/catalog/';
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 
@@ -156,24 +164,61 @@
 
                 <div class="row g-3">
                     <?php foreach ($latestAssets as $asset): ?>
-                        <div class="col-12 col-sm-6 col-lg-3">
+                        <div class="col-12 col-sm-6 col-lg-3"> 
                             <div class="asset-card-figma h-100 d-flex flex-column">
-                                    <a href="/asset/detail?id=<?= $asset['id'] ?>" class="asset-thumb-wrapper d-block">
-                                        <?php if (!empty($asset['thumbnail'])): ?>
-                                            <img src="https://fjjcuvbhwjtyvmlddevj.supabase.co/storage/v1/object/public/asset-previews/<?= htmlspecialchars($asset['thumbnail']) ?>" alt="<?= htmlspecialchars($asset['title']) ?>" style="width: 100%; height: 175px; object-fit: cover;">
-                                        <?php else: ?>
-                                            <svg width="100%" height="175" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice"><use href="#castle-sunset-art" /></svg>
-                                        <?php endif; ?>
-                                    </a>
+                                
+                                <!-- 1. Perbaikan URL Gambar & htmlspecialchars -->
+                                <a href="/asset/detail?id=<?= $asset['id'] ?>" class="asset-thumb-wrapper d-block">
+                                    <?php 
+                                    $thumbnailFile = $asset['thumbnail'] ?? ''; 
+                                    
+                                    if (empty($thumbnailFile)) {
+                                        $imageUrl = "https://via.placeholder.com/400x220/2C3A47/FFFFFF?text=Gambar+Kosong";
+                                    } elseif (strpos($thumbnailFile, 'http') === 0) {
+                                        $imageUrl = $thumbnailFile; 
+                                    } else {
+                                        $imageUrl = $storageBasePath . $thumbnailFile;
+                                    }
+                                    ?>
+                                    <img src="<?= htmlspecialchars($imageUrl) ?>" alt="<?= htmlspecialchars($asset['title'] ?? 'Aset IndoFX') ?>" style="width: 100%; height: 175px; object-fit: cover;">
+                                </a>
+
                                 <div class="asset-card-body d-flex flex-column justify-content-between flex-grow-1">
                                     <div>
-                                        <a href="/creator/profile" class="asset-studio text-decoration-none d-inline-block">Studio Kreator</a>
-                                        <a href="/asset/detail?id=<?= $asset['id'] ?>" class="text-decoration-none d-block">
-                                            <h6 class="asset-name"><?= htmlspecialchars($asset['title']) ?></h6>
+                                        <!-- 2. Nama Kreator Dinamis -->
+                                        <a href="/creator/profile" class="asset-studio text-decoration-none d-inline-block">
+                                            <?= htmlspecialchars($asset['seller_name'] ?? 'Studio Kreator') ?>
                                         </a>
+                                        
+                                        <a href="/asset/detail?id=<?= $asset['id'] ?>" class="text-decoration-none d-block">
+                                            <h6 class="asset-name"><?= htmlspecialchars($asset['title'] ?? '') ?></h6>
+                                        </a>
+                                        
+                                        <!-- 3. Badge Pipeline Dinamis -->
+                                        <div class="d-flex gap-1 mb-2 flex-wrap">
+                                            <?php 
+                                            $pipeline = $asset['render_pipeline'] ?? '';
+                                            if (stripos($pipeline, 'Built-in') !== false) {
+                                                echo '<span class="badge-pipeline badge-builtin">Built-In</span> ';
+                                            }
+                                            if (stripos($pipeline, 'URP') !== false) {
+                                                echo '<span class="badge-pipeline badge-urp">URP</span> ';
+                                            }
+                                            if (stripos($pipeline, 'HDRP') !== false) {
+                                                echo '<span class="badge-pipeline badge-hdrp">HDRP</span> ';
+                                            }
+                                            if (stripos($pipeline, 'Any') !== false) {
+                                                echo '<span class="badge-pipeline bg-secondary text-white border-0 px-2 rounded-1" style="font-size: 0.75rem;">Any</span>';
+                                            }
+                                            ?>
+                                        </div>
                                     </div>
+                                    
+                                    <!-- 4. Format Harga Dinamis (Mencegah "Rp0") -->
                                     <div class="d-flex justify-content-between align-items-center pt-1">
-                                        <span class="asset-price">Rp<?= number_format($asset['price'], 0, ',', '.') ?></span>
+                                        <span class="asset-price">
+                                            <?= (!isset($asset['price']) || $asset['price'] == 0) ? 'Gratis' : 'Rp' . number_format($asset['price'], 0, ',', '.') ?>
+                                        </span>
                                         <i class="bi bi-download asset-dl-icon"></i>
                                     </div>
                                 </div>
@@ -195,24 +240,61 @@
 
                 <div class="row g-3">
                     <?php foreach ($freeAssets as $asset): ?>
-                        <div class="col-12 col-sm-6 col-lg-3">
+                        <div class="col-12 col-sm-6 col-lg-3"> 
                             <div class="asset-card-figma h-100 d-flex flex-column">
-                                    <a href="/asset/detail?id=<?= $asset['id'] ?>" class="asset-thumb-wrapper d-block">
-                                        <?php if (!empty($asset['thumbnail'])): ?>
-                                            <img src="https://fjjcuvbhwjtyvmlddevj.supabase.co/storage/v1/object/public/asset-previews/<?= htmlspecialchars($asset['thumbnail']) ?>" alt="<?= htmlspecialchars($asset['title']) ?>" style="width: 100%; height: 175px; object-fit: cover;">
-                                        <?php else: ?>
-                                            <svg width="100%" height="175" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice"><use href="#forest-mist-art" /></svg>
-                                        <?php endif; ?>
-                                    </a>
+                                
+                                <!-- 1. Perbaikan URL Gambar & htmlspecialchars -->
+                                <a href="/asset/detail?id=<?= $asset['id'] ?>" class="asset-thumb-wrapper d-block">
+                                    <?php 
+                                    $thumbnailFile = $asset['thumbnail'] ?? ''; 
+                                    
+                                    if (empty($thumbnailFile)) {
+                                        $imageUrl = "https://via.placeholder.com/400x220/2C3A47/FFFFFF?text=Gambar+Kosong";
+                                    } elseif (strpos($thumbnailFile, 'http') === 0) {
+                                        $imageUrl = $thumbnailFile; 
+                                    } else {
+                                        $imageUrl = $storageBasePath . $thumbnailFile;
+                                    }
+                                    ?>
+                                    <img src="<?= htmlspecialchars($imageUrl) ?>" alt="<?= htmlspecialchars($asset['title'] ?? 'Aset IndoFX') ?>" style="width: 100%; height: 175px; object-fit: cover;">
+                                </a>
+
                                 <div class="asset-card-body d-flex flex-column justify-content-between flex-grow-1">
                                     <div>
-                                        <a href="/creator/profile" class="asset-studio text-decoration-none d-inline-block">Studio Kreator</a>
-                                        <a href="/asset/detail?id=<?= $asset['id'] ?>" class="text-decoration-none d-block">
-                                            <h6 class="asset-name"><?= htmlspecialchars($asset['title']) ?></h6>
+                                        <!-- 2. Nama Kreator Dinamis -->
+                                        <a href="/creator/profile" class="asset-studio text-decoration-none d-inline-block">
+                                            <?= htmlspecialchars($asset['seller_name'] ?? 'Studio Kreator') ?>
                                         </a>
+                                        
+                                        <a href="/asset/detail?id=<?= $asset['id'] ?>" class="text-decoration-none d-block">
+                                            <h6 class="asset-name"><?= htmlspecialchars($asset['title'] ?? '') ?></h6>
+                                        </a>
+                                        
+                                        <!-- 3. Badge Pipeline Dinamis -->
+                                        <div class="d-flex gap-1 mb-2 flex-wrap">
+                                            <?php 
+                                            $pipeline = $asset['render_pipeline'] ?? '';
+                                            if (stripos($pipeline, 'Built-in') !== false) {
+                                                echo '<span class="badge-pipeline badge-builtin">Built-In</span> ';
+                                            }
+                                            if (stripos($pipeline, 'URP') !== false) {
+                                                echo '<span class="badge-pipeline badge-urp">URP</span> ';
+                                            }
+                                            if (stripos($pipeline, 'HDRP') !== false) {
+                                                echo '<span class="badge-pipeline badge-hdrp">HDRP</span> ';
+                                            }
+                                            if (stripos($pipeline, 'Any') !== false) {
+                                                echo '<span class="badge-pipeline bg-secondary text-white border-0 px-2 rounded-1" style="font-size: 0.75rem;">Any</span>';
+                                            }
+                                            ?>
+                                        </div>
                                     </div>
+                                    
+                                    <!-- 4. Format Harga Dinamis (Mencegah "Rp0") -->
                                     <div class="d-flex justify-content-between align-items-center pt-1">
-                                        <span class="asset-price">Gratis</span>
+                                        <span class="asset-price">
+                                            <?= (!isset($asset['price']) || $asset['price'] == 0) ? 'Gratis' : 'Rp' . number_format($asset['price'], 0, ',', '.') ?>
+                                        </span>
                                         <i class="bi bi-download asset-dl-icon"></i>
                                     </div>
                                 </div>
@@ -264,7 +346,7 @@
     <!-- Pergantian navbar guest/pembeli -->
     <script src="/assets/js/navbar-auth.js"></script>
     <!-- Katalog dari data dummy -->
-    <script src="/assets/js/catalog.js" defer></script>
+    <!-- <script src="/assets/js/catalog.js" defer></script> -->
 </body>
 
 </html>

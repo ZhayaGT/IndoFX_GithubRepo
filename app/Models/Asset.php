@@ -8,9 +8,10 @@ use PDO;
 class Asset extends Model {
     // Mengambil 4 aset terbaru untuk section "Aset CG & VFX Terbaru"
     public function getLatestAssets($limit = 4) {
-        $sql = "SELECT a.*, ai.image_path as thumbnail 
+        $sql = "SELECT a.*, ai.image_path as thumbnail, u.name as seller_name 
                 FROM assets a 
                 LEFT JOIN asset_images ai ON a.id = ai.asset_id AND ai.sort_order = 1 
+                LEFT JOIN users u ON a.seller_id = u.id
                 ORDER BY a.created_at DESC LIMIT :limit";
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
@@ -20,9 +21,10 @@ class Asset extends Model {
 
     // Mengambil 4 aset gratis untuk section "Aset Gratis Unggulan"
     public function getFreeAssets($limit = 4) {
-        $sql = "SELECT a.*, ai.image_path as thumbnail 
+        $sql = "SELECT a.*, ai.image_path as thumbnail, u.name as seller_name 
                 FROM assets a 
                 LEFT JOIN asset_images ai ON a.id = ai.asset_id AND ai.sort_order = 1 
+                LEFT JOIN users u ON a.seller_id = u.id
                 WHERE a.price = 0 
                 ORDER BY a.created_at DESC LIMIT :limit";
         $stmt = $this->db->prepare($sql);
@@ -33,9 +35,10 @@ class Asset extends Model {
 
     // Mengambil semua data aset, diurutkan dari yang terbaru untuk ditampilkan pada halaman explore
     public function getAllAssets() {
-        $sql = "SELECT a.*, ai.image_path as thumbnail 
+        $sql = "SELECT a.*, ai.image_path as thumbnail, u.name as seller_name 
                 FROM assets a 
                 LEFT JOIN asset_images ai ON a.id = ai.asset_id AND ai.sort_order = 1 
+                LEFT JOIN users u ON a.seller_id = u.id
                 ORDER BY a.created_at DESC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
@@ -43,11 +46,13 @@ class Asset extends Model {
     }
 
     public function getFilteredAssets($filters = []) {
-        // Melakukan JOIN dengan tabel categories untuk membaca slug/nama kategori
-        $sql = "SELECT a.*, c.name as category_name, c.slug as category_slug 
+        // Melakukan JOIN dengan tabel categories, asset_images, DAN users
+        $sql = "SELECT a.*, c.name as category_name, c.slug as category_slug, ai.image_path as thumbnail, u.name as seller_name 
                 FROM assets a 
                 LEFT JOIN categories c ON a.category_id = c.id 
-                WHERE 1=1"; // Tambahkan AND a.deleted_at IS NULL jika mengimplementasikan soft delete
+                LEFT JOIN asset_images ai ON a.id = ai.asset_id AND ai.sort_order = 1 
+                LEFT JOIN users u ON a.seller_id = u.id
+                WHERE 1=1";
         $params = [];
 
         // 1. Pencarian Kata Kunci (Berdasarkan title)
@@ -87,15 +92,11 @@ class Asset extends Model {
             
             foreach ($filters['pipeline'] as $i => $pipe) {
                 $key = ":pipe_$i";
-                // Mencari apakah kolom mengandung teks seperti '%URP%' atau '%Built-in%'
                 $pipelineConditions[] = "a.render_pipeline ILIKE " . $key;
                 $params[$key] = '%' . $pipe . '%';
             }
             
-            // (Opsional) Jika aset dengan value "Any" berarti mendukung semua pipeline, tambahkan kondisi ini agar ikut tampil:
             $pipelineConditions[] = "a.render_pipeline ILIKE '%Any%'";
-            
-            // Gabungkan kondisi dengan OR dan bungkus dengan kurung ()
             $sql .= " AND (" . implode(' OR ', $pipelineConditions) . ")";
         }
 
@@ -111,6 +112,8 @@ class Asset extends Model {
             $sql .= " ORDER BY a.price ASC";
         } elseif ($sort === 'harga_tinggi') {
             $sql .= " ORDER BY a.price DESC";
+        } elseif ($sort === 'populer') {
+            $sql .= " ORDER BY a.download_count DESC";
         } else {
             $sql .= " ORDER BY a.created_at DESC";
         }
