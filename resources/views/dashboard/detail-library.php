@@ -4,7 +4,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-// 1. Database Katalog IndoFX (Sebagai Referensi Spesifikasi)
+// 1. Database Katalog IndoFX
 $catalogDB = [
     '1' => [
         'title' => 'Volumetric Rain & Storm URP',
@@ -122,11 +122,11 @@ $matched = $catalogDB[$reqId] ?? null;
 $assetId       = $reqId;
 $assetTitle    = $_GET['title'] ?? ($matched['title'] ?? 'Volumetric Rain & Storm URP');
 $assetCreator  = $_GET['creator'] ?? ($matched['creator'] ?? 'Arga Studio');
-$assetCategory = $_GET['category'] ?? ($matched['category'] ?? 'VFX PARTIKEL');
+$assetCategory = $_GET['category'] ?? ($matched['category'] ?? 'SHADER');
 $assetUnity    = $matched['unity_version'] ?? '2021.3+ / 2022.3 LTS';
-$assetPipeline = $_GET['pipeline'] ?? ($matched['pipeline'] ?? 'URP, HDRP');
+$assetPipeline = $_GET['pipeline'] ?? ($matched['pipeline'] ?? 'HDRP');
 $assetFormat   = $matched['format'] ?? '.unitypackage';
-$assetArt      = $matched['art'] ?? 'castle';
+$assetArt      = $matched['art'] ?? 'water';
 
 $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user');
 ?>
@@ -136,11 +136,11 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($assetTitle) ?> - Library IndoFX</title>
+    <title><?= htmlspecialchars($assetTitle) ?> - IndoFX</title>
 
     <!-- Google Fonts & Bootstrap Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -154,7 +154,7 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
             --indofx-text-muted: #7A685D;
             --indofx-border: #4A3B32;
             --indofx-orange: #ED6B1D;
-            /* Oranye Tombol Unduh */
+            /* Oranye IndoFX */
         }
 
         body {
@@ -232,7 +232,7 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
             padding: 24px;
         }
 
-        /* Kartu Sisi Kanan Khusus Halaman Unduh */
+        /* Kartu Kanan Khusus Unduh */
         .asset-library-card {
             background-color: #ffffff;
             border: 1.5px solid var(--indofx-border);
@@ -295,7 +295,6 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
             color: var(--indofx-text-main);
         }
 
-        /* Tombol Oranye Unduh */
         .btn-download-orange {
             background-color: var(--indofx-orange);
             color: #ffffff !important;
@@ -311,15 +310,18 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
             gap: 8px;
             cursor: pointer;
             text-decoration: none;
-            transition: background-color 0.15s ease;
+            transition: background-color 0.15s ease, transform 0.1s ease;
             box-shadow: 0 4px 12px rgba(237, 107, 29, 0.25);
         }
 
         .btn-download-orange:hover {
             background-color: #D85A0E;
+            transform: translateY(-1px);
         }
 
-        /* Ulasan */
+        /* ========================================================
+           RINGKASAN ULASAN & PROGRES BAR BINTANG DINAMIS
+           ======================================================== */
         .rating-summary-box {
             background-color: #fdf5ef;
             border: 1px solid #ebdcd1;
@@ -331,6 +333,53 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
             font-weight: 800;
             color: var(--indofx-text-main);
             line-height: 1;
+        }
+
+        .rating-out-of {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--indofx-text-muted);
+        }
+
+        .rating-stars-gold {
+            color: var(--indofx-orange);
+            font-size: 0.95rem;
+        }
+
+        .rating-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+        }
+
+        .rating-bar-label {
+            width: 28px;
+            color: var(--indofx-text-main);
+            font-weight: 700;
+        }
+
+        .rating-bar-track {
+            flex-grow: 1;
+            height: 6px;
+            background-color: #eeddd2;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .rating-bar-fill {
+            height: 100%;
+            background-color: var(--indofx-orange);
+            border-radius: 999px;
+            transition: width 0.3s ease;
+        }
+
+        .rating-bar-num {
+            width: 22px;
+            text-align: right;
+            color: var(--indofx-text-muted);
+            font-weight: 600;
         }
 
         .badge-owner {
@@ -399,7 +448,7 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
     <nav class="navbar navbar-orange sticky-top">
         <div class="container-figma d-flex justify-content-between align-items-center w-100">
             <a class="navbar-brand m-0 d-flex align-items-center gap-2 text-decoration-none" href="/">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
                     <path d="M12 2L20.66 7V17L12 22L3.34 17V7L12 2Z" fill="#ED6B1D" stroke="#1A1A1A" stroke-width="1.8" stroke-linejoin="round" />
                     <path d="M12 2L20.66 7L12 12L3.34 7L12 2Z" fill="#FDBA74" stroke="#1A1A1A" stroke-width="1.5" stroke-linejoin="round" />
                     <path d="M12 12V22" stroke="#1A1A1A" stroke-width="1.5" />
@@ -467,50 +516,78 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
                     </div>
 
                     <div class="detail-nav-tabs">
-                        <a href="javascript:void(0)" class="tab-link active" onclick="switchDetailTab(event, 'tab-deskripsi')">Deskripsi</a>
+                        <a href="javascript:void(0)" class="tab-link" onclick="switchDetailTab(event, 'tab-deskripsi')">Deskripsi</a>
                         <a href="javascript:void(0)" class="tab-link" onclick="switchDetailTab(event, 'tab-changelog')">Changelog</a>
-                        <a href="javascript:void(0)" class="tab-link" onclick="switchDetailTab(event, 'tab-ulasan')">Ulasan</a>
+                        <a href="javascript:void(0)" class="tab-link active" onclick="switchDetailTab(event, 'tab-ulasan')">Ulasan</a>
                     </div>
 
                     <div class="detail-content-box" id="tabContentArea">
-                        <div id="tab-deskripsi" class="tab-pane-detail active">
+                        <div id="tab-deskripsi" class="tab-pane-detail d-none">
                             <p class="mb-3">
-                                Paket aset visual <strong><?= htmlspecialchars($assetTitle) ?></strong> dirancang khusus oleh <strong><?= htmlspecialchars($assetCreator) ?></strong> untuk mewujudkan sistem cuaca dan efek grafis dalam pipeline rendering <?= htmlspecialchars($assetPipeline) ?> di engine Unity[cite: 26]. Dilengkapi dengan kontrol intensitas angin, density partikel kabut, dan kustomisasi parameter secara real-time[cite: 26].
+                                Paket aset visual <strong><?= htmlspecialchars($assetTitle) ?></strong> dirancang khusus oleh <strong><?= htmlspecialchars($assetCreator) ?></strong> untuk mewujudkan sistem visual berkualitas tinggi dalam pipeline rendering <?= htmlspecialchars($assetPipeline) ?> di engine Unity[cite: 26].
                             </p>
                             <p class="mb-0">
-                                Sangat cocok untuk game bertema horor, petualangan, maupun simulasi lingkungan Indonesia yang tropis dan kaya curah hujan[cite: 26].
+                                Dilengkapi dengan kontrol parameter material, tekstur resolusi tinggi, dan pengoptimalan menyeluruh untuk performa game[cite: 26].
                             </p>
                         </div>
 
                         <div id="tab-changelog" class="tab-pane-detail d-none">
                             <h6 class="fw-bold mb-2">Versi 1.2.0</h6>
-                            <p class="text-muted small">Pembaruan performa dan dukungan Unity 2022 LTS.</p>
+                            <p class="text-muted small">Pembaruan performa dan dukungan Unity 2022 LTS[cite: 26].</p>
                         </div>
 
-                        <div id="tab-ulasan" class="tab-pane-detail d-none">
+                        <!-- TAB ULASAN DINAMIS -->
+                        <div id="tab-ulasan" class="tab-pane-detail active">
                             <div id="ratingSummaryWrapper" class="rating-summary-box p-3 mb-4">
                                 <div class="row align-items-center g-3">
+                                    <!-- Sisi Kiri: Nilai Rata-Rata & Bintang -->
                                     <div class="col-12 col-sm-4 text-center text-sm-start ps-sm-3">
                                         <div class="d-flex align-items-baseline justify-content-center justify-content-sm-start gap-1">
-                                            <span class="rating-big-score" id="ratingBigScore">5,0</span>
+                                            <span class="rating-big-score" id="ratingBigScore">0,0</span>
                                             <span class="rating-out-of">/ 5</span>
                                         </div>
-                                        <div class="my-1" style="color: var(--indofx-orange);">
-                                            <i class="bi bi-star-fill"></i>
-                                            <i class="bi bi-star-fill"></i>
-                                            <i class="bi bi-star-fill"></i>
-                                            <i class="bi bi-star-fill"></i>
-                                            <i class="bi bi-star-fill"></i>
+                                        <div class="rating-stars-gold my-1" id="ratingSummaryStars">
+                                            <!-- Diisi oleh JavaScript -->
                                         </div>
                                         <span class="d-block text-muted small" id="totalReviewsSummaryText">Dari 0 ulasan</span>
                                     </div>
+
+                                    <!-- Sisi Kanan: Progres Bar 5 Bintang Hingga 1 Bintang -->
                                     <div class="col-12 col-sm-8 pe-sm-3">
-                                        <div class="d-flex align-items-center gap-2 small">
-                                            <span style="width: 25px;">5 ★</span>
-                                            <div class="progress flex-grow-1" style="height: 6px;">
-                                                <div class="progress-bar bg-warning" style="width: 100%;"></div>
+                                        <div class="rating-bar-row">
+                                            <span class="rating-bar-label">5 ★</span>
+                                            <div class="rating-bar-track">
+                                                <div class="rating-bar-fill" id="ratingBarFill_5" style="width: 0%;"></div>
                                             </div>
-                                            <span id="reviewCountNum">1</span>
+                                            <span class="rating-bar-num" id="ratingBarNum_5">0</span>
+                                        </div>
+                                        <div class="rating-bar-row">
+                                            <span class="rating-bar-label">4 ★</span>
+                                            <div class="rating-bar-track">
+                                                <div class="rating-bar-fill" id="ratingBarFill_4" style="width: 0%;"></div>
+                                            </div>
+                                            <span class="rating-bar-num" id="ratingBarNum_4">0</span>
+                                        </div>
+                                        <div class="rating-bar-row">
+                                            <span class="rating-bar-label">3 ★</span>
+                                            <div class="rating-bar-track">
+                                                <div class="rating-bar-fill" id="ratingBarFill_3" style="width: 0%;"></div>
+                                            </div>
+                                            <span class="rating-bar-num" id="ratingBarNum_3">0</span>
+                                        </div>
+                                        <div class="rating-bar-row">
+                                            <span class="rating-bar-label">2 ★</span>
+                                            <div class="rating-bar-track">
+                                                <div class="rating-bar-fill" id="ratingBarFill_2" style="width: 0%;"></div>
+                                            </div>
+                                            <span class="rating-bar-num" id="ratingBarNum_2">0</span>
+                                        </div>
+                                        <div class="rating-bar-row">
+                                            <span class="rating-bar-label">1 ★</span>
+                                            <div class="rating-bar-track">
+                                                <div class="rating-bar-fill" id="ratingBarFill_1" style="width: 0%;"></div>
+                                            </div>
+                                            <span class="rating-bar-num" id="ratingBarNum_1">0</span>
                                         </div>
                                     </div>
                                 </div>
@@ -526,7 +603,7 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
                     </div>
                 </div>
 
-                <!-- Kolom Kanan: Card Download Tanpa Harga -->
+                <!-- Kolom Kanan: Card Download -->
                 <div class="col-12 col-lg-4">
                     <div class="asset-library-card">
                         <span class="asset-category-tag d-block"><?= htmlspecialchars($assetCategory) ?></span>
@@ -536,7 +613,6 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
                             Oleh <a href="/creator/profile"><?= htmlspecialchars($assetCreator) ?></a>
                         </div>
 
-                        <!-- Spesifikasi Teknis -->
                         <div class="specs-table-box">
                             <div class="spec-item-row">
                                 <span class="label-col">Versi Unity</span>
@@ -552,7 +628,6 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
                             </div>
                         </div>
 
-                        <!-- Tombol Unduh Oranye -->
                         <button type="button" class="btn-download-orange" onclick="downloadFile()">
                             <i class="bi bi-download"></i>
                             <span>Unduh</span>
@@ -596,7 +671,6 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
             if (target) target.classList.remove('d-none');
         }
 
-        // FUNGSI UNDUH PAKET UNITY OTOMATIS
         function downloadFile() {
             const fileName = assetTitle.toLowerCase().replace(/[^a-z0-9]/g, '_') + (assetFormat.startsWith('.') ? assetFormat : ('.' + assetFormat));
             const dummyPackage = `=== INDOFX ASSET FILE ===\nNama Aset: ${assetTitle}\nID: ${currentAssetId}\nFormat: ${assetFormat}\nLisensi: Full Commercial Project License\nDiunduh oleh: ${userKey}\nTanggal: ${new Date().toLocaleString()}\n`;
@@ -614,7 +688,9 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
             URL.revokeObjectURL(url);
         }
 
-        // MEMUAT ULASAN DINAMIS KHUSUS ASET INI
+        // ========================================================
+        // KALKULASI RATA-RATA & DIAGRAM BINTANG 100% DINAMIS
+        // ========================================================
         function loadReviews() {
             const listContainer = document.getElementById('reviewsListContainer');
             if (!listContainer) return;
@@ -627,13 +703,14 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
             }
 
             const countBadge = document.getElementById('reviewsCountBadge');
+            const summaryBox = document.getElementById('ratingSummaryWrapper');
             const summaryText = document.getElementById('totalReviewsSummaryText');
             const total = reviews.length;
 
             if (countBadge) countBadge.innerText = total + ' ulasan';
-            if (summaryText) summaryText.innerText = 'Dari ' + total + ' ulasan';
 
             if (total === 0) {
+                if (summaryBox) summaryBox.style.display = 'none';
                 listContainer.innerHTML = `
                     <div class="text-center py-4 text-muted">
                         <i class="bi bi-chat-square-text fs-2 d-block mb-1"></i>
@@ -643,20 +720,85 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
                 return;
             }
 
-            listContainer.innerHTML = reviews.map(r => `
-                <div class="review-item-block">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <div class="d-flex align-items-center gap-2">
-                            <strong style="color: var(--indofx-text-main);">${r.user_name}</strong>
-                            <span class="badge-owner">Pemilik aset</span>
+            if (summaryBox) summaryBox.style.display = 'block';
+
+            // 1. Hitung total skor bintang dan frekuensi masing-masing bintang (1 - 5)
+            let sumRating = 0;
+            const starCounts = {
+                5: 0,
+                4: 0,
+                3: 0,
+                2: 0,
+                1: 0
+            };
+
+            reviews.forEach(r => {
+                const star = Math.min(5, Math.max(1, parseInt(r.rating, 10) || 5));
+                starCounts[star] = (starCounts[star] || 0) + 1;
+                sumRating += star;
+            });
+
+            // 2. Hitung Rata-Rata Sebenarnya
+            const avgRatingFloat = sumRating / total;
+            const avgScoreFormatted = avgRatingFloat.toFixed(1).replace('.', ',');
+
+            // Pasang angka rata-rata ke elemen skor besar
+            const bigScoreEl = document.getElementById('ratingBigScore');
+            if (bigScoreEl) bigScoreEl.innerText = avgScoreFormatted;
+            if (summaryText) summaryText.innerText = `Dari ${total} ulasan`;
+
+            // 3. Render Deretan Bintang di Bawah Nilai Rata-rata
+            const starsSummaryContainer = document.getElementById('ratingSummaryStars');
+            if (starsSummaryContainer) {
+                let starsSummaryHtml = '';
+                const roundedStar = Math.round(avgRatingFloat);
+                for (let s = 1; s <= 5; s++) {
+                    if (s <= roundedStar) {
+                        starsSummaryHtml += '<i class="bi bi-star-fill me-1"></i>';
+                    } else {
+                        starsSummaryHtml += '<i class="bi bi-star me-1" style="color: #eeddd2;"></i>';
+                    }
+                }
+                starsSummaryContainer.innerHTML = starsSummaryHtml;
+            }
+
+            // 4. Perbarui Nilai Angka dan Lebar Bar (Persentase) untuk 5 Bintang sampai 1 Bintang
+            for (let s = 1; s <= 5; s++) {
+                const count = starCounts[s] || 0;
+                const percentage = Math.round((count / total) * 100);
+
+                const fillEl = document.getElementById('ratingBarFill_' + s);
+                const numEl = document.getElementById('ratingBarNum_' + s);
+
+                if (fillEl) fillEl.style.width = percentage + '%';
+                if (numEl) numEl.innerText = count;
+            }
+
+            // 5. Render Daftar Ulasan Pembeli
+            listContainer.innerHTML = reviews.map(r => {
+                const rating = Math.min(5, Math.max(1, parseInt(r.rating, 10) || 5));
+                let starIcons = '';
+                for (let s = 1; s <= 5; s++) {
+                    starIcons += s <= rating ?
+                        '<i class="bi bi-star-fill text-warning me-1"></i>' :
+                        '<i class="bi bi-star text-muted me-1"></i>';
+                }
+
+                return `
+                    <div class="review-item-block">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <div class="d-flex align-items-center gap-2">
+                                <strong style="color: var(--indofx-text-main);">${r.user_name}</strong>
+                                <span class="badge-owner">Pemilik aset</span>
+                            </div>
+                            <span class="text-muted small">${r.date}</span>
                         </div>
-                        <span class="text-muted small">${r.date}</span>
+                        <div class="mb-1" style="font-size: 0.85rem;">${starIcons}</div>
+                        ${r.title ? `<h6 class="fw-bold mb-1" style="color: var(--indofx-text-main); font-size: 0.95rem;">${r.title}</h6>` : ''}
+                        <p class="mb-0 text-secondary" style="font-size: 0.88rem; line-height: 1.6;">${r.comment}</p>
                     </div>
-                    <div class="text-warning mb-1">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
-                    ${r.title ? `<h6 class="fw-bold mb-1" style="color: var(--indofx-text-main); font-size: 0.95rem;">${r.title}</h6>` : ''}
-                    <p class="mb-0 text-secondary" style="font-size: 0.88rem; line-height: 1.6;">${r.comment}</p>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         document.addEventListener('DOMContentLoaded', loadReviews);
