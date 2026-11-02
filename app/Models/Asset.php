@@ -25,7 +25,7 @@ class Asset extends Model
 
     private const SORT_ORDERS = [
         'terbaru'      => 'a.created_at DESC, a.id DESC',
-        'populer'      => 'terjual DESC, a.created_at DESC',
+        'populer'      => 'terjual DESC, a.created_at DESC, a.id DESC',
         'harga_rendah' => 'a.price ASC, a.id DESC',
         'harga_tinggi' => 'a.price DESC, a.id DESC',
     ];

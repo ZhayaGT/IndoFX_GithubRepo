@@ -95,6 +95,9 @@ Cara kerjanya:
 bucket adalah salinan dari folder `public/assets/img/` (lihat langkah 1 di atas). Path di
 database tidak perlu diubah.
 
+Bila `image_path` hanya berisi nama berkas (`01.jpg`), helper menambahkan folder `catalog/`
+sehingga URL menjadi `<bucket>/catalog/01.jpg`.
+
 Di database Supabase saat ini, `asset_images.image_path` sudah berisi URL penuh, sehingga
 `Storage::url()` meneruskannya tanpa perubahan dan `STORAGE_BASE_URL` boleh kosong.
 

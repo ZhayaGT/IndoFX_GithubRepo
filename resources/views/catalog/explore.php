@@ -92,6 +92,8 @@
     <main class="py-4">
         <div class="container-figma">
 
+            <form method="get" action="/catalog/explore">
+
             <!-- Header Ringkasan & Urutkan -->
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                 <span class="text-dark fw-bold fs-7">Menampilkan <?= (int) $total ?> aset yang cocok</span>
@@ -107,7 +109,7 @@
                 </div>
             </div>
 
-            <form method="get" action="/catalog/explore" class="row g-4 align-items-start">
+            <div class="row g-4 align-items-start">
 
                 <!-- KOLOM KIRI: Grid 3 Kartu per Baris -->
                 <div class="col-12 col-lg-9">
@@ -124,13 +126,30 @@
                     <!-- Pagination Sesuai Figma -->
                     <?php if ($totalPages > 1): ?>
                         <?php
-                        $baseQuery = array_filter([
-                            'q'        => $filter['q'],
-                            'gratis'   => $filter['gratis'] ? '1' : '',
-                            'kategori' => $pickedCategories ?: '',
-                            'pipeline' => $filter['pipeline'],
-                            'sort'     => $filter['sort'] !== 'terbaru' ? $filter['sort'] : '',
-                        ]);
+                        $baseQuery = [
+                            'kategori'  => $pickedCategories,
+                            'pipeline'  => $filter['pipeline'],
+                        ];
+
+                        if ($filter['q'] !== '') {
+                            $baseQuery['q'] = $filter['q'];
+                        }
+                        if ($filter['gratis']) {
+                            $baseQuery['gratis'] = '1';
+                        }
+                        if ($filter['priceMin'] !== '') {
+                            $baseQuery['harga_min'] = $filter['priceMin'];
+                        }
+                        if ($filter['priceMax'] !== '') {
+                            $baseQuery['harga_max'] = $filter['priceMax'];
+                        }
+                        if ($filter['unity'] !== '') {
+                            $baseQuery['unity'] = $filter['unity'];
+                        }
+                        if ($filter['sort'] !== 'terbaru') {
+                            $baseQuery['sort'] = $filter['sort'];
+                        }
+
                         $pageUrl = static fn (int $n): string => '/catalog/explore?' . http_build_query($baseQuery + ['page' => $n]);
                         ?>
                         <div class="d-flex justify-content-center align-items-center gap-3 mt-5 mb-3 explore-pagination">
@@ -158,20 +177,19 @@
                         </div>
 
                         <input type="hidden" name="q" value="<?= htmlspecialchars($filter['q'], ENT_QUOTES, 'UTF-8') ?>">
-                        <input type="hidden" name="sort" value="<?= htmlspecialchars($filter['sort'], ENT_QUOTES, 'UTF-8') ?>">
 
                         <!-- 1. Kategori: hanya Shader dan Particle -->
                         <div class="filter-group mb-3">
                             <label class="filter-group-label d-block mb-2">Kategori</label>
                             <div class="form-check mb-1">
                                 <input class="form-check-input filter-checkbox" type="checkbox" id="cat_shader"
-                                       name="kategori[]" value="shader" onchange="this.form.submit()"
+                                       name="kategori[]" value="shader"
                                     <?= in_array('shader', $pickedCategories, true) ? 'checked' : '' ?>>
                                 <label class="form-check-label filter-check-text" for="cat_shader">Shader</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input filter-checkbox" type="checkbox" id="cat_particle"
-                                       name="kategori[]" value="particle" onchange="this.form.submit()"
+                                       name="kategori[]" value="particle"
                                     <?= in_array('particle', $pickedCategories, true) ? 'checked' : '' ?>>
                                 <label class="form-check-label filter-check-text" for="cat_particle">Particle</label>
                             </div>
@@ -189,7 +207,7 @@
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input filter-radio" type="checkbox" id="price_free_radio"
-                                       name="gratis" value="1" onchange="this.form.submit()"
+                                       name="gratis" value="1"
                                     <?= $filter['gratis'] ? 'checked' : '' ?>>
                                 <label class="form-check-label filter-check-text" for="price_free_radio">Gratis</label>
                             </div>
@@ -200,19 +218,19 @@
                             <label class="filter-group-label d-block mb-2">Render Pipeline</label>
                             <div class="form-check mb-1">
                                 <input class="form-check-input filter-checkbox" type="checkbox" id="pipe_builtin"
-                                       name="pipeline[]" value="Built-in" onchange="this.form.submit()"
+                                       name="pipeline[]" value="Built-in"
                                     <?= in_array('Built-in', (array) $filter['pipeline'], true) ? 'checked' : '' ?>>
                                 <label class="form-check-label filter-check-text" for="pipe_builtin">Built-in</label>
                             </div>
                             <div class="form-check mb-1">
                                 <input class="form-check-input filter-checkbox" type="checkbox" id="pipe_urp"
-                                       name="pipeline[]" value="URP" onchange="this.form.submit()"
+                                       name="pipeline[]" value="URP"
                                     <?= in_array('URP', (array) $filter['pipeline'], true) ? 'checked' : '' ?>>
                                 <label class="form-check-label filter-check-text" for="pipe_urp">URP</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input filter-checkbox" type="checkbox" id="pipe_hdrp"
-                                       name="pipeline[]" value="HDRP" onchange="this.form.submit()"
+                                       name="pipeline[]" value="HDRP"
                                     <?= in_array('HDRP', (array) $filter['pipeline'], true) ? 'checked' : '' ?>>
                                 <label class="form-check-label filter-check-text" for="pipe_hdrp">HDRP</label>
                             </div>
@@ -221,7 +239,7 @@
                         <!-- 4. Versi Unity -->
                         <div class="filter-group mb-1">
                             <label class="filter-group-label d-block mb-2">Versi Unity</label>
-                            <select class="form-select form-select-sm filter-range-input" name="unity" onchange="this.form.submit()">
+                            <select class="form-select form-select-sm filter-range-input" name="unity">
                                 <option value="">Semua Versi</option>
                                 <option value="2021" <?= $filter['unity'] === '2021' ? 'selected' : '' ?>>2021.3 LTS</option>
                                 <option value="2022" <?= $filter['unity'] === '2022' ? 'selected' : '' ?>>2022.3 LTS</option>
@@ -229,9 +247,13 @@
                             </select>
                         </div>
 
+                        <!-- Tombol Terapkan -->
+                        <button type="submit" class="btn btn-sm btn-hero-orange w-100 mt-3">Terapkan Filter</button>
+
                     </div>
                 </div>
 
+            </div>
             </form>
         </div>
     </main>

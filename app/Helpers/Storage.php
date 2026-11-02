@@ -36,6 +36,12 @@ class Storage
         // menjadi <bucket>/catalog/01.jpg.
         $clean = preg_replace('#^assets/img/#', '', $clean);
 
+        // Baris lama di database menyimpan nama berkas saja ("01.jpg"), padahal
+        // bucket menaruh gambar katalog di folder "catalog/".
+        if (!str_contains($clean, '/')) {
+            $clean = 'catalog/' . $clean;
+        }
+
         return $base . '/' . $clean;
     }
 
