@@ -84,22 +84,17 @@ Cara kerjanya:
 | `STORAGE_BASE_URL` | Hasil URL untuk `assets/img/catalog/01.jpg` |
 |---|---|
 | kosong (default) | `/assets/img/catalog/01.jpg` (file lokal) |
-| terisi | `https://<ref>.supabase.co/storage/v1/object/public/indofx/assets/img/catalog/01.jpg` |
+| terisi | `https://<ref>.supabase.co/storage/v1/object/public/indofx/catalog/01.jpg` |
 
-Karena itu, saat upload ke Supabase, **pertahankan struktur folder** `assets/img/catalog/...`
-supaya path di database tidak perlu diubah sama sekali.
+`Storage::url()` membuang awalan `assets/img/` saat `STORAGE_BASE_URL` terisi, karena isi
+bucket adalah salinan dari folder `public/assets/img/` (lihat langkah 2 di atas). Path di
+database tidak perlu diubah.
 
 ### Kalau struktur folder di bucket berbeda
 
-Kalau Anda upload tanpa folder `assets/img/`, misal langsung `catalog/01.jpg`, maka ubah
-**path di database**, bukan kodenya:
-
-```sql
-UPDATE asset_images
-SET image_path = replace(image_path, 'assets/img/', '');
-```
-
-Cukup satu query. `Storage::url()` akan menambahkan basis URL di depannya.
+Kalau Anda mengunggah dengan struktur lain, misalnya tetap mempertahankan folder
+`assets/img/catalog/...` di dalam bucket, isi `STORAGE_BASE_URL` dengan URL yang berakhir
+di `.../public/indofx/assets/img` sehingga hasil akhirnya kembali benar.
 
 ---
 

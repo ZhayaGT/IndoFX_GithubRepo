@@ -214,7 +214,8 @@ body {
   right: 0;
   z-index: 1050;
   min-width: 210px;
-  padding: 12px 14px;
+  padding: 6px 0;
+  overflow: hidden;
   background-color: #ffffff;
   border: 1.5px solid var(--ifx-border-dark);
   border-radius: 8px;
@@ -253,6 +254,106 @@ body {
 .navbar-avatar-logout:hover {
   background-color: #f39c6b;
   color: var(--ifx-brown-dark);
+}
+
+/* Navbar pembeli: ikon keranjang, avatar berisi inisial + nama, menu dropdown. */
+.btn-nav-cart {
+  color: #ffffff;
+  font-size: 1.35rem;
+  line-height: 1;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 6px;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.btn-nav-cart:hover {
+  opacity: 0.85;
+  transform: scale(1.08);
+  color: #ffffff;
+}
+
+.navbar-avatar {
+  flex: 0 0 auto;
+  width: auto;
+  height: auto;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navbar-avatar:hover {
+  background-color: transparent;
+}
+
+.avatar-circle-inner {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background-color: #c9cdd2;
+  color: #5c6470;
+  border: 1.5px solid #ffffff;
+  font-size: 0.82rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease;
+}
+
+.navbar-avatar:hover .avatar-circle-inner {
+  transform: scale(1.05);
+}
+
+.avatar-username-label {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.92rem;
+  letter-spacing: -0.2px;
+}
+
+.navbar-menu-item {
+  display: block;
+  width: 100%;
+  padding: 9px 18px;
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: #2b2623;
+  text-decoration: none;
+  border-bottom: 1px solid #f2ebe5;
+  background-color: #ffffff;
+  box-sizing: border-box;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.navbar-menu-item:last-child {
+  border-bottom: none;
+}
+
+.navbar-menu-item:hover {
+  background-color: #faf3ec;
+  color: var(--ifx-orange);
+}
+
+.navbar-menu-item.font-weight-bold {
+  font-weight: 800;
+  font-size: 0.95rem;
+  padding-bottom: 10px;
+}
+
+.navbar-menu-item.text-danger {
+  color: #e65151;
+}
+
+.navbar-menu-item.text-danger:hover {
+  background-color: #fdf2f2;
+  color: #d32f2f;
 }
 
 /* Di layar sempit, tombol "Jadi Penjual" disembunyikan agar navbar tidak meluber. */
@@ -1167,4 +1268,110 @@ body {
 
 .footer-main-centered .footer-brand-desc {
   max-width: 560px;
+}
+
+/* ==========================================================================
+   PROFIL PUBLIK KREATOR
+   ========================================================================== */
+
+/* Card Profil dengan Banner */
+.creator-profile-card {
+  background-color: #ffffff;
+  border: 1px solid #e5d5cb;
+  border-radius: 12px;
+  overflow: visible;
+  box-shadow: 0 4px 14px rgba(59, 35, 20, 0.05);
+}
+
+.creator-banner-maroon {
+  background-color: #8b1e1e;
+  height: 190px;
+  border-top-left-radius: 11px;
+  border-top-right-radius: 11px;
+}
+
+.creator-info-body {
+  position: relative;
+  padding: 24px 32px 32px 220px;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  border-bottom-left-radius: 11px;
+  border-bottom-right-radius: 11px;
+}
+
+/* Avatar Bulat Mengambang Menembus Banner */
+.creator-avatar-float {
+  position: absolute;
+  left: 40px;
+  bottom: 24px;
+  width: 140px;
+  height: 140px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  border: 5px solid #ffffff;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.creator-avatar-float span {
+  font-size: 2.7rem;
+  font-weight: 800;
+  color: #8b1e1e;
+  letter-spacing: -1px;
+}
+
+.creator-name {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--ifx-brown-dark, #3b2314);
+}
+
+.creator-bio {
+  font-size: 0.9rem;
+}
+
+.creator-link {
+  color: var(--ifx-brown-dark);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.creator-link:hover {
+  color: var(--ifx-orange);
+}
+
+/* Footer Rata Tengah */
+.footer-creator-center {
+  background-color: #ffffff;
+  border-top: 1px solid #e5d5cb;
+}
+
+.footer-link-inline {
+  font-size: 0.78rem;
+  color: #333333;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.footer-link-inline:hover {
+  color: var(--ifx-orange);
+}
+
+@media (max-width: 768px) {
+  .creator-info-body {
+    padding: 85px 20px 24px 20px;
+    text-align: center;
+    justify-content: center;
+  }
+  .creator-avatar-float {
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: auto;
+    top: -65px;
+    width: 115px;
+    height: 115px;
+  }
 }

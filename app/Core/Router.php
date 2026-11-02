@@ -6,14 +6,24 @@ class Router
 {
     private array $routes = [];
 
-    public function add(string $method, string $uri, string $controller, string $action): void
+    public function add(string $method, string $uri, mixed $controller, ?string $action = null): void
     {
         $this->routes[] = [
-            'method'     => $method,
+            'method'     => strtoupper($method),
             'uri'        => $uri,
             'controller' => $controller,
             'action'     => $action,
         ];
+    }
+
+    public function get(string $uri, mixed $controller, ?string $action = null): void
+    {
+        $this->add('GET', $uri, $controller, $action);
+    }
+
+    public function post(string $uri, mixed $controller, ?string $action = null): void
+    {
+        $this->add('POST', $uri, $controller, $action);
     }
 
     public function dispatch(string $uri, string $method): void
@@ -21,8 +31,13 @@ class Router
         $path = parse_url($uri, PHP_URL_PATH);
 
         foreach ($this->routes as $route) {
-            if ($route['uri'] !== $path || $route['method'] !== $method) {
+            if ($route['uri'] !== $path || $route['method'] !== strtoupper($method)) {
                 continue;
+            }
+
+            if ($route['controller'] instanceof \Closure) {
+                ($route['controller'])();
+                return;
             }
 
             $class = '\\IndoFX\\Controllers\\' . $route['controller'];

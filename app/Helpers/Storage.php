@@ -27,7 +27,16 @@ class Storage
         $base = rtrim((string) \IndoFX\Core\Env::get('STORAGE_BASE_URL', ''), '/');
         $clean = ltrim($path, '/');
 
-        return $base === '' ? '/' . $clean : $base . '/' . $clean;
+        if ($base === '') {
+            return '/' . $clean;
+        }
+
+        // Isi bucket Supabase adalah salinan public/assets/img/, jadi folder
+        // "assets/img/" tidak ada di bucket. Contoh: assets/img/catalog/01.jpg
+        // menjadi <bucket>/catalog/01.jpg.
+        $clean = preg_replace('#^assets/img/#', '', $clean);
+
+        return $base . '/' . $clean;
     }
 
     /**

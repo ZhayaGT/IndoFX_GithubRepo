@@ -206,6 +206,8 @@ Gambar contoh disimpan di `public/assets/img/` sebagai JPG/PNG. Path di database
 relatif (mis. `assets/img/catalog/01.jpg`) dan diubah menjadi URL oleh
 `IndoFX\Helpers\Storage`. Bila nanti memakai Supabase Storage, cukup isi
 `STORAGE_BASE_URL` di `.env` dengan URL bucket publik; tidak ada kode lain yang perlu diubah.
+Saat `STORAGE_BASE_URL` terisi, helper membuang awalan `assets/img/` sehingga path
+`assets/img/catalog/01.jpg` menjadi `<bucket>/catalog/01.jpg`.
 
 Panduan lengkap memindahkan database dan berkas ke Supabase: **[docs/panduan-supabase.md](docs/panduan-supabase.md)**.
 
