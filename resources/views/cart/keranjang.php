@@ -5,7 +5,16 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $userKey  = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user');
-$userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna');
+$userName = (string)($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna');
+
+$initials = '';
+$words = preg_split('/\s+/', trim($userName)) ?: [];
+foreach (array_slice($words, 0, 2) as $word) {
+    $initials .= mb_strtoupper(mb_substr($word, 0, 1));
+}
+if ($initials === '') {
+    $initials = 'U';
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -17,44 +26,132 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
 
     <!-- Google Fonts & Bootstrap Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
 
     <style>
+        :root {
+            --indofx-cream-bg: #FAF0E6;
+            --indofx-text-main: #3C2A21;
+            --indofx-border: #4A3B32;
+            --indofx-orange: #ED6B1D;
+            --indofx-danger: #9E1B1B;
+        }
+
         body {
             background-color: var(--indofx-cream-bg, #FAF0E6);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             font-family: 'Inter', sans-serif;
+            color: var(--indofx-text-main);
         }
 
+        /* ========================================================
+           NAVBAR FIGMA (KHUSUS CART: LOGO + CART + PROFILE)
+           ======================================================== */
+        .navbar-figma-cart {
+            background-color: #ED6B1D;
+            padding: 12px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+        }
+
+        .avatar-circle-header {
+            width: 36px;
+            height: 36px;
+            background-color: #CFCFCF;
+            color: #2D2D2D;
+            font-weight: 700;
+            font-size: 0.85rem;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-dropdown-wrapper {
+            position: relative;
+        }
+
+        .btn-profile-trigger {
+            background: transparent;
+            border: none;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        .profile-custom-menu {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            background-color: #ffffff;
+            border: 1px solid #e0d0c5;
+            border-radius: 8px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+            min-width: 200px;
+            z-index: 1050;
+            display: none;
+            padding: 6px 0;
+        }
+
+        .profile-custom-menu.show {
+            display: block;
+        }
+
+        .profile-custom-item {
+            display: block;
+            padding: 9px 18px;
+            color: #2b2129;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background-color 0.15s ease;
+        }
+
+        .profile-custom-item:hover {
+            background-color: #fdf5f0;
+            color: #ed6b1d;
+        }
+
+        .profile-custom-item.fw-bold {
+            border-bottom: 1px solid #f0e6df;
+            margin-bottom: 4px;
+            color: #1a1a1a;
+        }
+
+        /* ========================================================
+           KONTEN KERANJANG
+           ======================================================== */
         .cart-page-title {
             font-size: 1.85rem;
             font-weight: 800;
-            color: #1A1A1A;
+            color: var(--indofx-text-main);
             line-height: 1.2;
         }
 
         .cart-page-sub {
             font-size: 0.88rem;
-            color: #555555;
+            color: #7A685D;
             margin-top: 4px;
         }
 
-        /* Kartu Keranjang Persis Desain Figma */
         .cart-item-card {
             background-color: #ffffff;
-            border: 1.5px solid #2B2129;
+            border: 1.5px solid var(--indofx-border);
             border-radius: 8px;
             padding: 12px 18px 12px 14px;
             display: flex;
             align-items: center;
             gap: 16px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 4px 12px rgba(60, 42, 33, 0.04);
             margin-bottom: 12px;
             transition: transform 0.15s ease;
         }
@@ -65,14 +162,12 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
             flex-shrink: 0;
             border-radius: 6px;
             overflow: hidden;
-            background-color: #241e24;
+            background-color: #241E24;
         }
 
-        .cart-item-thumb img,
         .cart-item-thumb svg {
             width: 100%;
             height: 100%;
-            object-fit: cover;
             display: block;
         }
 
@@ -95,12 +190,12 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
         .cart-asset-title {
             font-size: 1.15rem;
             font-weight: 800;
-            color: #1A1A1A;
+            color: var(--indofx-text-main);
         }
 
         .cart-asset-creator {
             font-size: 0.76rem;
-            color: #555555;
+            color: #7A685D;
         }
 
         .badge-tag-custom {
@@ -125,7 +220,6 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
             background-color: #0088ff;
         }
 
-        /* Checkbox Biru Figma */
         .cart-checkbox {
             width: 18px;
             height: 18px;
@@ -133,7 +227,6 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
             cursor: pointer;
         }
 
-        /* Tombol Hapus Merah Figma */
         .btn-cart-delete {
             background-color: #dc2626;
             color: #ffffff !important;
@@ -150,9 +243,8 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
             opacity: 0.88;
         }
 
-        /* Tombol Checkout Oranye */
         .btn-cart-checkout {
-            background-color: #ED6B1D;
+            background-color: var(--indofx-orange);
             color: #ffffff !important;
             font-weight: 700;
             font-size: 0.95rem;
@@ -163,6 +255,7 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
             display: inline-block;
             box-shadow: 0 4px 12px rgba(237, 107, 29, 0.3);
             transition: all 0.15s ease;
+            cursor: pointer;
         }
 
         .btn-cart-checkout:hover {
@@ -170,9 +263,8 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
             transform: translateY(-1px);
         }
 
-        /* Kotak Kosong saat Keranjang Baru/Bersih */
         .empty-cart-card {
-            border: 1.5px dashed #4A3B32;
+            border: 1.5px dashed var(--indofx-border);
             border-radius: 8px;
             background-color: transparent;
             min-height: 380px;
@@ -182,6 +274,127 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
             justify-content: center;
             text-align: center;
             padding: 40px 20px;
+        }
+
+        /* ========================================================
+           MODAL KONFIRMASI HAPUS
+           ======================================================== */
+        .modal-delete-figma .modal-content {
+            border: 1px solid #e0d0c5;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            background-color: #ffffff;
+            padding: 24px 20px 20px 20px;
+            text-align: center;
+        }
+
+        .delete-icon-triangle {
+            color: var(--indofx-danger);
+            font-size: 3.2rem;
+            line-height: 1;
+            margin-bottom: 12px;
+        }
+
+        .modal-delete-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #1A1A1A;
+            margin-bottom: 14px;
+        }
+
+        .delete-info-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: var(--indofx-danger);
+            margin-bottom: 24px;
+        }
+
+        .delete-info-box i {
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+
+        .delete-info-box span {
+            font-size: 0.88rem;
+            font-weight: 600;
+            text-align: left;
+            line-height: 1.35;
+        }
+
+        .delete-modal-actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+        }
+
+        .btn-cancel-delete {
+            background-color: #ffffff;
+            color: #1A1A1A;
+            border: 1.5px solid #2B2129;
+            font-weight: 700;
+            font-size: 0.95rem;
+            padding: 8px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-cancel-delete:hover {
+            background-color: #f7f1ec;
+        }
+
+        .btn-confirm-delete {
+            background-color: #ffffff;
+            color: var(--indofx-danger) !important;
+            border: 1.5px solid var(--indofx-danger);
+            font-weight: 700;
+            font-size: 0.95rem;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-confirm-delete:hover {
+            background-color: #fff5f5;
+            border-color: #7f1414;
+            color: #7f1414 !important;
+        }
+
+        /* ========================================================
+           FOOTER BLOK PUTIH SOLID PERSIS FIGMA
+           ======================================================== */
+        .footer-figma-white {
+            background-color: #ffffff !important;
+            width: 100%;
+            padding: 48px 0 24px 0;
+            margin-top: auto;
+        }
+
+        .footer-figma-white .brand-title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #1A1A1A;
+            margin-bottom: 6px;
+        }
+
+        .footer-figma-white .brand-desc {
+            font-size: 0.86rem;
+            color: #736b66;
+            line-height: 1.5;
+            max-width: 600px;
+            margin: 0 auto 36px auto;
+        }
+
+        .footer-figma-white .copyright-row {
+            font-size: 0.82rem;
+            color: #1A1A1A;
         }
     </style>
 </head>
@@ -218,11 +431,11 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
         </defs>
     </svg>
 
-    <!-- Header Navbar -->
-    <nav class="navbar navbar-orange sticky-top">
+    <!-- Header Navbar Sesuai Figma (Hanya Logo + Cart + Profil) -->
+    <nav class="navbar-figma-cart">
         <div class="container-figma d-flex justify-content-between align-items-center w-100">
             <a class="navbar-brand m-0 d-flex align-items-center gap-2 text-decoration-none" href="/">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
                     <path d="M12 2L20.66 7V17L12 22L3.34 17V7L12 2Z" fill="#ED6B1D" stroke="#1A1A1A" stroke-width="1.8" stroke-linejoin="round" />
                     <path d="M12 2L20.66 7L12 12L3.34 7L12 2Z" fill="#FDBA74" stroke="#1A1A1A" stroke-width="1.5" stroke-linejoin="round" />
                     <path d="M12 12V22" stroke="#1A1A1A" stroke-width="1.5" />
@@ -234,12 +447,34 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
             </a>
 
             <div class="d-flex align-items-center gap-3">
-                <?php
-                $authPartial = BASE_PATH . '/resources/views/partials/navbar-auth.php';
-                if (file_exists($authPartial)) {
-                    require $authPartial;
-                }
-                ?>
+                <a href="/cart" class="text-white text-decoration-none d-flex align-items-center" title="Keranjang">
+                    <i class="bi bi-cart3 fs-4"></i>
+                </a>
+
+                <div class="profile-dropdown-wrapper">
+                    <button type="button" class="btn-profile-trigger" id="profileDropdownBtn" aria-expanded="false">
+                        <span class="avatar-circle-header"><?= htmlspecialchars($initials, ENT_QUOTES, 'UTF-8') ?></span>
+                        <span class="fw-bold fs-6"><?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?></span>
+                    </button>
+
+                    <div class="profile-custom-menu" id="profileDropdownMenu">
+                        <a href="/creator/profile?me=1" class="profile-custom-item fw-bold">
+                            <?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>
+                        </a>
+                        <a href="/dashboard/ubah-profil" class="profile-custom-item">
+                            Edit Profile
+                        </a>
+                        <a href="/invoice" class="profile-custom-item">
+                            Histori Pembelian
+                        </a>
+                        <a href="/#tentang" class="profile-custom-item">
+                            Dukungan
+                        </a>
+                        <a href="/logout" class="profile-custom-item text-danger">
+                            Keluar
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
@@ -247,31 +482,65 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
     <!-- Konten Utama Keranjang -->
     <main class="flex-grow-1 py-5">
         <div class="container-figma">
-
-            <!-- Judul & Deskripsi Sesuai Screenshot -->
             <div class="mb-4">
                 <h1 class="cart-page-title mb-0">Keranjang</h1>
                 <p class="cart-page-sub mb-0">Semua aset visual Unity yang Anda Ingin Beli</p>
             </div>
 
-            <!-- Wadah Daftar Kartu Keranjang Dinamis -->
             <div id="cartListContainer"></div>
 
-            <!-- Area Checkout Bawah Kanan -->
             <div id="cartFooterArea" class="d-flex justify-content-end align-items-center mt-4">
                 <button type="button" class="btn-cart-checkout" onclick="proceedCheckout()">Checkout</button>
             </div>
-
         </div>
     </main>
 
+    <!-- Modal Konfirmasi Hapus Sesuai Desain Figma -->
+    <div class="modal fade modal-delete-figma" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 380px;">
+            <div class="modal-content">
+                <div class="delete-icon-triangle">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+
+                <h4 class="modal-delete-title">Hapus Aset dari Keranjang?</h4>
+
+                <div class="delete-info-box">
+                    <i class="bi bi-info-circle"></i>
+                    <span>Anda dapat menambahkannya<br>kembali kapan saja.</span>
+                </div>
+
+                <div class="delete-modal-actions">
+                    <button type="button" class="btn-cancel-delete" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn-confirm-delete" onclick="executeDeleteCartItem()">
+                        <i class="bi bi-trash3"></i>
+                        <span>Ya, Hapus</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Putih Solid Full-Width Persis Figma -->
+    <footer class="footer-figma-white">
+        <div class="container-figma text-center">
+            <h5 class="brand-title">IndoFX</h5>
+            <p class="brand-desc">
+                Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
+            </p>
+            <div class="d-flex justify-content-between align-items-center copyright-row flex-wrap gap-2 pt-2">
+                <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
+                <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
+            </div>
+        </div>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/assets/js/navbar-auth.js"></script>
     <script>
         const userKey = '<?= $userKey ?>';
         const cartStorageKey = 'indofx_cart_' + userKey;
+        let itemPendingDeleteId = null;
 
-        // Ambil data keranjang khusus akun aktif
         function getCartData() {
             try {
                 return JSON.parse(localStorage.getItem(cartStorageKey)) || [];
@@ -280,13 +549,11 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
             }
         }
 
-        // Render tampilan keranjang secara dinamis
         function renderCart() {
             const listContainer = document.getElementById('cartListContainer');
             const footerArea = document.getElementById('cartFooterArea');
             const items = getCartData();
 
-            // KONDISI 1: Keranjang Kosong (misal akun baru)
             if (items.length === 0) {
                 if (footerArea) footerArea.style.display = 'none';
                 listContainer.innerHTML = `
@@ -302,35 +569,31 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
                 return;
             }
 
-            // KONDISI 2: Ada aset di dalam keranjang
             if (footerArea) footerArea.style.display = 'flex';
 
             listContainer.innerHTML = items.map(item => {
                 const artSvg = item.art ? ('cart-art-' + item.art) : 'cart-art-castle';
-                const pipelines = Array.isArray(item.pipelines) ? item.pipelines : ['HDRP', 'URP', 'Built-In'];
+                const pipelines = Array.isArray(item.pipelines) ? item.pipelines : ['URP'];
 
                 const badgesHtml = pipelines.map(p => {
-                    const pLower = p.toLowerCase();
                     let cls = 'badge-urp';
-                    if (pLower.includes('hdrp')) cls = 'badge-hdrp';
-                    if (pLower.includes('built')) cls = 'badge-builtin';
+                    if (p.toLowerCase().includes('hdrp')) cls = 'badge-hdrp';
+                    if (p.toLowerCase().includes('built')) cls = 'badge-builtin';
                     return `<span class="badge-tag-custom ${cls}">${p}</span>`;
                 }).join(' ');
 
                 return `
                     <div class="cart-item-card" id="cart-item-${item.id}">
-                        <!-- 1. Thumbnail Gambar Sesuai Mockup -->
                         <div class="cart-item-thumb">
                             <svg class="w-100 h-100 d-block" viewBox="0 0 175 98">
                                 <use href="#${artSvg}" />
                             </svg>
                         </div>
 
-                        <!-- 2. Informasi Aset -->
                         <div class="cart-item-content">
                             <div class="cart-status-line">
                                 <span class="cart-status-badge">DIBELI</span>
-                                <span class="text-muted ms-2">Perolehan: ${item.date || '15 Jan 2026'}</span>
+                                <span class="text-muted ms-2">Perolehan: ${item.date || '02 Nov 2026'}</span>
                             </div>
 
                             <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
@@ -341,16 +604,37 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
                             <p class="cart-asset-creator m-0">Oleh ${item.creator || 'Arga Studio'}</p>
                         </div>
 
-                        <!-- 3. Checkbox Biru & Tombol Hapus Merah -->
                         <div class="d-flex align-items-center gap-3">
                             <input type="checkbox" class="cart-checkbox" checked value="${item.id}">
-                            <button type="button" class="btn-cart-delete" onclick="removeCartItem('${item.id}')">
+                            <button type="button" class="btn-cart-delete" onclick="openDeleteModal('${item.id}')">
                                 Hapus
                             </button>
                         </div>
                     </div>
                 `;
             }).join('');
+        }
+
+        function openDeleteModal(assetId) {
+            itemPendingDeleteId = assetId;
+            const modalEl = document.getElementById('deleteConfirmModal');
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        }
+
+        function executeDeleteCartItem() {
+            if (!itemPendingDeleteId) return;
+
+            let items = getCartData();
+            items = items.filter(item => String(item.id) !== String(itemPendingDeleteId));
+            localStorage.setItem(cartStorageKey, JSON.stringify(items));
+
+            const modalEl = document.getElementById('deleteConfirmModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+
+            itemPendingDeleteId = null;
+            renderCart();
         }
 
         function proceedCheckout() {
@@ -360,7 +644,6 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
                 return;
             }
 
-            // 1. Ambil ID aset yang kotak centangnya (checkbox) aktif
             const checkedBoxes = document.querySelectorAll('.cart-checkbox:checked');
             if (checkedBoxes.length === 0) {
                 alert('Pilih minimal satu aset yang ingin di-checkout!');
@@ -370,14 +653,30 @@ $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna')
             const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
             const checkoutItems = items.filter(item => selectedIds.includes(String(item.id)));
 
-            // 2. Simpan item yang dipilih ke sessionStorage untuk dibaca oleh checkout/pembayaran
             sessionStorage.setItem('indofx_checkout_items', JSON.stringify(checkoutItems));
-
-            // 3. Pindah ke halaman checkout
             window.location.href = '/checkout';
         }
 
-        document.addEventListener('DOMContentLoaded', () => renderCart());
+        document.addEventListener('DOMContentLoaded', function() {
+            renderCart();
+
+            // Dropdown Profil Header
+            const dropdownBtn = document.getElementById('profileDropdownBtn');
+            const dropdownMenu = document.getElementById('profileDropdownMenu');
+
+            if (dropdownBtn && dropdownMenu) {
+                dropdownBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownMenu.classList.toggle('show');
+                });
+
+                document.addEventListener('click', function(e) {
+                    if (!dropdownMenu.contains(e.target) && !dropdownBtn.contains(e.target)) {
+                        dropdownMenu.classList.remove('show');
+                    }
+                });
+            }
+        });
     </script>
 </body>
 
