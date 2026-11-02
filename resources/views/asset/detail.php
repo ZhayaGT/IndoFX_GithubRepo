@@ -4,10 +4,10 @@ $catalogDB = [
     '1' => [
         'title' => 'Volumetric Rain & Storm URP',
         'creator' => 'Arga Studio',
-        'category' => 'VFX PARTIKEL',
+        'category' => 'SHADER',
         'price' => 150000,
         'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'URP, HDRP, Built-In',
+        'pipeline' => 'URP',
         'format' => '.unitypackage',
         'art' => 'castle'
     ],
@@ -75,7 +75,7 @@ $catalogDB = [
         'title' => 'Basic Hologram Shader Helper',
         'creator' => 'Arga Studio',
         'category' => 'VFX PARTIKEL',
-        'price' => 150000,
+        'price' => 0,
         'unity_version' => '2021.3+ / 2022.3 LTS',
         'pipeline' => 'URP, HDRP',
         'format' => '.unitypackage',
@@ -100,6 +100,26 @@ $catalogDB = [
         'pipeline' => 'URP',
         'format' => '.unitypackage',
         'art' => 'castle'
+    ],
+    'neon-city' => [
+        'title' => 'Neon City Wet Surface Shader',
+        'creator' => 'Studio Neon',
+        'category' => 'SHADER',
+        'price' => 225000,
+        'unity_version' => '2021.3+ / 2022.3 LTS',
+        'pipeline' => 'HDRP',
+        'format' => '.unitypackage',
+        'art' => 'water'
+    ],
+    'ocean-depth' => [
+        'title' => 'Ocean Depth Water Shader',
+        'creator' => 'Biru Nusantara',
+        'category' => 'SHADER',
+        'price' => 180000,
+        'unity_version' => '2021.3+ / 2022.3 LTS',
+        'pipeline' => 'HDRP',
+        'format' => '.unitypackage',
+        'art' => 'water'
     ]
 ];
 
@@ -110,14 +130,13 @@ $matched = $catalogDB[$reqId] ?? null;
 $assetId       = $reqId;
 $assetTitle    = $_GET['title'] ?? ($matched['title'] ?? 'Volumetric Rain & Storm URP');
 $assetCreator  = $_GET['creator'] ?? ($matched['creator'] ?? 'Arga Studio');
-$assetCategory = $_GET['category'] ?? ($matched['category'] ?? 'VFX PARTIKEL');
+$assetCategory = $_GET['category'] ?? ($matched['category'] ?? 'SHADER');
 $assetPriceRaw = isset($_GET['price']) ? $_GET['price'] : ($matched['price'] ?? 150000);
 $assetUnity    = $matched['unity_version'] ?? '2021.3+ / 2022.3 LTS';
-$assetPipeline = $_GET['pipeline'] ?? ($matched['pipeline'] ?? 'URP, HDRP, Built-In');
+$assetPipeline = $_GET['pipeline'] ?? ($matched['pipeline'] ?? 'URP');
 $assetFormat   = $matched['format'] ?? '.unitypackage';
 $assetArt      = $matched['art'] ?? 'castle';
 
-// Cek status gratis
 $isGratis = false;
 if (is_numeric($assetPriceRaw)) {
     $isGratis = ((float)$assetPriceRaw <= 0);
@@ -125,6 +144,7 @@ if (is_numeric($assetPriceRaw)) {
     $isGratis = (strtolower(trim((string)$assetPriceRaw)) === 'gratis' || $assetPriceRaw === '0');
 }
 
+// Deteksi Status Login
 $isLoggedIn = isset($_SESSION['user_id']);
 $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user') : '';
 ?>
@@ -145,10 +165,22 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
     <link rel="stylesheet" href="/assets/css/style.css">
 
     <style>
+        :root {
+            --indofx-cream-bg: #FAF0E6;
+            --indofx-text-main: #3C2A21;
+            /* Cokelat Tua Figma (IndoFX/text/main) */
+            --indofx-text-muted: #7A685D;
+            /* Warna label sekunder */
+            --indofx-border: #4A3B32;
+            /* Garis tepi cokelat gelap */
+            --indofx-orange: #ED6B1D;
+            /* Oranye tombol Beli & Unduh */
+        }
+
         body {
             background-color: var(--indofx-cream-bg, #FAF0E6);
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            color: #1A1A1A;
+            color: var(--indofx-text-main);
         }
 
         .content-detail-wrapper {
@@ -156,16 +188,16 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
             min-height: calc(100vh - 70px);
         }
 
-        /* Frame Pratinjau Utama Persis Figma */
+        /* Frame Pratinjau Utama */
         .main-preview-card {
             border-radius: 8px;
             overflow: hidden;
-            border: 1.5px solid #2B2129;
+            border: 1.5px solid var(--indofx-border);
             background-color: #2b2129;
             height: 420px;
         }
 
-        /* Baris Thumbnail Galeri (4 Gambar Berjajar) */
+        /* 4 Thumbnail Galeri Berjajar */
         .thumb-gallery-row {
             display: flex;
             gap: 12px;
@@ -177,7 +209,7 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
             height: 52px;
             border-radius: 6px;
             overflow: hidden;
-            border: 1.5px solid #2B2129;
+            border: 1.5px solid var(--indofx-border);
             cursor: pointer;
             background-color: #2b2129;
             transition: all 0.15s ease;
@@ -185,14 +217,14 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
         }
 
         .thumb-card-item.active {
-            border: 2px solid #ED6B1D;
+            border: 2px solid var(--indofx-orange);
         }
 
         .thumb-card-item:hover {
             opacity: 0.9;
         }
 
-        /* Tab Navigasi Sesuai Figma */
+        /* Tab Navigasi */
         .detail-nav-tabs {
             display: flex;
             align-items: center;
@@ -203,7 +235,7 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
         .detail-nav-tabs .tab-link {
             font-size: 0.95rem;
             font-weight: 600;
-            color: #4A3B32;
+            color: var(--indofx-text-muted);
             text-decoration: none;
             padding-bottom: 6px;
             border-bottom: 2px solid transparent;
@@ -211,58 +243,58 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
         }
 
         .detail-nav-tabs .tab-link.active {
-            color: #1A1A1A;
+            color: var(--indofx-text-main);
             font-weight: 800;
-            border-bottom: 2.5px solid #ED6B1D;
+            border-bottom: 2.5px solid var(--indofx-orange);
         }
 
-        /* Kotak Konten Tab */
         .detail-content-box {
             background-color: #ffffff;
             border-radius: 8px;
-            border: 1.5px solid #2B2129;
+            border: 1.5px solid var(--indofx-border);
             font-size: 0.88rem;
             line-height: 1.65;
-            color: #1A1A1A;
+            color: var(--indofx-text-main);
             padding: 24px;
         }
 
-        /* Kartu Sisi Kanan (Informasi & Pembelian) */
+        /* Kartu Kanan Detail Aset */
         .asset-purchase-card {
             background-color: #ffffff;
-            border: 1.5px solid #2B2129;
+            border: 1.5px solid var(--indofx-border);
             border-radius: 8px;
             padding: 24px;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 4px 14px rgba(60, 42, 33, 0.05);
         }
 
         .asset-category-tag {
-            font-size: 0.72rem;
+            font-size: 0.76rem;
             font-weight: 800;
-            color: #736b66;
-            letter-spacing: 0.5px;
+            color: var(--indofx-text-main);
+            letter-spacing: 0.6px;
             text-transform: uppercase;
+            margin-bottom: 6px;
         }
 
         .asset-detail-title {
-            font-size: 1.45rem;
+            font-size: 1.5rem;
             font-weight: 800;
-            color: #1A1A1A;
+            color: var(--indofx-text-main) !important;
             line-height: 1.25;
-            margin-top: 4px;
-            margin-bottom: 4px;
+            letter-spacing: -0.3px;
+            margin-top: 2px;
+            margin-bottom: 6px;
         }
 
-        /* Nama Kreator (Bukan Biru Bootstrap) */
         .detail-creator-line {
-            font-size: 0.85rem;
-            color: #736b66;
-            margin-bottom: 20px;
+            font-size: 0.88rem;
+            color: var(--indofx-text-muted);
+            margin-bottom: 22px;
         }
 
         .detail-creator-line a {
-            color: #1A1A1A !important;
-            font-weight: 700;
+            color: var(--indofx-text-main) !important;
+            font-weight: 800;
             text-decoration: none;
         }
 
@@ -271,21 +303,21 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
         }
 
         .price-label-text {
-            font-size: 0.78rem;
-            color: #736b66;
+            font-size: 0.8rem;
+            color: var(--indofx-text-muted);
             margin-bottom: 2px;
         }
 
         .price-amount-text {
-            font-size: 1.85rem;
+            font-size: 1.95rem;
             font-weight: 800;
-            color: #1A1A1A;
+            color: var(--indofx-text-main) !important;
+            letter-spacing: -0.5px;
             margin-bottom: 24px;
         }
 
-        /* Tabel Spesifikasi Teknis */
         .specs-table-box {
-            border-top: 1px solid #ebdcd1;
+            border-top: 1px solid #EBDCD1;
             margin-bottom: 24px;
         }
 
@@ -293,29 +325,66 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #ebdcd1;
-            font-size: 0.82rem;
+            padding: 11px 0;
+            border-bottom: 1px solid #EBDCD1;
+            font-size: 0.85rem;
         }
 
         .spec-item-row .label-col {
-            color: #736b66;
+            color: var(--indofx-text-muted);
         }
 
         .spec-item-row .val-col {
-            font-weight: 700;
-            color: #1A1A1A;
+            font-weight: 800;
+            color: var(--indofx-text-main);
         }
 
-        /* ========================================================
-           TOMBOL-TOMBOL AKSI PERSIS FIGMA
-           ======================================================== */
-
-        /* 1. Tombol Aset Gratis: Tambahkan ke Library (Hitam Solid) */
-        .btn-figma-free-library {
-            background-color: #2B2129;
+        /* 1. Tombol Beli Oranye */
+        .btn-figma-buy-orange {
+            background-color: var(--indofx-orange);
             color: #ffffff !important;
-            font-weight: 700;
+            font-weight: 800;
+            font-size: 0.95rem;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            transition: background-color 0.15s ease;
+        }
+
+        .btn-figma-buy-orange:hover {
+            background-color: #D85A0E;
+        }
+
+        /* 2. Tombol Tambahkan ke Keranjang */
+        .btn-figma-add-cart-outline {
+            background-color: #FFFDFC;
+            color: var(--indofx-text-main) !important;
+            border: 1.5px solid var(--indofx-border);
+            font-weight: 800;
+            font-size: 0.92rem;
+            border-radius: 6px;
+            padding: 11px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-figma-add-cart-outline:hover {
+            background-color: #F8EFE9;
+        }
+
+        /* 3. Tombol Tambahkan ke Library (Aset Gratis & Sudah Login) */
+        .btn-figma-free-library {
+            background-color: var(--indofx-border);
+            color: #ffffff !important;
+            font-weight: 800;
             font-size: 0.95rem;
             border: none;
             border-radius: 6px;
@@ -329,73 +398,94 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
         }
 
         .btn-figma-free-library:hover {
-            opacity: 0.9;
+            opacity: 0.92;
         }
 
-        /* 2. Tombol Aset Berbayar: Beli (Oranye Solid) */
-        .btn-figma-buy-orange {
-            background-color: #ED6B1D;
-            color: #ffffff !important;
+        /* 4. Tombol Guest untuk Aset Gratis Persis Desain Figma */
+        .btn-figma-guest-login {
+            background-color: #FCEEE6 !important;
+            /* Warna latar peach / krem lembut Figma */
+            color: var(--indofx-text-main, #3C2A21) !important;
+            border: 1.5px solid var(--indofx-border, #3C2A21) !important;
             font-weight: 700;
-            font-size: 0.95rem;
-            border: none;
+            font-size: 0.88rem;
             border-radius: 6px;
-            padding: 12px 16px;
+            padding: 12px 14px;
             text-align: center;
-            text-decoration: none;
-            display: block;
+            text-decoration: none !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            /* Mencegah kata 'Library' turun ke baris baru */
             width: 100%;
-            transition: background-color 0.15s ease;
-        }
-
-        .btn-figma-buy-orange:hover {
-            background-color: #d85a0e;
-        }
-
-        /* 3. Tombol Aset Berbayar: Tambahkan ke Keranjang (Putih Border Hitam) */
-        .btn-figma-add-cart-outline {
-            background-color: #ffffff;
-            color: #1A1A1A !important;
-            border: 1.5px solid #2B2129;
-            font-weight: 700;
-            font-size: 0.92rem;
-            border-radius: 6px;
-            padding: 11px 16px;
-            text-align: center;
-            text-decoration: none;
-            display: block;
-            width: 100%;
-            cursor: pointer;
             transition: all 0.15s ease;
         }
 
-        .btn-figma-add-cart-outline:hover {
-            background-color: #fbf8f5;
+        .btn-figma-guest-login:hover {
+            background-color: #F8DFD2 !important;
+            color: var(--indofx-text-main, #3C2A21) !important;
         }
 
-        /* 4. Status Aset Sudah Dimiliki di Library */
-        .btn-already-owned {
-            background-color: #f0fdf4 !important;
-            color: #15803d !important;
-            border: 1.5px solid #86efac !important;
-            font-weight: 700 !important;
-            font-size: 0.88rem !important;
-            padding: 12px 14px !important;
-            border-radius: 6px !important;
-            text-align: center !important;
-            width: 100% !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            gap: 8px !important;
-            text-decoration: none !important;
-            box-shadow: 0 2px 6px rgba(22, 163, 74, 0.08) !important;
-            cursor: pointer !important;
+        .btn-figma-guest-login .link-masuk {
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            text-decoration-thickness: 1.5px;
+            font-weight: 800;
+            color: inherit;
         }
 
-        /* ========================================================
-           STYLING TAB ULASAN FIGMA
-           ======================================================== */
+        /* Kotak Status Hijau Kepemilikan */
+        .owned-badge-card {
+            background-color: #F0FDF4;
+            border: 1.5px solid #86EFAC;
+            border-radius: 8px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #15803D;
+            font-weight: 700;
+            font-size: 0.88rem;
+            text-align: center;
+            line-height: 1.35;
+        }
+
+        .owned-badge-card i {
+            color: #16A34A;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        /* Tombol Unduh Oranye */
+        .btn-download-package {
+            background-color: var(--indofx-orange, #ED6B1D) !important;
+            color: #ffffff !important;
+            font-weight: 800;
+            font-size: 0.95rem;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 18px;
+            text-align: center;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.15s ease, transform 0.1s ease;
+            box-shadow: 0 4px 12px rgba(237, 107, 29, 0.25);
+        }
+
+        .btn-download-package:hover {
+            background-color: #D85A0E !important;
+            color: #ffffff !important;
+            transform: translateY(-1px);
+        }
+
+        /* Tab Ulasan */
         .rating-summary-box {
             background-color: #fdf5ef;
             border: 1px solid #ebdcd1;
@@ -405,18 +495,18 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
         .rating-big-score {
             font-size: 2.3rem;
             font-weight: 800;
-            color: #1a1a1a;
+            color: var(--indofx-text-main);
             line-height: 1;
         }
 
         .rating-out-of {
             font-size: 1rem;
             font-weight: 600;
-            color: #736b66;
+            color: var(--indofx-text-muted);
         }
 
         .rating-stars-gold {
-            color: #ed6b1d;
+            color: var(--indofx-orange);
             font-size: 0.95rem;
         }
 
@@ -430,7 +520,7 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
 
         .rating-bar-label {
             width: 25px;
-            color: #2b2623;
+            color: var(--indofx-text-main);
             font-weight: 600;
         }
 
@@ -444,20 +534,20 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
 
         .rating-bar-fill {
             height: 100%;
-            background-color: #ed6b1d;
+            background-color: var(--indofx-orange);
             border-radius: 999px;
         }
 
         .rating-bar-num {
             width: 20px;
             text-align: right;
-            color: #736b66;
+            color: var(--indofx-text-muted);
             font-weight: 600;
         }
 
         .badge-owner {
             background-color: #fef3eb;
-            color: #ed6b1d;
+            color: var(--indofx-orange);
             border: 1px solid #fed7aa;
             font-size: 0.72rem;
             font-weight: 700;
@@ -522,7 +612,7 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
     <nav class="navbar navbar-orange sticky-top">
         <div class="container-figma d-flex justify-content-between align-items-center w-100">
             <a class="navbar-brand m-0 d-flex align-items-center gap-2 text-decoration-none" href="/">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
                     <path d="M12 2L20.66 7V17L12 22L3.34 17V7L12 2Z" fill="#ED6B1D" stroke="#1A1A1A" stroke-width="1.8" stroke-linejoin="round" />
                     <path d="M12 2L20.66 7L12 12L3.34 7L12 2Z" fill="#FDBA74" stroke="#1A1A1A" stroke-width="1.5" stroke-linejoin="round" />
                     <path d="M12 12V22" stroke="#1A1A1A" stroke-width="1.5" />
@@ -556,7 +646,6 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
 
                 <!-- Kolom Kiri: Galeri & Tab Deskripsi -->
                 <div class="col-12 col-lg-8">
-                    <!-- Frame Gambar Utama -->
                     <div id="assetDetailCarousel" class="carousel slide main-preview-card mb-3" data-bs-ride="carousel">
                         <div class="carousel-inner h-100">
                             <div class="carousel-item active h-100">
@@ -567,7 +656,7 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
                         </div>
                     </div>
 
-                    <!-- 4 Thumbnail Galeri Berjajar Sesuai Figma -->
+                    <!-- 4 Thumbnail Galeri -->
                     <div class="thumb-gallery-row">
                         <div class="thumb-card-item active">
                             <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
@@ -599,7 +688,6 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
                     </div>
 
                     <div class="detail-content-box" id="tabContentArea">
-                        <!-- TAB 1: DESKRIPSI -->
                         <div id="tab-deskripsi" class="tab-pane-detail active">
                             <p class="mb-3">
                                 Paket aset visual <strong><?= htmlspecialchars($assetTitle) ?></strong> dirancang khusus oleh <strong><?= htmlspecialchars($assetCreator) ?></strong> untuk mewujudkan sistem visual berkualitas tinggi dalam pipeline rendering <?= htmlspecialchars($assetPipeline) ?> di engine Unity. Dilengkapi dengan kontrol intensitas, shader material yang teroptimasi, dan performa tinggi tanpa membebani draw calls.
@@ -609,13 +697,11 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
                             </p>
                         </div>
 
-                        <!-- TAB 2: CHANGELOG -->
                         <div id="tab-changelog" class="tab-pane-detail d-none">
                             <h6 class="fw-bold mb-2">Versi 1.2.0</h6>
                             <p class="text-muted small">Pembaruan shader dan optimasi performa partikel untuk rilis Unity 2022 LTS.</p>
                         </div>
 
-                        <!-- TAB 3: ULASAN PEMBELI -->
                         <div id="tab-ulasan" class="tab-pane-detail d-none">
                             <div id="ratingSummaryWrapper" class="rating-summary-box p-3 mb-4">
                                 <div class="row align-items-center g-3">
@@ -684,21 +770,21 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
                     </div>
                 </div>
 
-                <!-- Kolom Kanan: Card Detail & Pembelian Sesuai Figma -->
+                <!-- Kolom Kanan: Card Detail & Pembelian / Unduh -->
                 <div class="col-12 col-lg-4">
                     <div class="asset-purchase-card">
-                        <!-- Kategori Tag -->
+                        <!-- Kategori: IndoFX/text/main (Cokelat) -->
                         <span class="asset-category-tag d-block"><?= htmlspecialchars($assetCategory) ?></span>
 
-                        <!-- Judul Aset -->
+                        <!-- Judul Aset: Inter Extra Bold 24px Cokelat -->
                         <h2 class="asset-detail-title"><?= htmlspecialchars($assetTitle) ?></h2>
 
-                        <!-- Pembuat Aset (Warna Teks Gelap Figma) -->
+                        <!-- Pembuat Aset -->
                         <div class="detail-creator-line">
                             Oleh <a href="/creator/profile"><?= htmlspecialchars($assetCreator) ?></a>
                         </div>
 
-                        <!-- Label & Angka Harga -->
+                        <!-- Label & Angka Harga Cokelat -->
                         <div class="price-label-text">Harga Aset</div>
                         <div class="price-amount-text">
                             <?php if ($isGratis): ?>
@@ -724,16 +810,23 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
                             </div>
                         </div>
 
-                        <!-- Tombol Aksi: Dibedakan Antara Gratis dan Berbayar -->
+                        <!-- Tombol Aksi: Terdeteksi Otomatis Guest vs Login -->
                         <div id="actionButtonWrapper" class="d-grid gap-2">
                             <?php if ($isGratis): ?>
-                                <!-- ASET GRATIS: 1 Tombol Hitam Solid -->
-                                <button type="button" id="btnClaimLibrary" class="btn-figma-free-library" onclick="claimAsset()">
-                                    Tambahkan ke Library
-                                </button>
+                                <?php if ($isLoggedIn): ?>
+                                    <!-- ASET GRATIS (SUDAH LOGIN): Tombol Cokelat Tua Solid -->
+                                    <button type="button" id="btnClaimLibrary" class="btn-figma-free-library" onclick="claimAsset()">
+                                        Tambahkan ke Library
+                                    </button>
+                                <?php else: ?>
+                                    <!-- ASET GRATIS (GUEST / BELUM LOGIN) SESUAI FIGMA -->
+                                    <a href="/login" class="btn-figma-guest-login">
+                                        <span><span class="link-masuk">Masuk</span> untuk menambahkan ke Library</span>
+                                    </a>
+                                <?php endif; ?>
                             <?php else: ?>
-                                <!-- ASET BERBAYAR: 2 Tombol (Oranye Solid & Putih Outline) -->
-                                <a href="/checkout?asset_id=<?= urlencode((string)$assetId) ?>" class="btn-figma-buy-orange" id="btnBuyPrimary">
+                                <!-- ASET BERBAYAR: Tombol Beli Oranye & Keranjang Outline Cokelat -->
+                                <a href="<?= $isLoggedIn ? ('/checkout?asset_id=' . urlencode((string)$assetId)) : '/login' ?>" class="btn-figma-buy-orange" id="btnBuyPrimary">
                                     Beli
                                 </a>
                                 <button type="button" class="btn-figma-add-cart-outline" onclick="addToCart()">
@@ -750,7 +843,7 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
 
     <footer class="footer-creator-center py-5 mt-auto">
         <div class="container text-center">
-            <h5 class="fw-bold mb-2 text-dark">IndoFX</h5>
+            <h5 class="fw-bold mb-2" style="color: var(--indofx-text-main);">IndoFX</h5>
             <p class="text-muted small mb-3 mx-auto" style="max-width: 540px;">
                 Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
             </p>
@@ -767,6 +860,8 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
         const userKey = '<?= $userKey ?>';
         const currentAssetId = '<?= htmlspecialchars((string)$assetId, ENT_QUOTES, 'UTF-8') ?>';
         const isAssetGratis = <?= $isGratis ? 'true' : 'false' ?>;
+        const assetTitle = '<?= htmlspecialchars($assetTitle, ENT_QUOTES, 'UTF-8') ?>';
+        const assetFormat = '<?= htmlspecialchars($assetFormat, ENT_QUOTES, 'UTF-8') ?>';
 
         function switchDetailTab(evt, tabId) {
             document.querySelectorAll('.detail-nav-tabs .tab-link').forEach(link => link.classList.remove('active'));
@@ -785,7 +880,22 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
             }
         }
 
-        // MEMUAT ULASAN SECARA DINAMIS TERISOLASI KHUSUS ASET INI
+        function downloadAssetPackage() {
+            const fileName = assetTitle.toLowerCase().replace(/[^a-z0-9]/g, '_') + (assetFormat.startsWith('.') ? assetFormat : ('.' + assetFormat));
+            const dummyContent = `=== INDOFX ASSET PACKAGE ===\nJudul: ${assetTitle}\nID: ${currentAssetId}\nFormat: ${assetFormat}\nLisensi: Single Developer Commercial License\nDiunduh oleh: ${userKey}\nTanggal: ${new Date().toLocaleString()}\n`;
+
+            const blob = new Blob([dummyContent], {
+                type: 'application/octet-stream'
+            });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+        }
+
         function loadAssetReviews() {
             const listContainer = document.getElementById('reviewsListContainer');
             if (!listContainer) return;
@@ -838,7 +948,7 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
                 listContainer.innerHTML = `
                     <div class="text-center py-5 bg-white rounded-3 border" style="border-color: #ebdcd1 !important;">
                         <i class="bi bi-chat-square-text text-muted fs-1 d-block mb-2"></i>
-                        <h6 class="fw-bold text-dark mb-1">Belum ada ulasan untuk aset ini</h6>
+                        <h6 class="fw-bold mb-1" style="color: var(--indofx-text-main);">Belum ada ulasan untuk aset ini</h6>
                         <p class="text-muted small m-0">Klaim aset ini ke Library Anda untuk menjadi yang pertama memberikan ulasan.</p>
                     </div>
                 `;
@@ -883,13 +993,13 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
                         '<i class="bi bi-star text-muted me-1"></i>';
                 }
 
-                const titleHtml = rev.title ? `<h6 class="fw-bold text-dark mt-2 mb-1" style="font-size: 0.95rem;">${rev.title}</h6>` : '';
+                const titleHtml = rev.title ? `<h6 class="fw-bold mt-2 mb-1" style="font-size: 0.95rem; color: var(--indofx-text-main);">${rev.title}</h6>` : '';
 
                 return `
                     <div class="review-item-block">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <div class="d-flex align-items-center gap-2">
-                                <strong class="text-dark" style="font-size: 0.95rem;">${rev.user_name}</strong>
+                                <strong style="font-size: 0.95rem; color: var(--indofx-text-main);">${rev.user_name}</strong>
                                 <span class="badge-owner">Pemilik aset</span>
                             </div>
                             <span class="text-muted small">${rev.date}</span>
@@ -902,7 +1012,6 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
             }).join('');
         }
 
-        // FUNGSI MENAMBAHKAN KE KERANJANG (AKUN ISOLATED)
         function addToCart() {
             if (!userKey) {
                 window.location.href = '/login';
@@ -936,7 +1045,6 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
             window.location.href = '/cart';
         }
 
-        // FUNGSI KLAIM ASET GRATIS KE LIBRARY
         function claimAsset() {
             if (!userKey) {
                 window.location.href = '/login';
@@ -944,8 +1052,10 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
             }
 
             const btn = document.getElementById('btnClaimLibrary');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
+            }
 
             const storageKey = 'indofx_library_' + userKey;
             let currentLibrary = [];
@@ -974,7 +1084,6 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
             window.location.href = '/library';
         }
 
-        // PERIKSA KEPEMILIKAN & LOAD ULASAN SAAT HALAMAN DIBUKA
         document.addEventListener('DOMContentLoaded', function() {
             loadAssetReviews();
 
@@ -998,10 +1107,14 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
                 const actionWrapper = document.getElementById('actionButtonWrapper');
                 if (actionWrapper) {
                     actionWrapper.innerHTML = `
-                        <a href="/library" class="btn-already-owned" title="Klik untuk membuka Library Anda">
-                            <i class="bi bi-check-circle-fill fs-5"></i>
+                        <div class="owned-badge-card mb-2">
+                            <i class="bi bi-check-circle-fill"></i>
                             <span>Aset ini sudah Anda miliki di library Anda</span>
-                        </a>
+                        </div>
+                        <button type="button" class="btn-download-package" onclick="downloadAssetPackage()">
+                            <i class="bi bi-download"></i>
+                            <span>Unduh Aset (${assetFormat})</span>
+                        </button>
                     `;
                 }
             }

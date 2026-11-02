@@ -349,3 +349,26 @@ $router->get('/api/reviews', function () {
     echo json_encode(['success' => true, 'data' => $reviews]);
     exit;
 });
+
+// Halaman Detail Aset Milik User di Library (Untuk Unduh)
+$router->get('/library/detail', function () {
+    if (!isset($_SESSION['user_id'])) {
+        header('Location: /login');
+        exit;
+    }
+
+    $detailLibCandidates = [
+        BASE_PATH . '/resources/views/dashboard/detail-library.php',
+        BASE_PATH . '/resources/views/detail-library.php',
+    ];
+
+    foreach ($detailLibCandidates as $path) {
+        if (file_exists($path)) {
+            require $path;
+            return;
+        }
+    }
+
+    http_response_code(404);
+    die('Berkas detail-library.php tidak ditemukan.');
+});
