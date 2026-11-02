@@ -18,10 +18,10 @@ class CatalogController extends Controller
 
     public function explore()
     {
-        // Filter desain hanya Shader dan Particle; slug tabel categories dipetakan di sini.
+        // Filter desain hanya Shader dan Particle; slug mengikuti tabel categories.
         $categoryMap = [
-            'shader'   => 'vfx-and-shaders',
-            'particle' => 'vfx-and-shaders',
+            'shader'   => 'shader',
+            'particle' => 'particle',
         ];
 
         $picked = array_values(array_filter((array) ($_GET['kategori'] ?? []), static fn ($v) => isset($categoryMap[$v])));

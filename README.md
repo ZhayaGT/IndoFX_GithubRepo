@@ -178,11 +178,10 @@ composer install
 
 # 3. Variabel lingkungan
 cp .env.example .env
-# isi DB_PASSWORD, MIDTRANS_*, MAIL_*, dll.
+# isi DB_PASSWORD (password database Supabase), STORAGE_BASE_URL, MIDTRANS_*, MAIL_*, dll.
 
-# 4. Siapkan database PostgreSQL (skema + data contoh)
-createdb indofx
-psql -d indofx -f "database/Script marketplace_game_assets.sql"
+# 4. Database sudah ada di Supabase; tidak perlu membuat tabel lagi.
+#    Skema dan data contoh: lihat docs/panduan-supabase.md
 
 # 5. Jalankan server pengembangan
 composer serve          # http://localhost:8000
@@ -193,23 +192,32 @@ composer lint:fix       # perbaiki otomatis
 composer test           # jalankan PHPUnit (butuh role PostgreSQL dengan hak CREATEDB)
 ```
 
-Skrip `database/Script marketplace_game_assets.sql` membuat seluruh tabel, mengisi 5 kategori,
-5 pengguna, 11 aset contoh, berkas dan gambar aset, transaksi, serta view dan trigger pelaporan.
-Skrip aman dijalankan berulang (`IF NOT EXISTS` + `ON CONFLICT DO NOTHING`).
+Database proyek ada di Supabase (project `fjjcuvbhwjtyvmlddevj`). `.env` harus berisi
+`DB_HOST`, `DB_PORT=6543`, `DB_NAME=postgres`, `DB_USER=postgres.<project-ref>`,
+`DB_PASSWORD`, dan `DB_SSLMODE=require`. Rincian ada di
+**[docs/panduan-supabase.md](docs/panduan-supabase.md)**.
 
-Akun contoh: `admin@assetforge.io` / `admin12345`, `budi.studio@gmail.com` / `seller12345`,
-`dimas.dev@indiegame.com` / `buyer12345`.
+Isi tabel saat ini: 20 aset, 5 pengguna, 2 kategori (`Shader`, `Particle`), 21 baris
+`asset_images`. Akun penjual yang bisa dipakai: `budi.studio@gmail.com` /
+`seller12345`, `chandra.art@pixelartisan.id` / `seller12345`.
+
+`composer test` membuat database sementara pada `DB_HOST` di `.env`, lalu menghapusnya.
+Jalankan dengan `.env` yang menunjuk PostgreSQL lokal agar tidak membuat database di
+project Supabase.
 
 ### Gambar dan penyimpanan berkas
 
-Gambar contoh disimpan di `public/assets/img/` sebagai JPG/PNG. Path di database bersifat
-relatif (mis. `assets/img/catalog/01.jpg`) dan diubah menjadi URL oleh
-`IndoFX\Helpers\Storage`. Bila nanti memakai Supabase Storage, cukup isi
-`STORAGE_BASE_URL` di `.env` dengan URL bucket publik; tidak ada kode lain yang perlu diubah.
-Saat `STORAGE_BASE_URL` terisi, helper membuang awalan `assets/img/` sehingga path
-`assets/img/catalog/01.jpg` menjadi `<bucket>/catalog/01.jpg`.
+Gambar aset disimpan di Supabase Storage, bucket publik `asset-previews`, folder `catalog/`.
+Kolom `asset_images.image_path` berisi URL penuh (mis.
+`https://<ref>.supabase.co/storage/v1/object/public/asset-previews/catalog/01.jpg`), sehingga
+`IndoFX\Helpers\Storage` meneruskannya apa adanya.
 
-Panduan lengkap memindahkan database dan berkas ke Supabase: **[docs/panduan-supabase.md](docs/panduan-supabase.md)**.
+Bila path di database masih relatif (`assets/img/catalog/01.jpg`), isi `STORAGE_BASE_URL`
+di `.env` dengan URL bucket publik; helper membuang awalan `assets/img/` sehingga path
+menjadi `<bucket>/catalog/01.jpg`. Bila `STORAGE_BASE_URL` kosong, gambar diambil dari
+`public/assets/img/`.
+
+Panduan lengkap konfigurasi Supabase: **[docs/panduan-supabase.md](docs/panduan-supabase.md)**.
 
 ---
 

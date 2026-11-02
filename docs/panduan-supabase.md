@@ -9,18 +9,20 @@ Isinya hanya "kalau mau ubah X, sentuh berkas Y". Tidak ada kode di sini.
 
 | Hal | Keadaan |
 |---|---|
-| Database | PostgreSQL lokal, skema dari `database/Script marketplace_game_assets.sql` |
-| Gambar | File JPG/PNG di `public/assets/img/catalog/`, path di DB relatif (`assets/img/catalog/01.jpg`) |
+| Database | PostgreSQL Supabase (project `fjjcuvbhwjtyvmlddevj`, Session pooler) |
+| Gambar | Supabase Storage, bucket publik `asset-previews`, path di DB berupa URL penuh |
 | Berkas unduhan | Hanya berupa catatan di tabel `asset_files` (belum ada file asli) |
-| URL gambar | Dibentuk oleh `app/Helpers/Storage.php` |
+| URL gambar | `app/Helpers/Storage.php` (URL penuh dilewatkan apa adanya) |
 
-Artinya: **Supabase belum dipakai sama sekali.** Semua masih lokal.
+Artinya: **aplikasi sudah memakai database dan gambar dari Supabase.** PostgreSQL lokal
+hanya dipakai bila `.env` diarahkan ke `127.0.0.1`.
 
 ---
 
-## Bagian 1 — Database ke Supabase
+## Bagian 1 — Database Supabase
 
-Kalau mau database pindah ke Supabase (Postgres milik Supabase):
+Aplikasi sudah memakai database Supabase. Bagian ini menjelaskan cara menyiapkannya dari nol
+atau memindahkan project ke project Supabase lain.
 
 ### Yang perlu dilakukan
 
@@ -67,12 +69,15 @@ Kalau gambar dipindah dari `public/assets/img/` ke bucket Supabase.
 
 ### Yang perlu dilakukan
 
-1. Buat bucket **public** di Supabase Storage, misal bernama `indofx`.
-2. Upload semua file dari `public/assets/img/catalog/` ke bucket itu, dengan folder `catalog/`.
-   Jadi `01.jpg` menjadi `catalog/01.jpg` di dalam bucket.
-3. Isi `.env`:
+Bucket yang dipakai: **`asset-previews`** (public). Isinya folder `catalog/` dengan
+`01.jpg` .. `11.jpg` beserta varian `_2` dan `_3`.
+
+1. Bila membuat bucket baru, buat bucket **public**, lalu unggah semua file dari
+   `public/assets/img/catalog/` dengan folder `catalog/`. Jadi `01.jpg` menjadi
+   `catalog/01.jpg` di dalam bucket.
+2. Isi `.env` (hanya perlu bila `asset_images.image_path` masih berupa path relatif):
    ```
-   STORAGE_BASE_URL=https://<project-ref>.supabase.co/storage/v1/object/public/indofx
+   STORAGE_BASE_URL=https://<project-ref>.supabase.co/storage/v1/object/public/asset-previews
    ```
 
 ### Yang perlu diubah di kode
@@ -84,17 +89,20 @@ Cara kerjanya:
 | `STORAGE_BASE_URL` | Hasil URL untuk `assets/img/catalog/01.jpg` |
 |---|---|
 | kosong (default) | `/assets/img/catalog/01.jpg` (file lokal) |
-| terisi | `https://<ref>.supabase.co/storage/v1/object/public/indofx/catalog/01.jpg` |
+| terisi | `https://<ref>.supabase.co/storage/v1/object/public/asset-previews/catalog/01.jpg` |
 
 `Storage::url()` membuang awalan `assets/img/` saat `STORAGE_BASE_URL` terisi, karena isi
-bucket adalah salinan dari folder `public/assets/img/` (lihat langkah 2 di atas). Path di
+bucket adalah salinan dari folder `public/assets/img/` (lihat langkah 1 di atas). Path di
 database tidak perlu diubah.
+
+Di database Supabase saat ini, `asset_images.image_path` sudah berisi URL penuh, sehingga
+`Storage::url()` meneruskannya tanpa perubahan dan `STORAGE_BASE_URL` boleh kosong.
 
 ### Kalau struktur folder di bucket berbeda
 
 Kalau Anda mengunggah dengan struktur lain, misalnya tetap mempertahankan folder
 `assets/img/catalog/...` di dalam bucket, isi `STORAGE_BASE_URL` dengan URL yang berakhir
-di `.../public/indofx/assets/img` sehingga hasil akhirnya kembali benar.
+di `.../public/asset-previews/assets/img` sehingga hasil akhirnya kembali benar.
 
 ---
 
@@ -145,7 +153,8 @@ Alurnya sama seperti gambar:
 
 ## Yang TIDAK boleh dilakukan
 
-1. **Jangan commit `.env`.** Sudah masuk `.gitignore`, jangan dihapus.
+1. **Jangan commit `.env`.** Sudah masuk `.gitignore`, jangan dihapus. Password database
+   Supabase hanya boleh ada di `.env` masing-masing anggota.
 2. **Jangan taruh service key Supabase di JavaScript** atau di view. Hanya di `.env`.
 3. **Jangan hardcode URL Supabase** di view atau model. Selalu lewat `Storage::url()`.
 4. **Jangan ubah `database/schema.sql`** — berkas itu sudah tidak dipakai. Yang aktif
