@@ -17,6 +17,7 @@
 
 body {
   font-family:
+    "Inter",
     system-ui,
     -apple-system,
     sans-serif;
@@ -24,19 +25,79 @@ body {
   background-color: var(--indofx-cream-bg);
 }
 
+/* Kontainer Konten Halaman Bawah: Rapat & Padat */
 .container-figma {
-  max-width: 1140px;
+  max-width: 1360px;
+  width: 100%;
   margin: 0 auto;
-  padding: 0 15px;
+  padding: 0 24px;
+}
+/* Kontainer Khusus Katalog: Sejajar Sempurna dengan Navbar */
+.container-catalog-figma {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding-left: 145px !important; /* Lurus sejajar vertikal di bawah Logo IndoFX */
+  padding-right: 100px !important; /* Lurus sejajar vertikal di bawah Profil Kanan */
 }
 
-/* ==========================================
-   1. HEADER NAVBAR
-   ========================================== */
+/* Lebar Kolom Filter Tetap Ramping & Berjarak Lega ke Aset */
+.filter-sidebar-col {
+  width: 270px !important;
+  flex: 0 0 270px !important;
+  max-width: 270px !important;
+  margin-right: 28px !important; /* Memberi jeda pemisah yang lega dari kumpulan aset */
+}
+
+.catalog-grid-col {
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
+}
+
+/* Responsif Layar Laptop / Tablet */
+@media (max-width: 1200px) {
+  .container-catalog-figma {
+    padding-left: 40px !important;
+    padding-right: 40px !important;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .container-catalog-figma {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+  .filter-sidebar-col {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-right: 0 !important;
+    margin-bottom: 20px !important;
+  }
+}
+
+/* ========================================================
+   1. HEADER NAVBAR (POSISI PRESISI SESUAI FIGMA)
+   ======================================================== */
 .navbar-orange {
   background-color: var(--indofx-orange);
   padding: 0.75rem 0;
   z-index: 1030;
+  width: 100%;
+  position: sticky;
+  top: 0;
+}
+
+/* Navbar: Logo agak ke kanan (145px), tombol tetap di kanan (100px) */
+.navbar-figma-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding-left: 145px !important; /* Menjaga logo IndoFX masuk agak ke kanan */
+  padding-right: 100px !important; /* Menjaga tombol & profil tetap di sisi kanan */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  position: relative !important;
 }
 
 .brand-text {
@@ -46,12 +107,23 @@ body {
   letter-spacing: -0.5px;
 }
 
+/* Kotak Pencarian Presisi di Tengah Seimbang */
 .search-box-header {
   position: relative;
-  max-width: 440px;
   width: 100%;
-  min-width: 0;
-  flex: 0 1 440px;
+  max-width: 420px;
+}
+
+@media (min-width: 992px) {
+  .search-box-header {
+    position: absolute !important;
+    left: calc(50% - 35px) !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    max-width: 420px !important;
+    margin: 0 !important;
+    z-index: 5;
+  }
 }
 
 .search-input-header {
@@ -62,6 +134,11 @@ body {
   border: 1px solid #d8c8bd;
   background-color: #ffffff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.search-input-header::placeholder {
+  color: #736b66;
+  opacity: 0.85;
 }
 
 .search-icon-header {
@@ -93,21 +170,25 @@ body {
   color: var(--ifx-orange);
 }
 
-/* ==========================================
+/* ========================================================
    NAVBAR AUTHENTICATED STATE (FIGMA ACCURATE)
-   ========================================== */
+   ======================================================== */
 .navbar-auth {
   display: flex;
   align-items: center;
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
 }
 
 .navbar-auth-group {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0;
 }
 
-/* 1. Tombol Jadi Penjual (Kotak Krem / Putih Lembut) */
+/* 1. Tombol Jadi Penjual / Dashboard */
 .btn-nav-seller {
   background: linear-gradient(180deg, #ffffff 0%, #faede2 100%) !important;
   color: #2b2623 !important;
@@ -132,7 +213,7 @@ body {
   color: #2b2623 !important;
 }
 
-/* 2. Tombol Library Saya (Kotak Outline Garis Putih) */
+/* 2. Tombol Library Saya */
 .btn-nav-library {
   background-color: transparent !important;
   color: #ffffff !important;
@@ -155,7 +236,7 @@ body {
   color: #ffffff !important;
 }
 
-/* 3. Ikon Keranjang Belanja Putih */
+/* 3. Ikon Keranjang Belanja */
 .btn-nav-cart {
   color: #ffffff !important;
   font-size: 1.35rem;
@@ -175,7 +256,7 @@ body {
   transform: scale(1.08);
 }
 
-/* 4. Trigger Avatar & Nama Pengguna */
+/* 4. Trigger Avatar & Profiling */
 .navbar-avatar-wrap {
   position: relative;
   display: inline-block;
@@ -220,7 +301,7 @@ body {
   letter-spacing: -0.2px;
 }
 
-/* 5. Dropdown Menu Putih Bersih Figma */
+/* 5. Dropdown Menu Profil */
 .navbar-avatar-menu {
   position: absolute;
   top: calc(100% + 10px);
@@ -415,7 +496,7 @@ body {
 }
 
 /* ==========================================
-   KARTU ASET FIGMA
+   KARTU ASET FIGMA (PROPORSI PADAT PERSIS FIGMA)
    ========================================== */
 .asset-card-figma {
   background-color: #ffffff;
@@ -433,7 +514,7 @@ body {
 }
 
 .asset-thumb-wrapper {
-  height: 140px;
+  height: 180px;
   background-color: #2b2129;
   overflow: hidden;
 }
@@ -446,19 +527,19 @@ body {
 }
 
 .asset-card-body {
-  padding: 12px;
+  padding: 14px 16px 16px 16px;
 }
 
 .asset-studio {
   display: block;
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   color: #736b66;
   font-weight: 600;
-  margin-bottom: 2px;
+  margin-bottom: 3px;
 }
 
 .asset-name {
-  font-size: 0.84rem;
+  font-size: 0.92rem;
   font-weight: 800;
   color: var(--indofx-dark);
   margin-bottom: 8px;
@@ -468,22 +549,22 @@ body {
 }
 
 .asset-price {
-  font-size: 0.84rem;
+  font-size: 0.9rem;
   font-weight: 800;
   color: var(--indofx-dark);
 }
 
 .asset-dl-icon {
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   color: #736b66;
 }
 
 /* Tag Pipeline */
 .badge-pipeline {
   display: inline-block;
-  font-size: 0.6rem;
+  font-size: 0.62rem;
   font-weight: 800;
-  padding: 2px 6px;
+  padding: 2px 7px;
   border-radius: 4px;
   line-height: 1.2;
   color: #ffffff;
@@ -510,6 +591,25 @@ body {
 /* ==========================================
    4. FILTER & PAGINATION EKSPLORASI
    ========================================== */
+.filter-search-card {
+  background-color: #ffffff;
+  border: 1.5px solid var(--ifx-border-dark);
+  border-radius: 8px;
+}
+
+.filter-reset-link {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--indofx-dark);
+  text-decoration: underline;
+}
+
+.filter-group-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--indofx-dark);
+}
+
 .filter-check-text {
   font-size: 0.76rem;
   color: #333333;
@@ -533,24 +633,25 @@ body {
   font-size: 0.75rem;
   border-radius: 4px;
   padding: 4px 8px;
+  width: 100%;
 }
 
 .explore-pagination {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
 }
 
 .page-nav-link {
   text-decoration: underline;
   text-underline-offset: 3px;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
 }
 
 .page-num-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   text-decoration: none;
   font-weight: 600;
   color: #444444;
@@ -896,7 +997,10 @@ body {
    RESPONSIVE NAVBAR RULES
    ========================================== */
 @media (max-width: 991.98px) {
-  /* Tablet: sembunyikan teks nama panjang agar navbar tidak sesak */
+  .navbar-figma-container {
+    padding: 0 16px !important;
+  }
+
   .avatar-username-label {
     display: none !important;
   }
@@ -907,7 +1011,6 @@ body {
 }
 
 @media (max-width: 767.98px) {
-  /* Mobile: buat search box fleksibel dan proporsional */
   .search-box-header {
     flex: 1 1 auto;
     min-width: 140px;
@@ -938,146 +1041,193 @@ body {
 }
 
 @media (max-width: 440px) {
-  /* Layar HP sangat kecil: sembunyikan teks IndoFX, sisakan logo kotak */
   .brand-text {
     display: none;
   }
 }
 
-/* ==========================================
-   HALAMAN LIBRARY SAYA (FIGMA EXACT MATCH)
-   ========================================== */
-.library-page-title {
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: #1a1a1a;
+/* ==========================================================================
+   STYLING HALAMAN PROFIL KREATOR & ASET DIMILIKI (CREATOR/PROFILE.PHP)
+   ========================================================================== */
+.profile-page-wrapper {
+  background-color: var(--indofx-cream-bg, #faf0e6);
+  min-height: calc(100vh - 160px);
+  padding: 28px 0 60px 0;
 }
 
-.library-page-sub {
-  font-size: 0.85rem;
-  color: #736b66;
-}
-
-/* Tab Filter Kanan */
-.library-filter-btn {
-  background: none;
-  border: none;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #666666;
-  padding: 4px 0;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.library-filter-btn.active {
-  font-weight: 800;
-  color: #000000;
-}
-
-/* Kartu Baris Library Horizontal */
-.library-item-card {
+.creator-profile-card {
   background-color: #ffffff;
-  border: 1px solid #d8c8bd;
-  border-radius: 8px;
-  padding: 12px 20px 12px 14px;
+  border: 1.5px solid var(--ifx-border-dark, #2b2623);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(59, 35, 20, 0.05);
+  margin-bottom: 32px;
+}
+
+.creator-banner-maroon {
+  height: 140px;
+  background: linear-gradient(135deg, #7a1919 0%, #a32424 100%);
+  width: 100%;
+}
+
+.creator-info-body {
+  position: relative;
+  padding: 0 28px 24px 28px;
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+}
+
+.creator-avatar-float {
+  position: relative;
+  margin-top: -50px;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background-color: #4a3b32;
+  border: 4px solid #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   display: flex;
   align-items: center;
-  gap: 20px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  justify-content: center;
+  color: #ffffff;
+  font-size: 2rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.creator-name {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--ifx-brown-dark, #2b2623);
+  margin-bottom: 2px;
+}
+
+.creator-bio {
+  font-size: 0.85rem;
+  color: var(--ifx-brown-muted, #736b66);
+  margin: 0;
+}
+
+.owned-assets-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.owned-assets-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.owned-library-link {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.owned-library-link:hover {
+  color: var(--indofx-orange, #ed6b1d);
+}
+
+.owned-card-figma {
+  background-color: #ffffff;
+  border: 1.5px solid var(--ifx-border-dark, #2b2623);
+  border-radius: 8px;
+  overflow: hidden;
   transition:
     transform 0.15s ease,
     box-shadow 0.15s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-.library-item-thumb {
-  width: 175px;
-  height: 98px;
-  flex-shrink: 0;
-  border-radius: 6px;
-  overflow: hidden;
+.owned-card-figma:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+}
+
+.owned-thumb-wrapper {
+  height: 160px;
   background-color: #2b2129;
+  overflow: hidden;
+  position: relative;
 }
 
-.library-item-thumb img {
+.owned-thumb-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
-.library-item-content {
+.owned-card-body {
+  padding: 14px 16px;
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-.badge-status-green {
-  color: #16a34a;
-  font-size: 0.76rem;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-}
-
-.library-status-line {
-  font-size: 0.74rem;
-  margin-bottom: 2px;
-}
-
-.library-item-title {
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: #1f1f1f;
-}
-
-.library-item-seller {
-  font-size: 0.75rem;
+.owned-creator-name {
+  font-size: 0.72rem;
   color: #736b66;
+  font-weight: 600;
+  margin-bottom: 2px;
+  display: block;
 }
 
-/* Tombol Aksi Kanan Sesuai Mockup */
-.btn-figma-delete {
-  background-color: #d92d20;
-  color: #ffffff !important;
-  font-size: 0.82rem;
-  font-weight: 700;
-  padding: 8px 20px;
-  border-radius: 5px;
-  border: none;
-  transition: opacity 0.15s ease;
-}
-
-.btn-figma-delete:hover {
-  opacity: 0.9;
-}
-
-.btn-figma-review {
-  background-color: #1570ef;
-  color: #ffffff !important;
-  font-size: 0.82rem;
-  font-weight: 700;
-  padding: 8px 18px;
-  border-radius: 5px;
+.owned-asset-title {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2; /* Menambahkan properti standar agar peringatan hilang */
+  overflow: hidden;
   text-decoration: none;
-  border: none;
-  transition: opacity 0.15s ease;
-  white-space: nowrap;
+  line-height: 1.35;
 }
 
-.btn-figma-review:hover {
-  opacity: 0.9;
+.owned-asset-title:hover {
+  color: var(--indofx-orange, #ed6b1d);
 }
 
-/* Tombol Tambah ke Library di Halaman Detail */
-.btn-claim-library {
-  background-color: #262226;
-  color: #ffffff !important;
-  font-size: 0.88rem;
+.owned-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px solid #f2ebe5;
+  margin-top: 10px;
+}
+
+.owned-btn-action {
+  font-size: 0.78rem;
   font-weight: 700;
-  padding: 10px 16px;
-  border-radius: 6px;
-  border: none;
-  transition: background-color 0.15s ease;
+  color: var(--indofx-orange, #ed6b1d);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.btn-claim-library:hover {
-  background-color: #151215;
+.owned-btn-action:hover {
+  text-decoration: underline;
+}
+
+.empty-owned-box {
+  background-color: #ffffff;
+  border: 1.5px dashed #d8c8bd;
+  border-radius: 10px;
+  padding: 48px 24px;
+  text-align: center;
 }

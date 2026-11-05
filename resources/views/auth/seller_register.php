@@ -1,3 +1,9 @@
+<?php
+$isLoggedIn = isset($_SESSION['user_id']);
+$userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user') : '';
+$userName   = $isLoggedIn ? (string)($_SESSION['name'] ?? $_SESSION['user_name'] ?? '') : '';
+$userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? 'naufal@example.com') : '';
+?>
 <!DOCTYPE html>
 <html lang="id">
 
@@ -6,186 +12,241 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daftar Jadi Penjual - IndoFX</title>
 
-    <!-- Google Fonts & Bootstrap 5 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
 
     <style>
         body {
-            background-color: var(--ifx-cream-bg, #fdece2);
+            background-color: var(--indofx-cream-bg, #FAF0E6);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 40px 16px;
+            padding: 40px 15px;
+            font-family: 'Inter', sans-serif;
         }
 
-        .seller-form-card {
+        .seller-register-card {
             background-color: #ffffff;
-            border: 1.5px solid var(--ifx-border-dark, #3b2314);
-            border-radius: 14px;
+            border: 1.5px solid #4A3B32;
+            border-radius: 16px;
             width: 100%;
-            max-width: 580px;
-            padding: 38px 34px;
-            box-shadow: 0 8px 24px rgba(59, 35, 20, 0.06);
+            max-width: 560px;
+            padding: 36px 32px;
+            box-shadow: 0 10px 30px rgba(60, 42, 33, 0.08);
         }
 
-        .form-title {
-            font-size: 1.85rem;
+        .seller-register-title {
+            font-size: 1.6rem;
             font-weight: 800;
-            color: var(--ifx-brown-dark, #3b2314);
-            letter-spacing: -0.5px;
+            color: #1A1A1A;
             margin-bottom: 4px;
         }
 
-        .form-subtitle {
+        .seller-register-sub {
             font-size: 0.88rem;
-            color: var(--ifx-brown-muted, #6e5a4f);
+            color: #736B66;
             margin-bottom: 24px;
         }
 
         .form-label-custom {
-            font-size: 0.82rem;
+            font-size: 0.86rem;
             font-weight: 700;
-            color: var(--ifx-brown-dark, #3b2314);
+            color: #1A1A1A;
             margin-bottom: 6px;
-            display: block;
         }
 
         .form-control-custom {
-            border: 1.5px solid #6e5a4f;
+            border: 1.5px solid #D8C8BD;
             border-radius: 6px;
-            padding: 9px 12px;
-            font-size: 0.84rem;
-            color: var(--ifx-brown-dark, #3b2314);
-            width: 100%;
+            padding: 9px 14px;
+            font-size: 0.88rem;
+            color: #1A1A1A;
+            background-color: #ffffff;
             transition: border-color 0.15s ease;
         }
 
         .form-control-custom:focus {
+            border-color: #ED6B1D;
+            box-shadow: none;
             outline: none;
-            border-color: var(--ifx-orange, #ed6b1d);
-            box-shadow: 0 0 0 3px rgba(237, 107, 29, 0.18);
         }
 
         .form-control-custom::placeholder {
-            color: #a89a91;
-            font-size: 0.82rem;
+            color: #9C8F87;
+            font-size: 0.85rem;
         }
 
-        .btn-submit-seller {
-            background-color: var(--ifx-orange, #ed6b1d);
-            color: #ffffff;
-            border: none;
-            border-radius: 8px;
+        .btn-register-submit {
+            background-color: #ED6B1D;
+            color: #ffffff !important;
             font-weight: 700;
             font-size: 0.95rem;
-            padding: 11px 0;
+            border: none;
+            border-radius: 6px;
+            padding: 12px;
             width: 100%;
-            box-shadow: 0 4px 10px rgba(237, 107, 29, 0.28);
-            transition: all 0.2s ease;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
         }
 
-        .btn-submit-seller:hover {
-            background-color: var(--ifx-orange-hover, #d95d12);
-            transform: translateY(-1px);
-        }
-
-        .login-redirect-text {
-            font-size: 0.78rem;
-            color: var(--ifx-brown-dark, #3b2314);
-            margin-bottom: 14px;
-        }
-
-        .login-redirect-link {
-            color: #0d6efd;
-            text-decoration: underline;
-            text-underline-offset: 2px;
+        .btn-register-submit:hover {
+            background-color: #D85A0E;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="seller-form-card">
-        <h1 class="form-title">Daftar Jadi Penjual</h1>
-        <p class="form-subtitle">Upload hasil karyamu agar dikenal semua orang.</p>
+    <div class="seller-register-card">
+        <h2 class="seller-register-title">Daftar Jadi Penjual</h2>
+        <p class="seller-register-sub">Upload hasil karyamu agar dikenal semua orang.</p>
 
-        <form action="/seller/register" method="POST" enctype="multipart/form-data">
-            <!-- Nama Lengkap -->
+        <form id="formRegisterSeller">
+            <!-- 1. Nama Lengkap / Studio -->
             <div class="mb-3">
-                <label class="form-label-custom" for="name">Nama Lengkap</label>
-                <input type="text" class="form-control-custom" id="name" name="name"
-                    value="<?= htmlspecialchars($_SESSION['name'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                    placeholder="Nama Lengkap / Studio" required>
+                <label class="form-label-custom">Nama Lengkap / Studio</label>
+                <input type="text" id="regName" class="form-control form-control-custom"
+                    value="<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>"
+                    placeholder="Contoh: Arga Studio" required>
             </div>
 
-            <!-- Alamat Email -->
+            <!-- 2. Alamat Email -->
             <div class="mb-3">
-                <label class="form-label-custom" for="email">Alamat Email</label>
-                <input type="email" class="form-control-custom" id="email" name="email"
-                    placeholder="email@domain.com" required>
+                <label class="form-label-custom">Alamat Email</label>
+                <input type="email" id="regEmail" class="form-control form-control-custom"
+                    value="<?= htmlspecialchars($userEmail, ENT_QUOTES, 'UTF-8') ?>"
+                    placeholder="email@domain.com" required <?= $isLoggedIn ? 'readonly style="background-color: #faf5f0;"' : '' ?>>
             </div>
 
-            <!-- Alamat Domisili -->
+            <!-- 3. Alamat Domisili -->
             <div class="mb-3">
-                <label class="form-label-custom" for="domicile">Alamat Domisili</label>
-                <textarea class="form-control-custom" id="domicile" name="domicile" rows="3"
+                <label class="form-label-custom">Alamat Domisili</label>
+                <textarea id="regAddress" class="form-control form-control-custom" rows="2"
                     placeholder="Jalan, RT/RW, Kelurahan, Kecamatan, Kota, Provinsi, Kode Pos." required></textarea>
             </div>
 
-            <!-- Alasan -->
+            <!-- 4. Alasan Menjadi Penjual -->
             <div class="mb-3">
-                <label class="form-label-custom" for="reason">Alasan</label>
-                <textarea class="form-control-custom" id="reason" name="reason" rows="3"
+                <label class="form-label-custom">Alasan</label>
+                <textarea id="regReason" class="form-control form-control-custom" rows="2"
                     placeholder="Alasan kamu menjadi penjual..." required></textarea>
             </div>
 
-            <!-- Contoh Aset -->
+            <!-- 5. Contoh Aset (File Upload) -->
             <div class="mb-3">
-                <label class="form-label-custom" for="asset_sample">Contoh Aset</label>
-                <input type="file" class="form-control form-control-custom" id="asset_sample" name="asset_sample" required>
+                <label class="form-label-custom">Contoh Aset</label>
+                <input type="file" id="regAssetFile" class="form-control form-control-custom" accept=".unitypackage,.zip,.rar,.fbx" required>
             </div>
 
-            <!-- Deskripsi Aset -->
+            <!-- 6. Deskripsi Aset -->
             <div class="mb-3">
-                <label class="form-label-custom" for="asset_description">Deskripsi Aset</label>
-                <textarea class="form-control-custom" id="asset_description" name="asset_description" rows="3"
+                <label class="form-label-custom">Deskripsi Aset</label>
+                <textarea id="regAssetDesc" class="form-control form-control-custom" rows="2"
                     placeholder="Deskripsi Aset..." required></textarea>
             </div>
 
-            <!-- URL Portofolio (Opsional) -->
+            <!-- 7. URL Portofolio (Opsional) -->
             <div class="mb-3">
-                <label class="form-label-custom" for="portfolio_url">URL Portofolio (Opsional)</label>
-                <input type="url" class="form-control-custom" id="portfolio_url" name="portfolio_url"
+                <label class="form-label-custom">URL Portofolio (Opsional)</label>
+                <input type="url" id="regPortfolio" class="form-control form-control-custom"
                     placeholder="http://www.domainanda.com/">
             </div>
 
-            <!-- Baris Kata Sandi -->
-            <div class="row g-2 mb-3">
-                <div class="col-6">
-                    <label class="form-label-custom" for="password">Buat Kata Sandi</label>
-                    <input type="password" class="form-control-custom" id="password" name="password"
-                        placeholder="********" required>
+            <!-- 8. Password: Hanya tampil jika pengunjung belum login (Guest) -->
+            <?php if (!$isLoggedIn): ?>
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label-custom">Buat Kata Sandi</label>
+                        <input type="password" id="regPassword" class="form-control form-control-custom" placeholder="••••••••" required>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label-custom">Ulangi Kata Sandi</label>
+                        <input type="password" id="regPasswordConfirm" class="form-control form-control-custom" placeholder="••••••••" required>
+                    </div>
                 </div>
-                <div class="col-6">
-                    <label class="form-label-custom" for="password_confirmation">Ulangi Kata Sandi</label>
-                    <input type="password" class="form-control-custom" id="password_confirmation" name="password_confirmation"
-                        placeholder="********" required>
-                </div>
+            <?php endif; ?>
+
+            <div class="mb-3">
+                <small class="text-muted">Sudah punya akun? <a href="/login" class="text-primary text-decoration-none fw-bold">Login</a></small>
             </div>
 
-            <div class="login-redirect-text">
-                Sudah punya akun? <a href="/login" class="login-redirect-link">Login</a>
-            </div>
-
-            <button type="submit" class="btn btn-submit-seller">Daftar</button>
+            <button type="submit" class="btn-register-submit">Daftar</button>
         </form>
     </div>
 
+    <script>
+        const isLoggedIn = <?= $isLoggedIn ? 'true' : 'false' ?>;
+        const currentUserKey = '<?= $userKey ?>';
+
+        document.getElementById('formRegisterSeller').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const sellerName = document.getElementById('regName').value.trim() || 'Arga Studio';
+            const sellerEmail = document.getElementById('regEmail').value.trim();
+            const sellerAddress = document.getElementById('regAddress').value.trim();
+            const sellerReason = document.getElementById('regReason').value.trim();
+            const portfolioUrl = document.getElementById('regPortfolio') ? document.getElementById('regPortfolio').value.trim() : '';
+            const fileInput = document.getElementById('regAssetFile');
+            const assetDesc = document.getElementById('regAssetDesc').value.trim();
+
+            const targetKey = currentUserKey || ('user_' + Date.now());
+
+            // 1. Simpan Profil Toko / Penjual
+            const sellerProfile = {
+                user_id: targetKey,
+                store_name: sellerName,
+                is_seller: true,
+                email: sellerEmail,
+                address: sellerAddress,
+                reason: sellerReason,
+                portfolio: portfolioUrl || '-',
+                is_active: true
+            };
+
+            // Simpan ganda (dengan targetKey dan global) agar selalu terbaca oleh navbar
+            localStorage.setItem('indofx_seller_profile_' + targetKey, JSON.stringify(sellerProfile));
+            localStorage.setItem('indofx_is_seller_' + targetKey, 'true');
+            localStorage.setItem('indofx_seller_profile', JSON.stringify(sellerProfile));
+            localStorage.setItem('indofx_is_seller', 'true');
+
+            // 2. Ambil File Sampel dan Masukkan sebagai Aset Pertama (Status: Pending)
+            const sampleFileName = (fileInput && fileInput.files.length > 0) ?
+                fileInput.files[0].name.replace(/\.[^/.]+$/, "") :
+                'Sample Asset Project';
+
+            const newPendingAsset = {
+                id: 'asset-' + Date.now(),
+                title: sampleFileName,
+                category: 'VFX Partikel',
+                price: 'Rp150.000',
+                status: 'Pending',
+                created_at: new Date().toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                }),
+                description: assetDesc
+            };
+
+            let sellerAssets = [];
+            try {
+                sellerAssets = JSON.parse(localStorage.getItem('indofx_seller_assets_' + targetKey)) || [];
+            } catch (err) {
+                sellerAssets = [];
+            }
+
+            sellerAssets.unshift(newPendingAsset);
+            localStorage.setItem('indofx_seller_assets_' + targetKey, JSON.stringify(sellerAssets));
+
+            // 3. Arahkan kembali ke halaman Katalog Utama
+            window.location.href = '/';
+        });
+    </script>
 </body>
 
 </html>

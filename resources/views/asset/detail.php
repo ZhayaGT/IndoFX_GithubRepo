@@ -123,7 +123,7 @@ $catalogDB = [
     ]
 ];
 
-// 2. Baca Parameter URL yang diklik pengguna
+// 2. Baca Parameter URL
 $reqId = $_GET['id'] ?? '1';
 $matched = $catalogDB[$reqId] ?? null;
 
@@ -144,7 +144,6 @@ if (is_numeric($assetPriceRaw)) {
     $isGratis = (strtolower(trim((string)$assetPriceRaw)) === 'gratis' || $assetPriceRaw === '0');
 }
 
-// Deteksi Status Login
 $isLoggedIn = isset($_SESSION['user_id']);
 $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user') : '';
 ?>
@@ -158,7 +157,7 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
 
     <!-- Google Fonts & Bootstrap Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -168,24 +167,25 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
         :root {
             --indofx-cream-bg: #FAF0E6;
             --indofx-text-main: #3C2A21;
-            /* Cokelat Tua Figma (IndoFX/text/main) */
             --indofx-text-muted: #7A685D;
-            /* Warna label sekunder */
             --indofx-border: #4A3B32;
-            /* Garis tepi cokelat gelap */
             --indofx-orange: #ED6B1D;
-            /* Oranye tombol Beli & Unduh */
         }
 
         body {
             background-color: var(--indofx-cream-bg, #FAF0E6);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Inter', sans-serif;
             color: var(--indofx-text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
+        /* Pembungkus Konten Utama Stabil */
         .content-detail-wrapper {
             background-color: var(--indofx-cream-bg, #FAF0E6);
-            min-height: calc(100vh - 70px);
+            padding: 32px 0 54px 0;
+            flex-grow: 1;
         }
 
         /* Frame Pratinjau Utama */
@@ -195,9 +195,10 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
             border: 1.5px solid var(--indofx-border);
             background-color: #2b2129;
             height: 420px;
+            width: 100%;
         }
 
-        /* 4 Thumbnail Galeri Berjajar */
+        /* 4 Thumbnail Galeri */
         .thumb-gallery-row {
             display: flex;
             gap: 12px;
@@ -258,7 +259,7 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
             padding: 24px;
         }
 
-        /* Kartu Kanan Detail Aset */
+        /* Kartu Sisi Kanan */
         .asset-purchase-card {
             background-color: #ffffff;
             border: 1.5px solid var(--indofx-border);
@@ -339,7 +340,7 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
             color: var(--indofx-text-main);
         }
 
-        /* 1. Tombol Beli Oranye */
+        /* Tombol Aksi */
         .btn-figma-buy-orange {
             background-color: var(--indofx-orange);
             color: #ffffff !important;
@@ -359,7 +360,6 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
             background-color: #D85A0E;
         }
 
-        /* 2. Tombol Tambahkan ke Keranjang */
         .btn-figma-add-cart-outline {
             background-color: #FFFDFC;
             color: var(--indofx-text-main) !important;
@@ -380,7 +380,6 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
             background-color: #F8EFE9;
         }
 
-        /* 3. Tombol Tambahkan ke Library (Aset Gratis & Sudah Login) */
         .btn-figma-free-library {
             background-color: var(--indofx-border);
             color: #ffffff !important;
@@ -401,10 +400,8 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
             opacity: 0.92;
         }
 
-        /* 4. Tombol Guest untuk Aset Gratis Persis Desain Figma */
         .btn-figma-guest-login {
             background-color: #FCEEE6 !important;
-            /* Warna latar peach / krem lembut Figma */
             color: var(--indofx-text-main, #3C2A21) !important;
             border: 1.5px solid var(--indofx-border, #3C2A21) !important;
             font-weight: 700;
@@ -417,14 +414,12 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
             align-items: center;
             justify-content: center;
             white-space: nowrap;
-            /* Mencegah kata 'Library' turun ke baris baru */
             width: 100%;
             transition: all 0.15s ease;
         }
 
         .btn-figma-guest-login:hover {
             background-color: #F8DFD2 !important;
-            color: var(--indofx-text-main, #3C2A21) !important;
         }
 
         .btn-figma-guest-login .link-masuk {
@@ -432,10 +427,9 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
             text-underline-offset: 3px;
             text-decoration-thickness: 1.5px;
             font-weight: 800;
-            color: inherit;
         }
 
-        /* Kotak Status Hijau Kepemilikan */
+        /* Status Kepemilikan & Unduh Oranye */
         .owned-badge-card {
             background-color: #F0FDF4;
             border: 1.5px solid #86EFAC;
@@ -458,7 +452,6 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
             flex-shrink: 0;
         }
 
-        /* Tombol Unduh Oranye */
         .btn-download-package {
             background-color: var(--indofx-orange, #ED6B1D) !important;
             color: #ffffff !important;
@@ -481,11 +474,10 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
 
         .btn-download-package:hover {
             background-color: #D85A0E !important;
-            color: #ffffff !important;
             transform: translateY(-1px);
         }
 
-        /* Tab Ulasan */
+        /* Ringkasan Ulasan */
         .rating-summary-box {
             background-color: #fdf5ef;
             border: 1px solid #ebdcd1;
@@ -563,6 +555,15 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
         .review-item-block:last-child {
             border-bottom: none;
         }
+
+        /* Footer Putih Solid Full-Width Sesuai Figma */
+        .footer-figma-white {
+            background-color: #ffffff !important;
+            width: 100%;
+            padding: 42px 0 24px 0;
+            margin-top: auto;
+            border-top: 1px solid #efe0d5;
+        }
     </style>
 </head>
 
@@ -610,7 +611,7 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
 
     <!-- Header Navbar -->
     <nav class="navbar navbar-orange sticky-top">
-        <div class="container-figma d-flex justify-content-between align-items-center w-100">
+        <div class="navbar-figma-container">
             <a class="navbar-brand m-0 d-flex align-items-center gap-2 text-decoration-none" href="/">
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
                     <path d="M12 2L20.66 7V17L12 22L3.34 17V7L12 2Z" fill="#ED6B1D" stroke="#1A1A1A" stroke-width="1.8" stroke-linejoin="round" />
@@ -628,7 +629,7 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
                 <input type="text" class="form-control search-input-header" placeholder="Cari aset VFX, shader, tekstur...">
             </div>
 
-            <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center">
                 <?php
                 $authPartial = BASE_PATH . '/resources/views/partials/navbar-auth.php';
                 if (file_exists($authPartial)) {
@@ -639,8 +640,8 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
         </div>
     </nav>
 
-    <!-- Konten Detail -->
-    <main class="content-detail-wrapper py-4">
+    <!-- Konten Detail Produk -->
+    <main class="content-detail-wrapper">
         <div class="container-figma">
             <div class="row g-4 align-items-start">
 
@@ -690,16 +691,16 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
                     <div class="detail-content-box" id="tabContentArea">
                         <div id="tab-deskripsi" class="tab-pane-detail active">
                             <p class="mb-3">
-                                Paket aset visual <strong><?= htmlspecialchars($assetTitle) ?></strong> dirancang khusus oleh <strong><?= htmlspecialchars($assetCreator) ?></strong> untuk mewujudkan sistem visual berkualitas tinggi dalam pipeline rendering <?= htmlspecialchars($assetPipeline) ?> di engine Unity. Dilengkapi dengan kontrol intensitas, shader material yang teroptimasi, dan performa tinggi tanpa membebani draw calls.
+                                Paket aset visual <strong><?= htmlspecialchars($assetTitle) ?></strong> dirancang khusus oleh <strong><?= htmlspecialchars($assetCreator) ?></strong> untuk mewujudkan sistem visual berkualitas tinggi dalam pipeline rendering <?= htmlspecialchars($assetPipeline) ?> di engine Unity[cite: 27]. Dilengkapi dengan kontrol intensitas, shader material yang teroptimasi, dan performa tinggi tanpa membebani draw calls.
                             </p>
                             <p class="mb-0">
-                                Sangat cocok untuk proyek game bertema petualangan, aksi, simulasi, maupun kebutuhan prototipe karya game developer Indonesia.
+                                Sangat cocok untuk proyek game bertema petualangan, aksi, simulasi, maupun kebutuhan prototipe karya game developer Indonesia[cite: 27].
                             </p>
                         </div>
 
                         <div id="tab-changelog" class="tab-pane-detail d-none">
                             <h6 class="fw-bold mb-2">Versi 1.2.0</h6>
-                            <p class="text-muted small">Pembaruan shader dan optimasi performa partikel untuk rilis Unity 2022 LTS.</p>
+                            <p class="text-muted small">Pembaruan shader dan optimasi performa partikel untuk rilis Unity 2022 LTS[cite: 26].</p>
                         </div>
 
                         <div id="tab-ulasan" class="tab-pane-detail d-none">
@@ -770,13 +771,13 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
                     </div>
                 </div>
 
-                <!-- Kolom Kanan: Card Detail & Pembelian / Unduh -->
+                <!-- Kolom Kanan: Card Detail & Pembelian -->
                 <div class="col-12 col-lg-4">
                     <div class="asset-purchase-card">
-                        <!-- Kategori: IndoFX/text/main (Cokelat) -->
+                        <!-- Kategori -->
                         <span class="asset-category-tag d-block"><?= htmlspecialchars($assetCategory) ?></span>
 
-                        <!-- Judul Aset: Inter Extra Bold 24px Cokelat -->
+                        <!-- Judul Aset -->
                         <h2 class="asset-detail-title"><?= htmlspecialchars($assetTitle) ?></h2>
 
                         <!-- Pembuat Aset -->
@@ -784,7 +785,7 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
                             Oleh <a href="/creator/profile"><?= htmlspecialchars($assetCreator) ?></a>
                         </div>
 
-                        <!-- Label & Angka Harga Cokelat -->
+                        <!-- Label & Angka Harga -->
                         <div class="price-label-text">Harga Aset</div>
                         <div class="price-amount-text">
                             <?php if ($isGratis): ?>
@@ -814,18 +815,15 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
                         <div id="actionButtonWrapper" class="d-grid gap-2">
                             <?php if ($isGratis): ?>
                                 <?php if ($isLoggedIn): ?>
-                                    <!-- ASET GRATIS (SUDAH LOGIN): Tombol Cokelat Tua Solid -->
                                     <button type="button" id="btnClaimLibrary" class="btn-figma-free-library" onclick="claimAsset()">
                                         Tambahkan ke Library
                                     </button>
                                 <?php else: ?>
-                                    <!-- ASET GRATIS (GUEST / BELUM LOGIN) SESUAI FIGMA -->
                                     <a href="/login" class="btn-figma-guest-login">
                                         <span><span class="link-masuk">Masuk</span> untuk menambahkan ke Library</span>
                                     </a>
                                 <?php endif; ?>
                             <?php else: ?>
-                                <!-- ASET BERBAYAR: Tombol Beli Oranye & Keranjang Outline Cokelat -->
                                 <a href="<?= $isLoggedIn ? ('/checkout?asset_id=' . urlencode((string)$assetId)) : '/login' ?>" class="btn-figma-buy-orange" id="btnBuyPrimary">
                                     Beli
                                 </a>
@@ -841,21 +839,21 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
         </div>
     </main>
 
-    <footer class="footer-creator-center py-5 mt-auto">
-        <div class="container text-center">
+    <!-- Footer Putih Solid Full-Width Sesuai Figma -->
+    <footer class="footer-figma-white">
+        <div class="container-figma text-center">
             <h5 class="fw-bold mb-2" style="color: var(--indofx-text-main);">IndoFX</h5>
-            <p class="text-muted small mb-3 mx-auto" style="max-width: 540px;">
-                Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
+            <p class="text-muted small mb-4 mx-auto" style="max-width: 580px;">
+                Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia[cite: 26].
             </p>
-            <div class="d-flex justify-content-between align-items-center text-muted small pt-3 border-top flex-wrap gap-2">
-                <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
-                <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
+            <div class="d-flex justify-content-between align-items-center text-muted small pt-2 border-top flex-wrap gap-2">
+                <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang[cite: 26].</span>
+                <span>Dibuat dengan bangga untuk Game Developer Indonesia[cite: 26]</span>
             </div>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/assets/js/navbar-auth.js"></script>
     <script>
         const userKey = '<?= $userKey ?>';
         const currentAssetId = '<?= htmlspecialchars((string)$assetId, ENT_QUOTES, 'UTF-8') ?>';

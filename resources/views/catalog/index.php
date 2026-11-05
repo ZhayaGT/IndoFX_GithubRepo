@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IndoFX - Marketplace Aset Unity CG & VFX</title>
+    <title>IndoFX - Marketplace Aset Unity CG &amp; VFX</title>
 
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -69,9 +69,10 @@
         </defs>
     </svg>
 
-    <!-- 1. Header Navbar Oranye -->
+    <!-- 1. Header Navbar Oranye (Figma Layout: Logo Kiri, Search Tengah, Aksi Kanan) -->
     <nav class="navbar navbar-orange sticky-top">
-        <div class="container-figma d-flex justify-content-between align-items-center w-100">
+        <div class="navbar-figma-container">
+            <!-- Sisi Kiri: Logo & Nama IndoFX -->
             <a class="navbar-brand m-0 d-flex align-items-center gap-2 text-decoration-none" href="/">
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 2L20.66 7V17L12 22L3.34 17V7L12 2Z" fill="#ED6B1D" stroke="#1A1A1A" stroke-width="1.8" stroke-linejoin="round" />
@@ -84,12 +85,14 @@
                 <span class="brand-text">IndoFX</span>
             </a>
 
-            <div class="search-box-header d-flex align-items-center flex-grow-1 mx-2 mx-md-4">
+            <!-- Sisi Tengah: Kotak Pencarian Presisi di Tengah -->
+            <div class="search-box-header d-flex align-items-center">
                 <i class="bi bi-search search-icon-header"></i>
-                <input type="text" class="form-control search-input-header" placeholder="Cari aset...">
+                <input type="text" class="form-control search-input-header" placeholder="Cari aset VFX, shader, tekstur...">
             </div>
 
-            <div class="d-flex align-items-center gap-2">
+            <!-- Sisi Kanan: Auth Group -->
+            <div class="d-flex align-items-center">
                 <?php
                 $authPartial = BASE_PATH . '/resources/views/partials/navbar-auth.php';
                 if (file_exists($authPartial)) {
@@ -161,7 +164,6 @@
                     <a href="/catalog/explore?sort=terbaru" class="catalog-side-link">Selengkapnya</a>
                 </div>
 
-                <!-- Kontainer kartu otomatis diisi oleh catalog.js -->
                 <div class="row g-3" data-catalog-list="latest"></div>
             </section>
 
@@ -175,7 +177,6 @@
                     <a href="/catalog/explore?gratis=1&amp;sort=populer" class="catalog-side-link">Selengkapnya</a>
                 </div>
 
-                <!-- Kontainer kartu otomatis diisi oleh catalog.js -->
                 <div class="row g-3" data-catalog-list="free"></div>
             </section>
 
@@ -218,9 +219,7 @@
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Pergantian navbar guest/pembeli -->
     <script src="/assets/js/navbar-auth.js"></script>
-    <!-- Katalog dari data dummy -->
     <script src="/assets/js/catalog.js" defer></script>
 </body>
 
