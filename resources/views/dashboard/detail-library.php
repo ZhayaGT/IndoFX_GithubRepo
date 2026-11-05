@@ -638,16 +638,20 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
             </div>
         </div>
     </main>
+    <footer class="footer-main" id="tentang">
+        <div class="container-figma">
+            <!-- Bagian Tengah: Judul & Deskripsi -->
+            <div class="footer-center-content">
+                <h5 class="footer-brand-title-center">IndoFX</h5>
+                <p class="footer-brand-desc-center">
+                    Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
+                </p>
+            </div>
 
-    <footer class="footer-creator-center py-5 mt-auto">
-        <div class="container text-center">
-            <h5 class="fw-bold mb-2" style="color: var(--indofx-text-main);">IndoFX</h5>
-            <p class="text-muted small mb-3 mx-auto" style="max-width: 540px;">
-                Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia[cite: 26].
-            </p>
-            <div class="d-flex justify-content-between align-items-center text-muted small pt-3 border-top flex-wrap gap-2">
-                <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang[cite: 26].</span>
-                <span>Dibuat dengan bangga untuk Game Developer Indonesia[cite: 26]</span>
+            <!-- Bagian Bawah: Copyright Kiri & Slogan Kanan -->
+            <div class="footer-bottom-bar">
+                <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
+                <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
             </div>
         </div>
     </footer>

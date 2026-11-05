@@ -1,3 +1,8 @@
+<?php
+$isLoggedIn = isset($_SESSION['user_id']);
+$userKey    = (string) ($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user');
+$userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna');
+?>
 <!DOCTYPE html>
 <html lang="id">
 
@@ -39,16 +44,16 @@
                 <span class="brand-text">IndoFX</span>
             </a>
 
-            <!-- Profil Kreator Kanan -->
-            <div class="d-flex align-items-center gap-2 text-white">
-                <span class="avatar-circle">AS</span>
-                <span class="fw-bold fs-7 tracking-wide">ARGA STUDIO</span>
-            </div>
+            <!-- Profil Kreator Kanan Dinamis -->
+            <a href="/" class="d-flex align-items-center gap-2 text-white text-decoration-none" title="Kembali ke Beranda">
+                <span class="avatar-circle" id="navDashAvatar">AS</span>
+                <span class="fw-bold fs-7 tracking-wide" id="navDashStoreName">ARGA STUDIO</span>
+            </a>
 
         </div>
     </nav>
 
-    <!-- 2. Kontainer Utama: Sidebar Kiri & Konten Kanan -->
+    <!-- 2. Kontainer Utama -->
     <div class="dashboard-layout-container">
 
         <!-- SIDEBAR KIRI (PUTIH) -->
@@ -72,12 +77,6 @@
                         <span>Riwayat Transaksi</span>
                     </a>
                 </li>
-                <!-- <li class="nav-item">
-                    <a href="/dashboard/add-asset" class="sidebar-link">
-                        <i class="bi bi-pencil-square"></i>
-                        <span>Form Edit Aset</span>
-                    </a>
-                </li> -->
                 <li class="nav-item">
                     <a href="/dashboard/profile" class="sidebar-link">
                         <i class="bi bi-person"></i>
@@ -87,23 +86,23 @@
             </ul>
         </aside>
 
-        <!-- KONTEN KANAN (KREM HANGAT) -->
+        <!-- KONTEN KANAN -->
         <main class="dashboard-main-content">
 
             <!-- Header Judul -->
             <div class="mb-4">
                 <h2 class="dash-page-title mb-1">Riwayat Transaksi Penjualan</h2>
-                <p class="text-muted small m-0">Daftar Seluruh transaksi pembelian aset Anda oleh pembeli lokal.</p>
+                <p class="text-muted small m-0">Daftar seluruh transaksi pembelian aset Anda oleh pembeli lokal.</p>
             </div>
 
-            <!-- 3 Stat Cards dengan Garis Aksen Kiri -->
+            <!-- 3 Stat Cards Dinamis dengan Garis Aksen Kiri -->
             <div class="row g-3 mb-4">
-                <!-- Card 1: Total Aset (Aksen Hijau) -->
+                <!-- Card 1: Total Pendapatan (Aksen Hijau) -->
                 <div class="col-12 col-md-4">
                     <div class="stat-card stat-card-stripe stripe-green p-3 h-100">
-                        <span class="stat-card-title d-block mb-1">Total Aset</span>
-                        <div class="stat-card-value text-stat-green mb-1">Rp 4.560.000</div>
-                        <span class="stat-card-sub text-muted">Sudah Termasuk potongan fee platform</span>
+                        <span class="stat-card-title d-block mb-1">Total Pendapatan</span>
+                        <div class="stat-card-value text-stat-green mb-1" id="statTotalIncome">Rp0</div>
+                        <span class="stat-card-sub text-muted">Sudah termasuk potongan fee platform</span>
                     </div>
                 </div>
 
@@ -111,50 +110,47 @@
                 <div class="col-12 col-md-4">
                     <div class="stat-card stat-card-stripe stripe-blue p-3 h-100">
                         <span class="stat-card-title d-block mb-1">Aset Terjual</span>
-                        <div class="stat-card-value text-stat-blue mb-1">38 Transaksi</div>
+                        <div class="stat-card-value text-stat-blue mb-1" id="statTotalOrders">0 Transaksi</div>
                         <span class="stat-card-sub text-muted">Status: Midtrans Settlement</span>
                     </div>
                 </div>
 
-                <!-- Card 3: Total Unduhan (Aksen Kuning) -->
+                <!-- Card 3: Rata-rata Pendapatan (Aksen Kuning) -->
                 <div class="col-12 col-md-4">
                     <div class="stat-card stat-card-stripe stripe-yellow p-3 h-100">
-                        <span class="stat-card-title d-block mb-1">Total Unduhan</span>
-                        <div class="stat-card-value text-stat-yellow mb-1">Rp 120.000</div>
+                        <span class="stat-card-title d-block mb-1">Rata-rata Pendapatan</span>
+                        <div class="stat-card-value text-stat-yellow mb-1" id="statAvgIncome">Rp0</div>
                         <span class="stat-card-sub text-muted">Per Aset Berbayar</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Bar Filter Transaksi -->
+            <!-- Bar Filter Transaksi Responsif -->
             <div class="filter-bar-container mb-4">
                 <div class="row g-2 align-items-center">
                     <!-- Search Input -->
                     <div class="col-12 col-md-5">
                         <div class="search-input-box">
                             <i class="bi bi-search"></i>
-                            <input type="text" class="form-control filter-input" placeholder="Cari No.Invoice atau Judul Aset.....">
+                            <input type="text" id="filterKeyword" class="form-control filter-input" placeholder="Cari No.Invoice atau Judul Aset.....">
                         </div>
                     </div>
                     <!-- Date Picker -->
                     <div class="col-12 col-sm-6 col-md-3">
-                        <div class="input-group">
-                            <input type="date" class="form-control filter-input" placeholder="mm/dd/yyyy">
-                        </div>
+                        <input type="date" id="filterDate" class="form-control filter-input">
                     </div>
                     <!-- Dropdown Metode Pembayaran -->
                     <div class="col-10 col-sm-5 col-md-3">
-                        <select class="form-select filter-select">
-                            <option selected>Semua Metode Pembayaran</option>
-                            <option value="qris">QRIS / GoPay</option>
-                            <option value="bca">BCA Virtual Account</option>
-                            <option value="mandiri">Mandiri Bill</option>
-                            <option value="shopeepay">ShopeePay</option>
+                        <select class="form-select filter-select" id="filterPayment">
+                            <option value="all" selected>Semua Metode Pembayaran</option>
+                            <option value="qris">QRIS / GoPay / E-wallet</option>
+                            <option value="card">Kartu Kredit / Debit</option>
+                            <option value="bank">Virtual Account / Bank</option>
                         </select>
                     </div>
                     <!-- Tombol Cari -->
                     <div class="col-2 col-sm-1 col-md-1 text-end">
-                        <button class="btn btn-filter-submit" type="button">
+                        <button class="btn btn-filter-submit w-100" type="button" id="btnApplyFilter">
                             <i class="bi bi-search"></i>
                         </button>
                     </div>
@@ -167,91 +163,17 @@
                     <table class="table table-custom align-middle mb-0">
                         <thead>
                             <tr>
-                                <th scope="col" style="width: 17%;">No.Invoice</th>
-                                <th scope="col" style="width: 25%;">Aset Terjual</th>
+                                <th scope="col" style="width: 18%;">No.Invoice</th>
+                                <th scope="col" style="width: 27%;">Aset Terjual</th>
                                 <th scope="col" style="width: 18%;">Metode Pembayaran</th>
                                 <th scope="col" style="width: 18%;">Tanggal Transaksi</th>
-                                <th scope="col" style="width: 10%;">Status</th>
+                                <th scope="col" style="width: 9%;">Status</th>
                                 <th scope="col">Total Pendapatan</th>
                                 <th scope="col" class="text-center" style="width: 6%;">Cetak</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <!-- Baris Transaksi 1 -->
-                            <tr>
-                                <td>
-                                    <a href="#" class="action-link fw-semibold">INV-20261018-001</a>
-                                </td>
-                                <td class="fw-bold text-dark item-asset-title">Volumetric Rain &amp; Storm URP</td>
-                                <td class="text-secondary small">QRIS/GoPay</td>
-                                <td class="text-muted small">18 Okt 2026, 14:20</td>
-                                <td>
-                                    <span class="badge-status-approved">Settlement</span>
-                                </td>
-                                <td class="fw-bold text-success-income">Rp150.000</td>
-                                <td class="text-center">
-                                    <a href="javascript:window.print()" class="text-dark print-btn-icon" title="Cetak Bukti Transaksi">
-                                        <i class="bi bi-printer fs-5"></i>
-                                    </a>
-                                </td>
-                            </tr>
-
-                            <!-- Baris Transaksi 2 -->
-                            <tr>
-                                <td>
-                                    <a href="#" class="action-link fw-semibold">INV-20261017-009</a>
-                                </td>
-                                <td class="fw-bold text-dark item-asset-title">Sunda Style Bamboo Shader Helper</td>
-                                <td class="text-secondary small">BCA Virtual Account</td>
-                                <td class="text-muted small">17 Okt 2026, 09:12</td>
-                                <td>
-                                    <span class="badge-status-approved">Settlement</span>
-                                </td>
-                                <td class="fw-bold text-success-income">Rp120.000</td>
-                                <td class="text-center">
-                                    <a href="javascript:window.print()" class="text-dark print-btn-icon" title="Cetak Bukti Transaksi">
-                                        <i class="bi bi-printer fs-5"></i>
-                                    </a>
-                                </td>
-                            </tr>
-
-                            <!-- Baris Transaksi 3 -->
-                            <tr>
-                                <td>
-                                    <a href="#" class="action-link fw-semibold">INV-20261015-004</a>
-                                </td>
-                                <td class="fw-bold text-dark item-asset-title">Volumetric Rain &amp; Storm URP</td>
-                                <td class="text-secondary small">Mandiri Bill</td>
-                                <td class="text-muted small">15 Okt 2026, 18:45</td>
-                                <td>
-                                    <span class="badge-status-approved">Settlement</span>
-                                </td>
-                                <td class="fw-bold text-success-income">Rp150.000</td>
-                                <td class="text-center">
-                                    <a href="javascript:window.print()" class="text-dark print-btn-icon" title="Cetak Bukti Transaksi">
-                                        <i class="bi bi-printer fs-5"></i>
-                                    </a>
-                                </td>
-                            </tr>
-
-                            <!-- Baris Transaksi 4 -->
-                            <tr>
-                                <td>
-                                    <a href="#" class="action-link fw-semibold">INV-20261012-002</a>
-                                </td>
-                                <td class="fw-bold text-dark item-asset-title">Sunda Style Bamboo Shader Helper</td>
-                                <td class="text-secondary small">QRIS/ShopeePay</td>
-                                <td class="text-muted small">18 Okt 2026, 11:05</td>
-                                <td>
-                                    <span class="badge-status-approved">Settlement</span>
-                                </td>
-                                <td class="fw-bold text-success-income">Rp120.000</td>
-                                <td class="text-center">
-                                    <a href="javascript:window.print()" class="text-dark print-btn-icon" title="Cetak Bukti Transaksi">
-                                        <i class="bi bi-printer fs-5"></i>
-                                    </a>
-                                </td>
-                            </tr>
+                        <tbody id="transactionsTableBody">
+                            <!-- Diisi dinamis dari LocalStorage -->
                         </tbody>
                     </table>
                 </div>
@@ -260,34 +182,16 @@
         </main>
     </div>
 
-    <!-- 3. Footer Putih Konsisten -->
+    <!-- 3. Footer Minimal -->
     <footer class="footer-main" id="tentang">
         <div class="container-figma">
-            <div class="row g-4 justify-content-between mb-4">
-                <div class="col-12 col-md-5 col-lg-4">
-                    <h5 class="footer-brand-title mb-2">IndoFX</h5>
-                    <p class="footer-brand-desc m-0">
-                        Portal distribusi dan marketplace aset CG & VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
-                    </p>
-                </div>
-                <div class="col-12 col-md-6 col-lg-4">
-                    <div class="row">
-                        <div class="col-6">
-                            <h6 class="footer-col-title mb-2">Katalog</h6>
-                            <a href="/#katalog" class="footer-link">Shader</a>
-                            <a href="/#katalog" class="footer-link">VFX Partikel</a>
-                            <a href="/#katalog" class="footer-link">Model 3D</a>
-                        </div>
-                        <div class="col-6">
-                            <h6 class="footer-col-title mb-2">Dukungan</h6>
-                            <a href="#" class="footer-link">Dokumentasi</a>
-                            <a href="#" class="footer-link">Hubungi Kami</a>
-                            <a href="#" class="footer-link">Syarat & Ketentuan</a>
-                        </div>
-                    </div>
-                </div>
+            <div class="footer-center-content">
+                <h5 class="footer-brand-title-center">IndoFX</h5>
+                <p class="footer-brand-desc-center">
+                    Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
+                </p>
             </div>
-            <div class="footer-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="footer-bottom-bar">
                 <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
                 <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
             </div>
@@ -296,6 +200,140 @@
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const userKey = '<?= $userKey ?>';
+        let storeName = 'Arga Studio';
+        let allTransactions = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. Identifikasi Profil Penjual
+            const profileRaw = localStorage.getItem('indofx_seller_profile_' + userKey);
+            if (profileRaw) {
+                try {
+                    const prof = JSON.parse(profileRaw);
+                    if (prof.store_name) storeName = prof.store_name;
+                } catch (e) {}
+            }
+
+            document.getElementById('navDashStoreName').innerText = storeName.toUpperCase();
+            const words = storeName.trim().split(/\s+/);
+            let inits = '';
+            words.slice(0, 2).forEach(w => inits += w.charAt(0).toUpperCase());
+            document.getElementById('navDashAvatar').innerText = inits || 'AS';
+
+            // 2. Ambil Transaksi Penjual
+            loadTransactions();
+
+            // 3. Listener Filter
+            document.getElementById('filterKeyword').addEventListener('input', renderTransactions);
+            document.getElementById('filterDate').addEventListener('change', renderTransactions);
+            document.getElementById('filterPayment').addEventListener('change', renderTransactions);
+            document.getElementById('btnApplyFilter').addEventListener('click', renderTransactions);
+        });
+
+        function loadTransactions() {
+            // Kunci spesifik penjual: indofx_seller_sales_[userKey] atau nama toko yang dinormalisasi
+            const cleanKey = storeName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const rawSales = localStorage.getItem('indofx_seller_sales_' + userKey) ||
+                localStorage.getItem('indofx_seller_sales_' + cleanKey) ||
+                localStorage.getItem('indofx_seller_sales_' + storeName);
+
+            if (rawSales) {
+                try {
+                    allTransactions = JSON.parse(rawSales);
+                } catch (e) {
+                    allTransactions = [];
+                }
+            } else {
+                // Jika penjual belum memiliki transaksi penjualan dari pembeli
+                allTransactions = [];
+            }
+
+            updateSummaryCards(allTransactions);
+            renderTransactions();
+        }
+
+        function updateSummaryCards(data) {
+            const totalOrders = data.length;
+            let totalIncome = 0;
+
+            data.forEach(item => {
+                const price = parseFloat(item.price) || 0;
+                totalIncome += price;
+            });
+
+            const avgIncome = totalOrders > 0 ? Math.round(totalIncome / totalOrders) : 0;
+
+            document.getElementById('statTotalIncome').innerText = 'Rp ' + totalIncome.toLocaleString('id-ID');
+            document.getElementById('statTotalOrders').innerText = totalOrders + ' Transaksi';
+            document.getElementById('statAvgIncome').innerText = 'Rp ' + avgIncome.toLocaleString('id-ID');
+        }
+
+        function renderTransactions() {
+            const tbody = document.getElementById('transactionsTableBody');
+            const keyword = document.getElementById('filterKeyword').value.toLowerCase().trim();
+            const selectedDate = document.getElementById('filterDate').value; // Format YYYY-MM-DD
+            const paymentFilter = document.getElementById('filterPayment').value;
+
+            const filtered = allTransactions.filter(item => {
+                const matchKeyword = !keyword ||
+                    (item.invoice_no && item.invoice_no.toLowerCase().includes(keyword)) ||
+                    (item.asset_title && item.asset_title.toLowerCase().includes(keyword));
+
+                let matchDate = true;
+                if (selectedDate && item.date_raw) {
+                    matchDate = item.date_raw.startsWith(selectedDate);
+                }
+
+                let matchPayment = true;
+                if (paymentFilter !== 'all') {
+                    const payStr = (item.payment_method || '').toLowerCase();
+                    if (paymentFilter === 'qris') matchPayment = payStr.includes('qris') || payStr.includes('gopay') || payStr.includes('shopee') || payStr.includes('ewallet');
+                    if (paymentFilter === 'card') matchPayment = payStr.includes('kartu') || payStr.includes('card') || payStr.includes('visa');
+                    if (paymentFilter === 'bank') matchPayment = payStr.includes('bank') || payStr.includes('virtual') || payStr.includes('bill') || payStr.includes('bca') || payStr.includes('mandiri');
+                }
+
+                return matchKeyword && matchDate && matchPayment;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-receipt fs-2 d-block mb-2 text-secondary"></i>
+                            <h6 class="fw-bold mb-1">Belum Ada Transaksi Penjualan</h6>
+                            <p class="small text-muted mb-0">Transaksi pembelian aset berbayar Anda oleh pengguna lain akan otomatis muncul di sini.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(item => {
+                const price = parseFloat(item.price) || 0;
+                return `
+                    <tr>
+                        <td>
+                            <a href="javascript:void(0)" class="action-link fw-semibold">${item.invoice_no}</a>
+                        </td>
+                        <td class="fw-bold text-dark item-asset-title">${item.asset_title}</td>
+                        <td class="text-secondary small">${item.payment_method || 'QRIS/GoPay'}</td>
+                        <td class="text-muted small">${item.date || 'Hari ini'}</td>
+                        <td>
+                            <span class="badge-status-approved">Settlement</span>
+                        </td>
+                        <td class="fw-bold text-success-income">Rp${price.toLocaleString('id-ID')}</td>
+                        <td class="text-center">
+                            <a href="javascript:window.print()" class="text-dark print-btn-icon" title="Cetak Bukti Transaksi">
+                                <i class="bi bi-printer fs-5"></i>
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+    </script>
 </body>
 
 </html>

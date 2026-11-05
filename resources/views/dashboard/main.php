@@ -80,9 +80,9 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                         <span>Riwayat Transaksi</span>
                     </a>
                 </li>
-                <!-- 4. Profil Penjual -> ubahprofile.php -->
+                <!-- 4. Profil Penjual -> profile.php (Rute Diperbaiki) -->
                 <li class="nav-item">
-                    <a href="/dashboard/ubahprofile" class="sidebar-link">
+                    <a href="/dashboard/profile" class="sidebar-link">
                         <i class="bi bi-person"></i>
                         <span>Profil Penjual</span>
                     </a>
@@ -94,16 +94,16 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
         <main class="dashboard-main-content">
 
             <!-- Header Judul Dinamis -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                 <h2 class="dash-page-title mb-0">Dashboard Penjual</h2>
                 <span class="fw-bold fs-6 text-dark" id="dashContentStoreName">Arga Studio</span>
             </div>
 
-            <!-- 4 Summary Stat Cards Dinamis -->
+            <!-- 4 Summary Stat Cards Dinamis & Responsif -->
             <div class="row g-3 mb-4">
                 <!-- Card 1: Total Aset -->
                 <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="stat-card p-3">
+                    <div class="stat-card p-3 h-100">
                         <span class="stat-card-title d-block mb-2">Total Aset</span>
                         <div class="stat-card-value mb-1" id="statTotalAsset">0</div>
                         <span class="stat-card-sub text-muted" id="statAssetSub">0 Terpublikasi</span>
@@ -112,7 +112,7 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
 
                 <!-- Card 2: Aset Terjual -->
                 <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="stat-card p-3">
+                    <div class="stat-card p-3 h-100">
                         <span class="stat-card-title d-block mb-2">Aset Terjual</span>
                         <div class="stat-card-value mb-1" id="statSold">0x</div>
                         <span class="stat-card-sub text-muted">Transaksi Berhasil</span>
@@ -121,7 +121,7 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
 
                 <!-- Card 3: Total Unduhan -->
                 <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="stat-card p-3">
+                    <div class="stat-card p-3 h-100">
                         <span class="stat-card-title d-block mb-2">Total Unduhan</span>
                         <div class="stat-card-value mb-1" id="statDownloads">0</div>
                         <span class="stat-card-sub text-muted">Termasuk Aset Gratis</span>
@@ -130,7 +130,7 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
 
                 <!-- Card 4: Total Pendapatan -->
                 <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="stat-card p-3">
+                    <div class="stat-card p-3 h-100">
                         <span class="stat-card-title d-block mb-2">Total Pendapatan</span>
                         <div class="stat-card-value mb-1" id="statRevenue">Rp0</div>
                         <span class="stat-card-sub text-muted">Developer &amp; Penjual</span>
@@ -156,7 +156,7 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                                 </tr>
                             </thead>
                             <tbody id="tableAssetsBody">
-                                <!-- Diisi otomatis dari data pendaftaran di LocalStorage -->
+                                <!-- Diisi otomatis dari LocalStorage -->
                             </tbody>
                         </table>
                     </div>
@@ -182,7 +182,7 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                                 </tr>
                             </thead>
                             <tbody id="tableTransactionsBody">
-                                <!-- Otomatis bersih untuk penjual baru -->
+                                <!-- Diisi otomatis dari riwayat pembelian pengguna lain -->
                             </tbody>
                         </table>
                     </div>
@@ -192,36 +192,18 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
         </main>
     </div>
 
-    <!-- 3. Footer Putih Konsisten -->
+    <!-- 3. Footer Minimal Baru -->
     <footer class="footer-main" id="tentang">
         <div class="container-figma">
-            <div class="row g-4 justify-content-between mb-4">
-                <div class="col-12 col-md-5 col-lg-4">
-                    <h5 class="footer-brand-title mb-2">IndoFX</h5>
-                    <p class="footer-brand-desc m-0">
-                        Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia[cite: 24].
-                    </p>
-                </div>
-                <div class="col-12 col-md-6 col-lg-4">
-                    <div class="row">
-                        <div class="col-6">
-                            <h6 class="footer-col-title mb-2">Katalog</h6>
-                            <a href="/#katalog" class="footer-link">Shader</a>
-                            <a href="/#katalog" class="footer-link">VFX Partikel</a>
-                            <a href="/#katalog" class="footer-link">Model 3D</a>
-                        </div>
-                        <div class="col-6">
-                            <h6 class="footer-col-title mb-2">Dukungan</h6>
-                            <a href="#" class="footer-link">Dokumentasi</a>
-                            <a href="#" class="footer-link">Hubungi Kami</a>
-                            <a href="#" class="footer-link">Syarat &amp; Ketentuan</a>
-                        </div>
-                    </div>
-                </div>
+            <div class="footer-center-content">
+                <h5 class="footer-brand-title-center">IndoFX</h5>
+                <p class="footer-brand-desc-center">
+                    Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
+                </p>
             </div>
-            <div class="footer-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang[cite: 24].</span>
-                <span>Dibuat dengan bangga untuk Game Developer Indonesia[cite: 24]</span>
+            <div class="footer-bottom-bar">
+                <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
+                <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
             </div>
         </div>
     </footer>
@@ -234,7 +216,7 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
         document.addEventListener('DOMContentLoaded', function() {
             const userKey = '<?= $userKey ?>';
 
-            // 1. Ambil Profil Penjual Terdaftar (Berdasarkan userKey)
+            // 1. Ambil Profil Penjual Terdaftar
             const profileRaw = localStorage.getItem('indofx_seller_profile_' + userKey);
             let storeName = 'Arga Studio';
 
@@ -253,14 +235,14 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
             if (titleEl) titleEl.innerText = storeName;
             if (navStoreEl) navStoreEl.innerText = storeName.toUpperCase();
 
-            // Hitung Inisial Avatar (misal: "Arga Studio" -> "AS")
+            // Inisial Avatar
             const words = storeName.trim().split(/\s+/);
             let inits = '';
             words.slice(0, 2).forEach(w => inits += w.charAt(0).toUpperCase());
             const avatarEl = document.getElementById('navDashAvatar');
             if (avatarEl) avatarEl.innerText = inits || 'AS';
 
-            // 2. Ambil Aset Penjual yang Diunggah Saat Pendaftaran
+            // 2. Ambil Aset Penjual dari LocalStorage
             const assetsRaw = localStorage.getItem('indofx_seller_assets_' + userKey);
             let sellerAssets = [];
 
@@ -275,27 +257,52 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
             const assetsTbody = document.getElementById('tableAssetsBody');
 
             if (sellerAssets.length > 0) {
-                // Tampilkan Aset Sampel yang Baru Didaftarkan (Status: Pending)
-                assetsTbody.innerHTML = sellerAssets.map(item => `
-                    <tr>
-                        <td class="fw-bold text-dark item-asset-title">${item.title}</td>
-                        <td class="text-muted small">${item.category || 'VFX Partikel'}</td>
-                        <td class="fw-bold text-dark">${item.price || 'Rp150.000'}</td>
-                        <td>
-                            <span class="${item.status === 'Disetujui' ? 'badge-status-approved' : 'badge-status-pending'}">
-                                ${item.status || 'Pending'}
-                            </span>
-                        </td>
-                        <td class="text-muted small">${item.created_at || new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
-                        <td class="text-end pe-4">
-                            <a href="/dashboard/dashboard" class="action-link me-2">Edit</a>
-                            <span class="text-muted mx-1">|</span>
-                            <a href="/asset/detail" class="action-link">Lihat</a>
-                        </td>
-                    </tr>
-                `).join('');
+                assetsTbody.innerHTML = sellerAssets.map(item => {
+                    const primaryPipe = Array.isArray(item.pipelines) ? (item.pipelines[0] || 'Built-in') : (item.pipelines || item.render_pipeline || 'Built-in');
 
-                // Update Statistik Aset
+                    let priceNum = 0;
+                    if (typeof item.price === 'number') {
+                        priceNum = item.price;
+                    } else if (typeof item.price === 'string') {
+                        const cleaned = item.price.replace(/[^0-9]/g, '');
+                        priceNum = cleaned ? parseInt(cleaned, 10) : 0;
+                    }
+
+                    const detailUrl = `/asset/detail?id=${encodeURIComponent(item.id || '')}` +
+                        `&slug=${encodeURIComponent(item.slug || item.id || '')}` +
+                        `&title=${encodeURIComponent(item.title || '')}` +
+                        `&category=${encodeURIComponent(item.category || 'VFX Partikel')}` +
+                        `&creator=${encodeURIComponent(item.creator || item.seller || storeName)}` +
+                        `&price=${encodeURIComponent(priceNum)}` +
+                        `&pipeline=${encodeURIComponent(primaryPipe)}`;
+
+                    let statusBadgeClass = 'badge-status-pending';
+                    if (item.status === 'Disetujui') {
+                        statusBadgeClass = 'badge-status-approved';
+                    } else if (item.status === 'Ditolak') {
+                        statusBadgeClass = 'badge-status-rejected';
+                    }
+
+                    return `
+                        <tr>
+                            <td class="fw-bold text-dark item-asset-title">${item.title}</td>
+                            <td class="text-muted small">${item.category || 'VFX Partikel'}</td>
+                            <td class="fw-bold text-dark">${item.price || 'Gratis'}</td>
+                            <td>
+                                <span class="${statusBadgeClass}">
+                                    ${item.status || 'Pending'}
+                                </span>
+                            </td>
+                            <td class="text-muted small">${item.created_at || new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                            <td class="text-end pe-4 text-nowrap">
+                                <a href="/dashboard/add-asset?edit_id=${encodeURIComponent(item.id || '')}" class="action-link me-2">Edit</a>
+                                <span class="text-muted mx-1">|</span>
+                                <a href="${detailUrl}" class="action-link">Lihat</a>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
                 document.getElementById('statTotalAsset').innerText = sellerAssets.length;
                 const approvedCount = sellerAssets.filter(a => a.status === 'Disetujui').length;
                 document.getElementById('statAssetSub').innerText = approvedCount + ' Terpublikasi';
@@ -304,7 +311,7 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                     <tr>
                         <td colspan="6" class="text-center py-4 text-muted small">
                             <i class="bi bi-box-seam fs-3 d-block mb-1 text-secondary"></i>
-                            Belum ada aset yang diunggah. Klik <a href="/dashboard/dashboard" class="fw-bold text-primary">Semua Aset Saya</a> untuk mulai mengunggah.
+                            Belum ada aset yang diunggah. Klik <a href="/dashboard/assets" class="fw-bold text-primary">Semua Aset Saya</a> untuk mulai mengunggah.
                         </td>
                     </tr>
                 `;
@@ -312,21 +319,69 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                 document.getElementById('statAssetSub').innerText = '0 Terpublikasi';
             }
 
-            // 3. Tabel Transaksi Penjualan Dikosongkan Bersih Bagi Penjual Baru
-            const transTbody = document.getElementById('tableTransactionsBody');
-            transTbody.innerHTML = `
-                <tr>
-                    <td colspan="4" class="text-center py-4 text-muted small">
-                        <i class="bi bi-receipt text-secondary fs-3 d-block mb-1"></i>
-                        Belum ada transaksi penjualan terbaru.
-                    </td>
-                </tr>
-            `;
+            // 3. Ambil data transaksi toko dari LocalStorage
+            const cleanKey = storeName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const rawSales = localStorage.getItem('indofx_seller_sales_' + cleanKey) ||
+                localStorage.getItem('indofx_seller_sales_' + storeName) ||
+                localStorage.getItem('indofx_seller_sales_' + userKey);
 
-            // Reset Angka Penjualan & Pendapatan
-            document.getElementById('statSold').innerText = '0x';
-            document.getElementById('statDownloads').innerText = '0';
-            document.getElementById('statRevenue').innerText = 'Rp0';
+            let sellerSales = [];
+            if (rawSales) {
+                try {
+                    sellerSales = JSON.parse(rawSales);
+                } catch (e) {
+                    sellerSales = [];
+                }
+            }
+
+            let totalRevenue = 0;
+            sellerSales.forEach(sale => {
+                totalRevenue += (parseFloat(sale.price) || 0);
+            });
+
+            let totalDownloads = 0;
+            sellerAssets.forEach(sa => {
+                if (sa.downloads) {
+                    const count = parseInt(String(sa.downloads).replace(/[^0-9]/g, ''), 10) || 0;
+                    totalDownloads += count;
+                }
+            });
+            if (totalDownloads < sellerSales.length) {
+                totalDownloads = sellerSales.length;
+            }
+
+            document.getElementById('statSold').innerText = sellerSales.length + 'x';
+            document.getElementById('statDownloads').innerText = totalDownloads;
+            document.getElementById('statRevenue').innerText = 'Rp' + totalRevenue.toLocaleString('id-ID');
+
+            // 4. Render tabel transaksi penjualan terbaru
+            const transTbody = document.getElementById('tableTransactionsBody');
+
+            if (sellerSales.length > 0) {
+                const latestSales = sellerSales.slice(0, 5);
+                transTbody.innerHTML = latestSales.map(item => {
+                    const price = parseFloat(item.price) || 0;
+                    return `
+                        <tr>
+                            <td class="fw-semibold">
+                                <a href="/dashboard/transactions" class="action-link">${item.invoice_no}</a>
+                            </td>
+                            <td class="fw-bold text-dark item-asset-title">${item.asset_title}</td>
+                            <td class="text-muted small">${item.date || 'Hari ini'}</td>
+                            <td class="text-end pe-4 fw-bold text-success">Rp${price.toLocaleString('id-ID')}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } else {
+                transTbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-muted small">
+                            <i class="bi bi-receipt text-secondary fs-3 d-block mb-1"></i>
+                            Belum ada transaksi penjualan terbaru.
+                        </td>
+                    </tr>
+                `;
+            }
         });
     </script>
 </body>

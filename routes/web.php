@@ -69,7 +69,7 @@ $router->add('GET', '/dashboard/profile', function () {
     require __DIR__ . '/../resources/views/dashboard/profile.php';
 });
 
-// Kelola Profil Pembeli (ubahprofile.php)
+// Kelola Profil Pembeli (Format URL dengan strip: /dashboard/ubah-profil)
 $router->get('/dashboard/ubah-profil', function () {
     if (!isset($_SESSION['user_id'])) {
         header('Location: /login');
@@ -104,6 +104,44 @@ $router->post('/dashboard/ubah-profil', function () {
     }
 
     header('Location: /dashboard/ubah-profil?success=1');
+    exit;
+});
+
+// Kelola Profil Pembeli (Format URL tanpa strip: /dashboard/ubahprofile)
+$router->get('/dashboard/ubahprofile', function () {
+    if (!isset($_SESSION['user_id'])) {
+        header('Location: /login');
+        exit;
+    }
+    require BASE_PATH . '/resources/views/dashboard/ubahprofile.php';
+});
+
+$router->post('/dashboard/ubahprofile', function () {
+    if (!isset($_SESSION['user_id'])) {
+        header('Location: /login');
+        exit;
+    }
+
+    $userId  = $_SESSION['user_id'];
+    $newName = trim($_POST['name'] ?? '');
+    $newBio  = trim($_POST['bio'] ?? '');
+
+    if ($newName !== '') {
+        $db = Database::getInstance();
+        $db->query(
+            "UPDATE users SET name = :name, bio = :bio, updated_at = NOW() WHERE id = :id",
+            [
+                'name' => $newName,
+                'bio'  => $newBio,
+                'id'   => $userId
+            ]
+        );
+
+        $_SESSION['name'] = $newName;
+        $_SESSION['bio']  = $newBio;
+    }
+
+    header('Location: /dashboard/ubahprofile?success=1');
     exit;
 });
 

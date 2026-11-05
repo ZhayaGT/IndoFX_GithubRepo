@@ -282,36 +282,20 @@
         </div>
     </main>
 
-    <!-- 3. Footer Putih Solid Full-Width Sesuai Figma -->
     <footer class="footer-main" id="tentang">
         <div class="container-figma">
-            <div class="row g-4 justify-content-between mb-4">
-                <div class="col-12 col-md-5 col-lg-4">
-                    <h5 class="footer-brand-title mb-2">IndoFX</h5>
-                    <p class="footer-brand-desc m-0">
-                        Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia[cite: 25].
-                    </p>
-                </div>
-                <div class="col-12 col-md-6 col-lg-4">
-                    <div class="row">
-                        <div class="col-6">
-                            <h6 class="footer-col-title mb-2">Katalog</h6>
-                            <a href="/#katalog" class="footer-link">Shader</a>
-                            <a href="/#katalog" class="footer-link">VFX Partikel</a>
-                            <a href="/#katalog" class="footer-link">Model 3D</a>
-                        </div>
-                        <div class="col-6">
-                            <h6 class="footer-col-title mb-2">Dukungan</h6>
-                            <a href="#" class="footer-link">Dokumentasi</a>
-                            <a href="#" class="footer-link">Hubungi Kami</a>
-                            <a href="#" class="footer-link">Syarat &amp; Ketentuan</a>
-                        </div>
-                    </div>
-                </div>
+            <!-- Bagian Tengah: Judul & Deskripsi -->
+            <div class="footer-center-content">
+                <h5 class="footer-brand-title-center">IndoFX</h5>
+                <p class="footer-brand-desc-center">
+                    Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
+                </p>
             </div>
-            <div class="footer-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang[cite: 25].</span>
-                <span>Dibuat dengan bangga untuk Game Developer Indonesia[cite: 25]</span>
+
+            <!-- Bagian Bawah: Copyright Kiri & Slogan Kanan -->
+            <div class="footer-bottom-bar">
+                <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
+                <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
             </div>
         </div>
     </footer>

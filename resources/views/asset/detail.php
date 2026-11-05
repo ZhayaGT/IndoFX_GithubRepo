@@ -138,14 +138,30 @@ $assetFormat   = $matched['format'] ?? '.unitypackage';
 $assetArt      = $matched['art'] ?? 'castle';
 
 $isGratis = false;
+$numericPrice = 0;
+
 if (is_numeric($assetPriceRaw)) {
-    $isGratis = ((float)$assetPriceRaw <= 0);
+    $numericPrice = (float)$assetPriceRaw;
+    $isGratis = ($numericPrice <= 0);
 } else {
-    $isGratis = (strtolower(trim((string)$assetPriceRaw)) === 'gratis' || $assetPriceRaw === '0');
+    $cleanString = preg_replace('/[^0-9]/', '', (string)$assetPriceRaw);
+    $numericPrice = $cleanString !== '' ? (float)$cleanString : 0;
+    $isGratis = (strtolower(trim((string)$assetPriceRaw)) === 'gratis' || $numericPrice <= 0);
 }
 
 $isLoggedIn = isset($_SESSION['user_id']);
 $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user') : '';
+
+// 3. Susun URL Checkout Dinamis dengan seluruh parameter aset yang dibeli
+$checkoutQuery = http_build_query([
+    'asset_id' => $assetId,
+    'id'       => $assetId,
+    'title'    => $assetTitle,
+    'creator'  => $assetCreator,
+    'price'    => $numericPrice,
+    'pipeline' => $assetPipeline
+]);
+$checkoutUrl = '/checkout?' . $checkoutQuery;
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -691,16 +707,16 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
                     <div class="detail-content-box" id="tabContentArea">
                         <div id="tab-deskripsi" class="tab-pane-detail active">
                             <p class="mb-3">
-                                Paket aset visual <strong><?= htmlspecialchars($assetTitle) ?></strong> dirancang khusus oleh <strong><?= htmlspecialchars($assetCreator) ?></strong> untuk mewujudkan sistem visual berkualitas tinggi dalam pipeline rendering <?= htmlspecialchars($assetPipeline) ?> di engine Unity[cite: 27]. Dilengkapi dengan kontrol intensitas, shader material yang teroptimasi, dan performa tinggi tanpa membebani draw calls.
+                                Paket aset visual <strong><?= htmlspecialchars($assetTitle) ?></strong> dirancang khusus oleh <strong><?= htmlspecialchars($assetCreator) ?></strong> untuk mewujudkan sistem visual berkualitas tinggi dalam pipeline rendering <?= htmlspecialchars($assetPipeline) ?> di engine Unity. Dilengkapi dengan kontrol intensitas, shader material yang teroptimasi, dan performa tinggi tanpa membebani draw calls.
                             </p>
                             <p class="mb-0">
-                                Sangat cocok untuk proyek game bertema petualangan, aksi, simulasi, maupun kebutuhan prototipe karya game developer Indonesia[cite: 27].
+                                Sangat cocok untuk proyek game bertema petualangan, aksi, simulasi, maupun kebutuhan prototipe karya game developer Indonesia.
                             </p>
                         </div>
 
                         <div id="tab-changelog" class="tab-pane-detail d-none">
                             <h6 class="fw-bold mb-2">Versi 1.2.0</h6>
-                            <p class="text-muted small">Pembaruan shader dan optimasi performa partikel untuk rilis Unity 2022 LTS[cite: 26].</p>
+                            <p class="text-muted small">Pembaruan shader dan optimasi performa partikel untuk rilis Unity 2022 LTS</p>
                         </div>
 
                         <div id="tab-ulasan" class="tab-pane-detail d-none">
@@ -791,7 +807,7 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
                             <?php if ($isGratis): ?>
                                 Gratis
                             <?php else: ?>
-                                Rp<?= number_format((float)$assetPriceRaw, 0, ',', '.') ?>
+                                Rp<?= number_format((float)$numericPrice, 0, ',', '.') ?>
                             <?php endif; ?>
                         </div>
 
@@ -824,7 +840,7 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
                                     </a>
                                 <?php endif; ?>
                             <?php else: ?>
-                                <a href="<?= $isLoggedIn ? ('/checkout?asset_id=' . urlencode((string)$assetId)) : '/login' ?>" class="btn-figma-buy-orange" id="btnBuyPrimary">
+                                <a href="<?= $isLoggedIn ? htmlspecialchars($checkoutUrl, ENT_QUOTES, 'UTF-8') : '/login' ?>" class="btn-figma-buy-orange" id="btnBuyPrimary">
                                     Beli
                                 </a>
                                 <button type="button" class="btn-figma-add-cart-outline" onclick="addToCart()">
@@ -844,11 +860,11 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
         <div class="container-figma text-center">
             <h5 class="fw-bold mb-2" style="color: var(--indofx-text-main);">IndoFX</h5>
             <p class="text-muted small mb-4 mx-auto" style="max-width: 580px;">
-                Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia[cite: 26].
+                Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia
             </p>
             <div class="d-flex justify-content-between align-items-center text-muted small pt-2 border-top flex-wrap gap-2">
-                <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang[cite: 26].</span>
-                <span>Dibuat dengan bangga untuk Game Developer Indonesia[cite: 26]</span>
+                <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang</span>
+                <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
             </div>
         </div>
     </footer>
@@ -1028,7 +1044,7 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
                 id: currentAssetId,
                 title: '<?= htmlspecialchars($assetTitle, ENT_QUOTES, 'UTF-8') ?>',
                 creator: '<?= htmlspecialchars($assetCreator, ENT_QUOTES, 'UTF-8') ?>',
-                price: <?= (float)$assetPriceRaw ?>,
+                price: <?= (float)$numericPrice ?>,
                 date: '<?= date("d M Y") ?>',
                 pipelines: <?= json_encode(array_values(array_filter(array_map('trim', explode(',', $assetPipeline))))) ?>,
                 art: '<?= htmlspecialchars($assetArt, ENT_QUOTES, 'UTF-8') ?>'
@@ -1055,6 +1071,7 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
                 btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
             }
 
+            // 1. Simpan ke Library Akun Pembeli Aktif
             const storageKey = 'indofx_library_' + userKey;
             let currentLibrary = [];
             try {
@@ -1078,6 +1095,41 @@ $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?
                 currentLibrary.unshift(newAsset);
                 localStorage.setItem(storageKey, JSON.stringify(currentLibrary));
             }
+
+            // 2. NAIKKAN JUMLAH UNDUHAN PADA ASET MILIK PENJUAL
+            const rawCreator = ('<?= htmlspecialchars($assetCreator, ENT_QUOTES, 'UTF-8') ?>').trim();
+            const cleanCreatorKey = rawCreator.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const assetKeys = [
+                'indofx_seller_assets_' + cleanCreatorKey,
+                'indofx_seller_assets_' + rawCreator
+            ];
+
+            assetKeys.forEach(k => {
+                try {
+                    let sAssets = JSON.parse(localStorage.getItem(k)) || [];
+                    sAssets = sAssets.map(sa => {
+                        if (String(sa.id) === String(currentAssetId) || sa.title === '<?= htmlspecialchars($assetTitle, ENT_QUOTES, 'UTF-8') ?>') {
+                            const currentCount = parseInt(String(sa.downloads || '0').replace(/[^0-9]/g, ''), 10) || 0;
+                            sa.downloads = (currentCount + 1) + 'x Unduhan';
+                        }
+                        return sa;
+                    });
+                    localStorage.setItem(k, JSON.stringify(sAssets));
+                } catch (e) {}
+            });
+
+            // 3. NAIKKAN JUMLAH UNDUHAN DI KATALOG PUBLIK
+            try {
+                let pubCatalog = JSON.parse(localStorage.getItem('indofx_public_catalog')) || [];
+                pubCatalog = pubCatalog.map(pa => {
+                    if (String(pa.id) === String(currentAssetId) || pa.title === '<?= htmlspecialchars($assetTitle, ENT_QUOTES, 'UTF-8') ?>') {
+                        const currentCount = parseInt(String(pa.downloads || '0').replace(/[^0-9]/g, ''), 10) || 0;
+                        pa.downloads = (currentCount + 1) + 'x Unduhan';
+                    }
+                    return pa;
+                });
+                localStorage.setItem('indofx_public_catalog', JSON.stringify(pubCatalog));
+            } catch (e) {}
 
             window.location.href = '/library';
         }
