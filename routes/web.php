@@ -10,22 +10,9 @@ use IndoFX\Core\Database;
 $router->add('GET', '/', 'HomeController', 'index');
 $router->add('GET', '/catalog/explore', 'CatalogController', 'explore');
 
-// Halaman Detail Aset
-$router->add('GET', '/asset/detail', function () {
-    $detailPath = __DIR__ . '/../resources/views/catalog/detail.php';
-    if (!file_exists($detailPath)) {
-        $detailPath = __DIR__ . '/../resources/views/asset/detail.php';
-    }
-    require $detailPath;
-});
-
-$router->add('GET', '/asset', function () {
-    $detailPath = __DIR__ . '/../resources/views/catalog/detail.php';
-    if (!file_exists($detailPath)) {
-        $detailPath = __DIR__ . '/../resources/views/asset/detail.php';
-    }
-    require $detailPath;
-});
+// Halaman Detail Aset (Arahkan ke AssetController)
+$router->add('GET', '/asset/detail', 'AssetController', 'detail');
+$router->add('GET', '/asset', 'AssetController', 'detail');
 
 // ==========================================
 // 2. AUTENTIKASI PENGGUNA

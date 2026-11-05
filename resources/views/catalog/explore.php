@@ -158,11 +158,12 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                 <span class="brand-text">IndoFX</span>
             </a>
 
-            <form action="/catalog/explore" method="GET" class="search-box-header d-flex align-items-center flex-grow-1 mx-2 mx-md-4">
-                <i class="bi bi-search search-icon-header"></i>
-                <input type="text" name="q" class="form-control search-input-header" placeholder="Cari aset VFX, shader, tekstur..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
-                <button type="submit" class="d-none"></button>
-            </form>
+            <?php
+                $searchPartial = BASE_PATH . '/resources/views/partials/navbar-search.php';
+                if (file_exists($searchPartial)) {
+                    require $searchPartial;
+                }
+            ?>
 
             <div class="d-flex align-items-center">
                 <?php
@@ -208,7 +209,7 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                                 <div class="asset-card-figma h-100 d-flex flex-column">
                                     
                                     <!-- 1. Perbaikan URL Gambar & htmlspecialchars -->
-                                    <a href="/asset/detail?id=<?= $asset['id'] ?>" class="asset-thumb-wrapper d-block">
+                                    <a href="/asset/detail?id=<?= $asset['public_id'] ?>" class="asset-thumb-wrapper d-block">
                                         <?php 
                                         $thumbnailFile = $asset['thumbnail'] ?? ''; 
                                         
@@ -230,7 +231,7 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                                                 <?= htmlspecialchars($asset['seller_name'] ?? 'Studio Kreator') ?>
                                             </a>
                                             
-                                            <a href="/asset/detail?id=<?= $asset['id'] ?>" class="text-decoration-none d-block">
+                                            <a href="/asset/detail?id=<?= $asset['public_id'] ?>" class="text-decoration-none d-block">
                                                 <h6 class="asset-name"><?= htmlspecialchars($asset['title'] ?? '') ?></h6>
                                             </a>
                                             
@@ -238,14 +239,16 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                                             <div class="d-flex gap-1 mb-2 flex-wrap">
                                                 <?php 
                                                 $pipeline = $asset['render_pipeline'] ?? '';
+                                                
+                                                // Perhatikan penambahan kata -pipeline- pada nama class
                                                 if (stripos($pipeline, 'Built-in') !== false) {
-                                                    echo '<span class="badge-pipeline badge-builtin">Built-In</span> ';
+                                                    echo '<span class="badge-pipeline badge-pipeline-builtin">Built-In</span> ';
                                                 }
                                                 if (stripos($pipeline, 'URP') !== false) {
-                                                    echo '<span class="badge-pipeline badge-urp">URP</span> ';
+                                                    echo '<span class="badge-pipeline badge-pipeline-urp">URP</span> ';
                                                 }
                                                 if (stripos($pipeline, 'HDRP') !== false) {
-                                                    echo '<span class="badge-pipeline badge-hdrp">HDRP</span> ';
+                                                    echo '<span class="badge-pipeline badge-pipeline-hdrp">HDRP</span> ';
                                                 }
                                                 if (stripos($pipeline, 'Any') !== false) {
                                                     echo '<span class="badge-pipeline bg-secondary text-white border-0 px-2 rounded-1" style="font-size: 0.75rem;">Any</span>';
@@ -346,36 +349,6 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
 
                     </div>
                 </div>
-
-                <!-- SISI KANAN: Grid 3 Kartu per Baris (Proporsi Awal Terjaga) -->
-                <div class="col-12 col-lg-9">
-                    <!-- Bar Jumlah Aset & Opsi Urutkan -->
-                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                        <span class="text-dark" style="font-size: 0.92rem;">
-                            Menampilkan <strong data-catalog-count>0</strong> aset yang cocok
-                        </span>
-
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="small" style="color: #2b2623; font-weight: 500;">Urutkan:</span>
-                            <select class="form-select form-select-sm sort-select-figma sort-select">
-                                <option value="terbaru" selected>Terbaru</option>
-                                <option value="populer">Terpopuler</option>
-                                <option value="harga_rendah">Harga: Rendah ke Tinggi</option>
-                                <option value="harga_tinggi">Harga: Tinggi ke Rendah</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Wadah Kartu Katalog (3 Kolom per Baris) -->
-                    <div class="row g-3" data-catalog-list="explore"></div>
-
-                    <!-- Pagination Dinamis -->
-                    <div class="d-flex justify-content-center align-items-center gap-3 mt-5 mb-3 explore-pagination" data-catalog-pagination></div>
-                </div>
-
-            </div>
-        </div>
-    </main>
 
     <!-- 3. Footer Putih Solid Full-Width Sesuai Figma -->
     <footer class="footer-main" id="tentang">

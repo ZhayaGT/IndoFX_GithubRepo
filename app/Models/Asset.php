@@ -6,6 +6,7 @@ use IndoFX\Core\Model;
 use PDO;
 
 class Asset extends Model {
+    // Halaman beranda
     // Mengambil 4 aset terbaru untuk section "Aset CG & VFX Terbaru"
     public function getLatestAssets($limit = 4) {
         $sql = "SELECT a.*, ai.image_path as thumbnail, u.name as seller_name 
@@ -33,6 +34,7 @@ class Asset extends Model {
         return $stmt->fetchAll();
     }
 
+    // Halaman Explore
     // Mengambil semua data aset, diurutkan dari yang terbaru untuk ditampilkan pada halaman explore
     public function getAllAssets() {
         $sql = "SELECT a.*, ai.image_path as thumbnail, u.name as seller_name 
@@ -126,5 +128,37 @@ class Asset extends Model {
         
         $stmt->execute();
         return $stmt->fetchAll();
+    }
+
+    // Halaman Detail Aset
+    // Mengambil satu aset beserta nama penjual dan nama kategori berdasarkan ID
+    public function getAssetById($publicId) {
+        $sql = "SELECT a.*, u.name as seller_name, c.name as category_name, c.slug as category_slug
+                FROM assets a
+                LEFT JOIN users u ON a.seller_id = u.id
+                LEFT JOIN categories c ON a.category_id = c.id
+                WHERE a.public_id = :public_id::uuid
+                LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':public_id', $publicId, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch();
+    }
+
+    // Mengambil semua path gambar untuk galeri berdasarkan ID aset
+    public function getAssetGallery($assetId) {
+        $sql = "SELECT image_path 
+                FROM asset_images 
+                WHERE asset_id = :asset_id 
+                ORDER BY sort_order ASC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':asset_id', $assetId, PDO::PARAM_INT); 
+        $stmt->execute();
+        
+        $gallery = [];
+        while ($row = $stmt->fetch()) {
+             $gallery[] = $row['image_path'];
+        }
+        return $gallery;
     }
 }

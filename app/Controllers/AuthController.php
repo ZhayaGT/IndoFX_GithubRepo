@@ -34,6 +34,7 @@ class AuthController extends Controller {
         if ($user && password_verify($password, $user['password'])) {
             // Daftarkan sesi pengguna
             $_SESSION['user_id'] = $user['id'];
+            $_SESSION['public_id']  = $user['public_id'];
             $_SESSION['role']    = $user['role'];
             $_SESSION['name']    = $user['name'];
 

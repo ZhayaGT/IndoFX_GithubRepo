@@ -10,9 +10,12 @@ class User extends Model {
     // Digunakan saat validasi Login atau mengecek duplikasi email saat Register.
     public function findByEmail($email) {
         $sql = "SELECT * FROM users WHERE email = :email LIMIT 1";
-        // Query akan otomatis memanggil prepared statement dari Database.php
-        $stmt = $this->db->prepare("SELECT * FROM users WHERE email = ?");
-        $stmt->execute([$email]);
+        $stmt = $this->db->prepare($sql);
+
+        // Menggunakan bindValue untuk keamanan ekstra
+        $stmt->bindValue(':email', $email, PDO::PARAM_STR);
+        $stmt->execute();
+
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 

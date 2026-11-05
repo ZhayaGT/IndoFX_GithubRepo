@@ -92,11 +92,12 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                 <span class="brand-text">IndoFX</span>
             </a>
 
-            <form action="/catalog/explore" method="GET" class="search-box-header d-flex align-items-center flex-grow-1 mx-2 mx-md-4">
-                <i class="bi bi-search search-icon-header"></i>
-                <input type="text" name="q" class="form-control search-input-header" placeholder="Cari aset VFX, shader, tekstur..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
-                <button type="submit" class="d-none"></button>
-            </form>
+            <?php
+                $searchPartial = BASE_PATH . '/resources/views/partials/navbar-search.php';
+                if (file_exists($searchPartial)) {
+                    require $searchPartial;
+                }
+            ?>
 
             <!-- Sisi Kanan: Auth Group -->
             <div class="d-flex align-items-center">
@@ -177,7 +178,7 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                             <div class="asset-card-figma h-100 d-flex flex-column">
                                 
                                 <!-- 1. Perbaikan URL Gambar & htmlspecialchars -->
-                                <a href="/asset/detail?id=<?= $asset['id'] ?>" class="asset-thumb-wrapper d-block">
+                                <a href="/asset/detail?id=<?= $asset['public_id'] ?>" class="asset-thumb-wrapper d-block">
                                     <?php 
                                     $thumbnailFile = $asset['thumbnail'] ?? ''; 
                                     
@@ -199,7 +200,7 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                                             <?= htmlspecialchars($asset['seller_name'] ?? 'Studio Kreator') ?>
                                         </a>
                                         
-                                        <a href="/asset/detail?id=<?= $asset['id'] ?>" class="text-decoration-none d-block">
+                                        <a href="/asset/detail?id=<?= $asset['public_id'] ?>" class="text-decoration-none d-block">
                                             <h6 class="asset-name"><?= htmlspecialchars($asset['title'] ?? '') ?></h6>
                                         </a>
                                         
@@ -207,14 +208,16 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                                         <div class="d-flex gap-1 mb-2 flex-wrap">
                                             <?php 
                                             $pipeline = $asset['render_pipeline'] ?? '';
+                                            
+                                            // Perhatikan penambahan kata -pipeline- pada nama class
                                             if (stripos($pipeline, 'Built-in') !== false) {
-                                                echo '<span class="badge-pipeline badge-builtin">Built-In</span> ';
+                                                echo '<span class="badge-pipeline badge-pipeline-builtin">Built-In</span> ';
                                             }
                                             if (stripos($pipeline, 'URP') !== false) {
-                                                echo '<span class="badge-pipeline badge-urp">URP</span> ';
+                                                echo '<span class="badge-pipeline badge-pipeline-urp">URP</span> ';
                                             }
                                             if (stripos($pipeline, 'HDRP') !== false) {
-                                                echo '<span class="badge-pipeline badge-hdrp">HDRP</span> ';
+                                                echo '<span class="badge-pipeline badge-pipeline-hdrp">HDRP</span> ';
                                             }
                                             if (stripos($pipeline, 'Any') !== false) {
                                                 echo '<span class="badge-pipeline bg-secondary text-white border-0 px-2 rounded-1" style="font-size: 0.75rem;">Any</span>';
@@ -244,7 +247,7 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                         <h4 class="catalog-heading mb-1">Aset Gratis Unggulan</h4>
                         <p class="catalog-subheading m-0">Mulai kembangkan prototype game Anda tanpa biaya</p>
                     </div>
-                    <a href="/catalog/explore?gratis=1&amp;sort=populer" class="catalog-side-link">Selengkapnya</a>
+                    <a href="/catalog/explore?is_free=1" class="catalog-side-link">Selengkapnya</a>
                 </div>
 
                 <div class="row g-3">
@@ -253,7 +256,7 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                             <div class="asset-card-figma h-100 d-flex flex-column">
                                 
                                 <!-- 1. Perbaikan URL Gambar & htmlspecialchars -->
-                                <a href="/asset/detail?id=<?= $asset['id'] ?>" class="asset-thumb-wrapper d-block">
+                                <a href="/asset/detail?id=<?= $asset['public_id'] ?>" class="asset-thumb-wrapper d-block">
                                     <?php 
                                     $thumbnailFile = $asset['thumbnail'] ?? ''; 
                                     
@@ -275,7 +278,7 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                                             <?= htmlspecialchars($asset['seller_name'] ?? 'Studio Kreator') ?>
                                         </a>
                                         
-                                        <a href="/asset/detail?id=<?= $asset['id'] ?>" class="text-decoration-none d-block">
+                                        <a href="/asset/detail?id=<?= $asset['public_id'] ?>" class="text-decoration-none d-block">
                                             <h6 class="asset-name"><?= htmlspecialchars($asset['title'] ?? '') ?></h6>
                                         </a>
                                         
@@ -283,14 +286,16 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                                         <div class="d-flex gap-1 mb-2 flex-wrap">
                                             <?php 
                                             $pipeline = $asset['render_pipeline'] ?? '';
+                                            
+                                            // Perhatikan penambahan kata -pipeline- pada nama class
                                             if (stripos($pipeline, 'Built-in') !== false) {
-                                                echo '<span class="badge-pipeline badge-builtin">Built-In</span> ';
+                                                echo '<span class="badge-pipeline badge-pipeline-builtin">Built-In</span> ';
                                             }
                                             if (stripos($pipeline, 'URP') !== false) {
-                                                echo '<span class="badge-pipeline badge-urp">URP</span> ';
+                                                echo '<span class="badge-pipeline badge-pipeline-urp">URP</span> ';
                                             }
                                             if (stripos($pipeline, 'HDRP') !== false) {
-                                                echo '<span class="badge-pipeline badge-hdrp">HDRP</span> ';
+                                                echo '<span class="badge-pipeline badge-pipeline-hdrp">HDRP</span> ';
                                             }
                                             if (stripos($pipeline, 'Any') !== false) {
                                                 echo '<span class="badge-pipeline bg-secondary text-white border-0 px-2 rounded-1" style="font-size: 0.75rem;">Any</span>';

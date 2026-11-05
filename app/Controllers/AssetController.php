@@ -3,120 +3,64 @@
 namespace IndoFX\Controllers;
 
 use IndoFX\Core\Controller;
-
- // Halaman detail aset.
- //
- // Data masih dummy dan dibaca dari dua berkas JSON di public/assets/data:
- //
- //  assets.json        -> kolom yang nanti berasal dari tabel `assets`
- //                        (title, slug, price, render_pipeline, unity_version, ...)
- //  asset-details.json -> isi khusus halaman detail, di-key oleh slug
- //                        (galeri, deskripsi, changelog, ulasan)
- //
- // Saat backend siap, loadDummyJson() diganti query ke tabel `assets` dan
- // `reviews`; bentuk array yang dikirim ke view tidak perlu berubah.
+use IndoFX\Models\Asset; 
 
 class AssetController extends Controller {
-    // Label kategori untuk ditampilkan di atas judul aset.
-    private const CATEGORY_LABELS = [
-        'shader'   => 'Shader',
-        'particle' => 'VFX Partikel',
-        'model'    => 'Model 3D',
-    ];
 
     public function detail() {
-        $slug = isset($_GET['slug']) ? trim((string) $_GET['slug']) : '';
+        // 1. Tangkap ID dari URL (bukan slug lagi)
+        $publicId = isset($_GET['id']) ? trim((string) $_GET['id']) : '';
 
-        if ($slug === '') {
-            $this->notFound();
+        if ($publicId === '') {
+            echo "<div style='padding:50px; text-align:center;'><h2>Error: ID Aset tidak ditemukan!</h2><p>Pastikan Anda mengklik aset dari halaman Beranda atau Eksplorasi.</p></div>";
             return;
         }
 
-        $asset = $this->findAsset($slug);
-        $detail = $this->findDetail($slug);
+        // 2. Panggil Model Database
+        $assetModel = new Asset();
+        $asset = $assetModel->getAssetById($publicId); // Menggunakan public_id untuk keamanan
 
-        if ($asset === null || $detail === null) {
-            $this->notFound();
+        // 3. Jika aset tidak ada di database Supabase
+        if (!$asset) {
+            echo "<div style='padding:50px; text-align:center;'><h2>Error: Aset tidak ditemukan!</h2><p>ID Aset: " . htmlspecialchars($id) . "</p></div>";
             return;
         }
 
-        $reviews = $detail['reviews'] ?? [];
+        // 3. Ambil galeri gambar dari Supabase (atau gunakan array kosong jika belum ada)
+        $internalId = $asset['id']; 
+        $galleryImages = $assetModel->getAssetGallery($internalId);
 
+        if (empty($galleryImages)) {
+             $galleryImages = ['']; 
+        }
+
+        // 5. Susun data detail (Data asli database digabung data sementara untuk ulasan)
+        $detail = [
+            'file_format'    => $asset['file_format'] ?? '.unitypackage',
+            'unity_versions' => $asset['unity_version'] ?? 'Semua Versi',
+            'pipelines'      => explode(',', $asset['render_pipeline'] ?? ''),
+            'gallery'        => $galleryImages,
+            'description'    => [
+                $asset['description'] ?? 'Deskripsi lengkap belum tersedia untuk aset ini.'
+            ],
+            'changelog'      => [
+                [
+                    'version' => '1.0.0',
+                    'date'    => date('d F Y', strtotime($asset['created_at'] ?? 'now')),
+                    'notes'   => ['Rilis awal aset ke marketplace.']
+                ]
+            ],
+            'reviews'        => [] // Kosongkan sementara sampai fitur ulasan dibuat
+        ];
+
+        // 6. Lempar semua data asli ke view detail.php
         $this->view('asset/detail', [
-            'title'         => $asset['title'] . ' - IndoFX',
+            'title'         => htmlspecialchars($asset['title'] ?? 'Detail') . ' - IndoFX',
             'asset'         => $asset,
             'detail'        => $detail,
-            'categoryLabel' => self::CATEGORY_LABELS[$asset['category'] ?? ''] ?? ucfirst((string) ($asset['category'] ?? '')),
-            'reviewSummary' => $this->summarizeReviews($reviews),
-            'reviews'       => $reviews,
+            'categoryLabel' => $asset['category_name'] ?? 'Kategori',
+            'reviewSummary' => ['average' => 0, 'total' => 0, 'counts' => [5=>0, 4=>0, 3=>0, 2=>0, 1=>0]],
+            'reviews'       => [],
         ]);
-    }
-
-    // Cari satu aset pada data dummy berdasarkan slug.
-    private function findAsset(string $slug): ?array {
-        foreach ($this->loadDummyJson('assets.json')['data'] ?? [] as $asset) {
-            if (($asset['slug'] ?? null) === $slug) {
-                return $asset;
-            }
-        }
-
-        return null;
-    }
-
-    // Cari isi detail (galeri, deskripsi, changelog, ulasan) berdasarkan slug.
-    private function findDetail(string $slug): ?array {
-        $details = $this->loadDummyJson('asset-details.json');
-
-        return $details[$slug] ?? null;
-    }
-
-    // Baca berkas JSON dummy dari public/assets/data.
-    private function loadDummyJson(string $fileName): array {
-        $path = BASE_PATH . '/public/assets/data/' . $fileName;
-
-        if (!is_file($path)) {
-            return [];
-        }
-
-        $contents = file_get_contents($path);
-        if ($contents === false) {
-            return [];
-        }
-
-        $decoded = json_decode($contents, true);
-
-        return is_array($decoded) ? $decoded : [];
-    }
-
-    /**
-     * Ringkasan rating untuk tab ulasan: rata-rata, jumlah ulasan, sebaran bintang.
-     * @param array<int, array<string, mixed>> $reviews
-     * @return array{average: float, total: int, counts: array<int, int>}
-     */
-    private function summarizeReviews(array $reviews): array {
-        $counts = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
-        $sum = 0;
-
-        foreach ($reviews as $review) {
-            $rating = (int) ($review['rating'] ?? 0);
-            if (isset($counts[$rating])) {
-                $counts[$rating]++;
-            }
-            $sum += $rating;
-        }
-
-        $total = count($reviews);
-
-        return [
-            'average' => $total > 0 ? $sum / $total : 0.0,
-            'total'   => $total,
-            'counts'  => $counts,
-        ];
-    }
-
-    // Tampilkan halaman 404 untuk slug kosong atau tidak dikenal.
-    private function notFound(): void {
-        http_response_code(404);
-        require BASE_PATH . '/resources/views/errors/404.php';
     }
 }

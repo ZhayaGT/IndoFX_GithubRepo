@@ -14,10 +14,11 @@
 
 $searchQuery = isset($_GET['q']) ? trim((string) $_GET['q']) : '';
 ?>
-<form class="search-box-header d-flex align-items-center" action="/catalog/explore" method="get" role="search">
+<form action="/catalog/explore" method="GET" class="search-box-header d-flex align-items-center flex-grow-1 mx-2 mx-md-4" role="search">
     <i class="bi bi-search search-icon-header"></i>
     <input type="text" name="q" class="form-control search-input-header"
            value="<?= htmlspecialchars($searchQuery, ENT_QUOTES, 'UTF-8') ?>"
-           placeholder="Cari aset, VFX, shader, tekstur..."
+           placeholder="Cari aset VFX, shader, tekstur..."
            aria-label="Cari aset">
+    <button type="submit" class="d-none"></button>
 </form>

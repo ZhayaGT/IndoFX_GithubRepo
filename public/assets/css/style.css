@@ -116,13 +116,10 @@ body {
 
 @media (min-width: 992px) {
   .search-box-header {
-    position: absolute !important;
-    left: calc(50% - 35px) !important;
-    top: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    max-width: 420px !important;
-    margin: 0 !important;
-    z-index: 5;
+    position: relative !important;
+    max-width: 450px !important; 
+    margin: 0 20px !important; 
+    flex-grow: 1; 
   }
 }
 
