@@ -34,9 +34,14 @@ class AssetController extends Controller {
              $galleryImages = ['']; 
         }
 
+        // Mengambil format dari asset_files 
+        $fileFormatsArray = $assetModel->getAssetFileFormats($internalId);
+        // Jika tabel kosong, beri nilai default fallback.
+        $fileFormatString = !empty($fileFormatsArray) ? implode(', ', $fileFormatsArray) : '.unitypackage';
+
         // 5. Susun data detail (Data asli database digabung data sementara untuk ulasan)
         $detail = [
-            'file_format'    => $asset['file_format'] ?? '.unitypackage',
+            'file_format'    => $fileFormatString,
             'unity_versions' => $asset['unity_version'] ?? 'Semua Versi',
             'pipelines'      => explode(',', $asset['render_pipeline'] ?? ''),
             'gallery'        => $galleryImages,

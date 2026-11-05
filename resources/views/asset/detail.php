@@ -19,169 +19,11 @@ function getDetailImageUrl($path, $basePath) {
 // Menyiapkan array galeri (cegah error jika kosong)
 $gallery = $detail['gallery'] ?? [];
 if (empty($gallery)) $gallery = [''];
-// 1. Database Aset Katalog IndoFX
-$catalogDB = [
-    '1' => [
-        'title' => 'Volumetric Rain & Storm URP',
-        'creator' => 'Arga Studio',
-        'category' => 'SHADER',
-        'price' => 150000,
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'URP',
-        'format' => '.unitypackage',
-        'art' => 'castle'
-    ],
-    '2' => [
-        'title' => 'Stylized Toon Water Shader',
-        'creator' => 'Nusantara Digital',
-        'category' => 'SHADER',
-        'price' => 75000,
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'URP, Built-In',
-        'format' => '.unitypackage',
-        'art' => 'water'
-    ],
-    '3' => [
-        'title' => 'Explosion VFX Pack Vol. 1',
-        'creator' => 'Bayu Pratama',
-        'category' => 'VFX PARTIKEL',
-        'price' => 200000,
-        'unity_version' => '2022.3 LTS',
-        'pipeline' => 'HDRP',
-        'format' => '.unitypackage',
-        'art' => 'fire'
-    ],
-    '4' => [
-        'title' => 'Lowpoly Indonesian Village Pack',
-        'creator' => 'Citra CG',
-        'category' => 'MODEL 3D',
-        'price' => 350000,
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'URP, HDRP, Built-In',
-        'format' => '.fbx, .blend, .unitypackage',
-        'art' => 'castle'
-    ],
-    '5' => [
-        'title' => 'Stylized Fire Starter Kit',
-        'creator' => 'VFX Kampoeng',
-        'category' => 'VFX PARTIKEL',
-        'price' => 0,
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'URP',
-        'format' => '.unitypackage',
-        'art' => 'fire'
-    ],
-    '6' => [
-        'title' => 'Indonesian Road Texture Pack',
-        'creator' => 'Bumi Tekstur',
-        'category' => 'TEKSTUR',
-        'price' => 0,
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'Built-In, URP',
-        'format' => '.png, .tga, .mat',
-        'art' => 'castle'
-    ],
-    '7' => [
-        'title' => 'Simple UI SFX & VFX Overlay',
-        'creator' => 'Andi Dev',
-        'category' => 'VFX PARTIKEL',
-        'price' => 0,
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'URP, HDRP',
-        'format' => '.unitypackage',
-        'art' => 'water'
-    ],
-    '8' => [
-        'title' => 'Basic Hologram Shader Helper',
-        'creator' => 'Arga Studio',
-        'category' => 'VFX PARTIKEL',
-        'price' => 0,
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'URP, HDRP',
-        'format' => '.unitypackage',
-        'art' => 'castle'
-    ],
-    'free-forest-mist' => [
-        'title' => 'Forest Mist & Fog Volume',
-        'creator' => 'Rimba Digital',
-        'category' => 'PARTICLE',
-        'price' => 0,
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'Built-In',
-        'format' => '.unitypackage',
-        'art' => 'forest'
-    ],
-    'free-desert-dune' => [
-        'title' => 'Desert Dune Terrain Pack',
-        'creator' => 'Pasir Labs',
-        'category' => 'MODEL',
-        'price' => 0,
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'URP',
-        'format' => '.unitypackage',
-        'art' => 'castle'
-    ],
-    'neon-city' => [
-        'title' => 'Neon City Wet Surface Shader',
-        'creator' => 'Studio Neon',
-        'category' => 'SHADER',
-        'price' => 225000,
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'HDRP',
-        'format' => '.unitypackage',
-        'art' => 'water'
-    ],
-    'ocean-depth' => [
-        'title' => 'Ocean Depth Water Shader',
-        'creator' => 'Biru Nusantara',
-        'category' => 'SHADER',
-        'price' => 180000,
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'HDRP',
-        'format' => '.unitypackage',
-        'art' => 'water'
-    ]
-];
 
-// 2. Baca Parameter URL
-$reqId = $_GET['id'] ?? '1';
-$matched = $catalogDB[$reqId] ?? null;
-
-$assetId       = $reqId;
-$assetTitle    = $_GET['title'] ?? ($matched['title'] ?? 'Volumetric Rain & Storm URP');
-$assetCreator  = $_GET['creator'] ?? ($matched['creator'] ?? 'Arga Studio');
-$assetCategory = $_GET['category'] ?? ($matched['category'] ?? 'SHADER');
-$assetPriceRaw = isset($_GET['price']) ? $_GET['price'] : ($matched['price'] ?? 150000);
-$assetUnity    = $matched['unity_version'] ?? '2021.3+ / 2022.3 LTS';
-$assetPipeline = $_GET['pipeline'] ?? ($matched['pipeline'] ?? 'URP');
-$assetFormat   = $matched['format'] ?? '.unitypackage';
-$assetArt      = $matched['art'] ?? 'castle';
-
-$isGratis = false;
-$numericPrice = 0;
-
-if (is_numeric($assetPriceRaw)) {
-    $numericPrice = (float)$assetPriceRaw;
-    $isGratis = ($numericPrice <= 0);
-} else {
-    $cleanString = preg_replace('/[^0-9]/', '', (string)$assetPriceRaw);
-    $numericPrice = $cleanString !== '' ? (float)$cleanString : 0;
-    $isGratis = (strtolower(trim((string)$assetPriceRaw)) === 'gratis' || $numericPrice <= 0);
-}
-
+// Logika status gratis untuk penyesuaian tombol dinamis
+$numericPrice = (float)($asset['price'] ?? 0);
+$isGratis = ($numericPrice <= 0);
 $isLoggedIn = isset($_SESSION['user_id']);
-$userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user') : '';
-
-// 3. Susun URL Checkout Dinamis dengan seluruh parameter aset yang dibeli
-$checkoutQuery = http_build_query([
-    'asset_id' => $assetId,
-    'id'       => $assetId,
-    'title'    => $assetTitle,
-    'creator'  => $assetCreator,
-    'price'    => $numericPrice,
-    'pipeline' => $assetPipeline
-]);
-$checkoutUrl = '/checkout?' . $checkoutQuery;
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -237,7 +79,7 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
         </div>
     </nav>
 
-<!-- 2. Main Content Detail Area -->
+    <!-- 2. Main Content Detail Area -->
     <main class="content-detail-wrapper py-4">
         <div class="container-figma">
             <div class="row g-4 align-items-start">
@@ -286,12 +128,6 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                             <?php else: ?>
                                 <p class="mb-0 text-muted">Belum ada deskripsi untuk aset ini.</p>
                             <?php endif; ?>
-                            <p class="mb-3">
-                                Paket aset visual <strong><?= htmlspecialchars($assetTitle) ?></strong> dirancang khusus oleh <strong><?= htmlspecialchars($assetCreator) ?></strong> untuk mewujudkan sistem visual berkualitas tinggi dalam pipeline rendering <?= htmlspecialchars($assetPipeline) ?> di engine Unity. Dilengkapi dengan kontrol intensitas, shader material yang teroptimasi, dan performa tinggi tanpa membebani draw calls.
-                            </p>
-                            <p class="mb-0">
-                                Sangat cocok untuk proyek game bertema petualangan, aksi, simulasi, maupun kebutuhan prototipe karya game developer Indonesia.
-                            </p>
                         </div>
 
                         <!-- TAB 2: CHANGELOG DINAMIS -->
@@ -321,8 +157,6 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                             <?php else: ?>
                                 <p class="text-muted">Belum ada riwayat pembaruan.</p>
                             <?php endif; ?>
-                            <h6 class="fw-bold mb-2">Versi 1.2.0</h6>
-                            <p class="text-muted small">Pembaruan shader dan optimasi performa partikel untuk rilis Unity 2022 LTS</p>
                         </div>
 
                         <!-- TAB 3: ULASAN DINAMIS -->
@@ -402,7 +236,6 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <p class="text-muted text-center mt-4">Belum ada ulasan untuk aset ini.</p>
-                                Rp<?= number_format((float)$numericPrice, 0, ',', '.') ?>
                             <?php endif; ?>
                         </div>
 
@@ -421,7 +254,7 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
 
                         <span class="price-label d-block mb-1">Harga Aset</span>
                         <h3 class="price-amount mb-4">
-                            <?= (!isset($asset['price']) || $asset['price'] == 0) ? 'Gratis' : 'Rp' . number_format($asset['price'], 0, ',', '.') ?>
+                            <?= ($isGratis) ? 'Gratis' : 'Rp' . number_format($numericPrice, 0, ',', '.') ?>
                         </h3>
 
                         <div class="specs-table mb-4">
@@ -445,27 +278,27 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                             </div>
                         </div>
 
-                        <div class="d-grid gap-2">
-                            <!-- Mengirimkan ID ke keranjang/checkout secara dinamis -->
-                            <a href="/checkout?asset_id=<?= htmlspecialchars($asset['public_id'] ?? '') ?>" class="btn btn-buy-primary">Beli</a>
-                            <button type="button" class="btn btn-cart-secondary">Tambahkan ke Keranjang</button>
                         <!-- Tombol Aksi: Terdeteksi Otomatis Guest vs Login -->
                         <div id="actionButtonWrapper" class="d-grid gap-2">
                             <?php if ($isGratis): ?>
                                 <?php if ($isLoggedIn): ?>
-                                    <button type="button" id="btnClaimLibrary" class="btn-figma-free-library" onclick="claimAsset()">
+                                    <button type="button" id="btnClaimLibrary" class="btn btn-cart-secondary">
                                         Tambahkan ke Library
                                     </button>
                                 <?php else: ?>
-                                    <a href="/login" class="btn-figma-guest-login">
-                                        <span><span class="link-masuk">Masuk</span> untuk menambahkan ke Library</span>
+                                    <a href="/login" class="btn btn-cart-secondary text-decoration-none">
+                                        <span><span class="link-masuk fw-bold">Masuk</span> untuk menambahkan ke Library</span>
                                     </a>
                                 <?php endif; ?>
                             <?php else: ?>
-                                <a href="<?= $isLoggedIn ? htmlspecialchars($checkoutUrl, ENT_QUOTES, 'UTF-8') : '/login' ?>" class="btn-figma-buy-orange" id="btnBuyPrimary">
+                                <!-- URL Checkout disesuaikan untuk UUID public_id -->
+                                <?php
+                                $checkoutUrl = '/checkout?' . http_build_query(['asset_id' => $asset['public_id'] ?? '']);
+                                ?>
+                                <a href="<?= $isLoggedIn ? htmlspecialchars($checkoutUrl, ENT_QUOTES, 'UTF-8') : '/login' ?>" class="btn btn-buy-primary" id="btnBuyPrimary">
                                     Beli
                                 </a>
-                                <button type="button" class="btn-figma-add-cart-outline" onclick="addToCart()">
+                                <button type="button" class="btn btn-cart-secondary">
                                     Tambahkan ke Keranjang
                                 </button>
                             <?php endif; ?>
@@ -479,14 +312,19 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
     </main>
 
     <!-- Footer Putih Solid Full-Width Sesuai Figma -->
-    <footer class="footer-figma-white">
-        <div class="container-figma text-center">
-            <h5 class="fw-bold mb-2" style="color: var(--indofx-text-main);">IndoFX</h5>
-            <p class="text-muted small mb-4 mx-auto" style="max-width: 580px;">
-                Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia
-            </p>
-            <div class="d-flex justify-content-between align-items-center text-muted small pt-2 border-top flex-wrap gap-2">
-                <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang</span>
+    <footer class="footer-main" id="tentang">
+        <div class="container-figma">
+            <!-- Bagian Tengah: Judul & Deskripsi -->
+            <div class="footer-center-content">
+                <h5 class="footer-brand-title-center">IndoFX</h5>
+                <p class="footer-brand-desc-center">
+                    Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
+                </p>
+            </div>
+
+            <!-- Bagian Bawah: Copyright Kiri & Slogan Kanan -->
+            <div class="footer-bottom-bar flex-wrap gap-2">
+                <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
                 <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
             </div>
         </div>
@@ -500,286 +338,36 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
             document.querySelectorAll('.detail-nav-tabs .tab-link').forEach(link => link.classList.remove('active'));
             document.querySelectorAll('.tab-pane-detail').forEach(pane => pane.classList.add('d-none'));
 
-            evt.currentTarget.classList.add('active');
+            if (evt && evt.currentTarget) {
+                 evt.currentTarget.classList.add('active');
+            } else {
+                 const targetLink = document.querySelector(`.detail-nav-tabs .tab-link[onclick*="${tabId}"]`);
+                 if(targetLink) targetLink.classList.add('active');
+            }
+            
             const targetPane = document.getElementById(tabId);
             if (targetPane) {
                 targetPane.classList.remove('d-none');
             }
         }
 
-        function downloadAssetPackage() {
-            const fileName = assetTitle.toLowerCase().replace(/[^a-z0-9]/g, '_') + (assetFormat.startsWith('.') ? assetFormat : ('.' + assetFormat));
-            const dummyContent = `=== INDOFX ASSET PACKAGE ===\nJudul: ${assetTitle}\nID: ${currentAssetId}\nFormat: ${assetFormat}\nLisensi: Single Developer Commercial License\nDiunduh oleh: ${userKey}\nTanggal: ${new Date().toLocaleString()}\n`;
-
-            const blob = new Blob([dummyContent], {
-                type: 'application/octet-stream'
-            });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = fileName;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(link.href);
-        }
-
-        function loadAssetReviews() {
-            const listContainer = document.getElementById('reviewsListContainer');
-            if (!listContainer) return;
-
-            const initialReviewsDatabase = {
-                '1': [{
-                        user_name: 'Dimas Pratama',
-                        rating: 5,
-                        title: 'Mudah dipelajari untuk prototipe',
-                        comment: 'Contoh scene membantu saya memahami pengaturan material. Panduan Bahasa Indonesia juga memudahkan proses mencoba aset.',
-                        date: '18 September 2026'
-                    },
-                    {
-                        user_name: 'Nadia Putri',
-                        rating: 4,
-                        title: 'Membantu alur kerja proyek',
-                        comment: 'Parameter cukup mudah diikuti. Akan lebih membantu jika ada lebih banyak contoh penggunaan untuk berbagai suasana scene.',
-                        date: '12 September 2026'
-                    },
-                    {
-                        user_name: 'Raka Saputra',
-                        rating: 5,
-                        title: 'Contoh penggunaan yang jelas',
-                        comment: 'Struktur paket mudah dipahami dan nyaman untuk eksplorasi. Saya bisa mulai mencoba tanpa banyak penyesuaian.',
-                        date: '8 September 2026'
-                    }
-                ]
-            };
-
-            const baseReviews = initialReviewsDatabase[currentAssetId] || [];
-
-            let publicReviews = [];
-            try {
-                publicReviews = JSON.parse(localStorage.getItem('indofx_public_reviews_' + currentAssetId)) || [];
-            } catch (e) {
-                publicReviews = [];
-            }
-
-            const allReviews = [...publicReviews, ...baseReviews];
-            const totalCount = allReviews.length;
-
-            const countBadge = document.getElementById('reviewsCountBadge');
-            const summaryBox = document.getElementById('ratingSummaryWrapper');
-            const summaryText = document.getElementById('totalReviewsSummaryText');
-
-            if (countBadge) countBadge.innerText = totalCount + ' ulasan';
-
-            if (totalCount === 0) {
-                if (summaryBox) summaryBox.style.display = 'none';
-                listContainer.innerHTML = `
-                    <div class="text-center py-5 bg-white rounded-3 border" style="border-color: #ebdcd1 !important;">
-                        <i class="bi bi-chat-square-text text-muted fs-1 d-block mb-2"></i>
-                        <h6 class="fw-bold mb-1" style="color: var(--indofx-text-main);">Belum ada ulasan untuk aset ini</h6>
-                        <p class="text-muted small m-0">Klaim aset ini ke Library Anda untuk menjadi yang pertama memberikan ulasan.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            if (summaryBox) summaryBox.style.display = 'block';
-
-            let sumRating = 0;
-            const starCounts = {
-                5: 0,
-                4: 0,
-                3: 0,
-                2: 0,
-                1: 0
-            };
-
-            allReviews.forEach(r => {
-                const star = Math.min(5, Math.max(1, parseInt(r.rating, 10) || 5));
-                starCounts[star] = (starCounts[star] || 0) + 1;
-                sumRating += star;
-            });
-
-            const avgScore = (sumRating / totalCount).toFixed(1).replace('.', ',');
-            const bigScoreEl = document.getElementById('ratingBigScore');
-            if (bigScoreEl) bigScoreEl.innerText = avgScore;
-            if (summaryText) summaryText.innerText = `Dari ${totalCount} ulasan`;
-
-            for (let s = 1; s <= 5; s++) {
-                const pct = Math.round((starCounts[s] / totalCount) * 100);
-                const fillEl = document.getElementById('ratingBarFill_' + s);
-                const numEl = document.getElementById('ratingBarNum_' + s);
-                if (fillEl) fillEl.style.width = pct + '%';
-                if (numEl) numEl.innerText = starCounts[s];
-            }
-
-            listContainer.innerHTML = allReviews.map(rev => {
-                let starsHtml = '';
-                for (let s = 1; s <= 5; s++) {
-                    starsHtml += s <= rev.rating ?
-                        '<i class="bi bi-star-fill text-warning me-1"></i>' :
-                        '<i class="bi bi-star text-muted me-1"></i>';
-                }
-
-                const titleHtml = rev.title ? `<h6 class="fw-bold mt-2 mb-1" style="font-size: 0.95rem; color: var(--indofx-text-main);">${rev.title}</h6>` : '';
-
-                return `
-                    <div class="review-item-block">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <div class="d-flex align-items-center gap-2">
-                                <strong style="font-size: 0.95rem; color: var(--indofx-text-main);">${rev.user_name}</strong>
-                                <span class="badge-owner">Pemilik aset</span>
-                            </div>
-                            <span class="text-muted small">${rev.date}</span>
-                        </div>
-                        <div class="mb-1" style="font-size: 0.85rem;">${starsHtml}</div>
-                        ${titleHtml}
-                        <p class="mb-0 text-secondary" style="font-size: 0.88rem; line-height: 1.6;">${rev.comment}</p>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function addToCart() {
-            if (!userKey) {
-                window.location.href = '/login';
-                return;
-            }
-
-            const cartStorageKey = 'indofx_cart_' + userKey;
-            let currentCart = [];
-            try {
-                currentCart = JSON.parse(localStorage.getItem(cartStorageKey)) || [];
-            } catch (e) {
-                currentCart = [];
-            }
-
-            const cartItem = {
-                id: currentAssetId,
-                title: '<?= htmlspecialchars($assetTitle, ENT_QUOTES, 'UTF-8') ?>',
-                creator: '<?= htmlspecialchars($assetCreator, ENT_QUOTES, 'UTF-8') ?>',
-                price: <?= (float)$numericPrice ?>,
-                date: '<?= date("d M Y") ?>',
-                pipelines: <?= json_encode(array_values(array_filter(array_map('trim', explode(',', $assetPipeline))))) ?>,
-                art: '<?= htmlspecialchars($assetArt, ENT_QUOTES, 'UTF-8') ?>'
-            };
-
-            const exists = currentCart.some(item => String(item.id) === String(cartItem.id));
-            if (!exists) {
-                currentCart.push(cartItem);
-                localStorage.setItem(cartStorageKey, JSON.stringify(currentCart));
-            }
-
-            window.location.href = '/cart';
-        }
-
-        function claimAsset() {
-            if (!userKey) {
-                window.location.href = '/login';
-                return;
-            }
-
-            const btn = document.getElementById('btnClaimLibrary');
-            if (btn) {
-                btn.disabled = true;
-                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
-            }
-
-            // 1. Simpan ke Library Akun Pembeli Aktif
-            const storageKey = 'indofx_library_' + userKey;
-            let currentLibrary = [];
-            try {
-                currentLibrary = JSON.parse(localStorage.getItem(storageKey)) || [];
-            } catch (e) {
-                currentLibrary = [];
-            }
-
-            const newAsset = {
-                id: currentAssetId,
-                title: '<?= htmlspecialchars($assetTitle, ENT_QUOTES, 'UTF-8') ?>',
-                creator: '<?= htmlspecialchars($assetCreator, ENT_QUOTES, 'UTF-8') ?>',
-                type: 'Gratis',
-                date: '<?= date("d M Y") ?>',
-                pipelines: <?= json_encode(array_values(array_filter(array_map('trim', explode(',', $assetPipeline))))) ?>,
-                art: '<?= htmlspecialchars($assetArt, ENT_QUOTES, 'UTF-8') ?>'
-            };
-
-            const alreadyExists = currentLibrary.some(item => String(item.id) === String(newAsset.id));
-            if (!alreadyExists) {
-                currentLibrary.unshift(newAsset);
-                localStorage.setItem(storageKey, JSON.stringify(currentLibrary));
-            }
-
-            // 2. NAIKKAN JUMLAH UNDUHAN PADA ASET MILIK PENJUAL
-            const rawCreator = ('<?= htmlspecialchars($assetCreator, ENT_QUOTES, 'UTF-8') ?>').trim();
-            const cleanCreatorKey = rawCreator.toLowerCase().replace(/[^a-z0-9]/g, '');
-            const assetKeys = [
-                'indofx_seller_assets_' + cleanCreatorKey,
-                'indofx_seller_assets_' + rawCreator
-            ];
-
-            assetKeys.forEach(k => {
-                try {
-                    let sAssets = JSON.parse(localStorage.getItem(k)) || [];
-                    sAssets = sAssets.map(sa => {
-                        if (String(sa.id) === String(currentAssetId) || sa.title === '<?= htmlspecialchars($assetTitle, ENT_QUOTES, 'UTF-8') ?>') {
-                            const currentCount = parseInt(String(sa.downloads || '0').replace(/[^0-9]/g, ''), 10) || 0;
-                            sa.downloads = (currentCount + 1) + 'x Unduhan';
-                        }
-                        return sa;
-                    });
-                    localStorage.setItem(k, JSON.stringify(sAssets));
-                } catch (e) {}
-            });
-
-            // 3. NAIKKAN JUMLAH UNDUHAN DI KATALOG PUBLIK
-            try {
-                let pubCatalog = JSON.parse(localStorage.getItem('indofx_public_catalog')) || [];
-                pubCatalog = pubCatalog.map(pa => {
-                    if (String(pa.id) === String(currentAssetId) || pa.title === '<?= htmlspecialchars($assetTitle, ENT_QUOTES, 'UTF-8') ?>') {
-                        const currentCount = parseInt(String(pa.downloads || '0').replace(/[^0-9]/g, ''), 10) || 0;
-                        pa.downloads = (currentCount + 1) + 'x Unduhan';
-                    }
-                    return pa;
-                });
-                localStorage.setItem('indofx_public_catalog', JSON.stringify(pubCatalog));
-            } catch (e) {}
-
-            window.location.href = '/library';
-        }
-
+        // 2. Sinkronisasi Border Aktif pada Thumbnail saat Carousel Bergeser
         document.addEventListener('DOMContentLoaded', function() {
-            loadAssetReviews();
+            const detailCarousel = document.getElementById('assetDetailCarousel');
+            const thumbCards = document.querySelectorAll('.thumb-row .thumb-card');
 
+            if (detailCarousel) {
+                detailCarousel.addEventListener('slide.bs.carousel', function(event) {
+                    thumbCards.forEach(card => card.classList.remove('active'));
+                    if (thumbCards[event.to]) {
+                        thumbCards[event.to].classList.add('active');
+                    }
+                });
+            }
+
+            // Tangani tab dari URL hash (misal: /detail#ulasan)
             if (window.location.hash === '#tab-ulasan' || window.location.hash === '#ulasan') {
                 switchDetailTab(null, 'tab-ulasan');
-            }
-
-            if (!userKey) return;
-
-            const storageKey = 'indofx_library_' + userKey;
-            let currentLibrary = [];
-            try {
-                currentLibrary = JSON.parse(localStorage.getItem(storageKey)) || [];
-            } catch (e) {
-                currentLibrary = [];
-            }
-
-            const isOwned = currentLibrary.some(item => String(item.id) === String(currentAssetId));
-
-            if (isOwned) {
-                const actionWrapper = document.getElementById('actionButtonWrapper');
-                if (actionWrapper) {
-                    actionWrapper.innerHTML = `
-                        <div class="owned-badge-card mb-2">
-                            <i class="bi bi-check-circle-fill"></i>
-                            <span>Aset ini sudah Anda miliki di library Anda</span>
-                        </div>
-                        <button type="button" class="btn-download-package" onclick="downloadAssetPackage()">
-                            <i class="bi bi-download"></i>
-                            <span>Unduh Aset (${assetFormat})</span>
-                        </button>
-                    `;
-                }
             }
         });
     </script>

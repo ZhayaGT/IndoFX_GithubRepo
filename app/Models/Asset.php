@@ -161,4 +161,33 @@ class Asset extends Model {
         }
         return $gallery;
     }
+
+    // Mengambil semua format/ekstensi file unik dari tabel asset_files
+    public function getAssetFileFormats($assetId) {
+        // Menggunakan DISTINCT agar jika ada 5 file .zip, tulisan .zip hanya muncul 1x
+        $sql = "SELECT DISTINCT extension 
+                FROM asset_files 
+                WHERE asset_id = :asset_id 
+                AND extension IS NOT NULL";
+                
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':asset_id', $assetId, PDO::PARAM_INT); 
+        $stmt->execute();
+        
+        $formats = [];
+        while ($row = $stmt->fetch()) {
+             $ext = trim($row['extension']);
+             
+             // Otomatis tambahkan titik (.) di depan jika di database hanya tertulis 'zip'
+             if (!empty($ext) && strpos($ext, '.') !== 0) {
+                 $ext = '.' . $ext;
+             }
+             
+             if (!empty($ext)) {
+                 $formats[] = strtolower($ext);
+             }
+        }
+        
+        return $formats;
+    }
 }

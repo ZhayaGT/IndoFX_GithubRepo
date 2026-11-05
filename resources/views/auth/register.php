@@ -60,7 +60,7 @@
             </a>
         </div>
     </nav>
-s
+
     <!-- Area Form Register Tengah Sesuai Desain Awal -->
     <main class="auth-wrapper">
         <div class="auth-card">
@@ -104,14 +104,19 @@ s
     </main>
 
     <!-- Footer Putih Solid Full-Width Sesuai Figma -->
-    <footer class="footer-figma-white">
-        <div class="container-figma text-center">
-            <h5 class="fw-bold mb-2" style="color: var(--indofx-text-main);">IndoFX</h5>
-            <p class="text-muted small mb-4 mx-auto" style="max-width: 580px;">
-                Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia
-            </p>
-            <div class="d-flex justify-content-between align-items-center text-muted small pt-2 border-top flex-wrap gap-2">
-                <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang</span>
+    <footer class="footer-main" id="tentang">
+        <div class="container-figma">
+            <!-- Bagian Tengah: Judul & Deskripsi -->
+            <div class="footer-center-content">
+                <h5 class="footer-brand-title-center">IndoFX</h5>
+                <p class="footer-brand-desc-center">
+                    Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
+                </p>
+            </div>
+
+            <!-- Bagian Bawah: Copyright Kiri & Slogan Kanan -->
+            <div class="footer-bottom-bar">
+                <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
                 <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
             </div>
         </div>
