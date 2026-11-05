@@ -69,7 +69,9 @@
                 <div class="mb-4">
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <label for="password" class="form-label auth-label m-0">Kata Sandi</label>
-                        <a href="#" class="auth-link">Lupa Kata Sandi?</a>
+                        <label>
+                            <input type="checkbox" name="remember_me" value="1"> Ingat Saya
+                        </label>
                     </div>
                     <input type="password" class="form-control auth-input" id="password" name="password" placeholder="••••••••" required>
                 </div>
