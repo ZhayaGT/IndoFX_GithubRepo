@@ -521,14 +521,18 @@ if ($initials === '') {
         </div>
     </div>
 
-    <!-- Footer Putih Solid Full-Width Persis Figma -->
-    <footer class="footer-figma-white">
-        <div class="container-figma text-center">
-            <h5 class="brand-title">IndoFX</h5>
-            <p class="brand-desc">
-                Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
-            </p>
-            <div class="d-flex justify-content-between align-items-center copyright-row flex-wrap gap-2 pt-2">
+    <footer class="footer-main" id="tentang">
+        <div class="container-figma">
+            <!-- Bagian Tengah: Judul & Deskripsi -->
+            <div class="footer-center-content">
+                <h5 class="footer-brand-title-center">IndoFX</h5>
+                <p class="footer-brand-desc-center">
+                    Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
+                </p>
+            </div>
+
+            <!-- Bagian Bawah: Copyright Kiri & Slogan Kanan -->
+            <div class="footer-bottom-bar">
                 <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
                 <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
             </div>

@@ -7,7 +7,7 @@ if (!isset($_SESSION['user_id'])) {
 $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna');
 $userKey  = (string) ($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user');
 $userEmail = (string) ($_SESSION['email'] ?? ($userName . '@gmail.com'));
-$directAssetId = $_GET['asset_id'] ?? null;
+$directAssetId = $_GET['asset_id'] ?? $_GET['id'] ?? null;
 
 $initials = '';
 $words = preg_split('/\s+/', trim($userName)) ?: [];
@@ -569,16 +569,74 @@ if ($initials === '') {
         const feeAdmin = 2500;
 
         function loadCheckoutData() {
-            if (directAssetId && catalogDB[directAssetId]) {
-                activeItems = [catalogDB[directAssetId]];
-            } else {
+            const urlParams = new URLSearchParams(window.location.search);
+            const paramTitle = urlParams.get('title');
+            const paramPrice = urlParams.get('price');
+            const paramCreator = urlParams.get('creator');
+            const paramPipeline = urlParams.get('pipeline');
+
+            // 1. PRIORITAS UTAMA: Jika URL membawa parameter lengkap (dari klik Beli di detail.php)
+            if (paramTitle) {
+                let cleanPrice = 0;
+                if (paramPrice) {
+                    cleanPrice = parseFloat(paramPrice.replace(/[^0-9]/g, '')) || 0;
+                }
+                const pipes = paramPipeline ? [paramPipeline] : ['Built-in'];
+
+                activeItems = [{
+                    id: directAssetId || ('asset-' + Date.now()),
+                    title: paramTitle,
+                    creator: paramCreator || 'Studio Kreator',
+                    price: cleanPrice,
+                    art: 'castle',
+                    pipelines: pipes
+                }];
+                renderOrderSummary();
+                return;
+            }
+
+            // 2. PRIORITAS KEDUA: Cek di database katalog publik LocalStorage
+            if (directAssetId) {
                 try {
-                    activeItems = JSON.parse(sessionStorage.getItem('indofx_checkout_items')) || [];
-                } catch (e) {
-                    activeItems = [];
+                    const publicCatalog = JSON.parse(localStorage.getItem('indofx_public_catalog')) || [];
+                    const found = publicCatalog.find(item => String(item.id) === String(directAssetId));
+                    if (found) {
+                        let cleanPrice = 0;
+                        if (typeof found.price === 'number') {
+                            cleanPrice = found.price;
+                        } else if (typeof found.price === 'string') {
+                            cleanPrice = parseFloat(found.price.replace(/[^0-9]/g, '')) || 0;
+                        }
+
+                        activeItems = [{
+                            id: found.id,
+                            title: found.title,
+                            creator: found.creator || found.seller || 'Studio Kreator',
+                            price: cleanPrice,
+                            art: found.category === 'Shader' ? 'water' : 'castle',
+                            pipelines: Array.isArray(found.pipelines) ? found.pipelines : [found.render_pipeline || 'Built-in']
+                        }];
+                        renderOrderSummary();
+                        return;
+                    }
+                } catch (e) {}
+
+                // Cek di catalogDB bawaan
+                if (catalogDB[directAssetId]) {
+                    activeItems = [catalogDB[directAssetId]];
+                    renderOrderSummary();
+                    return;
                 }
             }
 
+            // 3. PRIORITAS KETIGA: Cek dari keranjang checkout (sessionStorage)
+            try {
+                activeItems = JSON.parse(sessionStorage.getItem('indofx_checkout_items')) || [];
+            } catch (e) {
+                activeItems = [];
+            }
+
+            // Fallback default jika benar-benar tidak ada data
             if (activeItems.length === 0) {
                 activeItems = [catalogDB['1']];
             }
@@ -640,14 +698,14 @@ if ($initials === '') {
             if (radio) radio.checked = true;
         }
 
-        // PROSES PEMBAYARAN: Masuk ke Library, Catat Riwayat Transaksi Invoice, dan Bersihkan Keranjang
+        // PROSES PEMBAYARAN: Masuk ke Library, Catat Riwayat Transaksi Invoice, dan Catat Penjualan Toko (Tanpa Duplikasi)
         function handlePaymentSubmit() {
             const btn = document.getElementById('btnSubmitPayment');
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Memproses Pembayaran...';
 
             setTimeout(() => {
-                // 1. Simpan semua item yang dibeli ke Library akun aktif
+                // 1. Simpan semua item yang dibeli ke Library akun pembeli aktif
                 const libKey = 'indofx_library_' + userKey;
                 let currentLibrary = [];
                 try {
@@ -672,15 +730,7 @@ if ($initials === '') {
                 });
                 localStorage.setItem(libKey, JSON.stringify(currentLibrary));
 
-                // 2. SIMPAN RIWAYAT TRANSAKSI KE STORAGE INVOICE DINAMIS AKUN INI
-                const txKey = 'indofx_transactions_' + userKey;
-                let transactions = [];
-                try {
-                    transactions = JSON.parse(localStorage.getItem(txKey)) || [];
-                } catch (e) {
-                    transactions = [];
-                }
-
+                // 2. Data Waktu & No Invoice Unik
                 const now = new Date();
                 const randNum = Math.floor(1000 + Math.random() * 9000);
                 const yyyy = now.getFullYear();
@@ -689,16 +739,27 @@ if ($initials === '') {
                 const invoiceNo = `INV-${yyyy}${mm}${dd}-${randNum}`;
 
                 const selectedRadio = document.querySelector('input[name="payment_method"]:checked')?.value || 'ewallet';
-                let paymentMethodLabel = 'QRIS (GoPay)';
+                let paymentMethodLabel = 'QRIS/GoPay';
                 if (selectedRadio === 'card') paymentMethodLabel = 'Kartu Kredit / Debit';
-                if (selectedRadio === 'bank') paymentMethodLabel = 'Virtual Account Bank';
+                if (selectedRadio === 'bank') paymentMethodLabel = 'BCA Virtual Account';
 
                 const subtotal = activeItems.reduce((acc, curr) => acc + (parseFloat(curr.price) || 0), 0);
                 const totalBayar = subtotal + feeAdmin;
 
+                const monthsIndoShort = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
                 const monthsIndo = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
                 const fullDateStr = `${now.getDate()} ${monthsIndo[now.getMonth()]} ${yyyy}, ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')} WIB`;
-                const shortDateStr = `${now.getDate()} ${monthsIndo[now.getMonth()].substring(0, 3)} ${yyyy}`;
+                const shortDateStr = `${now.getDate()} ${monthsIndoShort[now.getMonth()]} ${yyyy}, ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+                const rawDateStr = `${yyyy}-${mm}-${dd}`;
+
+                // 3. Simpan Riwayat Transaksi ke Invoice Pembeli
+                const txKey = 'indofx_transactions_' + userKey;
+                let transactions = [];
+                try {
+                    transactions = JSON.parse(localStorage.getItem(txKey)) || [];
+                } catch (e) {
+                    transactions = [];
+                }
 
                 const newTransaction = {
                     invoice_no: invoiceNo,
@@ -721,7 +782,54 @@ if ($initials === '') {
                 transactions.unshift(newTransaction);
                 localStorage.setItem(txKey, JSON.stringify(transactions));
 
-                // 3. Hapus aset yang dibeli dari Keranjang belanja akun aktif
+                // 4. CATAT TRANSAKSI PENJUALAN KE DASHBOARD TOKO PENJUAL (DIPASTIKAN 1 KALI SIMPAN)
+                activeItems.forEach(item => {
+                    const rawCreator = (item.creator || 'Arga Studio').trim();
+                    const cleanCreatorKey = rawCreator.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+                    // Gunakan satu kunci pasti berdasarkan identitas creator
+                    const sellerSalesKey = 'indofx_seller_sales_' + cleanCreatorKey;
+
+                    let sales = [];
+                    try {
+                        sales = JSON.parse(localStorage.getItem(sellerSalesKey)) || [];
+                    } catch (e) {
+                        sales = [];
+                    }
+
+                    // Proteksi ganda: Jangan simpan jika nomor invoice & ID aset sudah tercatat
+                    const isAlreadyRecorded = sales.some(s => s.invoice_no === invoiceNo && String(s.asset_id) === String(item.id));
+                    if (!isAlreadyRecorded) {
+                        sales.unshift({
+                            invoice_no: invoiceNo,
+                            asset_id: item.id,
+                            asset_title: item.title,
+                            price: parseFloat(item.price) || 0,
+                            payment_method: paymentMethodLabel,
+                            date: shortDateStr,
+                            date_raw: rawDateStr,
+                            status: 'Settlement',
+                            buyer_name: '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>'
+                        });
+                        localStorage.setItem(sellerSalesKey, JSON.stringify(sales));
+                    }
+
+                    // Naikkan jumlah unduhan/terjual di data aset penjual
+                    const sellerAssetsKey = 'indofx_seller_assets_' + cleanCreatorKey;
+                    try {
+                        let sAssets = JSON.parse(localStorage.getItem(sellerAssetsKey)) || [];
+                        sAssets = sAssets.map(sa => {
+                            if (String(sa.id) === String(item.id) || sa.title === item.title) {
+                                const currentCount = parseInt(String(sa.downloads || '0').replace(/[^0-9]/g, ''), 10) || 0;
+                                sa.downloads = (currentCount + 1) + 'x Terjual';
+                            }
+                            return sa;
+                        });
+                        localStorage.setItem(sellerAssetsKey, JSON.stringify(sAssets));
+                    } catch (e) {}
+                });
+
+                // 5. Hapus aset yang dibeli dari Keranjang belanja akun pembeli
                 const cartKey = 'indofx_cart_' + userKey;
                 let currentCart = [];
                 try {
@@ -734,9 +842,8 @@ if ($initials === '') {
                 currentCart = currentCart.filter(c => !boughtIds.includes(String(c.id)));
                 localStorage.setItem(cartKey, JSON.stringify(currentCart));
 
-                // 4. Bersihkan sesi sementara checkout & arahkan ke halaman invoice
+                // 6. Bersihkan sesi sementara checkout & arahkan ke halaman invoice
                 sessionStorage.removeItem('indofx_checkout_items');
-
                 window.location.href = '/invoice';
             }, 800);
         }
