@@ -12,7 +12,7 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IndoFX - Marketplace Aset Unity CG & VFX</title>
+    <title>IndoFX - Marketplace Aset Unity CG &amp; VFX</title>
 
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -76,9 +76,10 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
         </defs>
     </svg>
 
-    <!-- 1. Header Navbar Oranye -->
+    <!-- 1. Header Navbar Oranye (Figma Layout: Logo Kiri, Search Tengah, Aksi Kanan) -->
     <nav class="navbar navbar-orange sticky-top">
-        <div class="container-figma d-flex justify-content-between align-items-center w-100">
+        <div class="navbar-figma-container">
+            <!-- Sisi Kiri: Logo & Nama IndoFX -->
             <a class="navbar-brand m-0 d-flex align-items-center gap-2 text-decoration-none" href="/">
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 2L20.66 7V17L12 22L3.34 17V7L12 2Z" fill="#ED6B1D" stroke="#1A1A1A" stroke-width="1.8" stroke-linejoin="round" />
@@ -93,12 +94,20 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
 
             <form action="/catalog/explore" method="GET" class="search-box-header d-flex align-items-center flex-grow-1 mx-2 mx-md-4">
                 <i class="bi bi-search search-icon-header"></i>
-                <input type="text" name="q" class="form-control search-input-header" placeholder="Cari aset..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
+                <input type="text" name="q" class="form-control search-input-header" placeholder="Cari aset VFX, shader, tekstur..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
                 <button type="submit" class="d-none"></button>
             </form>
 
-            <div class="d-flex align-items-center gap-2">
-                <?php require BASE_PATH . '/resources/views/partials/navbar-auth.php'; ?>
+            <!-- Sisi Kanan: Auth Group -->
+            <div class="d-flex align-items-center">
+                <?php
+                $authPartial = BASE_PATH . '/resources/views/partials/navbar-auth.php';
+                if (file_exists($authPartial)) {
+                    require $authPartial;
+                } else {
+                    echo '<a href="/login" class="btn btn-nav-login">Masuk</a>';
+                }
+                ?>
             </div>
         </div>
     </nav>
@@ -153,10 +162,10 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
             </section>
 
             <!-- Aset Terbaru -->
-            <section class="catalog-block" id="katalog">
+            <section class="catalog-block mb-5" id="katalog">
                 <div class="d-flex justify-content-between align-items-end mb-3">
                     <div>
-                        <h4 class="catalog-heading mb-1">Aset CG & VFX Terbaru</h4>
+                        <h4 class="catalog-heading mb-1">Aset CG &amp; VFX Terbaru</h4>
                         <p class="catalog-subheading m-0">Aset terbaru yang diunggah oleh kreator game berbakat Indonesia</p>
                     </div>
                     <a href="/catalog/explore?sort=terbaru" class="catalog-side-link">Selengkapnya</a>
@@ -229,7 +238,7 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
             </section>
 
             <!-- Aset Gratis Unggulan -->
-            <section class="catalog-block mb-2">
+            <section class="catalog-block mb-4">
                 <div class="d-flex justify-content-between align-items-end mb-3">
                     <div>
                         <h4 class="catalog-heading mb-1">Aset Gratis Unggulan</h4>
@@ -314,7 +323,7 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                 <div class="col-12 col-md-5 col-lg-4">
                     <h5 class="footer-brand-title mb-2">IndoFX</h5>
                     <p class="footer-brand-desc m-0">
-                        Portal distribusi dan marketplace aset CG & VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
+                        Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
                     </p>
                 </div>
                 <div class="col-12 col-md-6 col-lg-4">
@@ -329,7 +338,7 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                             <h6 class="footer-col-title mb-2">Dukungan</h6>
                             <a href="#" class="footer-link">Dokumentasi</a>
                             <a href="#" class="footer-link">Hubungi Kami</a>
-                            <a href="#" class="footer-link">Syarat & Ketentuan</a>
+                            <a href="#" class="footer-link">Syarat &amp; Ketentuan</a>
                         </div>
                     </div>
                 </div>
@@ -343,7 +352,6 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Pergantian navbar guest/pembeli -->
     <script src="/assets/js/navbar-auth.js"></script>
     <!-- Katalog dari data dummy -->
     <!-- <script src="/assets/js/catalog.js" defer></script> -->

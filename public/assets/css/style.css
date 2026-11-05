@@ -1,644 +1,613 @@
 :root {
+  --indofx-orange: #ed6b1d;
+  --indofx-orange-hover: #d85a0e;
+  --indofx-cream-bg: #faf0e6;
+  --indofx-cream-btn: #f4e4d7;
+  --indofx-dark: #2b2623;
+
+  /* Alias IFX */
   --ifx-orange: #ed6b1d;
-  --ifx-orange-hover: #d95d12;
-  --ifx-brown-dark: #3b2314;
-  --ifx-brown-muted: #6e5a4f;
-  --ifx-cream-bg: #fdece2;
-  --ifx-cream-btn: #f9e5d8;
-  --ifx-border-dark: #3b2314;
-  --ifx-green-bg: #ddf3e4;
-  --ifx-green-text: #117a43;
+  --ifx-orange-hover: #d85a0e;
+  --ifx-border-dark: #2b2623;
+  --ifx-brown-dark: #2b2623;
+  --ifx-brown-muted: #736b66;
+  --ifx-cream-btn: #f4e4d7;
+  --ifx-cream-bg: #faf0e6;
 }
 
 body {
   font-family:
     "Inter",
+    system-ui,
     -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
     sans-serif;
-  color: var(--ifx-brown-dark);
-  background-color: #ffffff;
-  margin: 0;
-  padding: 0;
-  -webkit-font-smoothing: antialiased;
+  color: var(--indofx-dark);
+  background-color: var(--indofx-cream-bg);
 }
 
-/* Lebar container optimal (tidak terlalu lebar, proporsional seperti Figma) */
+/* Kontainer Konten Halaman Bawah: Rapat & Padat */
 .container-figma {
-  width: 95%;
-  max-width: 1240px;
+  max-width: 1360px;
+  width: 100%;
   margin: 0 auto;
-  padding: 0 16px;
+  padding: 0 24px;
+}
+/* Kontainer Khusus Katalog: Sejajar Sempurna dengan Navbar */
+.container-catalog-figma {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding-left: 145px !important; /* Lurus sejajar vertikal di bawah Logo IndoFX */
+  padding-right: 100px !important; /* Lurus sejajar vertikal di bawah Profil Kanan */
 }
 
-/* NAVBAR ORANYE */
+/* Lebar Kolom Filter Tetap Ramping & Berjarak Lega ke Aset */
+.filter-sidebar-col {
+  width: 270px !important;
+  flex: 0 0 270px !important;
+  max-width: 270px !important;
+  margin-right: 28px !important; /* Memberi jeda pemisah yang lega dari kumpulan aset */
+}
+
+.catalog-grid-col {
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
+}
+
+/* Responsif Layar Laptop / Tablet */
+@media (max-width: 1200px) {
+  .container-catalog-figma {
+    padding-left: 40px !important;
+    padding-right: 40px !important;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .container-catalog-figma {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+  .filter-sidebar-col {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-right: 0 !important;
+    margin-bottom: 20px !important;
+  }
+}
+
+/* ========================================================
+   1. HEADER NAVBAR (POSISI PRESISI SESUAI FIGMA)
+   ======================================================== */
 .navbar-orange {
-  background-color: var(--ifx-orange);
-  padding: 10px 0;
-  border-bottom: 1.5px solid var(--ifx-border-dark);
+  background-color: var(--indofx-orange);
+  padding: 0.75rem 0;
+  z-index: 1030;
+  width: 100%;
+  position: sticky;
+  top: 0;
 }
 
-/* Jarak antar elemen navbar; search bar boleh menyusut di layar sempit. */
-.navbar-orange .container-figma {
-  gap: 10px;
-}
-
-.navbar-orange .navbar-brand {
-  flex-shrink: 0;
-}
-
-.brand-icon-box {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  background-color: #3b2314;
-  color: #ffffff;
-  border-radius: 50%;
-  font-size: 0.75rem;
+/* Navbar: Logo agak ke kanan (145px), tombol tetap di kanan (100px) */
+.navbar-figma-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding-left: 145px !important; /* Menjaga logo IndoFX masuk agak ke kanan */
+  padding-right: 100px !important; /* Menjaga tombol & profil tetap di sisi kanan */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  position: relative !important;
 }
 
 .brand-text {
   font-weight: 800;
   font-size: 1.25rem;
   color: #ffffff;
-  letter-spacing: -0.3px;
-  text-shadow:
-    -1px -1px 0 #3b2314,
-    1px -1px 0 #3b2314,
-    -1px 1px 0 #3b2314,
-    1px 1px 0 #3b2314,
-    0px 2px 0 #3b2314;
+  letter-spacing: -0.5px;
 }
 
-/* Penyesuaian Responsif Searchbar Header */
+/* Kotak Pencarian Presisi di Tengah Seimbang */
 .search-box-header {
   position: relative;
-  max-width: 440px; /* Batas lebar maksimal di layar besar/desktop */
   width: 100%;
-  background-color: #ffffff;
-  border-radius: 6px;
-  padding: 2px 10px;
-  border: 1px solid #d8c8bd;
+  max-width: 420px;
+}
+
+@media (min-width: 992px) {
+  .search-box-header {
+    position: absolute !important;
+    left: calc(50% - 35px) !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    max-width: 420px !important;
+    margin: 0 !important;
+    z-index: 5;
+  }
 }
 
 .search-input-header {
-  border: none !important;
-  box-shadow: none !important;
-  font-size: 0.8rem;
-  padding: 4px 6px;
-  width: 100%;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  padding-left: 2.3rem;
+  height: 38px;
+  border: 1px solid #d8c8bd;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.search-input-header::placeholder {
+  color: #736b66;
+  opacity: 0.85;
 }
 
 .search-icon-header {
-  color: #6c757d;
-  font-size: 0.85rem;
-}
-
-/* Responsif untuk Layar Sangat Kecil (< 576px) */
-@media (max-width: 576px) {
-  .search-box-header {
-    padding: 1px 8px;
-  }
-
-  .search-input-header {
-    font-size: 0.75rem;
-    padding: 3px 4px;
-  }
-
-  .btn-nav-login {
-    padding: 4px 12px !important;
-    font-size: 0.78rem !important;
-  }
-}
-
-.btn-nav-seller {
-  background-color: #ffffff;
-  color: var(--ifx-brown-dark);
-  border: 1.5px solid var(--ifx-border-dark);
-  border-radius: 6px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  padding: 5px 14px;
-  transition: all 0.15s ease;
-}
-
-.btn-nav-seller:hover {
-  background-color: var(--ifx-cream-btn);
-  color: var(--ifx-brown-dark);
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888888;
+  z-index: 2;
+  pointer-events: none;
 }
 
 .btn-nav-login {
-  background-color: #fdecdd;
-  color: var(--ifx-brown-dark);
-  border: none;
-  border-radius: 4px;
-  font-size: 0.78rem;
+  background-color: #ffffff;
+  color: var(--indofx-dark);
+  font-size: 0.82rem;
   font-weight: 700;
-  padding: 6px 18px;
+  padding: 0.45rem 1.2rem;
+  border-radius: 6px;
+  text-decoration: none;
+  border: 1.5px solid var(--ifx-border-dark);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   transition: all 0.15s ease;
+  display: inline-block;
 }
 
 .btn-nav-login:hover {
-  background-color: #f6d9c3;
-  color: var(--ifx-brown-dark);
+  background-color: #fdf3ec;
+  color: var(--ifx-orange);
 }
 
-/* NAVBAR: STATUS GUEST / PEMBELI */
+/* ========================================================
+   NAVBAR AUTHENTICATED STATE (FIGMA ACCURATE)
+   ======================================================== */
 .navbar-auth {
   display: flex;
   align-items: center;
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
 }
 
 .navbar-auth-group {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   flex-shrink: 0;
 }
 
-.btn-nav-seller,
-.btn-nav-library {
+/* 1. Tombol Jadi Penjual / Dashboard */
+.btn-nav-seller {
+  background: linear-gradient(180deg, #ffffff 0%, #faede2 100%) !important;
+  color: #2b2623 !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  padding: 6px 14px !important;
+  border-radius: 5px !important;
+  text-decoration: none !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12) !important;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
-/* Atribut hidden harus menang atas display:flex di atas. */
-.navbar-auth-group[hidden] {
-  display: none !important;
+.btn-nav-seller:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.16) !important;
+  color: #2b2623 !important;
 }
 
+/* 2. Tombol Library Saya */
 .btn-nav-library {
-  background-color: transparent;
-  color: #ffffff;
-  border: 1.5px solid #ffffff;
-  border-radius: 6px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  padding: 5px 14px;
-  transition: all 0.15s ease;
+  background-color: transparent !important;
+  color: #ffffff !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  padding: 5px 14px !important;
+  border-radius: 5px !important;
+  text-decoration: none !important;
+  border: 1.5px solid #ffffff !important;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .btn-nav-library:hover {
-  background-color: #ffffff;
-  color: var(--ifx-orange);
+  background-color: rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
 }
 
-.navbar-avatar-wrap {
-  position: relative;
-}
-
-.navbar-avatar {
-  flex: 0 0 34px;
-  width: 34px;
-  height: 34px;
-  min-width: 34px;
-  border: none;
-  border-radius: 50%;
-  background-color: #c9cdd2;
-  color: #5c6470;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-  line-height: 1;
-  cursor: pointer;
+/* 3. Ikon Keranjang Belanja */
+.btn-nav-cart {
+  color: #ffffff !important;
+  font-size: 1.35rem;
+  text-decoration: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  padding: 4px 6px;
+  line-height: 1;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.btn-nav-cart:hover {
+  opacity: 0.85;
+  transform: scale(1.08);
+}
+
+/* 4. Trigger Avatar & Profiling */
+.navbar-avatar-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.navbar-avatar {
+  background: transparent;
+  border: none;
   padding: 0;
-}
-
-.navbar-avatar:hover {
-  background-color: #b9bec5;
-}
-
-.navbar-avatar-menu {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  z-index: 1050;
-  min-width: 210px;
-  padding: 12px 14px;
-  background-color: #ffffff;
-  border: 1.5px solid var(--ifx-border-dark);
-  border-radius: 8px;
-  box-shadow: 0 8px 20px rgba(59, 35, 20, 0.18);
-  text-align: left;
-}
-
-.navbar-avatar-name {
-  margin: 0;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--ifx-brown-dark);
-}
-
-.navbar-avatar-meta {
-  margin: 2px 0 10px;
-  font-size: 0.75rem;
-  color: var(--ifx-brown-muted);
-  word-break: break-all;
-}
-
-.navbar-avatar-logout {
-  display: block;
-  width: 100%;
-  padding: 6px 10px;
-  background-color: var(--ifx-cream-btn);
-  color: var(--ifx-brown-dark);
-  border: 1.5px solid var(--ifx-border-dark);
-  border-radius: 6px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  outline: none;
   text-decoration: none;
 }
 
-.navbar-avatar-logout:hover {
-  background-color: #f39c6b;
-  color: var(--ifx-brown-dark);
+.avatar-circle-inner {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background-color: #b8b8b8;
+  color: #2b2623;
+  border: 1.5px solid #ffffff;
+  font-size: 0.82rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  transition: transform 0.15s ease;
 }
 
-/* Di layar sempit, tombol "Jadi Penjual" disembunyikan agar navbar tidak meluber. */
-@media (max-width: 575.98px) {
-  .btn-nav-seller {
-    display: none;
-  }
-
-  .navbar-auth-group {
-    gap: 6px;
-  }
-
-  .btn-nav-library {
-    padding: 5px 10px;
-    font-size: 0.72rem;
-  }
+.navbar-avatar:hover .avatar-circle-inner {
+  transform: scale(1.05);
 }
 
-/* Search bar tetap tampil di mobile: baris pertama logo + tombol,
-   baris kedua search selebar navbar. */
-@media (max-width: 767.98px) {
-  .navbar-orange .container-figma {
-    flex-wrap: wrap;
-    row-gap: 8px;
-  }
-
-  .search-box-header {
-    order: 3;
-    flex: 1 0 100%;
-    width: 100%;
-  }
-
-  .search-input-header {
-    font-size: 0.75rem;
-  }
-
-  /* Judul hero dibuat membungkus agar tidak memicu scroll horizontal. */
-  .hero-title {
-    font-size: 1.65rem;
-  }
-
-  .hero-title .text-nowrap {
-    white-space: normal !important;
-  }
+.avatar-username-label {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.92rem;
+  letter-spacing: -0.2px;
 }
 
-/* HERO SECTION */
+/* 5. Dropdown Menu Profil */
+.navbar-avatar-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 1050;
+  min-width: 210px;
+  background-color: #ffffff;
+  border: 1px solid #e2e2e2;
+  border-radius: 10px;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  padding: 6px 0;
+}
+
+.navbar-avatar-menu[hidden] {
+  display: none !important;
+}
+
+.navbar-menu-item {
+  display: block;
+  width: 100%;
+  padding: 9px 18px;
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: #2b2623;
+  text-decoration: none;
+  border-bottom: 1px solid #f2ebe5;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+  background-color: #ffffff;
+  box-sizing: border-box;
+}
+
+.navbar-menu-item:last-child {
+  border-bottom: none;
+}
+
+.navbar-menu-item:hover {
+  background-color: #faf3ec;
+  color: var(--indofx-orange, #ed6b1d);
+}
+
+.navbar-menu-item.font-weight-bold {
+  font-weight: 800;
+  font-size: 0.95rem;
+  background-color: #ffffff;
+  padding-bottom: 10px;
+}
+
+.navbar-menu-item.text-danger {
+  color: #e65151 !important;
+}
+
+.navbar-menu-item.text-danger:hover {
+  background-color: #fdf2f2 !important;
+  color: #d32f2f !important;
+}
+
+/* ==========================================
+   2. HERO SECTION
+   ========================================== */
 .hero-section {
   background-color: #ffffff;
-  padding: 50px 0 58px 0;
-  border-bottom: 1.5px solid #bda89c;
+  position: relative;
+  z-index: 10;
+  padding: 3.5rem 0;
+  box-shadow:
+    0 12px 24px -6px rgba(0, 0, 0, 0.08),
+    0 4px 12px -2px rgba(0, 0, 0, 0.04);
 }
 
 .hero-title {
-  font-size: 2.3rem;
   font-weight: 800;
-  color: var(--ifx-brown-dark);
-  line-height: 1.2;
-  letter-spacing: -0.5px;
+  font-size: 2.1rem;
+  color: var(--indofx-dark);
+  line-height: 1.25;
 }
 
 .hero-desc {
   font-size: 0.9rem;
-  color: var(--ifx-brown-muted);
   line-height: 1.6;
-  max-width: 520px;
-}
-
-.btn-hero-orange {
-  background-color: var(--ifx-orange);
-  color: #ffffff;
-  font-weight: 700;
-  font-size: 0.82rem;
-  padding: 9px 22px;
-  border-radius: 6px;
-  border: 1.5px solid var(--ifx-orange);
-  box-shadow: 0 3px 6px rgba(237, 107, 29, 0.25);
-  transition: all 0.2s ease;
-}
-
-.btn-hero-orange:hover {
-  background-color: var(--ifx-orange-hover);
-  color: #ffffff;
-  transform: translateY(-1px);
-}
-
-.btn-hero-cream {
-  background-color: var(--ifx-cream-btn);
-  color: var(--ifx-brown-dark);
-  font-weight: 700;
-  font-size: 0.82rem;
-  padding: 9px 32px;
-  border-radius: 6px;
-  border: 1.5px solid #e0c8b8;
-  box-shadow: 0 3px 6px rgba(59, 35, 20, 0.08);
-  transition: all 0.2s ease;
-}
-
-.btn-hero-cream:hover {
-  background-color: #f3d4c2;
-  color: var(--ifx-brown-dark);
-  transform: translateY(-1px);
+  color: #555555;
 }
 
 .hero-image-wrapper {
-  width: 100%;
-  height: 290px;
+  border-radius: 10px;
   overflow: hidden;
-  border-radius: 4px;
+  border: 1.5px solid var(--ifx-border-dark);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  max-height: 280px;
 }
 
-/* CONTENT BODY & KATEGORI */
+.btn-hero-orange {
+  background-color: var(--indofx-orange, #ed6b1d);
+  color: #2b2623;
+  font-weight: 700;
+  font-size: 0.88rem;
+  padding: 0.65rem 1.4rem;
+  border-radius: 6px;
+  text-decoration: none;
+  border: 1.5px solid var(--ifx-border-dark);
+  box-shadow: 0 4px 12px rgba(237, 107, 29, 0.35);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.btn-hero-orange:hover {
+  background-color: var(--indofx-orange-hover, #d85a0e);
+  color: #2b2623;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(237, 107, 29, 0.45);
+}
+
+.btn-hero-cream {
+  background-color: var(--indofx-cream-btn, #f4e4d7);
+  color: var(--indofx-dark, #2b2623);
+  font-weight: 700;
+  font-size: 0.88rem;
+  padding: 0.65rem 1.4rem;
+  border-radius: 6px;
+  text-decoration: none;
+  border: 1.5px solid var(--ifx-border-dark);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.btn-hero-cream:hover {
+  color: var(--indofx-dark, #2b2623);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+
+/* ==========================================
+   3. CONTENT BODY & KATEGORI
+   ========================================== */
 .content-body-wrapper {
-  background-color: var(--ifx-cream-bg);
-  padding: 40px 0 56px 0;
-}
-
-.category-section {
-  margin-bottom: 48px;
+  background-color: var(--indofx-cream-bg);
+  position: relative;
+  z-index: 1;
+  padding: 2.5rem 0 3.5rem;
 }
 
 .section-heading-center {
-  font-size: 1.15rem;
   font-weight: 800;
-  color: var(--ifx-brown-dark);
+  font-size: 1.25rem;
+  color: var(--indofx-dark);
 }
 
 .section-sub-center {
-  font-size: 0.78rem;
-  color: var(--ifx-brown-muted);
+  font-size: 0.82rem;
+  color: #666666;
 }
 
 .category-pill {
   background-color: #ffffff;
   border: 1.5px solid var(--ifx-border-dark);
-  color: var(--ifx-brown-dark);
   border-radius: 50rem;
-  font-size: 0.85rem;
+  padding: 0.4rem 1.25rem;
+  font-size: 0.82rem;
   font-weight: 700;
-  padding: 6px 26px;
-  box-shadow: 0 3px 5px rgba(59, 35, 20, 0.12);
+  color: var(--indofx-dark);
+  text-decoration: none;
   transition: all 0.15s ease;
 }
 
 .category-pill:hover {
-  background-color: var(--ifx-orange);
-  border-color: var(--ifx-border-dark);
+  background-color: var(--indofx-orange);
   color: #ffffff;
-  transform: translateY(-1px);
-}
-
-/* KATALOG & KARTU ASET */
-.catalog-block {
-  margin-bottom: 44px;
 }
 
 .catalog-heading {
-  font-size: 1.15rem;
   font-weight: 800;
-  color: var(--ifx-brown-dark);
+  font-size: 1.15rem;
+  color: var(--indofx-dark);
 }
 
 .catalog-subheading {
-  font-size: 0.76rem;
-  color: var(--ifx-brown-muted);
+  font-size: 0.8rem;
+  color: #666666;
 }
 
 .catalog-side-link {
-  font-size: 0.76rem;
+  font-size: 0.82rem;
   font-weight: 700;
-  color: var(--ifx-brown-dark);
+  color: var(--indofx-dark);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
-.catalog-side-link:hover {
-  color: var(--ifx-orange);
-}
-
+/* ==========================================
+   KARTU ASET FIGMA (PROPORSI PADAT PERSIS FIGMA)
+   ========================================== */
 .asset-card-figma {
   background-color: #ffffff;
   border: 1.5px solid var(--ifx-border-dark);
   border-radius: 8px;
   overflow: hidden;
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .asset-card-figma:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 18px rgba(59, 35, 20, 0.12);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
 }
 
 .asset-thumb-wrapper {
-  width: 100%;
-  height: 175px;
+  height: 180px;
+  background-color: #2b2129;
   overflow: hidden;
-  background-color: #3d3b54;
 }
 
 .asset-thumb-img {
-  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
 .asset-card-body {
-  padding: 12px 14px 14px 14px;
+  padding: 14px 16px 16px 16px;
 }
 
-/* Styling & Animasi Hover Highlight untuk Nama Kreator */
 .asset-studio {
+  display: block;
   font-size: 0.72rem;
+  color: #736b66;
   font-weight: 600;
-  color: #7a6e65 !important;
-  display: inline-block;
-  padding: 2px 6px;
-  margin-left: -6px; /* Menjaga posisi teks tetap sejajar tanpa menggeser layout */
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.asset-studio:hover {
-  color: var(--ifx-orange, #ed6b1d) !important;
-  background-color: #ffffff;
-  transform: translateY(-1.5px);
-  box-shadow:
-    0 4px 10px rgba(237, 107, 29, 0.22),
-    0 1px 3px rgba(0, 0, 0, 0.08);
-  text-shadow: 0 0 0.5px rgba(237, 107, 29, 0.4);
+  margin-bottom: 3px;
 }
 
 .asset-name {
-  font-size: 0.85rem;
+  font-size: 0.92rem;
   font-weight: 800;
-  color: var(--ifx-brown-dark);
+  color: var(--indofx-dark);
   margin-bottom: 8px;
-  line-height: 1.3;
-}
-
-/* Base Style Badge Pipeline */
-.badge-pipeline {
-  display: inline-block;
-  font-size: 0.6rem;
-  font-weight: 800;
-  padding: 2px 6px;
-  border-radius: 4px;
-  color: #ffffff !important;
-  letter-spacing: 0.2px;
-  line-height: 1.2;
-  background-color: #8b1e1e; /* Warna cadangan agar tidak transparan */
-}
-
-/* Variasi Warna Pipeline */
-.badge-pipeline.badge-urp,
-.badge-urp {
-  background-color: #8b1e1e !important; /* Merah Maroon */
-}
-
-.badge-pipeline.badge-hdrp,
-.badge-hdrp {
-  background-color: #383e82 !important; /* Indigo / Biru-Ungu Gelap */
-}
-
-.badge-pipeline.badge-builtin,
-.badge-builtin {
-  background-color: #007bff !important; /* Biru Terang */
-}
-
-/* Warna tag per render pipeline. Warna dasar di atas jadi cadangan untuk
-   nilai pipeline yang belum dikenal. */
-.badge-pipeline-urp {
-  background-color: #a3161c;
-}
-
-.badge-pipeline-hdrp {
-  background-color: #4f378b;
-}
-
-.badge-pipeline-builtin {
-  background-color: #0088ff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .asset-price {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 800;
-  color: var(--ifx-brown-dark);
+  color: var(--indofx-dark);
 }
 
 .asset-dl-icon {
   font-size: 0.95rem;
-  color: var(--ifx-brown-dark);
-  -webkit-text-stroke: 0.4px var(--ifx-brown-dark);
+  color: #736b66;
 }
 
-/* FOOTER */
-.footer-main {
-  background-color: #ffffff;
-  padding: 40px 0 28px 0;
-  border-top: 1px solid #eaddd4;
-}
-
-.footer-brand-title {
-  font-size: 1rem;
+/* Tag Pipeline */
+.badge-pipeline {
+  display: inline-block;
+  font-size: 0.62rem;
   font-weight: 800;
-  color: #1a1a1a;
-}
-
-.footer-brand-desc {
-  font-size: 0.72rem;
-  color: #555555;
-  line-height: 1.55;
-  max-width: 310px;
-}
-
-.footer-col-title {
-  font-size: 0.78rem;
-  font-weight: 800;
-  color: #1a1a1a;
-}
-
-.footer-link {
-  display: block;
-  font-size: 0.72rem;
-  color: #444444;
-  text-decoration: none;
-  margin-bottom: 6px;
-}
-
-.footer-link:hover {
-  color: var(--ifx-orange);
-}
-
-.footer-bottom {
-  padding-top: 24px;
-  font-size: 0.68rem;
-  color: #444444;
-}
-
-/* ==========================================================================
-   STYLING HALAMAN EXPLORE KATALOG & FILTER PENCARIAN FIGMA
-   ========================================================================== */
-
-/* Dropdown Sortir */
-.sort-select {
-  border: 1px solid #d8c8bd !important;
-  background-color: #ffffff;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--ifx-brown-dark);
+  padding: 2px 7px;
   border-radius: 4px;
-  padding-right: 28px;
+  line-height: 1.2;
+  color: #ffffff;
 }
 
-/* Card Filter Kanan */
+.badge-pipeline-urp,
+.tag-urp {
+  background-color: #a3161c !important;
+  color: #ffffff !important;
+}
+
+.badge-pipeline-hdrp,
+.tag-hdrp {
+  background-color: #4f378b !important;
+  color: #ffffff !important;
+}
+
+.badge-pipeline-builtin,
+.tag-builtin {
+  background-color: #0088ff !important;
+  color: #ffffff !important;
+}
+
+/* ==========================================
+   4. FILTER & PAGINATION EKSPLORASI
+   ========================================== */
 .filter-search-card {
   background-color: #ffffff;
-  border: 1px solid #e5d5cb;
-  border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(59, 35, 20, 0.04);
+  border: 1.5px solid var(--ifx-border-dark);
+  border-radius: 8px;
 }
 
 .filter-reset-link {
-  font-size: 0.7rem;
-  color: #666666;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--indofx-dark);
   text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.filter-reset-link:hover {
-  color: var(--ifx-orange);
 }
 
 .filter-group-label {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  color: var(--ifx-brown-dark);
+  color: var(--indofx-dark);
 }
 
 .filter-check-text {
@@ -664,25 +633,25 @@ body {
   font-size: 0.75rem;
   border-radius: 4px;
   padding: 4px 8px;
+  width: 100%;
 }
 
-/* Pagination Bawah */
 .explore-pagination {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
 }
 
 .page-nav-link {
   text-decoration: underline;
   text-underline-offset: 3px;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
 }
 
 .page-num-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   text-decoration: none;
   font-weight: 600;
   color: #444444;
@@ -701,108 +670,564 @@ body {
   background-color: rgba(59, 35, 20, 0.08);
 }
 
-/* ==========================================================================
-   STYLING HALAMAN PROFIL PUBLIK KREATOR
-   ========================================================================== */
+/* ==========================================
+   5. HALAMAN DETAIL ASET
+   ========================================== */
+.asset-detail-page {
+  padding: 28px 0 56px 0;
+  background-color: #fdf3ec;
+}
 
-/* Card Profil dengan Banner */
+.asset-detail-main {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 4px;
+  background-color: #e7d6c8;
+}
+
+.asset-detail-main-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.asset-detail-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.asset-detail-thumb {
+  width: 72px;
+  height: 48px;
+  padding: 0;
+  overflow: hidden;
+  border: 1.5px solid transparent;
+  border-radius: 4px;
+  background-color: transparent;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.asset-detail-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.asset-detail-thumb:hover,
+.asset-detail-thumb.is-active {
+  border-color: var(--ifx-orange);
+}
+
+.asset-buy-card {
+  background-color: #ffffff;
+  border: 1.5px solid var(--ifx-border-dark);
+  border-radius: 8px;
+  padding: 18px 18px 20px 18px;
+}
+
+.asset-buy-category {
+  display: block;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--ifx-brown-muted);
+  margin-bottom: 4px;
+}
+
+.asset-buy-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--ifx-brown-dark);
+  line-height: 1.25;
+  margin-bottom: 4px;
+}
+
+.asset-buy-seller {
+  font-size: 0.72rem;
+  color: var(--ifx-brown-muted);
+  margin-bottom: 16px;
+}
+
+.asset-buy-price-label {
+  font-size: 0.68rem;
+  color: var(--ifx-brown-muted);
+  margin-bottom: 0;
+}
+
+.asset-buy-price {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--ifx-brown-dark);
+  line-height: 1.2;
+  margin-bottom: 14px;
+}
+
+.asset-buy-meta {
+  margin-bottom: 16px;
+}
+
+.asset-buy-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid #efe0d5;
+  font-size: 0.7rem;
+}
+
+.asset-buy-meta-row:last-child {
+  border-bottom: none;
+}
+
+.asset-buy-meta-row dt {
+  font-weight: 400;
+  color: var(--ifx-brown-muted);
+}
+
+.asset-buy-meta-row dd {
+  margin: 0;
+  font-weight: 700;
+  color: var(--ifx-brown-dark);
+  text-align: right;
+}
+
+.btn-detail-buy,
+.btn-detail-cart {
+  display: block;
+  width: 100%;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 5px;
+  transition: all 0.15s ease;
+}
+
+.btn-detail-buy {
+  background-color: var(--ifx-orange);
+  border: 1.5px solid var(--ifx-border-dark);
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.btn-detail-buy:hover {
+  background-color: var(--ifx-orange-hover);
+  color: #ffffff;
+}
+
+.btn-detail-cart {
+  background-color: var(--ifx-cream-btn);
+  border: 1.5px solid var(--ifx-border-dark);
+  color: var(--ifx-brown-dark);
+}
+
+.btn-detail-cart:hover {
+  background-color: #f3d4c2;
+  color: var(--ifx-brown-dark);
+}
+
+.asset-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 26px;
+  border-bottom: 1px solid #d8c8bd;
+}
+
+.asset-tab-link {
+  padding: 0 0 8px 0;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ifx-brown-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.asset-tab-link:hover {
+  color: var(--ifx-brown-dark);
+}
+
+.asset-tab-link.active {
+  font-weight: 800;
+  color: var(--ifx-brown-dark);
+  border-bottom-color: var(--ifx-orange);
+}
+
+.asset-tab-panel {
+  background-color: #ffffff;
+  border: 1.5px solid var(--ifx-border-dark);
+  border-radius: 6px;
+  padding: 18px 20px;
+  margin-top: 14px;
+}
+
+.asset-description-text {
+  font-size: 0.78rem;
+  line-height: 1.7;
+  color: var(--ifx-brown-dark);
+}
+
+/* ==========================================
+   6. HALAMAN PROFIL KREATOR
+   ========================================== */
+.avatar-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background-color: #6c5548;
+  color: #ffffff;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
 .creator-profile-card {
   background-color: #ffffff;
-  border: 1px solid #e5d5cb;
-  border-radius: 12px;
-  overflow: visible;
-  box-shadow: 0 4px 14px rgba(59, 35, 20, 0.05);
+  border: 1.5px solid var(--ifx-border-dark);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(59, 35, 20, 0.06);
 }
 
 .creator-banner-maroon {
-  background-color: #8b1e1e;
-  height: 190px;
-  border-top-left-radius: 11px;
-  border-top-right-radius: 11px;
+  height: 120px;
+  background: linear-gradient(135deg, #7a1919 0%, #a32424 100%);
+  width: 100%;
 }
 
 .creator-info-body {
   position: relative;
-  padding: 24px 32px 32px 220px;
-  min-height: 120px;
+  padding: 0 28px 24px 28px;
   display: flex;
-  align-items: center;
-  border-bottom-left-radius: 11px;
-  border-bottom-right-radius: 11px;
+  align-items: flex-end;
+  gap: 20px;
 }
 
-/* Avatar Bulat Mengambang Menembus Banner */
 .creator-avatar-float {
-  position: absolute;
-  left: 40px;
-  bottom: 24px;
-  width: 140px;
-  height: 140px;
-  background-color: #ffffff;
+  position: relative;
+  margin-top: -46px;
+  width: 92px;
+  height: 92px;
   border-radius: 50%;
-  border: 5px solid #ffffff;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  background-color: #553e32;
+  border: 4px solid #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.creator-avatar-float span {
-  font-size: 2.7rem;
+  color: #ffffff;
+  font-size: 1.8rem;
   font-weight: 800;
-  color: #8b1e1e;
-  letter-spacing: -1px;
+  flex-shrink: 0;
 }
 
 .creator-name {
-  font-size: 1.85rem;
+  font-size: 1.4rem;
   font-weight: 800;
-  color: var(--ifx-brown-dark, #3b2314);
+  color: var(--ifx-brown-dark);
+  margin-bottom: 2px;
 }
 
 .creator-bio {
-  font-size: 0.9rem;
+  font-size: 0.82rem;
+  color: var(--ifx-brown-muted);
 }
 
-.creator-link {
-  color: var(--ifx-brown-dark);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.creator-link:hover {
-  color: var(--ifx-orange);
-}
-
-/* Footer Rata Tengah */
-.footer-creator-center {
+/* ==========================================
+   7. FOOTER
+   ========================================== */
+.footer-main {
   background-color: #ffffff;
-  border-top: 1px solid #e5d5cb;
+  padding: 3.5rem 0 1.5rem;
+  font-size: 0.85rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  position: relative;
+  z-index: 10;
 }
 
-.footer-link-inline {
-  font-size: 0.78rem;
-  color: #333333;
+.footer-link {
+  color: #555555;
+  text-decoration: none;
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.footer-link:hover {
+  color: var(--indofx-orange);
+}
+
+.footer-brand-title {
+  font-weight: 800;
+  color: var(--indofx-dark);
+}
+
+.footer-brand-desc {
+  max-width: 380px;
+  font-size: 0.82rem;
+  color: #666666;
+}
+
+.footer-col-title {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--indofx-dark);
+}
+
+.footer-bottom {
+  border-top: 1px solid #efe0d5;
+  padding-top: 1.5rem;
+  margin-top: 2rem;
+  font-size: 0.75rem;
+  color: #736b66;
+}
+
+/* ==========================================
+   RESPONSIVE NAVBAR RULES
+   ========================================== */
+@media (max-width: 991.98px) {
+  .navbar-figma-container {
+    padding: 0 16px !important;
+  }
+
+  .avatar-username-label {
+    display: none !important;
+  }
+
+  .navbar-auth-group {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .search-box-header {
+    flex: 1 1 auto;
+    min-width: 140px;
+    margin: 0 8px !important;
+  }
+
+  .search-input-header {
+    font-size: 0.8rem;
+    height: 35px;
+    padding-left: 2.1rem;
+  }
+
+  .search-icon-header {
+    left: 0.65rem;
+    font-size: 0.85rem;
+  }
+
+  .btn-nav-cart {
+    font-size: 1.25rem;
+    padding: 2px 4px;
+  }
+
+  .avatar-circle-inner {
+    width: 32px;
+    height: 32px;
+    font-size: 0.78rem;
+  }
+}
+
+@media (max-width: 440px) {
+  .brand-text {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   STYLING HALAMAN PROFIL KREATOR & ASET DIMILIKI (CREATOR/PROFILE.PHP)
+   ========================================================================== */
+.profile-page-wrapper {
+  background-color: var(--indofx-cream-bg, #faf0e6);
+  min-height: calc(100vh - 160px);
+  padding: 28px 0 60px 0;
+}
+
+.creator-profile-card {
+  background-color: #ffffff;
+  border: 1.5px solid var(--ifx-border-dark, #2b2623);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(59, 35, 20, 0.05);
+  margin-bottom: 32px;
+}
+
+.creator-banner-maroon {
+  height: 140px;
+  background: linear-gradient(135deg, #7a1919 0%, #a32424 100%);
+  width: 100%;
+}
+
+.creator-info-body {
+  position: relative;
+  padding: 0 28px 24px 28px;
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+}
+
+.creator-avatar-float {
+  position: relative;
+  margin-top: -50px;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background-color: #4a3b32;
+  border: 4px solid #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 2rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.creator-name {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--ifx-brown-dark, #2b2623);
+  margin-bottom: 2px;
+}
+
+.creator-bio {
+  font-size: 0.85rem;
+  color: var(--ifx-brown-muted, #736b66);
+  margin: 0;
+}
+
+.owned-assets-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.owned-assets-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.owned-library-link {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1a1a1a;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
-.footer-link-inline:hover {
-  color: var(--ifx-orange);
+.owned-library-link:hover {
+  color: var(--indofx-orange, #ed6b1d);
 }
 
-@media (max-width: 768px) {
-  .creator-info-body {
-    padding: 85px 20px 24px 20px;
-    text-align: center;
-    justify-content: center;
-  }
-  .creator-avatar-float {
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: auto;
-    top: -65px;
-    width: 115px;
-    height: 115px;
-  }
+.owned-card-figma {
+  background-color: #ffffff;
+  border: 1.5px solid var(--ifx-border-dark, #2b2623);
+  border-radius: 8px;
+  overflow: hidden;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.owned-card-figma:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+}
+
+.owned-thumb-wrapper {
+  height: 160px;
+  background-color: #2b2129;
+  overflow: hidden;
+  position: relative;
+}
+
+.owned-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.owned-card-body {
+  padding: 14px 16px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.owned-creator-name {
+  font-size: 0.72rem;
+  color: #736b66;
+  font-weight: 600;
+  margin-bottom: 2px;
+  display: block;
+}
+
+.owned-asset-title {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2; /* Menambahkan properti standar agar peringatan hilang */
+  overflow: hidden;
+  text-decoration: none;
+  line-height: 1.35;
+}
+
+.owned-asset-title:hover {
+  color: var(--indofx-orange, #ed6b1d);
+}
+
+.owned-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px solid #f2ebe5;
+  margin-top: 10px;
+}
+
+.owned-btn-action {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--indofx-orange, #ed6b1d);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.owned-btn-action:hover {
+  text-decoration: underline;
+}
+
+.empty-owned-box {
+  background-color: #ffffff;
+  border: 1.5px dashed #d8c8bd;
+  border-radius: 10px;
+  padding: 48px 24px;
+  text-align: center;
 }

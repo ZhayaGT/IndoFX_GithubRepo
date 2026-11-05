@@ -25,9 +25,79 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
 
     <!-- Stylesheets Utama -->
     <link rel="stylesheet" href="/assets/css/style.css">
+
+    <style>
+        /* Menggeser filter sedikit lebih ke kiri dan memberi jarak lega ke kumpulan aset */
+        .filter-col-left {
+            max-width: 260px;
+            transform: translateX(-16px);
+        }
+
+        @media (max-width: 991.98px) {
+            .filter-col-left {
+                max-width: 100%;
+                transform: none;
+                margin-bottom: 20px;
+            }
+        }
+
+        .filter-search-card {
+            background-color: #ffffff;
+            border: 1.5px solid var(--ifx-border-dark, #2b2623);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(60, 42, 33, 0.04);
+        }
+
+        .filter-header-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #1a1a1a;
+        }
+
+        .filter-reset-link {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #736b66;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .filter-reset-link:hover {
+            color: var(--indofx-orange, #ed6b1d);
+        }
+
+        .filter-group-label {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: #1a1a1a;
+        }
+
+        .filter-check-text {
+            font-size: 0.8rem;
+            color: #2b2623;
+            font-weight: 500;
+        }
+
+        .sort-select-figma {
+            background-color: #ffffff;
+            border: 1.5px solid #2b2623;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            padding: 5px 28px 5px 12px;
+            cursor: pointer;
+        }
+
+        .sort-select-figma:focus {
+            border-color: var(--indofx-orange, #ed6b1d);
+            box-shadow: none;
+            outline: none;
+        }
+    </style>
 </head>
 
-<body style="background-color: var(--ifx-cream-bg, #FDECE2);">
+<body style="background-color: var(--ifx-cream-bg, #FAF0E6);">
 
     <!-- SVG Helper untuk Gambar Kartu Aset -->
     <svg class="d-none">
@@ -75,7 +145,7 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
 
     <!-- 1. Header Navbar Oranye -->
     <nav class="navbar navbar-orange sticky-top">
-        <div class="container-figma d-flex justify-content-between align-items-center w-100">
+        <div class="navbar-figma-container">
             <a class="navbar-brand m-0 d-flex align-items-center gap-2 text-decoration-none" href="/">
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 2L20.66 7V17L12 22L3.34 17V7L12 2Z" fill="#ED6B1D" stroke="#1A1A1A" stroke-width="1.8" stroke-linejoin="round" />
@@ -90,17 +160,24 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
 
             <form action="/catalog/explore" method="GET" class="search-box-header d-flex align-items-center flex-grow-1 mx-2 mx-md-4">
                 <i class="bi bi-search search-icon-header"></i>
-                <input type="text" name="q" class="form-control search-input-header" placeholder="Cari aset..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
+                <input type="text" name="q" class="form-control search-input-header" placeholder="Cari aset VFX, shader, tekstur..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
                 <button type="submit" class="d-none"></button>
             </form>
 
-            <div class="d-flex align-items-center gap-2">
-                <?php require BASE_PATH . '/resources/views/partials/navbar-auth.php'; ?>
+            <div class="d-flex align-items-center">
+                <?php
+                $authPartial = BASE_PATH . '/resources/views/partials/navbar-auth.php';
+                if (file_exists($authPartial)) {
+                    require $authPartial;
+                } else {
+                    echo '<a href="/login" class="btn btn-nav-login">Masuk</a>';
+                }
+                ?>
             </div>
         </div>
     </nav>
 
-    <!-- 2. Konten Eksplorasi Katalog & Sidebar Filter -->
+    <!-- 2. Konten Eksplorasi: Menggunakan container-figma agar kartu kembali proporsional -->
     <main class="py-4">
         <div class="container-figma">
 
@@ -270,18 +347,44 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                     </div>
                 </div>
 
+                <!-- SISI KANAN: Grid 3 Kartu per Baris (Proporsi Awal Terjaga) -->
+                <div class="col-12 col-lg-9">
+                    <!-- Bar Jumlah Aset & Opsi Urutkan -->
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                        <span class="text-dark" style="font-size: 0.92rem;">
+                            Menampilkan <strong data-catalog-count>0</strong> aset yang cocok
+                        </span>
+
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="small" style="color: #2b2623; font-weight: 500;">Urutkan:</span>
+                            <select class="form-select form-select-sm sort-select-figma sort-select">
+                                <option value="terbaru" selected>Terbaru</option>
+                                <option value="populer">Terpopuler</option>
+                                <option value="harga_rendah">Harga: Rendah ke Tinggi</option>
+                                <option value="harga_tinggi">Harga: Tinggi ke Rendah</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Wadah Kartu Katalog (3 Kolom per Baris) -->
+                    <div class="row g-3" data-catalog-list="explore"></div>
+
+                    <!-- Pagination Dinamis -->
+                    <div class="d-flex justify-content-center align-items-center gap-3 mt-5 mb-3 explore-pagination" data-catalog-pagination></div>
+                </div>
+
             </div>
         </div>
     </main>
 
-    <!-- 3. Footer Putih Konsisten -->
+    <!-- 3. Footer Putih Solid Full-Width Sesuai Figma -->
     <footer class="footer-main" id="tentang">
         <div class="container-figma">
             <div class="row g-4 justify-content-between mb-4">
                 <div class="col-12 col-md-5 col-lg-4">
                     <h5 class="footer-brand-title mb-2">IndoFX</h5>
                     <p class="footer-brand-desc m-0">
-                        Portal distribusi dan marketplace aset CG & VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
+                        Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia[cite: 25].
                     </p>
                 </div>
                 <div class="col-12 col-md-6 col-lg-4">
@@ -296,21 +399,20 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                             <h6 class="footer-col-title mb-2">Dukungan</h6>
                             <a href="#" class="footer-link">Dokumentasi</a>
                             <a href="#" class="footer-link">Hubungi Kami</a>
-                            <a href="#" class="footer-link">Syarat & Ketentuan</a>
+                            <a href="#" class="footer-link">Syarat &amp; Ketentuan</a>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="footer-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
-                <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
+                <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang[cite: 25].</span>
+                <span>Dibuat dengan bangga untuk Game Developer Indonesia[cite: 25]</span>
             </div>
         </div>
     </footer>
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Pergantian navbar guest/pembeli -->
     <script src="/assets/js/navbar-auth.js"></script>
     <!-- Katalog dari data dummy -->
     <!-- <script src="/assets/js/catalog.js" defer></script> -->
