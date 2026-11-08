@@ -4,7 +4,10 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$userName = (string) ($_SESSION['name'] ?? 'Pengguna');
+$userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna');
+$userKey  = (string) ($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user');
+$userEmail = (string) ($_SESSION['email'] ?? ($userName . '@gmail.com'));
+$directAssetId = $_GET['asset_id'] ?? $_GET['id'] ?? null;
 
 $initials = '';
 $words = preg_split('/\s+/', trim($userName)) ?: [];
@@ -143,13 +146,20 @@ if ($initials === '') {
             border-bottom: none;
         }
 
-        .item-thumb-img {
+        .item-thumb-box {
             width: 78px;
             height: 52px;
             border-radius: 4px;
-            object-fit: cover;
             border: 1px solid #2B2129;
             background-color: #3b2e39;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .item-thumb-box svg {
+            width: 100%;
+            height: 100%;
+            display: block;
         }
 
         .item-name {
@@ -217,7 +227,8 @@ if ($initials === '') {
             margin-bottom: 0;
         }
 
-        .payment-row:hover {
+        .payment-row:hover,
+        .payment-row.selected {
             border-color: #ED6B1D;
             background-color: #fff9f6;
         }
@@ -302,7 +313,7 @@ if ($initials === '') {
 
         .btn-buy {
             background-color: #ED6B1D;
-            color: #ffffff;
+            color: #ffffff !important;
             font-weight: 800;
             font-size: 1rem;
             border: none;
@@ -312,12 +323,12 @@ if ($initials === '') {
             text-align: center;
             text-decoration: none;
             display: block;
+            cursor: pointer;
             transition: background-color 0.15s ease;
         }
 
         .btn-buy:hover {
             background-color: #d95d12;
-            color: #ffffff;
         }
 
         .payment-disclaimer {
@@ -331,6 +342,35 @@ if ($initials === '') {
 </head>
 
 <body>
+
+    <svg class="d-none">
+        <defs>
+            <g id="chk-art-castle">
+                <rect width="175" height="98" fill="#241E24" />
+                <ellipse cx="87" cy="55" rx="75" ry="25" fill="#433742" opacity="0.5" />
+                <polygon points="45,25 35,90 55,90" fill="#151115" />
+                <polygon points="87,15 72,95 102,95" fill="#100D10" />
+                <polygon points="130,22 120,90 140,90" fill="#151115" />
+                <circle cx="87" cy="38" r="4" fill="#C4B5A5" opacity="0.8" />
+            </g>
+            <g id="chk-art-water">
+                <rect width="175" height="98" fill="#14232C" />
+                <ellipse cx="87" cy="55" rx="75" ry="25" fill="#234657" opacity="0.5" />
+                <polygon points="45,25 35,90 55,90" fill="#0C171E" />
+                <polygon points="87,15 72,95 102,95" fill="#081015" />
+                <polygon points="130,22 120,90 140,90" fill="#0C171E" />
+                <circle cx="87" cy="38" r="4" fill="#64B5F6" opacity="0.8" />
+            </g>
+            <g id="chk-art-fire">
+                <rect width="175" height="98" fill="#2D1A14" />
+                <ellipse cx="87" cy="55" rx="75" ry="25" fill="#572B1B" opacity="0.5" />
+                <polygon points="45,25 35,90 55,90" fill="#190E0A" />
+                <polygon points="87,15 72,95 102,95" fill="#110906" />
+                <polygon points="130,22 120,90 140,90" fill="#190E0A" />
+                <circle cx="87" cy="38" r="4" fill="#FF8A65" opacity="0.8" />
+            </g>
+        </defs>
+    </svg>
 
     <nav class="navbar navbar-checkout sticky-top">
         <div class="container-figma d-flex justify-content-between align-items-center w-100">
@@ -386,30 +426,11 @@ if ($initials === '') {
             <div class="row g-4 align-items-start">
                 <div class="col-12 col-lg-8">
                     <div class="section-subtitle">Ringkasan Pesanan</div>
-                    <div class="order-summary-box">
-                        <?php for ($i = 0; $i < 6; $i++): ?>
-                            <div class="order-summary-item d-flex align-items-center justify-content-between flex-wrap gap-2">
-                                <div class="d-flex align-items-center gap-3">
-                                    <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=200&auto=format&fit=crop&q=60"
-                                        alt="Aset" class="item-thumb-img">
-                                    <div>
-                                        <div class="d-flex align-items-center gap-2 flex-wrap">
-                                            <span class="item-name">Volumetric Rain &amp; Storm URP</span>
-                                            <span class="badge-pipeline-tag tag-urp">URP</span>
-                                            <span class="badge-pipeline-tag tag-hdrp">HDRP</span>
-                                            <span class="badge-pipeline-tag tag-builtin">Built-in</span>
-                                        </div>
-                                        <p class="item-author">Oleh Arga Studio</p>
-                                    </div>
-                                </div>
-                                <div class="item-price">Rp250.000</div>
-                            </div>
-                        <?php endfor; ?>
-                    </div>
+                    <div class="order-summary-box" id="orderSummaryContainer"></div>
 
                     <div class="section-subtitle">Pilih Metode Pembayaran</div>
                     <div class="payment-method-box">
-                        <label class="payment-row">
+                        <label class="payment-row selected" onclick="choosePayment(this)">
                             <div class="d-flex align-items-center gap-2">
                                 <input type="radio" name="payment_method" value="ewallet" class="form-check-input m-0" checked>
                                 <span class="payment-label">E-wallet</span>
@@ -423,7 +444,7 @@ if ($initials === '') {
                             </div>
                         </label>
 
-                        <label class="payment-row">
+                        <label class="payment-row" onclick="choosePayment(this)">
                             <div class="d-flex align-items-center gap-2">
                                 <input type="radio" name="payment_method" value="card" class="form-check-input m-0">
                                 <span class="payment-label">Bayar dengan kartu</span>
@@ -436,7 +457,7 @@ if ($initials === '') {
                             </div>
                         </label>
 
-                        <label class="payment-row">
+                        <label class="payment-row" onclick="choosePayment(this)">
                             <div class="d-flex align-items-center gap-2">
                                 <input type="radio" name="payment_method" value="bank" class="form-check-input m-0">
                                 <span class="payment-label">Transfer Bank</span>
@@ -460,11 +481,11 @@ if ($initials === '') {
 
                         <div class="detail-line">
                             <span>Subtotal Aset</span>
-                            <span class="fw-bold text-dark">Rp250.000</span>
+                            <span class="fw-bold text-dark" id="calcSubtotal">Rp0</span>
                         </div>
                         <div class="detail-line">
                             <span>Biaya Layanan</span>
-                            <span class="fw-bold text-dark">Rp2.500</span>
+                            <span class="fw-bold text-dark" id="calcAdmin">Rp2.500</span>
                         </div>
                         <div class="detail-line">
                             <span>Diskon</span>
@@ -473,7 +494,7 @@ if ($initials === '') {
 
                         <div class="detail-line-total">
                             <span>Total Bayar</span>
-                            <span class="fs-5">Rp502.500</span>
+                            <span class="fs-5" id="calcTotal">Rp0</span>
                         </div>
 
                         <div class="status-waiting">
@@ -481,8 +502,7 @@ if ($initials === '') {
                             <span>Menunggu Pembayaran</span>
                         </div>
 
-                        <!-- Klik Beli menuju halaman Invoice -->
-                        <a href="/invoice" class="btn-buy">Beli</a>
+                        <button type="button" id="btnSubmitPayment" class="btn-buy" onclick="handlePaymentSubmit()">Beli</button>
 
                         <p class="payment-disclaimer">
                             Catatan: Anda akan diarahkan ke gerbang pembayaran aman Midtrans untuk simulasi transfer (Sandbox/Simulasi Medis).
@@ -507,7 +527,330 @@ if ($initials === '') {
     </footer>
 
     <script>
+        const userKey = '<?= $userKey ?>';
+        const directAssetId = '<?= htmlspecialchars((string)$directAssetId, ENT_QUOTES, 'UTF-8') ?>';
+
+        const catalogDB = {
+            '1': {
+                id: '1',
+                title: 'Volumetric Rain & Storm URP',
+                creator: 'Arga Studio',
+                price: 150000,
+                art: 'castle',
+                pipelines: ['URP', 'HDRP', 'Built-in']
+            },
+            '2': {
+                id: '2',
+                title: 'Stylized Toon Water Shader',
+                creator: 'Nusantara Digital',
+                price: 75000,
+                art: 'water',
+                pipelines: ['URP', 'Built-in']
+            },
+            '3': {
+                id: '3',
+                title: 'Explosion VFX Pack Vol. 1',
+                creator: 'Bayu Pratama',
+                price: 200000,
+                art: 'fire',
+                pipelines: ['HDRP']
+            },
+            '4': {
+                id: '4',
+                title: 'Lowpoly Indonesian Village Pack',
+                creator: 'Citra CG',
+                price: 350000,
+                art: 'castle',
+                pipelines: ['URP', 'HDRP', 'Built-in']
+            }
+        };
+
+        let activeItems = [];
+        const feeAdmin = 2500;
+
+        function loadCheckoutData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const paramTitle = urlParams.get('title');
+            const paramPrice = urlParams.get('price');
+            const paramCreator = urlParams.get('creator');
+            const paramPipeline = urlParams.get('pipeline');
+
+            // 1. PRIORITAS UTAMA: Jika URL membawa parameter lengkap (dari klik Beli di detail.php)
+            if (paramTitle) {
+                let cleanPrice = 0;
+                if (paramPrice) {
+                    cleanPrice = parseFloat(paramPrice.replace(/[^0-9]/g, '')) || 0;
+                }
+                const pipes = paramPipeline ? [paramPipeline] : ['Built-in'];
+
+                activeItems = [{
+                    id: directAssetId || ('asset-' + Date.now()),
+                    title: paramTitle,
+                    creator: paramCreator || 'Studio Kreator',
+                    price: cleanPrice,
+                    art: 'castle',
+                    pipelines: pipes
+                }];
+                renderOrderSummary();
+                return;
+            }
+
+            // 2. PRIORITAS KEDUA: Cek di database katalog publik LocalStorage
+            if (directAssetId) {
+                try {
+                    const publicCatalog = JSON.parse(localStorage.getItem('indofx_public_catalog')) || [];
+                    const found = publicCatalog.find(item => String(item.id) === String(directAssetId));
+                    if (found) {
+                        let cleanPrice = 0;
+                        if (typeof found.price === 'number') {
+                            cleanPrice = found.price;
+                        } else if (typeof found.price === 'string') {
+                            cleanPrice = parseFloat(found.price.replace(/[^0-9]/g, '')) || 0;
+                        }
+
+                        activeItems = [{
+                            id: found.id,
+                            title: found.title,
+                            creator: found.creator || found.seller || 'Studio Kreator',
+                            price: cleanPrice,
+                            art: found.category === 'Shader' ? 'water' : 'castle',
+                            pipelines: Array.isArray(found.pipelines) ? found.pipelines : [found.render_pipeline || 'Built-in']
+                        }];
+                        renderOrderSummary();
+                        return;
+                    }
+                } catch (e) {}
+
+                // Cek di catalogDB bawaan
+                if (catalogDB[directAssetId]) {
+                    activeItems = [catalogDB[directAssetId]];
+                    renderOrderSummary();
+                    return;
+                }
+            }
+
+            // 3. PRIORITAS KETIGA: Cek dari keranjang checkout (sessionStorage)
+            try {
+                activeItems = JSON.parse(sessionStorage.getItem('indofx_checkout_items')) || [];
+            } catch (e) {
+                activeItems = [];
+            }
+
+            // Fallback default jika benar-benar tidak ada data
+            if (activeItems.length === 0) {
+                activeItems = [catalogDB['1']];
+            }
+
+            renderOrderSummary();
+        }
+
+        function renderOrderSummary() {
+            const container = document.getElementById('orderSummaryContainer');
+            let subtotal = 0;
+
+            container.innerHTML = activeItems.map(item => {
+                const price = parseFloat(item.price) || 0;
+                subtotal += price;
+
+                const artSvg = item.art ? ('chk-art-' + item.art) : 'chk-art-castle';
+                const pipelines = Array.isArray(item.pipelines) ? item.pipelines : ['URP', 'HDRP', 'Built-in'];
+
+                const badgeHtml = pipelines.map(p => {
+                    let cls = 'tag-urp';
+                    if (p.toLowerCase().includes('hdrp')) cls = 'tag-hdrp';
+                    if (p.toLowerCase().includes('built')) cls = 'tag-builtin';
+                    return `<span class="badge-pipeline-tag ${cls}">${p}</span>`;
+                }).join(' ');
+
+                return `
+                    <div class="order-summary-item d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="item-thumb-box">
+                                <svg viewBox="0 0 175 98"><use href="#${artSvg}" /></svg>
+                            </div>
+                            <div>
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    <span class="item-name">${item.title}</span>
+                                    ${badgeHtml}
+                                </div>
+                                <p class="item-author">Oleh ${item.creator || 'Arga Studio'}</p>
+                            </div>
+                        </div>
+                        <div class="item-price">Rp${price.toLocaleString('id-ID')}</div>
+                    </div>
+                `;
+            }).join('');
+
+            const grandTotal = subtotal + feeAdmin;
+
+            document.getElementById('calcSubtotal').innerText = 'Rp' + subtotal.toLocaleString('id-ID');
+            document.getElementById('calcTotal').innerText = 'Rp' + grandTotal.toLocaleString('id-ID');
+        }
+
+        function choosePayment(el) {
+            document.querySelectorAll('.payment-row').forEach(r => {
+                r.classList.remove('selected');
+                const radio = r.querySelector('input[type="radio"]');
+                if (radio) radio.checked = false;
+            });
+            el.classList.add('selected');
+            const radio = el.querySelector('input[type="radio"]');
+            if (radio) radio.checked = true;
+        }
+
+        // PROSES PEMBAYARAN: Masuk ke Library, Catat Riwayat Transaksi Invoice, dan Catat Penjualan Toko (Tanpa Duplikasi)
+        function handlePaymentSubmit() {
+            const btn = document.getElementById('btnSubmitPayment');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Memproses Pembayaran...';
+
+            setTimeout(() => {
+                // 1. Simpan semua item yang dibeli ke Library akun pembeli aktif
+                const libKey = 'indofx_library_' + userKey;
+                let currentLibrary = [];
+                try {
+                    currentLibrary = JSON.parse(localStorage.getItem(libKey)) || [];
+                } catch (e) {
+                    currentLibrary = [];
+                }
+
+                activeItems.forEach(item => {
+                    const exists = currentLibrary.some(l => String(l.id) === String(item.id));
+                    if (!exists) {
+                        currentLibrary.unshift({
+                            id: item.id,
+                            title: item.title,
+                            creator: item.creator,
+                            type: 'Berbayar',
+                            date: '<?= date("d M Y") ?>',
+                            pipelines: item.pipelines || ['URP', 'HDRP', 'Built-in'],
+                            art: item.art || 'castle'
+                        });
+                    }
+                });
+                localStorage.setItem(libKey, JSON.stringify(currentLibrary));
+
+                // 2. Data Waktu & No Invoice Unik
+                const now = new Date();
+                const randNum = Math.floor(1000 + Math.random() * 9000);
+                const yyyy = now.getFullYear();
+                const mm = String(now.getMonth() + 1).padStart(2, '0');
+                const dd = String(now.getDate()).padStart(2, '0');
+                const invoiceNo = `INV-${yyyy}${mm}${dd}-${randNum}`;
+
+                const selectedRadio = document.querySelector('input[name="payment_method"]:checked')?.value || 'ewallet';
+                let paymentMethodLabel = 'QRIS/GoPay';
+                if (selectedRadio === 'card') paymentMethodLabel = 'Kartu Kredit / Debit';
+                if (selectedRadio === 'bank') paymentMethodLabel = 'BCA Virtual Account';
+
+                const subtotal = activeItems.reduce((acc, curr) => acc + (parseFloat(curr.price) || 0), 0);
+                const totalBayar = subtotal + feeAdmin;
+
+                const monthsIndoShort = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                const monthsIndo = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                const fullDateStr = `${now.getDate()} ${monthsIndo[now.getMonth()]} ${yyyy}, ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')} WIB`;
+                const shortDateStr = `${now.getDate()} ${monthsIndoShort[now.getMonth()]} ${yyyy}, ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+                const rawDateStr = `${yyyy}-${mm}-${dd}`;
+
+                // 3. Simpan Riwayat Transaksi ke Invoice Pembeli
+                const txKey = 'indofx_transactions_' + userKey;
+                let transactions = [];
+                try {
+                    transactions = JSON.parse(localStorage.getItem(txKey)) || [];
+                } catch (e) {
+                    transactions = [];
+                }
+
+                const newTransaction = {
+                    invoice_no: invoiceNo,
+                    full_date: fullDateStr,
+                    short_date: shortDateStr,
+                    buyer_name: '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>',
+                    buyer_email: '<?= htmlspecialchars($userEmail, ENT_QUOTES, 'UTF-8') ?>',
+                    payment_method: paymentMethodLabel,
+                    status: 'Berhasil',
+                    items: activeItems.map(i => ({
+                        id: i.id,
+                        title: i.title,
+                        price: parseFloat(i.price) || 0
+                    })),
+                    subtotal: subtotal,
+                    fee: feeAdmin,
+                    total: totalBayar
+                };
+
+                transactions.unshift(newTransaction);
+                localStorage.setItem(txKey, JSON.stringify(transactions));
+
+                // 4. CATAT TRANSAKSI PENJUALAN KE DASHBOARD TOKO PENJUAL (DIPASTIKAN 1 KALI SIMPAN)
+                activeItems.forEach(item => {
+                    const rawCreator = (item.creator || 'Arga Studio').trim();
+                    const cleanCreatorKey = rawCreator.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+                    // Gunakan satu kunci pasti berdasarkan identitas creator
+                    const sellerSalesKey = 'indofx_seller_sales_' + cleanCreatorKey;
+
+                    let sales = [];
+                    try {
+                        sales = JSON.parse(localStorage.getItem(sellerSalesKey)) || [];
+                    } catch (e) {
+                        sales = [];
+                    }
+
+                    // Proteksi ganda: Jangan simpan jika nomor invoice & ID aset sudah tercatat
+                    const isAlreadyRecorded = sales.some(s => s.invoice_no === invoiceNo && String(s.asset_id) === String(item.id));
+                    if (!isAlreadyRecorded) {
+                        sales.unshift({
+                            invoice_no: invoiceNo,
+                            asset_id: item.id,
+                            asset_title: item.title,
+                            price: parseFloat(item.price) || 0,
+                            payment_method: paymentMethodLabel,
+                            date: shortDateStr,
+                            date_raw: rawDateStr,
+                            status: 'Settlement',
+                            buyer_name: '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>'
+                        });
+                        localStorage.setItem(sellerSalesKey, JSON.stringify(sales));
+                    }
+
+                    // Naikkan jumlah unduhan/terjual di data aset penjual
+                    const sellerAssetsKey = 'indofx_seller_assets_' + cleanCreatorKey;
+                    try {
+                        let sAssets = JSON.parse(localStorage.getItem(sellerAssetsKey)) || [];
+                        sAssets = sAssets.map(sa => {
+                            if (String(sa.id) === String(item.id) || sa.title === item.title) {
+                                const currentCount = parseInt(String(sa.downloads || '0').replace(/[^0-9]/g, ''), 10) || 0;
+                                sa.downloads = (currentCount + 1) + 'x Terjual';
+                            }
+                            return sa;
+                        });
+                        localStorage.setItem(sellerAssetsKey, JSON.stringify(sAssets));
+                    } catch (e) {}
+                });
+
+                // 5. Hapus aset yang dibeli dari Keranjang belanja akun pembeli
+                const cartKey = 'indofx_cart_' + userKey;
+                let currentCart = [];
+                try {
+                    currentCart = JSON.parse(localStorage.getItem(cartKey)) || [];
+                } catch (e) {
+                    currentCart = [];
+                }
+
+                const boughtIds = activeItems.map(i => String(i.id));
+                currentCart = currentCart.filter(c => !boughtIds.includes(String(c.id)));
+                localStorage.setItem(cartKey, JSON.stringify(currentCart));
+
+                // 6. Bersihkan sesi sementara checkout & arahkan ke halaman invoice
+                sessionStorage.removeItem('indofx_checkout_items');
+                window.location.href = '/invoice';
+            }, 800);
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            loadCheckoutData();
+
             const dropdownBtn = document.getElementById('profileDropdownBtn');
             const dropdownMenu = document.getElementById('profileDropdownMenu');
 

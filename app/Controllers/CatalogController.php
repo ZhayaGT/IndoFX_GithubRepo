@@ -5,60 +5,34 @@ namespace IndoFX\Controllers;
 use IndoFX\Core\Controller;
 use IndoFX\Models\Asset;
 
-class CatalogController extends Controller
-{
-    private const PER_PAGE = 6;
+class CatalogController extends Controller {
+    public function explore() {
+        $assetModel = new \IndoFX\Models\Asset();
+        
+        // Pengecekan status gratis dari URL (?is_free=1) maupun Form Radio (?price_filter_radio=free)
+        $isFree = (isset($_GET['is_free']) && $_GET['is_free'] == '1') || 
+                  (isset($_GET['price_filter_radio']) && $_GET['price_filter_radio'] === 'free') 
+                  ? '1' : '0';
 
-    private const SORT_OPTIONS = [
-        'terbaru'      => 'Terbaru',
-        'populer'      => 'Terpopuler',
-        'harga_rendah' => 'Harga: Rendah ke Tinggi',
-        'harga_tinggi' => 'Harga: Tinggi ke Rendah',
-    ];
-
-    public function explore()
-    {
-        // Filter desain hanya Shader dan Particle; slug mengikuti tabel categories.
-        $categoryMap = [
-            'shader'   => 'shader',
-            'particle' => 'particle',
+        // Tangkap parameter URL
+        $filters = [
+            'q'             => $_GET['q'] ?? '',
+            'category'      => $_GET['category'] ?? [],
+            'min_price'     => $_GET['min_price'] ?? '',
+            'max_price'     => $_GET['max_price'] ?? '',
+            'is_free'       => $isFree,
+            'pipeline'      => $_GET['pipeline'] ?? [],
+            'unity_version' => $_GET['unity_version'] ?? '',
+            'sort'          => $_GET['sort'] ?? 'terbaru',
         ];
 
-        $picked = array_values(array_filter((array) ($_GET['kategori'] ?? []), static fn ($v) => isset($categoryMap[$v])));
-        $slugs = array_values(array_unique(array_map(static fn ($v) => $categoryMap[$v], $picked)));
-
-        $filter = [
-            'q'        => trim((string) ($_GET['q'] ?? '')),
-            'gratis'   => ($_GET['gratis'] ?? '') === '1',
-            'category' => $slugs,
-            'pipeline' => array_values(array_filter((array) ($_GET['pipeline'] ?? []))),
-            'unity'    => trim((string) ($_GET['unity'] ?? '')),
-            'priceMin' => trim((string) ($_GET['harga_min'] ?? '')),
-            'priceMax' => trim((string) ($_GET['harga_max'] ?? '')),
-            'sort'     => trim((string) ($_GET['sort'] ?? 'terbaru')),
-        ];
-
-        $page = max(1, (int) ($_GET['page'] ?? 1));
-        $model = new Asset();
-
-        $total = $model->count($filter);
-        $totalPages = max(1, (int) ceil($total / self::PER_PAGE));
-        $page = min($page, $totalPages);
-
-        $assets = $model->search($filter + [
-            'limit'  => self::PER_PAGE,
-            'offset' => ($page - 1) * self::PER_PAGE,
-        ]);
+        $filteredAssets = $assetModel->getFilteredAssets($filters);
 
         $this->view('catalog/explore', [
-            'title'           => 'Jelajahi Katalog IndoFX',
-            'assets'          => $assets,
-            'filter'          => $filter,
-            'total'           => $total,
-            'page'            => $page,
-            'totalPages'      => $totalPages,
-            'sortOptions'     => self::SORT_OPTIONS,
-            'pickedCategories' => $picked,
+            'title'       => 'Jelajahi Katalog IndoFX',
+            'assets'      => $filteredAssets,
+            'totalAssets' => count($filteredAssets),
+            'filters'     => $filters // Kirim kembali ke view agar filter tetap tercentang
         ]);
     }
 }

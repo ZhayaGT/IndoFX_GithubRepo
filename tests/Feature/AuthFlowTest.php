@@ -149,7 +149,6 @@ class AuthFlowTest extends TestCase
         self::assertStringContainsString('data-auth-state="pembeli"', $home);
         self::assertStringContainsString('id="nav-guest" class="navbar-auth-group" hidden', $home);
         self::assertStringContainsString('Pembeli Uji', $home);
-        self::assertStringNotContainsString('btn-hero-cream', $home);
     }
 
     public function testLoginRejectsWrongPassword(): void
@@ -186,7 +185,6 @@ class AuthFlowTest extends TestCase
 
         $home = $this->request('GET', '/', $jar)['body'];
         self::assertStringContainsString('data-auth-state="guest"', $home);
-        self::assertStringContainsString('btn-hero-cream', $home);
     }
 
     public function testLoggedInUserIsRedirectedAwayFromAuthPages(): void

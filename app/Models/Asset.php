@@ -3,177 +3,191 @@
 namespace IndoFX\Models;
 
 use IndoFX\Core\Model;
+use PDO;
 
-class Asset extends Model
-{
-    private const LIST_QUERY = "
-        SELECT a.id, a.slug, a.title, a.description, a.price,
-               a.render_pipeline, a.unity_version, a.created_at,
-               c.name AS category_name, c.slug AS category_slug,
-               u.name AS seller_name,
-               (SELECT i.image_path FROM asset_images i
-                 WHERE i.asset_id = a.id
-                 ORDER BY i.sort_order, i.id
-                 LIMIT 1) AS image_path,
-               (SELECT COUNT(*) FROM transactions t
-                 WHERE t.asset_id = a.id AND t.status = 'settlement') AS terjual
-        FROM assets a
-        JOIN categories c ON c.id = a.category_id
-        JOIN users u ON u.id = a.seller_id
-        WHERE a.status = 'published' AND a.deleted_at IS NULL
-    ";
-
-    private const SORT_ORDERS = [
-        'terbaru'      => 'a.created_at DESC, a.id DESC',
-        'populer'      => 'terjual DESC, a.created_at DESC, a.id DESC',
-        'harga_rendah' => 'a.price ASC, a.id DESC',
-        'harga_tinggi' => 'a.price DESC, a.id DESC',
-    ];
-
-    // Daftar aset terbit sesuai filter katalog.
-    public function search(array $filter = []): array
-    {
-        [$where, $params] = $this->buildWhere($filter);
-
-        $order = self::SORT_ORDERS[$filter['sort'] ?? 'terbaru'] ?? self::SORT_ORDERS['terbaru'];
-        $limit = max(1, (int) ($filter['limit'] ?? 12));
-        $offset = max(0, (int) ($filter['offset'] ?? 0));
-
-        $sql = self::LIST_QUERY . $where . ' ORDER BY ' . $order . ' LIMIT :limit OFFSET :offset';
-
-        $stmt = $this->db->query($sql, $params + [':limit' => $limit, ':offset' => $offset]);
-
+class Asset extends Model {
+    // Halaman beranda
+    // Mengambil 4 aset terbaru untuk section "Aset CG & VFX Terbaru"
+    public function getLatestAssets($limit = 4) {
+        $sql = "SELECT a.*, ai.image_path as thumbnail, u.name as seller_name 
+                FROM assets a 
+                LEFT JOIN asset_images ai ON a.id = ai.asset_id AND ai.sort_order = 1 
+                LEFT JOIN users u ON a.seller_id = u.id
+                ORDER BY a.created_at DESC LIMIT :limit";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
         return $stmt->fetchAll();
     }
 
-    // Jumlah baris untuk filter yang sama (paginasi).
-    public function count(array $filter = []): int
-    {
-        [$where, $params] = $this->buildWhere($filter);
-
-        $sql = "SELECT COUNT(*)
-                FROM assets a
-                JOIN categories c ON c.id = a.category_id
-                JOIN users u ON u.id = a.seller_id
-                WHERE a.status = 'published' AND a.deleted_at IS NULL" . $where;
-
-        return (int) $this->db->query($sql, $params)->fetchColumn();
+    // Mengambil 4 aset gratis untuk section "Aset Gratis Unggulan"
+    public function getFreeAssets($limit = 4) {
+        $sql = "SELECT a.*, ai.image_path as thumbnail, u.name as seller_name 
+                FROM assets a 
+                LEFT JOIN asset_images ai ON a.id = ai.asset_id AND ai.sort_order = 1 
+                LEFT JOIN users u ON a.seller_id = u.id
+                WHERE a.price = 0 
+                ORDER BY a.created_at DESC LIMIT :limit";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
     }
 
-    public function findBySlug(string $slug): ?array
-    {
-        $stmt = $this->db->query(
-            self::LIST_QUERY . ' AND a.slug = :slug LIMIT 1',
-            [':slug' => $slug]
-        );
-
-        $asset = $stmt->fetch();
-
-        return $asset ?: null;
+    // Halaman Explore
+    // Mengambil semua data aset, diurutkan dari yang terbaru untuk ditampilkan pada halaman explore
+    public function getAllAssets() {
+        $sql = "SELECT a.*, ai.image_path as thumbnail, u.name as seller_name 
+                FROM assets a 
+                LEFT JOIN asset_images ai ON a.id = ai.asset_id AND ai.sort_order = 1 
+                LEFT JOIN users u ON a.seller_id = u.id
+                ORDER BY a.created_at DESC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll();
     }
 
-    // Path gambar aset, urut sort_order.
-    public function images(int $assetId): array
-    {
-        $stmt = $this->db->query(
-            'SELECT image_path FROM asset_images WHERE asset_id = :id ORDER BY sort_order, id',
-            [':id' => $assetId]
-        );
-
-        return array_column($stmt->fetchAll(), 'image_path');
-    }
-
-    // Berkas unduhan terbaru aset.
-    public function latestFile(int $assetId): ?array
-    {
-        $stmt = $this->db->query(
-            'SELECT original_name, extension, file_size
-             FROM asset_files WHERE asset_id = :id
-             ORDER BY created_at DESC, id DESC LIMIT 1',
-            [':id' => $assetId]
-        );
-
-        $file = $stmt->fetch();
-
-        return $file ?: null;
-    }
-
-    // Kategori untuk sidebar filter.
-    public function categories(): array
-    {
-        return $this->db->query('SELECT id, name, slug FROM categories ORDER BY name')->fetchAll();
-    }
-
-    // Aset terbaru untuk beranda.
-    public function latest(int $limit = 4): array
-    {
-        return $this->search(['sort' => 'terbaru', 'limit' => $limit]);
-    }
-
-    // Aset gratis terlaris untuk beranda.
-    public function freePopular(int $limit = 4): array
-    {
-        return $this->search(['gratis' => true, 'sort' => 'populer', 'limit' => $limit]);
-    }
-
-    // Mengembalikan [klausa WHERE, parameter].
-    // Mengembalikan [klausa WHERE, parameter].
-    private function buildWhere(array $filter): array
-    {
-        $conditions = [];
+    public function getFilteredAssets($filters = []) {
+        // Melakukan JOIN dengan tabel categories, asset_images, DAN users
+        $sql = "SELECT a.*, c.name as category_name, c.slug as category_slug, ai.image_path as thumbnail, u.name as seller_name 
+                FROM assets a 
+                LEFT JOIN categories c ON a.category_id = c.id 
+                LEFT JOIN asset_images ai ON a.id = ai.asset_id AND ai.sort_order = 1 
+                LEFT JOIN users u ON a.seller_id = u.id
+                WHERE 1=1";
         $params = [];
 
-        $keyword = trim((string) ($filter['q'] ?? ''));
-        if ($keyword !== '') {
-            $conditions[] = '(a.title ILIKE :keyword OR a.description ILIKE :keyword)';
-            $params[':keyword'] = '%' . $keyword . '%';
+        // 1. Pencarian Kata Kunci (Berdasarkan title)
+        if (!empty($filters['q'])) {
+            $sql .= " AND a.title ILIKE :q";
+            $params[':q'] = '%' . $filters['q'] . '%';
         }
 
-        if (!empty($filter['gratis'])) {
-            $conditions[] = 'a.price = 0';
-        }
-
-        $categories = array_filter((array) ($filter['category'] ?? []), static fn ($v) => $v !== '');
-        if ($categories !== []) {
+        // 2. Filter Kategori (Mencocokkan slug kategori)
+        if (!empty($filters['category']) && is_array($filters['category'])) {
             $placeholders = [];
-            foreach (array_values($categories) as $i => $slug) {
-                $placeholders[] = ':category' . $i;
-                $params[':category' . $i] = $slug;
+            foreach ($filters['category'] as $i => $cat) {
+                $key = ":cat_$i";
+                $placeholders[] = $key;
+                $params[$key] = $cat; 
             }
-            $conditions[] = 'c.slug IN (' . implode(', ', $placeholders) . ')';
+            $sql .= " AND c.slug IN (" . implode(',', $placeholders) . ")";
         }
 
-        $pipelines = array_filter((array) ($filter['pipeline'] ?? []), static fn ($v) => $v !== '');
-        if ($pipelines !== []) {
-            $placeholders = [];
-            foreach (array_values($pipelines) as $i => $pipe) {
-                $placeholders[] = ':pipeline' . $i;
-                $params[':pipeline' . $i] = '%' . $pipe . '%';
+        // 3. Filter Harga
+        if (isset($filters['is_free']) && $filters['is_free'] === '1') {
+            $sql .= " AND a.price = 0";
+        } else {
+            if (isset($filters['min_price']) && $filters['min_price'] !== '') {
+                $sql .= " AND a.price >= :min_price";
+                $params[':min_price'] = (int) $filters['min_price'];
             }
-            $conditions[] = '(' . implode(' OR ', array_map(
-                static fn ($ph) => 'a.render_pipeline ILIKE ' . $ph,
-                $placeholders
-            )) . ')';
+            if (isset($filters['max_price']) && $filters['max_price'] !== '') {
+                $sql .= " AND a.price <= :max_price";
+                $params[':max_price'] = (int) $filters['max_price'];
+            }
         }
 
-        $priceMin = $filter['priceMin'] ?? '';
-        if ($priceMin !== '' && $priceMin !== null) {
-            $conditions[] = 'a.price >= :priceMin';
-            $params[':priceMin'] = (int) $priceMin;
+        // 4. Filter Render Pipeline (Pencarian Sub-string)
+        if (!empty($filters['pipeline']) && is_array($filters['pipeline'])) {
+            $pipelineConditions = [];
+            
+            foreach ($filters['pipeline'] as $i => $pipe) {
+                $key = ":pipe_$i";
+                $pipelineConditions[] = "a.render_pipeline ILIKE " . $key;
+                $params[$key] = '%' . $pipe . '%';
+            }
+            
+            $pipelineConditions[] = "a.render_pipeline ILIKE '%Any%'";
+            $sql .= " AND (" . implode(' OR ', $pipelineConditions) . ")";
         }
 
-        $priceMax = $filter['priceMax'] ?? '';
-        if ($priceMax !== '' && $priceMax !== null) {
-            $conditions[] = 'a.price <= :priceMax';
-            $params[':priceMax'] = (int) $priceMax;
+        // 5. Filter Unity Version
+        if (!empty($filters['unity_version']) && $filters['unity_version'] !== 'Semua Versi') {
+            $sql .= " AND a.unity_version ILIKE :unity_version";
+            $params[':unity_version'] = '%' . $filters['unity_version'] . '%';
         }
 
-        $unity = trim((string) ($filter['unity'] ?? ''));
-        if ($unity !== '') {
-            $conditions[] = 'a.unity_version ILIKE :unity';
-            $params[':unity'] = $unity . '%';
+        // 6. Urutkan (Sorting)
+        $sort = $filters['sort'] ?? 'terbaru';
+        if ($sort === 'harga_rendah') {
+            $sql .= " ORDER BY a.price ASC";
+        } elseif ($sort === 'harga_tinggi') {
+            $sql .= " ORDER BY a.price DESC";
+        } elseif ($sort === 'populer') {
+            $sql .= " ORDER BY a.download_count DESC";
+        } else {
+            $sql .= " ORDER BY a.created_at DESC";
         }
 
-        return [$conditions === [] ? '' : ' AND ' . implode(' AND ', $conditions), $params];
+        $stmt = $this->db->prepare($sql);
+        foreach ($params as $key => $value) {
+            $type = is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR;
+            $stmt->bindValue($key, $value, $type);
+        }
+        
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    // Halaman Detail Aset
+    // Mengambil satu aset beserta nama penjual dan nama kategori berdasarkan ID
+    public function getAssetById($publicId) {
+        $sql = "SELECT a.*, u.name as seller_name, c.name as category_name, c.slug as category_slug
+                FROM assets a
+                LEFT JOIN users u ON a.seller_id = u.id
+                LEFT JOIN categories c ON a.category_id = c.id
+                WHERE a.public_id = :public_id::uuid
+                LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':public_id', $publicId, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch();
+    }
+
+    // Mengambil semua path gambar untuk galeri berdasarkan ID aset
+    public function getAssetGallery($assetId) {
+        $sql = "SELECT image_path 
+                FROM asset_images 
+                WHERE asset_id = :asset_id 
+                ORDER BY sort_order ASC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':asset_id', $assetId, PDO::PARAM_INT); 
+        $stmt->execute();
+        
+        $gallery = [];
+        while ($row = $stmt->fetch()) {
+             $gallery[] = $row['image_path'];
+        }
+        return $gallery;
+    }
+
+    // Mengambil semua format/ekstensi file unik dari tabel asset_files
+    public function getAssetFileFormats($assetId) {
+        // Menggunakan DISTINCT agar jika ada 5 file .zip, tulisan .zip hanya muncul 1x
+        $sql = "SELECT DISTINCT extension 
+                FROM asset_files 
+                WHERE asset_id = :asset_id 
+                AND extension IS NOT NULL";
+                
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':asset_id', $assetId, PDO::PARAM_INT); 
+        $stmt->execute();
+        
+        $formats = [];
+        while ($row = $stmt->fetch()) {
+             $ext = trim($row['extension']);
+             
+             // Otomatis tambahkan titik (.) di depan jika di database hanya tertulis 'zip'
+             if (!empty($ext) && strpos($ext, '.') !== 0) {
+                 $ext = '.' . $ext;
+             }
+             
+             if (!empty($ext)) {
+                 $formats[] = strtolower($ext);
+             }
+        }
+        
+        return $formats;
     }
 }

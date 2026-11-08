@@ -3,44 +3,69 @@
 namespace IndoFX\Controllers;
 
 use IndoFX\Core\Controller;
-use IndoFX\Helpers\Storage;
-use IndoFX\Models\Asset;
+use IndoFX\Models\Asset; 
 
-class AssetController extends Controller
-{
-    public function detail()
-    {
-        $slug = trim((string) ($_GET['slug'] ?? ''));
+class AssetController extends Controller {
 
-        if ($slug === '') {
-            $this->notFound();
+    public function detail() {
+        // 1. Tangkap ID dari URL (bukan slug lagi)
+        $publicId = isset($_GET['id']) ? trim((string) $_GET['id']) : '';
+
+        if ($publicId === '') {
+            echo "<div style='padding:50px; text-align:center;'><h2>Error: ID Aset tidak ditemukan!</h2><p>Pastikan Anda mengklik aset dari halaman Beranda atau Eksplorasi.</p></div>";
             return;
         }
 
-        $model = new Asset();
-        $asset = $model->findBySlug($slug);
+        // 2. Panggil Model Database
+        $assetModel = new Asset();
+        $asset = $assetModel->getAssetById($publicId); // Menggunakan public_id untuk keamanan
 
-        if ($asset === null) {
-            $this->notFound();
+        // 3. Jika aset tidak ada di database Supabase
+        if (!$asset) {
+            echo "<div style='padding:50px; text-align:center;'><h2>Error: Aset tidak ditemukan!</h2><p>ID Aset: " . htmlspecialchars($publicId) . "</p></div>";
             return;
         }
 
-        $file = $model->latestFile((int) $asset['id']);
+        // 3. Ambil galeri gambar dari Supabase (atau gunakan array kosong jika belum ada)
+        $internalId = $asset['id']; 
+        $galleryImages = $assetModel->getAssetGallery($internalId);
 
+        if (empty($galleryImages)) {
+             $galleryImages = ['']; 
+        }
+
+        // Mengambil format dari asset_files 
+        $fileFormatsArray = $assetModel->getAssetFileFormats($internalId);
+        // Jika tabel kosong, beri nilai default fallback.
+        $fileFormatString = !empty($fileFormatsArray) ? implode(', ', $fileFormatsArray) : '.unitypackage';
+
+        // 5. Susun data detail (Data asli database digabung data sementara untuk ulasan)
+        $detail = [
+            'file_format'    => $fileFormatString,
+            'unity_versions' => $asset['unity_version'] ?? 'Semua Versi',
+            'pipelines'      => explode(',', $asset['render_pipeline'] ?? ''),
+            'gallery'        => $galleryImages,
+            'description'    => [
+                $asset['description'] ?? 'Deskripsi lengkap belum tersedia untuk aset ini.'
+            ],
+            'changelog'      => [
+                [
+                    'version' => '1.0.0',
+                    'date'    => date('d F Y', strtotime($asset['created_at'] ?? 'now')),
+                    'notes'   => ['Rilis awal aset ke marketplace.']
+                ]
+            ],
+            'reviews'        => [] // Kosongkan sementara sampai fitur ulasan dibuat
+        ];
+
+        // 6. Lempar semua data asli ke view detail.php
         $this->view('asset/detail', [
-            'title'     => $asset['title'] . ' - IndoFX',
-            'asset'     => $asset,
-            'gallery'   => array_map([Storage::class, 'image'], $model->images((int) $asset['id'])),
-            'file'      => $file,
-            'fileFormat' => $file ? '.' . $file['extension'] : '-',
-            'paragraphs' => array_filter(array_map('trim', explode("\n", (string) $asset['description']))),
-            'howToUse'  => array_filter(array_map('trim', explode("\n", (string) ($asset['how_to_use'] ?? '')))),
+            'title'         => htmlspecialchars($asset['title'] ?? 'Detail') . ' - IndoFX',
+            'asset'         => $asset,
+            'detail'        => $detail,
+            'categoryLabel' => $asset['category_name'] ?? 'Kategori',
+            'reviewSummary' => ['average' => 0, 'total' => 0, 'counts' => [5=>0, 4=>0, 3=>0, 2=>0, 1=>0]],
+            'reviews'       => [],
         ]);
-    }
-
-    private function notFound(): void
-    {
-        http_response_code(404);
-        require BASE_PATH . '/resources/views/errors/404.php';
     }
 }

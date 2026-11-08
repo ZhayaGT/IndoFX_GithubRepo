@@ -2,12 +2,11 @@
 
 namespace IndoFX\Core;
 
-class Model
-{
+class Model {
     protected $db;
 
-    public function __construct()
-    {
-        $this->db = Database::getInstance();
+    public function __construct() {
+        // Mengambil koneksi PDO asli dari Database Singleton
+        $this->db = Database::getInstance()->getConnection();
     }
 }

@@ -1,10 +1,15 @@
+<?php
+// Basis URL gambar katalog: STORAGE_BASE_URL + folder catalog/ di bucket.
+$storageBasePath = rtrim((string) \IndoFX\Core\Env::get('STORAGE_BASE_URL', ''), '/') . '/catalog/';
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IndoFX - Marketplace Aset Unity CG & VFX</title>
+    <title>IndoFX - Marketplace Aset Unity CG &amp; VFX</title>
 
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,7 +25,6 @@
 </head>
 
 <body>
-
     <!-- SVG Definitions untuk Ilustrasi -->
     <svg class="d-none">
         <defs>
@@ -69,9 +73,10 @@
         </defs>
     </svg>
 
-    <!-- 1. Header Navbar Oranye -->
+    <!-- 1. Header Navbar Oranye (Figma Layout: Logo Kiri, Search Tengah, Aksi Kanan) -->
     <nav class="navbar navbar-orange sticky-top">
-        <div class="container-figma d-flex justify-content-between align-items-center w-100">
+        <div class="navbar-figma-container">
+            <!-- Sisi Kiri: Logo & Nama IndoFX -->
             <a class="navbar-brand m-0 d-flex align-items-center gap-2 text-decoration-none" href="/">
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 2L20.66 7V17L12 22L3.34 17V7L12 2Z" fill="#ED6B1D" stroke="#1A1A1A" stroke-width="1.8" stroke-linejoin="round" />
@@ -84,10 +89,23 @@
                 <span class="brand-text">IndoFX</span>
             </a>
 
-            <?php require BASE_PATH . '/resources/views/partials/navbar-search.php'; ?>
+            <?php
+                $searchPartial = BASE_PATH . '/resources/views/partials/navbar-search.php';
+                if (file_exists($searchPartial)) {
+                    require $searchPartial;
+                }
+            ?>
 
-            <div class="d-flex align-items-center gap-2">
-                <?php require BASE_PATH . '/resources/views/partials/navbar-auth.php'; ?>
+            <!-- Sisi Kanan: Auth Group -->
+            <div class="d-flex align-items-center">
+                <?php
+                $authPartial = BASE_PATH . '/resources/views/partials/navbar-auth.php';
+                if (file_exists($authPartial)) {
+                    require $authPartial;
+                } else {
+                    echo '<a href="/login" class="btn btn-nav-login">Masuk</a>';
+                }
+                ?>
             </div>
         </div>
     </nav>
@@ -108,9 +126,6 @@
                     </p>
                     <div class="d-flex flex-wrap gap-3">
                         <a href="#katalog" class="btn btn-hero-orange">Jelajahi Katalog</a>
-                        <?php if (!isset($_SESSION['user_id'])): ?>
-                            <a href="/login" class="btn btn-hero-cream">Masuk</a>
-                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -134,86 +149,185 @@
             <section class="category-section text-center">
                 <h3 class="section-heading-center mb-1">Telusuri Berdasarkan Kategori</h3>
                 <p class="section-sub-center mb-4">Temukan spesifikasi aset yang tepat untuk game engine Anda</p>
-                <div class="d-flex justify-content-center gap-3 flex-wrap">
-                    <a href="/catalog/explore?kategori%5B%5D=shader" class="btn category-pill">Shader</a>
-                    <a href="/catalog/explore?kategori%5B%5D=particle" class="btn category-pill">Particle</a>
-                    <a href="/catalog/explore?gratis=1" class="btn category-pill">Gratis</a>
-                </div>
+                    <div class="d-flex justify-content-center gap-3 flex-wrap">
+                        <a href="/catalog/explore?category[]=shader" class="btn category-pill">Shader</a>
+                        <a href="/catalog/explore?category[]=particle" class="btn category-pill">Particle</a>
+                        <a href="/catalog/explore?price_filter_radio=free" class="btn category-pill">Gratis</a>
+                    </div>
             </section>
 
             <!-- Aset Terbaru -->
-            <section class="catalog-block" id="katalog">
+            <section class="catalog-block mb-5" id="katalog">
                 <div class="d-flex justify-content-between align-items-end mb-3">
                     <div>
-                        <h4 class="catalog-heading mb-1">Aset CG & VFX Terbaru</h4>
+                        <h4 class="catalog-heading mb-1">Aset CG &amp; VFX Terbaru</h4>
                         <p class="catalog-subheading m-0">Aset terbaru yang diunggah oleh kreator game berbakat Indonesia</p>
                     </div>
                     <a href="/catalog/explore?sort=terbaru" class="catalog-side-link">Selengkapnya</a>
                 </div>
 
                 <div class="row g-3">
-                    <?php foreach ($latest as $item): ?>
-                        <?php $colClass = 'col-12 col-sm-6 col-lg-3'; require BASE_PATH . '/resources/views/partials/asset-card.php'; ?>
-                    <?php endforeach; ?>
+                    <?php foreach ($latestAssets as $asset): ?>
+                        <div class="col-12 col-sm-6 col-lg-3"> 
+                            <div class="asset-card-figma h-100 d-flex flex-column">
+                                
+                                <!-- 1. Perbaikan URL Gambar & htmlspecialchars -->
+                                <a href="/asset/detail?id=<?= $asset['public_id'] ?>" class="asset-thumb-wrapper d-block">
+                                    <?php 
+                                    $thumbnailFile = $asset['thumbnail'] ?? ''; 
+                                    
+                                    if (empty($thumbnailFile)) {
+                                        $imageUrl = "https://via.placeholder.com/400x220/2C3A47/FFFFFF?text=Gambar+Kosong";
+                                    } elseif (strpos($thumbnailFile, 'http') === 0) {
+                                        $imageUrl = $thumbnailFile; 
+                                    } else {
+                                        $imageUrl = $storageBasePath . $thumbnailFile;
+                                    }
+                                    ?>
+                                    <img src="<?= htmlspecialchars($imageUrl) ?>" alt="<?= htmlspecialchars($asset['title'] ?? 'Aset IndoFX') ?>" style="width: 100%; height: 175px; object-fit: cover;">
+                                </a>
 
-                    <?php if ($latest === []): ?>
-                        <p class="text-muted small mb-0">Belum ada aset terbit.</p>
-                    <?php endif; ?>
+                                <div class="asset-card-body d-flex flex-column justify-content-between flex-grow-1">
+                                    <div>
+                                        <!-- 2. Nama Kreator Dinamis -->
+                                        <a href="/creator/profile" class="asset-studio text-decoration-none d-inline-block">
+                                            <?= htmlspecialchars($asset['seller_name'] ?? 'Studio Kreator') ?>
+                                        </a>
+                                        
+                                        <a href="/asset/detail?id=<?= $asset['public_id'] ?>" class="text-decoration-none d-block">
+                                            <h6 class="asset-name"><?= htmlspecialchars($asset['title'] ?? '') ?></h6>
+                                        </a>
+                                        
+                                        <!-- 3. Badge Pipeline Dinamis -->
+                                        <div class="d-flex gap-1 mb-2 flex-wrap">
+                                            <?php 
+                                            $pipeline = $asset['render_pipeline'] ?? '';
+                                            
+                                            // Perhatikan penambahan kata -pipeline- pada nama class
+                                            if (stripos($pipeline, 'Built-in') !== false) {
+                                                echo '<span class="badge-pipeline badge-pipeline-builtin">Built-In</span> ';
+                                            }
+                                            if (stripos($pipeline, 'URP') !== false) {
+                                                echo '<span class="badge-pipeline badge-pipeline-urp">URP</span> ';
+                                            }
+                                            if (stripos($pipeline, 'HDRP') !== false) {
+                                                echo '<span class="badge-pipeline badge-pipeline-hdrp">HDRP</span> ';
+                                            }
+                                            if (stripos($pipeline, 'Any') !== false) {
+                                                echo '<span class="badge-pipeline bg-secondary text-white border-0 px-2 rounded-1" style="font-size: 0.75rem;">Any</span>';
+                                            }
+                                            ?>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 4. Format Harga Dinamis (Mencegah "Rp0") -->
+                                    <div class="d-flex justify-content-between align-items-center pt-1">
+                                        <span class="asset-price">
+                                            <?= (!isset($asset['price']) || $asset['price'] == 0) ? 'Gratis' : 'Rp' . number_format($asset['price'], 0, ',', '.') ?>
+                                        </span>
+                                        <i class="bi bi-download asset-dl-icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
             </section>
 
-            <!-- Aset Gratis -->
-            <section class="catalog-block mb-2">
+            <!-- Aset Gratis Unggulan -->
+            <section class="catalog-block mb-4">
                 <div class="d-flex justify-content-between align-items-end mb-3">
                     <div>
                         <h4 class="catalog-heading mb-1">Aset Gratis Unggulan</h4>
                         <p class="catalog-subheading m-0">Mulai kembangkan prototype game Anda tanpa biaya</p>
                     </div>
-                    <a href="/catalog/explore?gratis=1&amp;sort=populer" class="catalog-side-link">Selengkapnya</a>
+                    <a href="/catalog/explore?is_free=1" class="catalog-side-link">Selengkapnya</a>
                 </div>
 
                 <div class="row g-3">
-                    <?php foreach ($freeAssets as $item): ?>
-                        <?php $colClass = 'col-12 col-sm-6 col-lg-3'; require BASE_PATH . '/resources/views/partials/asset-card.php'; ?>
-                    <?php endforeach; ?>
+                    <?php foreach ($freeAssets as $asset): ?>
+                        <div class="col-12 col-sm-6 col-lg-3"> 
+                            <div class="asset-card-figma h-100 d-flex flex-column">
+                                
+                                <!-- 1. Perbaikan URL Gambar & htmlspecialchars -->
+                                <a href="/asset/detail?id=<?= $asset['public_id'] ?>" class="asset-thumb-wrapper d-block">
+                                    <?php 
+                                    $thumbnailFile = $asset['thumbnail'] ?? ''; 
+                                    
+                                    if (empty($thumbnailFile)) {
+                                        $imageUrl = "https://via.placeholder.com/400x220/2C3A47/FFFFFF?text=Gambar+Kosong";
+                                    } elseif (strpos($thumbnailFile, 'http') === 0) {
+                                        $imageUrl = $thumbnailFile; 
+                                    } else {
+                                        $imageUrl = $storageBasePath . $thumbnailFile;
+                                    }
+                                    ?>
+                                    <img src="<?= htmlspecialchars($imageUrl) ?>" alt="<?= htmlspecialchars($asset['title'] ?? 'Aset IndoFX') ?>" style="width: 100%; height: 175px; object-fit: cover;">
+                                </a>
 
-                    <?php if ($freeAssets === []): ?>
-                        <p class="text-muted small mb-0">Belum ada aset gratis.</p>
-                    <?php endif; ?>
+                                <div class="asset-card-body d-flex flex-column justify-content-between flex-grow-1">
+                                    <div>
+                                        <!-- 2. Nama Kreator Dinamis -->
+                                        <a href="/creator/profile" class="asset-studio text-decoration-none d-inline-block">
+                                            <?= htmlspecialchars($asset['seller_name'] ?? 'Studio Kreator') ?>
+                                        </a>
+                                        
+                                        <a href="/asset/detail?id=<?= $asset['public_id'] ?>" class="text-decoration-none d-block">
+                                            <h6 class="asset-name"><?= htmlspecialchars($asset['title'] ?? '') ?></h6>
+                                        </a>
+                                        
+                                        <!-- 3. Badge Pipeline Dinamis -->
+                                        <div class="d-flex gap-1 mb-2 flex-wrap">
+                                            <?php 
+                                            $pipeline = $asset['render_pipeline'] ?? '';
+                                            
+                                            // Perhatikan penambahan kata -pipeline- pada nama class
+                                            if (stripos($pipeline, 'Built-in') !== false) {
+                                                echo '<span class="badge-pipeline badge-pipeline-builtin">Built-In</span> ';
+                                            }
+                                            if (stripos($pipeline, 'URP') !== false) {
+                                                echo '<span class="badge-pipeline badge-pipeline-urp">URP</span> ';
+                                            }
+                                            if (stripos($pipeline, 'HDRP') !== false) {
+                                                echo '<span class="badge-pipeline badge-pipeline-hdrp">HDRP</span> ';
+                                            }
+                                            if (stripos($pipeline, 'Any') !== false) {
+                                                echo '<span class="badge-pipeline bg-secondary text-white border-0 px-2 rounded-1" style="font-size: 0.75rem;">Any</span>';
+                                            }
+                                            ?>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 4. Format Harga Dinamis (Mencegah "Rp0") -->
+                                    <div class="d-flex justify-content-between align-items-center pt-1">
+                                        <span class="asset-price">
+                                            <?= (!isset($asset['price']) || $asset['price'] == 0) ? 'Gratis' : 'Rp' . number_format($asset['price'], 0, ',', '.') ?>
+                                        </span>
+                                        <i class="bi bi-download asset-dl-icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
             </section>
 
         </div>
     </main>
 
-    <!-- 4. Footer -->
+    <!-- Footer Putih Solid Full-Width Sesuai Figma -->
     <footer class="footer-main" id="tentang">
         <div class="container-figma">
-            <div class="row g-4 justify-content-between mb-4">
-                <div class="col-12 col-md-5 col-lg-4">
-                    <h5 class="footer-brand-title mb-2">IndoFX</h5>
-                    <p class="footer-brand-desc m-0">
-                        Portal distribusi dan marketplace aset CG & VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
-                    </p>
-                </div>
-                <div class="col-12 col-md-6 col-lg-4">
-                    <div class="row">
-                        <div class="col-6">
-                            <h6 class="footer-col-title mb-2">Katalog</h6>
-                            <a href="#katalog" class="footer-link">Shader</a>
-                            <a href="#katalog" class="footer-link">VFX Partikel</a>
-                            <a href="#katalog" class="footer-link">Model 3D</a>
-                        </div>
-                        <div class="col-6">
-                            <h6 class="footer-col-title mb-2">Dukungan</h6>
-                            <a href="#" class="footer-link">Dokumentasi</a>
-                            <a href="#" class="footer-link">Hubungi Kami</a>
-                            <a href="#" class="footer-link">Syarat & Ketentuan</a>
-                        </div>
-                    </div>
-                </div>
+            <!-- Bagian Tengah: Judul & Deskripsi -->
+            <div class="footer-center-content">
+                <h5 class="footer-brand-title-center">IndoFX</h5>
+                <p class="footer-brand-desc-center">
+                    Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
+                </p>
             </div>
-            <div class="footer-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+
+            <!-- Bagian Bawah: Copyright Kiri & Slogan Kanan -->
+            <div class="footer-bottom-bar">
                 <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
                 <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
             </div>
@@ -222,8 +336,9 @@
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Navbar guest/pembeli dan menu avatar -->
     <script src="/assets/js/navbar-auth.js"></script>
+    <!-- Katalog dari data dummy -->
+    <!-- <script src="/assets/js/catalog.js" defer></script> -->
 </body>
 
 </html>

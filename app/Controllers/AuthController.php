@@ -5,10 +5,10 @@ namespace IndoFX\Controllers;
 use IndoFX\Core\Controller;
 use IndoFX\Models\User;
 
-class AuthController extends Controller
-{
-    public function login()
-    {
+class AuthController extends Controller {
+    // 1. Menampilkan halaman Login
+    public function login() {
+        // Pengguna yang sudah login tidak perlu melihat form login
         if (isset($_SESSION['user_id'])) {
             $this->redirect('/');
         }
@@ -22,29 +22,37 @@ class AuthController extends Controller
         unset($_SESSION['login_error'], $_SESSION['login_success'], $_SESSION['login_old']);
     }
 
-    public function processLogin()
-    {
+    // 2. Memproses data Login (POST)
+    public function processLogin() {
         $email = strtolower(trim($_POST['email'] ?? ''));
-        $password = (string) ($_POST['password'] ?? '');
+        $password = $_POST['password'] ?? '';
 
-        $user = (new User())->findByEmail($email);
+        $userModel = new User();
+        $user = $userModel->findByEmail($email);
 
+        // Verifikasi keberadaan user dan kecocokan password hash
         if ($user && password_verify($password, $user['password'])) {
+            // Daftarkan sesi pengguna
             $_SESSION['user_id'] = $user['id'];
-            $_SESSION['role'] = $user['role'];
-            $_SESSION['name'] = $user['name'];
+            $_SESSION['public_id']  = $user['public_id'];
+            $_SESSION['role']    = $user['role'];
+            $_SESSION['name']    = $user['name'];
+
+            // Mengambil bio dari database (jika belum diisi, pakai bio default)
+            $_SESSION['bio']     = $user['bio'] ?? 'Hanya game developer pemula :v';
 
             $this->redirect('/');
         }
 
+        // Login gagal: simpan pesan lalu kembali ke form
         $_SESSION['login_error'] = 'Email atau password salah!';
-        $_SESSION['login_old'] = ['email' => $email];
+        $_SESSION['login_old']   = ['email' => $email];
 
         $this->redirect('/login');
     }
 
-    public function register()
-    {
+    // 3. Menampilkan halaman Register
+    public function register() {
         if (isset($_SESSION['user_id'])) {
             $this->redirect('/');
         }
@@ -57,31 +65,36 @@ class AuthController extends Controller
         unset($_SESSION['register_error'], $_SESSION['register_old']);
     }
 
-    public function processRegister()
-    {
+    // 4. Memproses data Register (POST)
+    public function processRegister() {
         $name = trim($_POST['name'] ?? '');
         $email = strtolower(trim($_POST['email'] ?? ''));
-        $password = (string) ($_POST['password'] ?? '');
+        $password = $_POST['password'] ?? '';
 
-        $model = new User();
+        $userModel = new User();
 
-        if ($model->findByEmail($email)) {
+        // Mencegah pendaftaran dengan email yang sama
+        if ($userModel->findByEmail($email)) {
             $_SESSION['register_error'] = 'Email sudah terdaftar!';
-            $_SESSION['register_old'] = ['name' => $name, 'email' => $email];
+            $_SESSION['register_old']   = ['name' => $name, 'email' => $email];
 
             $this->redirect('/register');
         }
 
-        $model->create($name, $email, password_hash($password, PASSWORD_BCRYPT), 'buyer');
+        // Mengenkripsi kata sandi sebelum masuk ke database
+        $passwordHash = password_hash($password, PASSWORD_BCRYPT);
+
+        // Menyimpan user baru (role default 'buyer')
+        $userModel->create($name, $email, $passwordHash, 'buyer');
 
         $_SESSION['login_success'] = 'Registrasi berhasil! Silakan masuk.';
-        $_SESSION['login_old'] = ['email' => $email];
+        $_SESSION['login_old']     = ['email' => $email];
 
         $this->redirect('/login');
     }
 
-    public function logout()
-    {
+    // 5. Menghapus sesi pengguna
+    public function logout() {
         session_unset();
         session_destroy();
 

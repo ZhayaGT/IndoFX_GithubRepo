@@ -18,28 +18,45 @@
     <!-- Stylesheets -->
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/login.css">
+
+    <style>
+        /* Memastikan navbar rata kiri persis batas container Figma */
+        .navbar-orange {
+            background-color: #ED6B1D !important;
+            padding: 12px 0 !important;
+        }
+
+        .navbar-orange .container-figma {
+            display: flex !important;
+            justify-content: flex-start !important;
+            align-items: center !important;
+            width: 100% !important;
+        }
+
+        .navbar-orange .navbar-brand {
+            margin: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+    </style>
 </head>
 
 <body>
 
-    <!-- Navbar Auth (Logo di Kiri Rata Sesuai Figma) -->
-    <nav class="navbar navbar-orange">
-        <div class="container-figma d-flex align-items-center">
-            <a class="navbar-brand m-0 d-flex align-items-center gap-2 text-decoration-none" href="/">
+    <!-- Navbar Auth (Logo Rata Kiri Sesuai Grid Figma) -->
+    <nav class="navbar navbar-orange sticky-top">
+        <div class="container-figma">
+            <a class="navbar-brand gap-2 text-decoration-none" href="/">
                 <!-- Ikon Kubus Isometrik 3D IndoFX -->
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Bentuk Kubus Luar -->
-                    <path d="M12 2L20.66 7V17L12 22L3.34 17V7L12 2Z" fill="#ED6B1D" stroke="#e9e9e9" stroke-width="1.8" stroke-linejoin="round" />
-                    <!-- Sisi Atas Kubus (Top Face) -->
-                    <path d="M12 2L20.66 7L12 12L3.34 7L12 2Z" fill="#FDBA74" stroke="#e9e9e9" stroke-width="1.5" stroke-linejoin="round" />
-                    <!-- Garis Pemisah Sisi Tengah -->
-                    <path d="M12 12V22" stroke="#e9e9e9" stroke-width="1.5" />
-                    <path d="M12 12L20.66 7" stroke="#e9e9e9" stroke-width="1.5" />
-                    <path d="M12 12L3.34 7" stroke="#e9e9e9" stroke-width="1.5" />
-                    <!-- Detail Tutup Kardus / Aksen Dalam -->
-                    <path d="M12 4.5L16.5 7L12 9.5L7.5 7L12 4.5Z" fill="#FED7AA" stroke="#e9e9e9" stroke-width="1" stroke-linejoin="round" />
+                    <path d="M12 2L20.66 7V17L12 22L3.34 17V7L12 2Z" fill="#ED6B1D" stroke="#1A1A1A" stroke-width="1.8" stroke-linejoin="round" />
+                    <path d="M12 2L20.66 7L12 12L3.34 7L12 2Z" fill="#FDBA74" stroke="#1A1A1A" stroke-width="1.5" stroke-linejoin="round" />
+                    <path d="M12 12V22" stroke="#1A1A1A" stroke-width="1.5" />
+                    <path d="M12 12L20.66 7" stroke="#1A1A1A" stroke-width="1.5" />
+                    <path d="M12 12L3.34 7" stroke="#1A1A1A" stroke-width="1.5" />
+                    <path d="M12 4.5L16.5 7L12 9.5L7.5 7L12 4.5Z" fill="#FED7AA" stroke="#1A1A1A" stroke-width="1" stroke-linejoin="round" />
                 </svg>
-                <span class="brand-text">IndoFX</span>
+                <span class="brand-text text-white fw-bold">IndoFX</span>
             </a>
         </div>
     </nav>
@@ -62,57 +79,41 @@
                 <div class="mb-3">
                     <label for="email" class="form-label auth-label">Alamat Email</label>
                     <input type="email" class="form-control auth-input" id="email" name="email"
-                           value="<?= htmlspecialchars((string) ($old['email'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
-                           placeholder="contoh@developer.id" required>
+                        value="<?= htmlspecialchars((string) ($old['email'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                        placeholder="" required>
                 </div>
 
                 <div class="mb-4">
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <label for="password" class="form-label auth-label m-0">Kata Sandi</label>
-                        <a href="#" class="auth-link">Lupa Kata Sandi?</a>
                     </div>
-                    <input type="password" class="form-control auth-input" id="password" name="password" placeholder="••••••••" required>
+                    <input type="password" class="form-control auth-input" id="password" name="password" placeholder="" required>
                 </div>
 
                 <div class="d-grid mb-3">
                     <button type="submit" class="btn btn-auth-submit">Masuk</button>
                 </div>
 
-                <p class="auth-footer-text mb-0">
+                <p class="auth-footer-text mb-0 text-center">
                     Belum punya akun? <a href="/register" class="auth-link fw-bold">Daftar</a>
                 </p>
             </form>
         </div>
     </main>
 
-    <!-- Footer Konsisten -->
+        <!-- Footer Putih Solid Full-Width Sesuai Figma -->
     <footer class="footer-main" id="tentang">
         <div class="container-figma">
-            <div class="row g-4 justify-content-between mb-4">
-                <div class="col-12 col-md-5 col-lg-4">
-                    <h5 class="footer-brand-title mb-2">IndoFX</h5>
-                    <p class="footer-brand-desc m-0">
-                        Portal distribusi dan marketplace aset CG & VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
-                    </p>
-                </div>
-                <div class="col-12 col-md-6 col-lg-4">
-                    <div class="row">
-                        <div class="col-6">
-                            <h6 class="footer-col-title mb-2">Katalog</h6>
-                            <a href="/#katalog" class="footer-link">Shader</a>
-                            <a href="/#katalog" class="footer-link">VFX Partikel</a>
-                            <a href="/#katalog" class="footer-link">Model 3D</a>
-                        </div>
-                        <div class="col-6">
-                            <h6 class="footer-col-title mb-2">Dukungan</h6>
-                            <a href="#" class="footer-link">Dokumentasi</a>
-                            <a href="#" class="footer-link">Hubungi Kami</a>
-                            <a href="#" class="footer-link">Syarat & Ketentuan</a>
-                        </div>
-                    </div>
-                </div>
+            <!-- Bagian Tengah: Judul & Deskripsi -->
+            <div class="footer-center-content">
+                <h5 class="footer-brand-title-center">IndoFX</h5>
+                <p class="footer-brand-desc-center">
+                    Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
+                </p>
             </div>
-            <div class="footer-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+
+            <!-- Bagian Bawah: Copyright Kiri & Slogan Kanan -->
+            <div class="footer-bottom-bar">
                 <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
                 <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
             </div>
