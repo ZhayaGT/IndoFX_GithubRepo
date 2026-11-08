@@ -5,8 +5,7 @@
  *
  * Form GET biasa: menekan Enter mengirim `?q=<kata kunci>` ke halaman
  * eksplorasi katalog, sehingga pencarian selalu berakhir di
- * /catalog/explore (lihat CatalogController::explore dan renderExplore di
- * public/assets/js/catalog.js).
+ * /catalog/explore (lihat CatalogController::explore).
  *
  * Nilai yang sedang dicari diisi ulang dari $_GET['q'] supaya kotak tidak
  * kosong setelah pindah halaman.

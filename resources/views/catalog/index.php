@@ -337,8 +337,6 @@ $storageBasePath = rtrim((string) \IndoFX\Core\Env::get('STORAGE_BASE_URL', ''),
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/assets/js/navbar-auth.js"></script>
-    <!-- Katalog dari data dummy -->
-    <!-- <script src="/assets/js/catalog.js" defer></script> -->
 </body>
 
 </html>
