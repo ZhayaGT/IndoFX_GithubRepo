@@ -48,18 +48,71 @@ class Asset extends Model {
     }
 
     public function getFilteredAssets($filters = []) {
-        // Melakukan JOIN dengan tabel categories, asset_images, DAN users
-        $sql = "SELECT a.*, c.name as category_name, c.slug as category_slug, ai.image_path as thumbnail, u.name as seller_name 
-                FROM assets a 
-                LEFT JOIN categories c ON a.category_id = c.id 
-                LEFT JOIN asset_images ai ON a.id = ai.asset_id AND ai.sort_order = 1 
+        [$where, $params] = $this->buildFilterWhere($filters);
+
+        // Urutkan (Sorting)
+        $sort = $filters['sort'] ?? 'terbaru';
+        if ($sort === 'harga_rendah') {
+            $order = 'a.price ASC';
+        } elseif ($sort === 'harga_tinggi') {
+            $order = 'a.price DESC';
+        } elseif ($sort === 'populer') {
+            $order = 'a.download_count DESC';
+        } else {
+            $order = 'a.created_at DESC';
+        }
+
+        $sql = "SELECT a.*, c.name as category_name, c.slug as category_slug, ai.image_path as thumbnail, u.name as seller_name
+                FROM assets a
+                LEFT JOIN categories c ON a.category_id = c.id
+                LEFT JOIN asset_images ai ON a.id = ai.asset_id AND ai.sort_order = 1
                 LEFT JOIN users u ON a.seller_id = u.id
-                WHERE 1=1";
+                WHERE 1=1" . $where . " ORDER BY " . $order;
+
+        // Pagination hanya aktif bila limit diminta.
+        if (isset($filters['limit'])) {
+            $sql .= " LIMIT :limit OFFSET :offset";
+            $params[':limit'] = (int) $filters['limit'];
+            $params[':offset'] = (int) ($filters['offset'] ?? 0);
+        }
+
+        $stmt = $this->db->prepare($sql);
+        foreach ($params as $key => $value) {
+            $type = is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR;
+            $stmt->bindValue($key, $value, $type);
+        }
+
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    // Jumlah aset untuk filter yang sama, dipakai menghitung halaman.
+    public function countFilteredAssets($filters = []) {
+        [$where, $params] = $this->buildFilterWhere($filters);
+
+        $sql = "SELECT COUNT(*)
+                FROM assets a
+                LEFT JOIN categories c ON a.category_id = c.id
+                WHERE 1=1" . $where;
+
+        $stmt = $this->db->prepare($sql);
+        foreach ($params as $key => $value) {
+            $type = is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR;
+            $stmt->bindValue($key, $value, $type);
+        }
+
+        $stmt->execute();
+        return (int) $stmt->fetchColumn();
+    }
+
+    // Mengembalikan [klausa WHERE, parameter] untuk filter katalog.
+    private function buildFilterWhere(array $filters): array {
+        $where = '';
         $params = [];
 
         // 1. Pencarian Kata Kunci (Berdasarkan title)
         if (!empty($filters['q'])) {
-            $sql .= " AND a.title ILIKE :q";
+            $where .= " AND a.title ILIKE :q";
             $params[':q'] = '%' . $filters['q'] . '%';
         }
 
@@ -69,21 +122,21 @@ class Asset extends Model {
             foreach ($filters['category'] as $i => $cat) {
                 $key = ":cat_$i";
                 $placeholders[] = $key;
-                $params[$key] = $cat; 
+                $params[$key] = $cat;
             }
-            $sql .= " AND c.slug IN (" . implode(',', $placeholders) . ")";
+            $where .= " AND c.slug IN (" . implode(',', $placeholders) . ")";
         }
 
         // 3. Filter Harga
         if (isset($filters['is_free']) && $filters['is_free'] === '1') {
-            $sql .= " AND a.price = 0";
+            $where .= " AND a.price = 0";
         } else {
             if (isset($filters['min_price']) && $filters['min_price'] !== '') {
-                $sql .= " AND a.price >= :min_price";
+                $where .= " AND a.price >= :min_price";
                 $params[':min_price'] = (int) $filters['min_price'];
             }
             if (isset($filters['max_price']) && $filters['max_price'] !== '') {
-                $sql .= " AND a.price <= :max_price";
+                $where .= " AND a.price <= :max_price";
                 $params[':max_price'] = (int) $filters['max_price'];
             }
         }
@@ -91,43 +144,24 @@ class Asset extends Model {
         // 4. Filter Render Pipeline (Pencarian Sub-string)
         if (!empty($filters['pipeline']) && is_array($filters['pipeline'])) {
             $pipelineConditions = [];
-            
+
             foreach ($filters['pipeline'] as $i => $pipe) {
                 $key = ":pipe_$i";
                 $pipelineConditions[] = "a.render_pipeline ILIKE " . $key;
                 $params[$key] = '%' . $pipe . '%';
             }
-            
+
             $pipelineConditions[] = "a.render_pipeline ILIKE '%Any%'";
-            $sql .= " AND (" . implode(' OR ', $pipelineConditions) . ")";
+            $where .= " AND (" . implode(' OR ', $pipelineConditions) . ")";
         }
 
         // 5. Filter Unity Version
         if (!empty($filters['unity_version']) && $filters['unity_version'] !== 'Semua Versi') {
-            $sql .= " AND a.unity_version ILIKE :unity_version";
+            $where .= " AND a.unity_version ILIKE :unity_version";
             $params[':unity_version'] = '%' . $filters['unity_version'] . '%';
         }
 
-        // 6. Urutkan (Sorting)
-        $sort = $filters['sort'] ?? 'terbaru';
-        if ($sort === 'harga_rendah') {
-            $sql .= " ORDER BY a.price ASC";
-        } elseif ($sort === 'harga_tinggi') {
-            $sql .= " ORDER BY a.price DESC";
-        } elseif ($sort === 'populer') {
-            $sql .= " ORDER BY a.download_count DESC";
-        } else {
-            $sql .= " ORDER BY a.created_at DESC";
-        }
-
-        $stmt = $this->db->prepare($sql);
-        foreach ($params as $key => $value) {
-            $type = is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR;
-            $stmt->bindValue($key, $value, $type);
-        }
-        
-        $stmt->execute();
-        return $stmt->fetchAll();
+        return [$where, $params];
     }
 
     // Halaman Detail Aset
