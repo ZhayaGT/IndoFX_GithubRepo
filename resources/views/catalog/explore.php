@@ -387,8 +387,12 @@ $storageBasePath = rtrim((string) \IndoFX\Core\Env::get('STORAGE_BASE_URL', ''),
                         <!-- Tombol Terapkan -->
                         <button type="submit" class="btn btn-sm btn-hero-orange w-100 mt-2">Terapkan Filter</button>
 
+                        </form>
                     </div>
                 </div>
+            </div>
+        </div>
+    </main>
 
     <!-- Footer Putih Solid Full-Width Sesuai Figma -->
     <footer class="footer-main" id="tentang">
