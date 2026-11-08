@@ -267,8 +267,51 @@ $storageBasePath = rtrim((string) \IndoFX\Core\Env::get('STORAGE_BASE_URL', ''),
                         <?php endforeach; ?>
                     </div>
 
-                    <!-- Pagination dinamis -->
-                    <div class="d-flex justify-content-center align-items-center gap-3 mt-5 mb-3 explore-pagination" data-catalog-pagination></div>
+                    <!-- Pagination -->
+                    <?php if ($totalPages > 1): ?>
+                        <?php
+                        // Tautan halaman membawa seluruh filter yang sedang aktif.
+                        $baseQuery = [];
+
+                        if ($filters['q'] !== '') {
+                            $baseQuery['q'] = $filters['q'];
+                        }
+                        if (!empty($filters['category'])) {
+                            $baseQuery['category'] = $filters['category'];
+                        }
+                        if ($filters['min_price'] !== '') {
+                            $baseQuery['min_price'] = $filters['min_price'];
+                        }
+                        if ($filters['max_price'] !== '') {
+                            $baseQuery['max_price'] = $filters['max_price'];
+                        }
+                        if ($filters['is_free'] === '1') {
+                            $baseQuery['price_filter_radio'] = 'free';
+                        }
+                        if (!empty($filters['pipeline'])) {
+                            $baseQuery['pipeline'] = $filters['pipeline'];
+                        }
+                        if ($filters['unity_version'] !== '') {
+                            $baseQuery['unity_version'] = $filters['unity_version'];
+                        }
+                        if ($filters['sort'] !== 'terbaru') {
+                            $baseQuery['sort'] = $filters['sort'];
+                        }
+
+                        $pageUrl = static fn (int $n): string => '/catalog/explore?' . http_build_query($baseQuery + ['page' => $n]);
+                        ?>
+                        <div class="d-flex justify-content-center align-items-center gap-3 mt-5 mb-3 explore-pagination">
+                            <a href="<?= $page > 1 ? $pageUrl($page - 1) : 'javascript:void(0)' ?>"
+                               class="page-nav-link <?= $page === 1 ? 'text-muted' : 'text-dark fw-bold' ?>">Sebelumnya</a>
+
+                            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                                <a href="<?= $pageUrl($i) ?>" class="page-num-link <?= $i === $page ? 'active' : '' ?>"><?= $i ?></a>
+                            <?php endfor; ?>
+
+                            <a href="<?= $page < $totalPages ? $pageUrl($page + 1) : 'javascript:void(0)' ?>"
+                               class="page-nav-link <?= $page === $totalPages ? 'text-muted' : 'text-dark fw-bold' ?>">Selanjutnya</a>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
                 <!-- KOLOM KANAN: Card Filter Pencarian -->
