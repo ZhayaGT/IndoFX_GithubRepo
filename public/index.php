@@ -19,6 +19,20 @@ error_reporting($config['debug'] ? E_ALL : E_ALL & ~E_DEPRECATED & ~E_STRICT);
 session_name($config['session']['name']);
 session_start();
 
+// Ingat Saya: pulihkan sesi dari cookie bila sesi PHP kosong.
+if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
+    $user = (new \IndoFX\Models\User())->findByRememberToken($_COOKIE['remember_token']);
+
+    if ($user) {
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['public_id'] = $user['public_id'];
+        $_SESSION['role'] = $user['role'];
+        $_SESSION['name'] = $user['name'];
+        $_SESSION['bio'] = $user['bio'] ?? '';
+    } else {
+        setcookie('remember_token', '', time() - 3600, '/');
+    }
+}
 $router = new Router();
 require BASE_PATH . '/routes/web.php';
 

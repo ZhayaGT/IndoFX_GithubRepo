@@ -35,4 +35,20 @@ class User extends Model {
         // Mengembalikan data user yang baru saja berhasil dibuat
         return $this->findByEmail($email);
     }
+
+    // Memperbarui token Remember Me di database
+    public function updateRememberToken($userId, $token) {
+        $stmt = $this->db->prepare("UPDATE users SET remember_token = :token WHERE id = :id");
+        $stmt->execute([
+            ':token' => $token,
+            ':id'    => $userId
+        ]);
+    }
+
+    // Mencari user berdasarkan token yang ada di cookie
+    public function findByRememberToken($token) {
+        $stmt = $this->db->prepare("SELECT * FROM users WHERE remember_token = :token LIMIT 1");
+        $stmt->execute([':token' => $token]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 }
