@@ -6,6 +6,9 @@ use IndoFX\Core\Controller;
 use IndoFX\Models\Asset;
 
 class CatalogController extends Controller {
+    // Jumlah aset per halaman katalog.
+    private const PER_PAGE = 6;
+
     public function explore() {
         $assetModel = new \IndoFX\Models\Asset();
         
@@ -26,13 +29,24 @@ class CatalogController extends Controller {
             'sort'          => $_GET['sort'] ?? 'terbaru',
         ];
 
-        $filteredAssets = $assetModel->getFilteredAssets($filters);
+        $page = max(1, (int) ($_GET['page'] ?? 1));
+
+        $total = $assetModel->countFilteredAssets($filters);
+        $totalPages = max(1, (int) ceil($total / self::PER_PAGE));
+        $page = min($page, $totalPages);
+
+        $filteredAssets = $assetModel->getFilteredAssets($filters + [
+            'limit'  => self::PER_PAGE,
+            'offset' => ($page - 1) * self::PER_PAGE,
+        ]);
 
         $this->view('catalog/explore', [
             'title'       => 'Jelajahi Katalog IndoFX',
             'assets'      => $filteredAssets,
-            'totalAssets' => count($filteredAssets),
-            'filters'     => $filters // Kirim kembali ke view agar filter tetap tercentang
+            'totalAssets' => $total,
+            'filters'     => $filters, // Kirim kembali ke view agar filter tetap tercentang
+            'page'        => $page,
+            'totalPages'  => $totalPages,
         ]);
     }
 }
