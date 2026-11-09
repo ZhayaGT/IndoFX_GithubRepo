@@ -208,10 +208,11 @@ class Asset extends Model {
     // Halaman Detail Aset
     // Mengambil satu aset beserta nama penjual dan nama kategori berdasarkan ID
     public function getAssetById($publicId) {
-        $sql = "SELECT a.*, p.name as seller_name, c.name as category_name, c.slug as category_slug
+        $sql = "SELECT a.*, p.name as seller_name, u.public_id as seller_public_id, c.name as category_name, c.slug as category_slug
                 FROM assets a
                 LEFT JOIN users u ON a.seller_id = u.id
                 LEFT JOIN user_profiles p ON a.seller_id = p.user_id
+                LEFT JOIN seller_profiles s ON a.seller_id = s.user_id
                 LEFT JOIN categories c ON a.category_id = c.id
                 WHERE a.public_id = :public_id::uuid
                 LIMIT 1";

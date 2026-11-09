@@ -252,7 +252,9 @@ $isLoggedIn = isset($_SESSION['user_id']);
                         <span class="asset-category-tag d-block mb-1"><?= mb_strtoupper(htmlspecialchars($categoryLabel ?? 'KATEGORI')) ?></span>
                         <h2 class="asset-detail-title mb-1"><?= htmlspecialchars($asset['title'] ?? 'Judul Aset') ?></h2>
                         <p class="detail-creator mb-3">
-                            Oleh <a href="/creator/profile" class="creator-link fw-bold"><?= htmlspecialchars($asset['seller_name'] ?? 'Studio Kreator') ?></a>
+                            Oleh <a href="/creator/profile?id=<?= htmlspecialchars($asset['seller_public_id'] ?? '', ENT_QUOTES, 'UTF-8') ?>" class="creator-link fw-bold">
+                                    <?= htmlspecialchars($asset['seller_name'] ?? 'Studio Kreator', ENT_QUOTES, 'UTF-8') ?>
+                                </a>
                         </p>
 
                         <span class="price-label d-block mb-1">Harga Aset</span>

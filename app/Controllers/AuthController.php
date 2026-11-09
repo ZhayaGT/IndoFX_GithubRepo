@@ -41,6 +41,16 @@ class AuthController extends Controller {
             // Mengambil bio dari database (jika belum diisi, pakai bio default)
             $_SESSION['bio']     = $user['bio'] ?? 'Hanya game developer pemula :v';
 
+            // Fitur "Ingat Saya"
+            if (isset($_POST['remember_me'])) {
+                // Buat token acak sepanjang 64 karakter
+                $token = bin2hex(random_bytes(32)); 
+                // Simpan token ke PostgreSQL
+                $userModel->updateRememberToken($user['id'], $token);    
+                // Tanam cookie di browser pengguna selama 30 hari
+                setcookie('remember_token', $token, time() + (86400 * 30), "/", "", false, true);
+            }
+
             $this->redirect('/');
         }
 
@@ -97,6 +107,11 @@ class AuthController extends Controller {
     public function logout() {
         session_unset();
         session_destroy();
+
+        // Hapus cookie remember_token di browser pengguna
+        if (isset($_COOKIE['remember_token'])) {
+            setcookie('remember_token', '', time() - 3600, '/', '', false, true);
+        }
 
         $this->redirect('/login');
     }

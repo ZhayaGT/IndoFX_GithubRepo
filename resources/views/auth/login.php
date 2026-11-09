@@ -86,6 +86,10 @@
                 <div class="mb-4">
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <label for="password" class="form-label auth-label m-0">Kata Sandi</label>
+                        <label style="font-size: 14px; color: #4B5563; cursor: pointer; display: flex; align-items: center; gap: 6px; margin: 0; font-weight: 500;">
+                            <input type="checkbox" name="remember_me" value="1" style="cursor: pointer; width: 16px; height: 16px; accent-color: #ED6B1D; margin: 0;"> 
+                            Ingat Saya
+                        </label>
                     </div>
                     <input type="password" class="form-control auth-input" id="password" name="password" placeholder="" required>
                 </div>

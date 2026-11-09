@@ -52,6 +52,26 @@ if (class_exists('IndoFX\\Core\\Session')) {
     session_start();
 }
 
+// Jika sesi kosong tapi browser memiliki cookie remember_token
+if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
+    $userModel = new \IndoFX\Models\User();
+    $user = $userModel->findByRememberToken($_COOKIE['remember_token']);
+    
+    if ($user) {
+        // Regenerasi ID Sesi untuk mencegah pembajakan (Session Fixation)
+        session_regenerate_id(true);
+
+        // Otomatis buatkan sesi baru berdasarkan data di Supabase
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['role']    = $user['role'];
+        $_SESSION['name']    = $user['name'];
+        $_SESSION['bio']     = $user['bio'] ?? 'Hanya game developer pemula :v';
+    } else {
+        // Jika token palsu/kadaluarsa, hapus cookie-nya
+        setcookie('remember_token', '', time() - 3600, '/');
+    }
+}
+
 // Menjalankan router utama
 $router = new Router();
 require BASE_PATH . '/routes/web.php';
