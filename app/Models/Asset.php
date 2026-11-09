@@ -13,6 +13,7 @@ class Asset extends Model {
                 FROM assets a 
                 LEFT JOIN asset_images ai ON a.id = ai.asset_id AND ai.sort_order = 1 
                 LEFT JOIN users u ON a.seller_id = u.id
+                WHERE a.status = 'published' AND a.deleted_at IS NULL
                 ORDER BY a.created_at DESC LIMIT :limit";
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
@@ -26,7 +27,7 @@ class Asset extends Model {
                 FROM assets a 
                 LEFT JOIN asset_images ai ON a.id = ai.asset_id AND ai.sort_order = 1 
                 LEFT JOIN users u ON a.seller_id = u.id
-                WHERE a.price = 0 
+                WHERE a.price = 0 AND a.status = 'published' AND a.deleted_at IS NULL 
                 ORDER BY a.created_at DESC LIMIT :limit";
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
@@ -107,7 +108,7 @@ class Asset extends Model {
 
     // Mengembalikan [klausa WHERE, parameter] untuk filter katalog.
     private function buildFilterWhere(array $filters): array {
-        $where = '';
+        $where = " AND a.status = 'published' AND a.deleted_at IS NULL";
         $params = [];
 
         // 1. Pencarian Kata Kunci (Berdasarkan title)
