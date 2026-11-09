@@ -53,34 +53,30 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
         </div>
     </nav>
 
-    <!-- 2. Kontainer Utama: Sidebar Kiri & Konten Kanan -->
+    <!-- 2. Kontainer Utama -->
     <div class="dashboard-layout-container">
 
         <!-- SIDEBAR KIRI (PUTIH) -->
         <aside class="dashboard-sidebar">
             <ul class="nav flex-column sidebar-nav-list">
-                <!-- 1. Dashboard Utama -> main.php -->
                 <li class="nav-item">
                     <a href="/dashboard" class="sidebar-link active">
                         <i class="bi bi-grid-fill"></i>
                         <span>Dashboard Utama</span>
                     </a>
                 </li>
-                <!-- 2. Semua Aset Saya -> dashboard.php -->
                 <li class="nav-item">
                     <a href="/dashboard/assets" class="sidebar-link">
                         <i class="bi bi-stack"></i>
                         <span>Semua Aset Saya</span>
                     </a>
                 </li>
-                <!-- 3. Riwayat Transaksi -> transactions.php -->
                 <li class="nav-item">
                     <a href="/dashboard/transactions" class="sidebar-link">
                         <i class="bi bi-receipt"></i>
                         <span>Riwayat Transaksi</span>
                     </a>
                 </li>
-                <!-- 4. Profil Penjual -> profile.php (Rute Diperbaiki) -->
                 <li class="nav-item">
                     <a href="/dashboard/profile" class="sidebar-link">
                         <i class="bi bi-person"></i>
@@ -90,7 +86,7 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
             </ul>
         </aside>
 
-        <!-- KONTEN KANAN (KREM HANGAT) -->
+        <!-- KONTEN KANAN -->
         <main class="dashboard-main-content">
 
             <!-- Header Judul Dinamis -->
@@ -101,7 +97,6 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
 
             <!-- 4 Summary Stat Cards Dinamis & Responsif -->
             <div class="row g-3 mb-4">
-                <!-- Card 1: Total Aset -->
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="stat-card p-3 h-100">
                         <span class="stat-card-title d-block mb-2">Total Aset</span>
@@ -110,7 +105,6 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                     </div>
                 </div>
 
-                <!-- Card 2: Aset Terjual -->
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="stat-card p-3 h-100">
                         <span class="stat-card-title d-block mb-2">Aset Terjual</span>
@@ -119,7 +113,6 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                     </div>
                 </div>
 
-                <!-- Card 3: Total Unduhan -->
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="stat-card p-3 h-100">
                         <span class="stat-card-title d-block mb-2">Total Unduhan</span>
@@ -128,7 +121,6 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                     </div>
                 </div>
 
-                <!-- Card 4: Total Pendapatan -->
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="stat-card p-3 h-100">
                         <span class="stat-card-title d-block mb-2">Total Pendapatan</span>
@@ -182,7 +174,7 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                                 </tr>
                             </thead>
                             <tbody id="tableTransactionsBody">
-                                <!-- Diisi otomatis dari riwayat pembelian pengguna lain -->
+                                <!-- Diisi otomatis dari riwayat transaksi -->
                             </tbody>
                         </table>
                     </div>
@@ -215,10 +207,11 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const userKey = '<?= $userKey ?>';
+            const defaultUserName = '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>';
 
             // 1. Ambil Profil Penjual Terdaftar
             const profileRaw = localStorage.getItem('indofx_seller_profile_' + userKey);
-            let storeName = 'Arga Studio';
+            let storeName = defaultUserName || 'Arga Studio';
 
             if (profileRaw) {
                 try {
@@ -229,13 +222,11 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                 } catch (e) {}
             }
 
-            // Tampilkan Nama Toko di Judul Konten & Header Navbar
             const titleEl = document.getElementById('dashContentStoreName');
             const navStoreEl = document.getElementById('navDashStoreName');
             if (titleEl) titleEl.innerText = storeName;
             if (navStoreEl) navStoreEl.innerText = storeName.toUpperCase();
 
-            // Inisial Avatar
             const words = storeName.trim().split(/\s+/);
             let inits = '';
             words.slice(0, 2).forEach(w => inits += w.charAt(0).toUpperCase());
@@ -293,7 +284,7 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                                     ${item.status || 'Pending'}
                                 </span>
                             </td>
-                            <td class="text-muted small">${item.created_at || new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                            <td class="text-muted small">${item.created_at || 'Hari ini'}</td>
                             <td class="text-end pe-4 text-nowrap">
                                 <a href="/dashboard/add-asset?edit_id=${encodeURIComponent(item.id || '')}" class="action-link me-2">Edit</a>
                                 <span class="text-muted mx-1">|</span>
@@ -319,20 +310,65 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                 document.getElementById('statAssetSub').innerText = '0 Terpublikasi';
             }
 
-            // 3. Ambil data transaksi toko dari LocalStorage
+            // 3. SMART CROSS-CHECK TRANSAKSI PENJUALAN
             const cleanKey = storeName.toLowerCase().replace(/[^a-z0-9]/g, '');
-            const rawSales = localStorage.getItem('indofx_seller_sales_' + cleanKey) ||
-                localStorage.getItem('indofx_seller_sales_' + storeName) ||
-                localStorage.getItem('indofx_seller_sales_' + userKey);
+            let allSales = [];
 
-            let sellerSales = [];
-            if (rawSales) {
+            // A. Ambil dari kunci direct sales
+            const candidateKeys = [
+                'indofx_seller_sales_' + cleanKey,
+                'indofx_seller_sales_' + storeName,
+                'indofx_seller_sales_' + userKey
+            ];
+
+            candidateKeys.forEach(k => {
                 try {
-                    sellerSales = JSON.parse(rawSales);
-                } catch (e) {
-                    sellerSales = [];
+                    const raw = localStorage.getItem(k);
+                    if (raw) {
+                        const parsed = JSON.parse(raw) || [];
+                        allSales.push(...parsed);
+                    }
+                } catch (e) {}
+            });
+
+            // B. Pindai seluruh invoice pembeli di sistem: Jika membeli aset toko ini, otomatis catat!
+            const myTitles = new Set(sellerAssets.map(a => a.title));
+            const myIds = new Set(sellerAssets.map(a => String(a.id)));
+
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('indofx_transactions_')) {
+                    try {
+                        const txList = JSON.parse(localStorage.getItem(key)) || [];
+                        txList.forEach(tx => {
+                            if (Array.isArray(tx.items)) {
+                                tx.items.forEach(it => {
+                                    if (myTitles.has(it.title) || myIds.has(String(it.id))) {
+                                        allSales.push({
+                                            invoice_no: tx.invoice_no,
+                                            asset_id: it.id,
+                                            asset_title: it.title,
+                                            price: it.price,
+                                            date: tx.short_date || 'Hari ini',
+                                            status: 'Settlement'
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    } catch (e) {}
                 }
-            }
+            });
+
+            // C. Hilangkan duplikasi berdasarkan invoice_no & asset_title
+            let sellerSales = [];
+            let seenSales = new Set();
+            allSales.forEach(s => {
+                const uniqKey = (s.invoice_no || '') + '_' + (s.asset_title || '');
+                if (!seenSales.has(uniqKey) && (s.invoice_no || s.asset_title)) {
+                    seenSales.add(uniqKey);
+                    sellerSales.push(s);
+                }
+            });
 
             let totalRevenue = 0;
             sellerSales.forEach(sale => {

@@ -8,7 +8,7 @@ class User extends Model
 {
     // Mencari pengguna berdasarkan email.
     // Digunakan saat validasi Login atau mengecek duplikasi email saat Register.
-    public function findByEmail($email)
+    public function findByEmail(string $email)
     {
         $sql = "SELECT * FROM users WHERE email = :email LIMIT 1";
         // Query akan otomatis memanggil prepared statement dari Database.php
@@ -17,7 +17,7 @@ class User extends Model
     }
 
     // Menyimpan pengguna baru (Register).
-    public function create($name, $email, $passwordHash, $role = 'buyer')
+    public function create(string $name, string $email, string $passwordHash, string $role = 'buyer')
     {
         $sql = "INSERT INTO users (name, email, password_hash, role) 
                 VALUES (:name, :email, :password_hash, :role)";

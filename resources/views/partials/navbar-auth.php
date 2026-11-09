@@ -4,9 +4,6 @@ $userRole   = (string) ($_SESSION['role'] ?? 'buyer');
 $isLoggedIn = !empty($_SESSION['user_id']);
 $userKey    = $isLoggedIn ? (string) ($_SESSION['user_id'] ?? $_SESSION['name'] ?? '') : '';
 
-/**
- * Menghasilkan inisial nama otomatis hanya jika login
- */
 $initials = '';
 if ($isLoggedIn && $userName !== '') {
     $words = preg_split('/\s+/', trim($userName)) ?: [];
@@ -42,13 +39,12 @@ if ($initials === '') {
             <i class="bi bi-cart3"></i>
         </a>
 
-        <!-- Avatar Lingkaran Profil -->
+        <!-- Avatar Lingkaran Profil Murni (Tanpa teks label nama agar sejajar rapi) -->
         <div class="navbar-avatar-wrap">
             <button type="button" id="navbar-avatar" class="navbar-avatar"
                 aria-haspopup="true" aria-expanded="false" aria-controls="navbar-avatar-menu"
                 title="<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>">
                 <span class="avatar-circle-inner" id="navAvatarCircle"><?= htmlspecialchars($initials, ENT_QUOTES, 'UTF-8') ?></span>
-                <span class="avatar-username-label d-none d-lg-inline" id="navUsernameLabel"><?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?></span>
             </button>
 
             <!-- Dropdown Menu Profil -->
@@ -67,7 +63,6 @@ if ($initials === '') {
                     <a href="/library" class="navbar-menu-item fw-bold">Library Saya</a>
                 </div>
 
-                <!-- Menu Edit Profile: Hanya muncul jika akun belum jadi penjual -->
                 <a href="/dashboard/ubahprofile" class="navbar-menu-item" id="menuEditProfile">
                     Edit Profile
                 </a>
@@ -95,12 +90,10 @@ if ($initials === '') {
         const isLoggedIn = <?= $isLoggedIn ? 'true' : 'false' ?>;
         const userKey = '<?= $userKey ?>';
 
-        // JIKA BELUM LOGIN: Hentikan eksekusi, biarkan mode tamu (Guest) aktif
         if (!isLoggedIn || !userKey) {
             return;
         }
 
-        // HANYA ambil data milik userKey yang sedang aktif (bukan kunci global)
         const sellerDataRaw = localStorage.getItem('indofx_seller_profile_' + userKey);
         const isSellerFlag = localStorage.getItem('indofx_is_seller_' + userKey);
 
@@ -122,13 +115,7 @@ if ($initials === '') {
                     mobileSellerLink.href = '/dashboard';
                 }
 
-                // B. Sembunyikan 'Edit Profile' pembeli karena sudah ada di dashboard penjual
-                const editProfileLink = document.getElementById('menuEditProfile');
-                if (editProfileLink) {
-                    editProfileLink.style.display = 'none';
-                }
-
-                // C. Ubah Inisial Avatar Menjadi Inisial Toko
+                // B. Ubah Inisial Avatar Menjadi Inisial Toko
                 const avatarCircle = document.getElementById('navAvatarCircle');
                 if (avatarCircle && storeName) {
                     const parts = storeName.trim().split(/\s+/);
@@ -137,15 +124,7 @@ if ($initials === '') {
                     avatarCircle.innerText = storeInits || 'AS';
                 }
 
-                // D. Sembunyikan Teks Nama Panjang (Hanya tampilkan lingkaran avatar)
-                const usernameLabel = document.getElementById('navUsernameLabel');
-                if (usernameLabel) {
-                    usernameLabel.classList.remove('d-lg-inline');
-                    usernameLabel.classList.add('d-none');
-                    usernameLabel.style.setProperty('display', 'none', 'important');
-                }
-
-                // E. Pasang Nama Toko di Urutan Teratas Dropdown Profil
+                // C. Pasang Nama Toko di Dropdown
                 const dropdownTitle = document.getElementById('dropdownSellerName');
                 if (dropdownTitle && storeName) {
                     dropdownTitle.innerText = storeName;

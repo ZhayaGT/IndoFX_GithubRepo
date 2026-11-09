@@ -586,7 +586,7 @@ if ($initials === '') {
                 activeItems = [{
                     id: directAssetId || ('asset-' + Date.now()),
                     title: paramTitle,
-                    creator: paramCreator || 'Studio Kreator',
+                    creator: paramCreator || detectCreatorByTitle(paramTitle) || 'Studio Kreator',
                     price: cleanPrice,
                     art: 'castle',
                     pipelines: pipes
@@ -611,7 +611,7 @@ if ($initials === '') {
                         activeItems = [{
                             id: found.id,
                             title: found.title,
-                            creator: found.creator || found.seller || 'Studio Kreator',
+                            creator: found.creator || found.seller || detectCreatorByTitle(found.title) || 'Studio Kreator',
                             price: cleanPrice,
                             art: found.category === 'Shader' ? 'water' : 'castle',
                             pipelines: Array.isArray(found.pipelines) ? found.pipelines : [found.render_pipeline || 'Built-in']
@@ -621,7 +621,6 @@ if ($initials === '') {
                     }
                 } catch (e) {}
 
-                // Cek di catalogDB bawaan
                 if (catalogDB[directAssetId]) {
                     activeItems = [catalogDB[directAssetId]];
                     renderOrderSummary();
@@ -636,12 +635,30 @@ if ($initials === '') {
                 activeItems = [];
             }
 
-            // Fallback default jika benar-benar tidak ada data
             if (activeItems.length === 0) {
                 activeItems = [catalogDB['1']];
             }
 
             renderOrderSummary();
+        }
+
+        // Fungsi pendeteksi otomatis pemilik aset berdasarkan database lokal toko
+        function detectCreatorByTitle(title) {
+            let foundOwner = '';
+            Object.keys(localStorage).forEach(k => {
+                if (k.startsWith('indofx_seller_assets_')) {
+                    try {
+                        const items = JSON.parse(localStorage.getItem(k)) || [];
+                        const matched = items.find(it => it.title === title);
+                        if (matched) {
+                            const suffix = k.replace('indofx_seller_assets_', '');
+                            const prof = JSON.parse(localStorage.getItem('indofx_seller_profile_' + suffix) || '{}');
+                            foundOwner = prof.store_name || suffix;
+                        }
+                    } catch (e) {}
+                }
+            });
+            return foundOwner;
         }
 
         function renderOrderSummary() {
@@ -698,7 +715,7 @@ if ($initials === '') {
             if (radio) radio.checked = true;
         }
 
-        // PROSES PEMBAYARAN: Masuk ke Library, Catat Riwayat Transaksi Invoice, dan Catat Penjualan Toko (Tanpa Duplikasi)
+        // PROSES PEMBAYARAN CERDAS: Otomatis mendeteksi toko pemilik aset & mencatat penjualan
         function handlePaymentSubmit() {
             const btn = document.getElementById('btnSubmitPayment');
             btn.disabled = true;
@@ -715,7 +732,7 @@ if ($initials === '') {
                 }
 
                 activeItems.forEach(item => {
-                    const exists = currentLibrary.some(l => String(l.id) === String(item.id));
+                    const exists = currentLibrary.some(l => String(l.id) === String(item.id) || l.title === item.title);
                     if (!exists) {
                         currentLibrary.unshift({
                             id: item.id,
@@ -782,65 +799,88 @@ if ($initials === '') {
                 transactions.unshift(newTransaction);
                 localStorage.setItem(txKey, JSON.stringify(transactions));
 
-                // 4. CATAT TRANSAKSI PENJUALAN KE DASHBOARD TOKO PENJUAL (DIPASTIKAN 1 KALI SIMPAN)
+                // 4. SMART SELLER ATTRIBUTION: Cari pemilik aset di seluruh LocalStorage & catat penjualan
                 activeItems.forEach(item => {
-                    const rawCreator = (item.creator || 'Arga Studio').trim();
-                    const cleanCreatorKey = rawCreator.toLowerCase().replace(/[^a-z0-9]/g, '');
+                    const priceVal = parseFloat(item.price) || 0;
+                    const saleRecord = {
+                        invoice_no: invoiceNo,
+                        asset_id: item.id,
+                        asset_title: item.title,
+                        price: priceVal,
+                        payment_method: paymentMethodLabel,
+                        date: shortDateStr,
+                        date_raw: rawDateStr,
+                        status: 'Settlement',
+                        buyer_name: '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>'
+                    };
 
-                    // Gunakan satu kunci pasti berdasarkan identitas creator
-                    const sellerSalesKey = 'indofx_seller_sales_' + cleanCreatorKey;
+                    let targetKeys = new Set();
 
-                    let sales = [];
-                    try {
-                        sales = JSON.parse(localStorage.getItem(sellerSalesKey)) || [];
-                    } catch (e) {
-                        sales = [];
+                    // Dari kreator eksplisit jika ada
+                    if (item.creator) {
+                        targetKeys.add('indofx_seller_sales_' + item.creator.toLowerCase().replace(/[^a-z0-9]/g, ''));
+                        targetKeys.add('indofx_seller_sales_' + item.creator.trim());
                     }
 
-                    // Proteksi ganda: Jangan simpan jika nomor invoice & ID aset sudah tercatat
-                    const isAlreadyRecorded = sales.some(s => s.invoice_no === invoiceNo && String(s.asset_id) === String(item.id));
-                    if (!isAlreadyRecorded) {
-                        sales.unshift({
-                            invoice_no: invoiceNo,
-                            asset_id: item.id,
-                            asset_title: item.title,
-                            price: parseFloat(item.price) || 0,
-                            payment_method: paymentMethodLabel,
-                            date: shortDateStr,
-                            date_raw: rawDateStr,
-                            status: 'Settlement',
-                            buyer_name: '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>'
-                        });
-                        localStorage.setItem(sellerSalesKey, JSON.stringify(sales));
-                    }
+                    // Pindai semua aset toko penjual di sistem
+                    Object.keys(localStorage).forEach(key => {
+                        if (key.startsWith('indofx_seller_assets_')) {
+                            try {
+                                let sAssets = JSON.parse(localStorage.getItem(key)) || [];
+                                const hasAsset = sAssets.some(sa => String(sa.id) === String(item.id) || sa.title === item.title);
+                                if (hasAsset) {
+                                    const sellerSuffix = key.replace('indofx_seller_assets_', '');
+                                    targetKeys.add('indofx_seller_sales_' + sellerSuffix);
+                                    targetKeys.add('indofx_seller_sales_' + sellerSuffix.toLowerCase().replace(/[^a-z0-9]/g, ''));
 
-                    // Naikkan jumlah unduhan/terjual di data aset penjual
-                    const sellerAssetsKey = 'indofx_seller_assets_' + cleanCreatorKey;
-                    try {
-                        let sAssets = JSON.parse(localStorage.getItem(sellerAssetsKey)) || [];
-                        sAssets = sAssets.map(sa => {
-                            if (String(sa.id) === String(item.id) || sa.title === item.title) {
-                                const currentCount = parseInt(String(sa.downloads || '0').replace(/[^0-9]/g, ''), 10) || 0;
-                                sa.downloads = (currentCount + 1) + 'x Terjual';
-                            }
-                            return sa;
-                        });
-                        localStorage.setItem(sellerAssetsKey, JSON.stringify(sAssets));
-                    } catch (e) {}
+                                    // Periksa juga nama toko dari profil penjual tersebut
+                                    const rawProf = localStorage.getItem('indofx_seller_profile_' + sellerSuffix);
+                                    if (rawProf) {
+                                        const p = JSON.parse(rawProf);
+                                        if (p.store_name) {
+                                            targetKeys.add('indofx_seller_sales_' + p.store_name.toLowerCase().replace(/[^a-z0-9]/g, ''));
+                                            targetKeys.add('indofx_seller_sales_' + p.store_name.trim());
+                                        }
+                                    }
+
+                                    // Perbarui jumlah unduhan/terjual langsung pada aset toko tersebut
+                                    sAssets = sAssets.map(sa => {
+                                        if (String(sa.id) === String(item.id) || sa.title === item.title) {
+                                            const currentCount = parseInt(String(sa.downloads || '0').replace(/[^0-9]/g, ''), 10) || 0;
+                                            sa.downloads = (currentCount + 1) + 'x Terjual';
+                                        }
+                                        return sa;
+                                    });
+                                    localStorage.setItem(key, JSON.stringify(sAssets));
+                                }
+                            } catch (e) {}
+                        }
+                    });
+
+                    // Simpan ke seluruh kunci toko penjual terkait
+                    targetKeys.forEach(tKey => {
+                        let sales = [];
+                        try {
+                            sales = JSON.parse(localStorage.getItem(tKey)) || [];
+                        } catch (e) {
+                            sales = [];
+                        }
+                        const exists = sales.some(s => s.invoice_no === invoiceNo && s.asset_title === item.title);
+                        if (!exists) {
+                            sales.unshift(saleRecord);
+                            localStorage.setItem(tKey, JSON.stringify(sales));
+                        }
+                    });
                 });
 
                 // 5. Hapus aset yang dibeli dari Keranjang belanja akun pembeli
                 const cartKey = 'indofx_cart_' + userKey;
-                let currentCart = [];
                 try {
-                    currentCart = JSON.parse(localStorage.getItem(cartKey)) || [];
-                } catch (e) {
-                    currentCart = [];
-                }
-
-                const boughtIds = activeItems.map(i => String(i.id));
-                currentCart = currentCart.filter(c => !boughtIds.includes(String(c.id)));
-                localStorage.setItem(cartKey, JSON.stringify(currentCart));
+                    let currentCart = JSON.parse(localStorage.getItem(cartKey)) || [];
+                    const boughtIds = activeItems.map(i => String(i.id));
+                    currentCart = currentCart.filter(c => !boughtIds.includes(String(c.id)));
+                    localStorage.setItem(cartKey, JSON.stringify(currentCart));
+                } catch (e) {}
 
                 // 6. Bersihkan sesi sementara checkout & arahkan ke halaman invoice
                 sessionStorage.removeItem('indofx_checkout_items');

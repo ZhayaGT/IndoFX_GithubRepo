@@ -1,0 +1,554 @@
+/* ========================================================
+   INDOFX - DASHBOARD ADMIN STYLESHEET (COMPACT FIGMA SCALE)
+   ======================================================== */
+:root {
+  --admin-orange: #ed6b1d;
+  --admin-orange-hover: #d85a0e;
+  --admin-cream-bg: #fdf3ec;
+  --admin-card-border: #ebdcd1;
+  --admin-dark-border: #2b2623;
+  --admin-text-dark: #2b2623;
+  --admin-text-muted: #7a685d;
+}
+
+html,
+body.admin-body {
+  max-width: 100%;
+  overflow-x: hidden;
+  background-color: var(--admin-cream-bg);
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  color: var(--admin-text-dark);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+}
+
+/* ========================================================
+   1. NAVBAR ADMIN
+   ======================================================== */
+.navbar-admin {
+  background-color: var(--admin-orange);
+  padding: 8px 0;
+  z-index: 1030;
+  height: 52px;
+}
+
+.navbar-admin-container {
+  width: 100%;
+  padding-left: 28px;
+  padding-right: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.avatar-admin-badge {
+  width: 32px;
+  height: 32px;
+  background-color: #cfcfcf;
+  color: #2b2623;
+  font-weight: 800;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  border: 1.5px solid #ffffff;
+}
+
+/* Dropdown Menu Admin (Hanya Logout Sesuai Figma) */
+.admin-dropdown-wrap {
+  position: relative;
+}
+
+.btn-admin-profile {
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #ffffff;
+  outline: none;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.btn-admin-profile:hover {
+  opacity: 0.95;
+}
+
+.admin-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background-color: #ffffff;
+  border: 1.5px solid var(--admin-dark-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(43, 38, 35, 0.14);
+  width: 130px;
+  z-index: 1060;
+  display: none;
+  overflow: hidden;
+  padding: 4px;
+}
+
+.admin-dropdown-menu.show {
+  display: block;
+}
+
+.admin-logout-btn,
+.admin-menu-item {
+  display: block;
+  width: 100%;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #2b2623;
+  text-decoration: none;
+  text-align: left;
+  border-radius: 5px;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+  background-color: #ffffff;
+  border: none;
+  box-sizing: border-box;
+}
+
+.admin-logout-btn:hover,
+.admin-menu-item:hover {
+  background-color: #fdf2f2;
+  color: #dc2626 !important;
+}
+
+.admin-logout-btn.text-danger,
+.admin-menu-item.text-danger {
+  color: #dc2626 !important;
+}
+
+/* ========================================================
+   2. LAYOUT & SIDEBAR
+   ======================================================== */
+.admin-layout-container {
+  display: flex;
+  flex-grow: 1;
+  min-height: calc(100vh - 120px);
+}
+
+.admin-sidebar {
+  width: 215px;
+  background-color: #ffffff;
+  border-right: 1px solid var(--admin-card-border);
+  padding: 16px 0;
+  flex-shrink: 0;
+}
+
+.admin-sidebar-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  margin: 3px 10px;
+  border-radius: 6px;
+  color: #4a3b32;
+  font-weight: 600;
+  font-size: 0.82rem;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.admin-sidebar-link:hover {
+  background-color: #fdf5f0;
+  color: var(--admin-orange);
+}
+
+.admin-sidebar-link.active {
+  background-color: #fce8dc;
+  color: #1a1a1a;
+  font-weight: 800;
+}
+
+.admin-sidebar-badge {
+  background-color: #ed6b1d;
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+/* ========================================================
+   3. KONTEN UTAMA
+   ======================================================== */
+.admin-main-content {
+  flex-grow: 1;
+  padding: 22px 28px 36px 28px;
+  min-width: 0;
+}
+
+.admin-page-title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  letter-spacing: -0.4px;
+  margin-bottom: 2px;
+}
+
+.admin-page-sub {
+  color: var(--admin-text-muted);
+  font-size: 0.82rem;
+  margin-bottom: 18px;
+}
+
+/* 4 Kartu Ringkasan Statistik */
+.admin-stat-card {
+  background-color: #ffffff;
+  border: 1px solid var(--admin-card-border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  height: 100%;
+  box-shadow: 0 1px 4px rgba(43, 38, 35, 0.02);
+}
+
+.admin-stat-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: var(--admin-text-muted);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.admin-stat-val {
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  line-height: 1.15;
+  margin-bottom: 3px;
+}
+
+.admin-stat-val.val-orange {
+  color: #c07300;
+}
+
+.admin-stat-val.val-green {
+  color: #15803d;
+}
+
+.admin-stat-val.val-red {
+  color: #dc2626;
+}
+
+.admin-stat-sub {
+  font-size: 0.74rem;
+  color: var(--admin-text-muted);
+}
+
+/* ========================================================
+   4. TABEL & KARTU DATA (FIGMA ACCURATE)
+   ======================================================== */
+.admin-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.admin-section-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 0;
+}
+
+.admin-section-link {
+  color: var(--admin-orange);
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.admin-section-link:hover {
+  color: var(--admin-orange-hover);
+  text-decoration: underline;
+}
+
+.admin-table-card {
+  background-color: #ffffff;
+  border: 1px solid var(--admin-card-border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 6px rgba(43, 38, 35, 0.02);
+}
+
+.table-admin {
+  margin-bottom: 0;
+  vertical-align: middle;
+  width: 100%;
+}
+
+.table-admin thead th {
+  background-color: #f2eae3;
+  color: #4a3b32;
+  font-weight: 700;
+  font-size: 0.74rem;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--admin-card-border);
+  white-space: nowrap !important;
+}
+
+.table-admin tbody td {
+  padding: 11px 12px;
+  font-size: 0.8rem;
+  border-bottom: 1px solid #f3ece6;
+  color: #2b2623;
+  background-color: #ffffff;
+}
+
+.table-admin tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.cell-nowrap {
+  white-space: nowrap !important;
+}
+
+/* Badges Status & Pipeline */
+.badge-pipe-admin {
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 3px;
+  color: #ffffff;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.badge-pipe-hdrp {
+  background-color: #4f378b;
+}
+
+.badge-pipe-urp {
+  background-color: #a3161c;
+}
+
+.badge-pipe-builtin {
+  background-color: #0b72b9;
+}
+
+.badge-status-review {
+  background-color: #fef3e2;
+  color: #c07300;
+  font-weight: 700;
+  font-size: 0.74rem;
+  padding: 4px 8px;
+  border-radius: 5px;
+  border: 1px solid #fed7aa;
+  display: inline-block;
+  white-space: nowrap !important;
+}
+
+.badge-status-published {
+  background-color: #e6f4ea;
+  color: #137333;
+  font-weight: 700;
+  font-size: 0.74rem;
+  padding: 4px 8px;
+  border-radius: 5px;
+  display: inline-block;
+  white-space: nowrap !important;
+}
+
+.badge-status-active {
+  background-color: #d1e7dd;
+  color: #0f5132;
+  font-weight: 700;
+  font-size: 0.72rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  white-space: nowrap !important;
+}
+
+.badge-status-blocked {
+  background-color: #f8d7da;
+  color: #842029;
+  font-weight: 700;
+  font-size: 0.72rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  white-space: nowrap !important;
+}
+
+/* Tombol Aksi */
+.btn-admin-detail {
+  background-color: var(--admin-orange);
+  color: #ffffff !important;
+  font-weight: 700;
+  font-size: 0.76rem;
+  padding: 5px 12px;
+  border-radius: 5px;
+  border: none;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap !important;
+  box-shadow: 0 1px 3px rgba(237, 107, 29, 0.2);
+  transition: all 0.15s ease;
+}
+
+.btn-admin-detail:hover {
+  background-color: var(--admin-orange-hover);
+  transform: translateY(-1px);
+}
+
+.btn-admin-public {
+  background-color: #ffffff;
+  color: #1a1a1a !important;
+  font-weight: 700;
+  font-size: 0.76rem;
+  padding: 4px 10px;
+  border-radius: 5px;
+  border: 1.5px solid var(--admin-dark-border);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap !important;
+  line-height: 1.2;
+  transition: all 0.15s ease;
+}
+
+.btn-admin-public:hover {
+  background-color: #fdf5f0;
+  border-color: var(--admin-orange);
+  color: var(--admin-orange) !important;
+  transform: translateY(-1px);
+}
+
+.btn-edit-user {
+  border: 1.5px solid #b5a8a0;
+  background-color: #ffffff;
+  border-radius: 5px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  color: #2b2623;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap !important;
+  transition: all 0.15s ease;
+}
+
+.btn-edit-user:hover {
+  background-color: #fdf5f0;
+  border-color: var(--admin-orange);
+  color: var(--admin-orange);
+}
+
+/* Bar Filter */
+.admin-filter-bar {
+  margin-bottom: 14px;
+}
+
+.admin-search-wrap {
+  position: relative;
+}
+
+.admin-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888888;
+  font-size: 0.82rem;
+  pointer-events: none;
+}
+
+.admin-search-input {
+  border: 1.5px solid var(--admin-card-border);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  padding: 7px 12px 7px 34px;
+  background-color: #ffffff;
+  width: 100%;
+}
+
+.admin-select {
+  border: 1.5px solid var(--admin-card-border);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  padding: 7px 12px;
+  background-color: #ffffff;
+  font-weight: 600;
+  color: var(--admin-text-dark);
+}
+
+/* ========================================================
+   5. FOOTER ADMIN (FIGMA ACCURATE GAMBAR KE-3)
+   ======================================================== */
+.footer-admin {
+  background-color: #ffffff;
+  border-top: 1px solid rgba(43, 38, 35, 0.08);
+  padding: 64px 0 32px 0;
+  width: 100%;
+  margin-top: auto;
+}
+
+.footer-admin-content {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 60px auto; /* Jarak lega ke copyright sesuai gambar 3 */
+  padding: 0 20px;
+}
+
+.footer-admin-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 10px;
+}
+
+.footer-admin-desc {
+  font-size: 0.82rem;
+  color: #555555;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.footer-admin-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 48px;
+  font-size: 0.78rem;
+  color: #2b2623;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .footer-admin {
+    padding: 40px 0 24px 0;
+  }
+  .footer-admin-content {
+    margin-bottom: 35px;
+  }
+  .footer-admin-bottom {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+    padding: 0 20px;
+  }
+}

@@ -177,8 +177,9 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
     <!-- Script Hidrasi Data & Simulasi Moderasi -->
     <script>
         const userKey = '<?= $userKey ?>';
+        const defaultUserName = '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>';
         let allAssets = [];
-        let storeName = 'Arga Studio';
+        let storeName = defaultUserName || 'Arga Studio';
         let sellerSales = [];
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -199,23 +200,10 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
             words.slice(0, 2).forEach(w => inits += w.charAt(0).toUpperCase());
             document.getElementById('navDashAvatar').innerText = inits || 'AS';
 
-            // 2. Ambil Riwayat Penjualan untuk Pencocokan Data Terjual Riil
-            const cleanKey = storeName.toLowerCase().replace(/[^a-z0-9]/g, '');
-            const rawSales = localStorage.getItem('indofx_seller_sales_' + cleanKey) ||
-                localStorage.getItem('indofx_seller_sales_' + storeName) ||
-                localStorage.getItem('indofx_seller_sales_' + userKey);
-            if (rawSales) {
-                try {
-                    sellerSales = JSON.parse(rawSales) || [];
-                } catch (e) {
-                    sellerSales = [];
-                }
-            }
-
-            // 3. Baca Aset Penjual dari LocalStorage
+            // 2. Baca Aset Penjual dari LocalStorage
             loadAssets();
 
-            // 4. Event Listener untuk Filter Pencarian
+            // 3. Event Listener untuk Filter Pencarian
             document.getElementById('filterKeyword').addEventListener('input', renderTable);
             document.getElementById('filterStatus').addEventListener('change', renderTable);
             document.getElementById('filterCategory').addEventListener('change', renderTable);
@@ -228,6 +216,63 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
             } catch (e) {
                 allAssets = [];
             }
+
+            // SMART CROSS-CHECK DATA PENJUALAN
+            const cleanKey = storeName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            let combinedSales = [];
+
+            const candidateKeys = [
+                'indofx_seller_sales_' + cleanKey,
+                'indofx_seller_sales_' + storeName,
+                'indofx_seller_sales_' + userKey
+            ];
+
+            candidateKeys.forEach(k => {
+                try {
+                    const raw = localStorage.getItem(k);
+                    if (raw) {
+                        combinedSales.push(...(JSON.parse(raw) || []));
+                    }
+                } catch (e) {}
+            });
+
+            // Periksa semua transaksi pembeli
+            const myTitles = new Set(allAssets.map(a => a.title));
+            const myIds = new Set(allAssets.map(a => String(a.id)));
+
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('indofx_transactions_')) {
+                    try {
+                        const txList = JSON.parse(localStorage.getItem(key)) || [];
+                        txList.forEach(tx => {
+                            if (Array.isArray(tx.items)) {
+                                tx.items.forEach(it => {
+                                    if (myTitles.has(it.title) || myIds.has(String(it.id))) {
+                                        combinedSales.push({
+                                            invoice_no: tx.invoice_no,
+                                            asset_id: it.id,
+                                            asset_title: it.title,
+                                            price: it.price
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    } catch (e) {}
+                }
+            });
+
+            // Hilangkan duplikasi
+            let seen = new Set();
+            sellerSales = [];
+            combinedSales.forEach(s => {
+                const uniqKey = (s.invoice_no || '') + '_' + (s.asset_title || '');
+                if (!seen.has(uniqKey) && (s.invoice_no || s.asset_title)) {
+                    seen.add(uniqKey);
+                    sellerSales.push(s);
+                }
+            });
+
             renderTable();
         }
 
@@ -259,7 +304,6 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
             }
 
             tbody.innerHTML = filtered.map(item => {
-                // Pipeline tags
                 const pipes = Array.isArray(item.pipelines) ?
                     item.pipelines : [item.pipelines || item.render_pipeline || 'Built-in'];
                 const primaryPipe = pipes[0] || 'Built-in';
@@ -272,7 +316,6 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                     return `<span class="badge-pipe ${cls} me-1">${p}</span>`;
                 }).join('');
 
-                // Normalisasi angka harga
                 let priceNum = 0;
                 let isGratis = false;
                 if (typeof item.price === 'number') {
@@ -288,23 +331,19 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                 let downloadOrSalesText = '-';
                 if (item.status === 'Disetujui') {
                     if (isGratis) {
-                        // Aset Gratis: Hitung dari counter unduhan
                         const rawCount = parseInt(String(item.downloads || '0').replace(/[^0-9]/g, ''), 10) || 0;
                         downloadOrSalesText = `${rawCount}x Unduhan`;
                     } else {
-                        // Aset Berbayar: Hitung dari riwayat transaksi penjualan riil
                         const salesCount = sellerSales.filter(s =>
                             String(s.asset_id) === String(item.id) || s.asset_title === item.title
                         ).length;
 
-                        // Ambil angka tertinggi antara counter aset dan catatan invoice
                         const storedCount = parseInt(String(item.downloads || '0').replace(/[^0-9]/g, ''), 10) || 0;
                         const finalCount = Math.max(salesCount, storedCount);
                         downloadOrSalesText = `${finalCount}x Terjual`;
                     }
                 }
 
-                // Susun parameter URL detail yang lengkap dan presisi
                 const detailUrl = `/asset/detail?id=${encodeURIComponent(item.id || '')}` +
                     `&slug=${encodeURIComponent(item.slug || item.id || '')}` +
                     `&title=${encodeURIComponent(item.title || '')}` +
@@ -313,7 +352,6 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                     `&price=${encodeURIComponent(priceNum)}` +
                     `&pipeline=${encodeURIComponent(primaryPipe)}`;
 
-                // Status Badge & Aksi
                 let statusBadge = `<span class="badge-status-pending">Pending</span>`;
                 let actionBtn = ``;
 
@@ -333,7 +371,6 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                     `;
                     actionBtn = `<a href="/dashboard/add-asset?edit_id=${encodeURIComponent(item.id)}" class="action-link-danger">Revisi</a>`;
                 } else {
-                    // Masih Pending: Tombol simulasi persetujuan moderasi
                     actionBtn = `
                         <button type="button" class="btn btn-sm btn-outline-success py-0 px-2 fw-bold text-nowrap" style="font-size: 0.72rem;" onclick="simulateApprove('${item.id}')" title="Klik untuk simulasi persetujuan Admin">
                             <i class="bi bi-check-lg"></i> Setujui
@@ -358,24 +395,23 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
             }).join('');
         }
 
-        // Fungsi Simulasi: Mengubah status 'Pending' -> 'Disetujui' dan mempublikasikan ke katalog
         function simulateApprove(assetId) {
             allAssets = allAssets.map(item => {
                 if (item.id === assetId) {
                     item.status = 'Disetujui';
+                    item.creator = storeName;
 
-                    // Inisialisasi label sesuai tipe gratis / berbayar
                     const priceLower = String(item.price || '').toLowerCase();
                     const isGratis = priceLower.includes('gratis') || item.price === 0 || item.price === '0';
                     item.downloads = isGratis ? '0x Unduhan' : '0x Terjual';
 
-                    // Simpan ke katalog publik global agar langsung muncul di halaman katalog/explore
                     let globalCatalog = [];
                     try {
                         globalCatalog = JSON.parse(localStorage.getItem('indofx_public_catalog')) || [];
                     } catch (e) {
                         globalCatalog = [];
                     }
+                    globalCatalog = globalCatalog.filter(g => String(g.id) !== String(item.id));
                     globalCatalog.unshift(item);
                     localStorage.setItem('indofx_public_catalog', JSON.stringify(globalCatalog));
                 }
@@ -383,7 +419,7 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
             });
 
             localStorage.setItem('indofx_seller_assets_' + userKey, JSON.stringify(allAssets));
-            renderTable();
+            loadAssets();
         }
     </script>
 </body>
