@@ -473,3 +473,21 @@ $router->add('GET', '/admin/transactions', function () use ($checkAdminAccess) {
         require __DIR__ . '/../resources/views/admin/dashboard.php';
     }
 });
+$router->add('GET', '/admin/assets', function () use ($checkAdminAccess) {
+    $checkAdminAccess();
+    require __DIR__ . '/../resources/views/admin/assets.php';
+});
+
+$router->add('GET', '/admin/categories', function () use ($checkAdminAccess) {
+    $checkAdminAccess();
+    require __DIR__ . '/../resources/views/admin/categories.php';
+});
+
+$router->add('GET', '/admin/seller-requests', function () use ($checkAdminAccess) {
+    $checkAdminAccess();
+    require __DIR__ . '/../resources/views/admin/seller_requests.php';
+});
+$router->add('GET', '/admin/transactions', function () use ($checkAdminAccess) {
+    $checkAdminAccess();
+    require __DIR__ . '/../resources/views/admin/transactions.php';
+});

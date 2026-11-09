@@ -1,6 +1,24 @@
-/* ========================================================
-   INDOFX - DASHBOARD ADMIN STYLESHEET (COMPACT FIGMA SCALE)
-   ======================================================== */
+/* ==========================================================================
+   INDOFX - DASHBOARD ADMINISTRATOR STYLESHEET (COMPACT FIGMA SCALE)
+   Daftar Isi:
+   1. Design Tokens & Konfigurasi Dasar
+   2. Header Navbar & Dropdown Profil Admin
+   3. Tata Letak (Layout) & Sidebar Navigasi Kiri
+   4. Konten Utama & Kartu Ringkasan Statistik
+   5. Bar Filter Pencarian & Dropdown Pemilih
+   6. Kartu Tabel & Struktur Tabel Admin
+   7. Lencana Status (Pills, Pipelines & Counters)
+   8. Tombol Aksi Tabel & Antarmuka
+   9. Modal Dialog & Formulir Kategori (Tambah, Edit, Hapus)
+   10. Modal Rincian Transaksi, Revenue Split & JSON Gateway
+   11. Footer Administrator
+   12. Aturan Tampilan Responsif (Tablet & Mobile)
+   13. MODAL DETAIL PENGAJUAN PENJUAL
+   ========================================================================== */
+
+/* ==========================================================================
+   1. DESIGN TOKENS & KONFIGURASI DASAR
+   ========================================================================== */
 :root {
   --admin-orange: #ed6b1d;
   --admin-orange-hover: #d85a0e;
@@ -25,12 +43,12 @@ body.admin-body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  font-size: 14px;
+  font-size: 14px; /* Skala proporsional 100% desktop & laptop */
 }
 
-/* ========================================================
-   1. NAVBAR ADMIN
-   ======================================================== */
+/* ==========================================================================
+   2. HEADER NAVBAR & DROPDOWN PROFIL ADMIN
+   ========================================================================== */
 .navbar-admin {
   background-color: var(--admin-orange);
   padding: 8px 0;
@@ -61,7 +79,7 @@ body.admin-body {
   border: 1.5px solid #ffffff;
 }
 
-/* Dropdown Menu Admin (Hanya Logout Sesuai Figma) */
+/* Wrapper Dropdown Profil */
 .admin-dropdown-wrap {
   position: relative;
 }
@@ -84,6 +102,7 @@ body.admin-body {
   opacity: 0.95;
 }
 
+/* Kotak Dropdown Mengambang (Hanya Logout) */
 .admin-dropdown-menu {
   position: absolute;
   top: calc(100% + 10px);
@@ -133,9 +152,9 @@ body.admin-body {
   color: #dc2626 !important;
 }
 
-/* ========================================================
-   2. LAYOUT & SIDEBAR
-   ======================================================== */
+/* ==========================================================================
+   3. TATA LETAK (LAYOUT) & SIDEBAR NAVIGASI KIRI
+   ========================================================================== */
 .admin-layout-container {
   display: flex;
   flex-grow: 1;
@@ -184,9 +203,9 @@ body.admin-body {
   border-radius: 4px;
 }
 
-/* ========================================================
-   3. KONTEN UTAMA
-   ======================================================== */
+/* ==========================================================================
+   4. KONTEN UTAMA & KARTU RINGKASAN STATISTIK
+   ========================================================================== */
 .admin-main-content {
   flex-grow: 1;
   padding: 22px 28px 36px 28px;
@@ -207,7 +226,7 @@ body.admin-body {
   margin-bottom: 18px;
 }
 
-/* 4 Kartu Ringkasan Statistik */
+/* 4 Kartu Ringkasan Metrik */
 .admin-stat-card {
   background-color: #ffffff;
   border: 1px solid var(--admin-card-border);
@@ -251,9 +270,7 @@ body.admin-body {
   color: var(--admin-text-muted);
 }
 
-/* ========================================================
-   4. TABEL & KARTU DATA (FIGMA ACCURATE)
-   ======================================================== */
+/* Header Seksi Tabel Antrean */
 .admin-section-header {
   display: flex;
   justify-content: space-between;
@@ -281,6 +298,61 @@ body.admin-body {
   text-decoration: underline;
 }
 
+/* ==========================================================================
+   5. BAR FILTER PENCARIAN & DROPDOWN PEMILIH
+   ========================================================================== */
+.admin-filter-bar {
+  margin-bottom: 14px;
+}
+
+.admin-search-wrap {
+  position: relative;
+}
+
+.admin-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888888;
+  font-size: 0.82rem;
+  pointer-events: none;
+}
+
+.admin-search-input {
+  border: 1.5px solid var(--admin-card-border);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  padding: 7px 12px 7px 34px;
+  background-color: #ffffff;
+  width: 100%;
+}
+
+.admin-search-input:focus {
+  outline: none;
+  border-color: var(--admin-orange);
+  box-shadow: 0 0 0 2px rgba(237, 107, 29, 0.12);
+}
+
+.admin-select {
+  border: 1.5px solid var(--admin-card-border);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  padding: 7px 12px;
+  background-color: #ffffff;
+  font-weight: 600;
+  color: var(--admin-text-dark);
+}
+
+.admin-select:focus {
+  outline: none;
+  border-color: var(--admin-orange);
+  box-shadow: 0 0 0 2px rgba(237, 107, 29, 0.12);
+}
+
+/* ==========================================================================
+   6. KARTU TABEL & STRUKTUR TABEL ADMIN
+   ========================================================================== */
 .admin-table-card {
   background-color: #ffffff;
   border: 1px solid var(--admin-card-border);
@@ -300,14 +372,14 @@ body.admin-body {
   color: #4a3b32;
   font-weight: 700;
   font-size: 0.74rem;
-  padding: 10px 12px;
+  padding: 10px 14px;
   border-bottom: 1px solid var(--admin-card-border);
   white-space: nowrap !important;
 }
 
 .table-admin tbody td {
-  padding: 11px 12px;
-  font-size: 0.8rem;
+  padding: 11px 14px;
+  font-size: 0.82rem;
   border-bottom: 1px solid #f3ece6;
   color: #2b2623;
   background-color: #ffffff;
@@ -321,7 +393,24 @@ body.admin-body {
   white-space: nowrap !important;
 }
 
-/* Badges Status & Pipeline */
+/* Tag Inisial Avatar Pengguna */
+.user-avatar-tag {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.76rem;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   7. LENCANA STATUS (PILLS, PIPELINES & COUNTERS)
+   ========================================================================== */
+
+/* Pipeline Badges */
 .badge-pipe-admin {
   font-size: 0.6rem;
   font-weight: 800;
@@ -344,6 +433,7 @@ body.admin-body {
   background-color: #0b72b9;
 }
 
+/* Moderation Status Badges */
 .badge-status-review {
   background-color: #fef3e2;
   color: #c07300;
@@ -367,12 +457,24 @@ body.admin-body {
   white-space: nowrap !important;
 }
 
+/* User & Seller Request Status Badges */
 .badge-status-active {
   background-color: #d1e7dd;
   color: #0f5132;
   font-weight: 700;
   font-size: 0.72rem;
   padding: 3px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  white-space: nowrap !important;
+}
+
+.badge-status-waiting {
+  background-color: #fef3e2;
+  color: #c07300;
+  font-weight: 700;
+  font-size: 0.74rem;
+  padding: 3px 10px;
   border-radius: 4px;
   display: inline-block;
   white-space: nowrap !important;
@@ -389,7 +491,74 @@ body.admin-body {
   white-space: nowrap !important;
 }
 
-/* Tombol Aksi */
+.role-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background-color: #eae5e1;
+  color: #333333;
+}
+
+.badge-category-count {
+  background-color: #f3ece6;
+  color: #2b2623;
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 3px 10px;
+  border-radius: 4px;
+  display: inline-block;
+  white-space: nowrap !important;
+}
+
+/* Midtrans Status Badges */
+.badge-midtrans-settlement {
+  background-color: #e6f4ea;
+  color: #137333;
+  border: 1px solid #b7e1cd;
+  font-weight: 700;
+  font-size: 0.72rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap !important;
+}
+
+.badge-midtrans-pending {
+  background-color: #fef3e2;
+  color: #c07300;
+  border: 1px solid #fed7aa;
+  font-weight: 700;
+  font-size: 0.72rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap !important;
+}
+
+.badge-midtrans-expire {
+  background-color: #fce8e6;
+  color: #c5221f;
+  border: 1px solid #fad2cf;
+  font-weight: 700;
+  font-size: 0.72rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap !important;
+}
+
+/* ==========================================================================
+   8. TOMBOL AKSI TABEL & ANTARMUKA
+   ========================================================================== */
+
+/* Aksi Moderasi Aset */
 .btn-admin-detail {
   background-color: var(--admin-orange);
   color: #ffffff !important;
@@ -436,6 +605,7 @@ body.admin-body {
   transform: translateY(-1px);
 }
 
+/* Aksi Kelola Pengguna */
 .btn-edit-user {
   border: 1.5px solid #b5a8a0;
   background-color: #ffffff;
@@ -458,47 +628,399 @@ body.admin-body {
   color: var(--admin-orange);
 }
 
-/* Bar Filter */
-.admin-filter-bar {
-  margin-bottom: 14px;
-}
-
-.admin-search-wrap {
-  position: relative;
-}
-
-.admin-search-icon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #888888;
-  font-size: 0.82rem;
-  pointer-events: none;
-}
-
-.admin-search-input {
-  border: 1.5px solid var(--admin-card-border);
-  border-radius: 6px;
-  font-size: 0.8rem;
-  padding: 7px 12px 7px 34px;
+/* Aksi Pengajuan Penjual */
+.btn-action-view {
   background-color: #ffffff;
-  width: 100%;
-}
-
-.admin-select {
-  border: 1.5px solid var(--admin-card-border);
-  border-radius: 6px;
-  font-size: 0.8rem;
-  padding: 7px 12px;
-  background-color: #ffffff;
+  border: 1.5px solid #a89f97;
+  border-radius: 5px;
+  color: #2b2623 !important;
   font-weight: 600;
-  color: var(--admin-text-dark);
+  font-size: 0.75rem;
+  padding: 4px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  transition: all 0.15s ease;
 }
 
-/* ========================================================
-   5. FOOTER ADMIN (FIGMA ACCURATE GAMBAR KE-3)
-   ======================================================== */
+.btn-action-view:hover {
+  background-color: #fdf5f0;
+  border-color: var(--admin-orange);
+  color: var(--admin-orange) !important;
+}
+
+/* Aksi Kelola Kategori */
+.btn-category-add {
+  background-color: var(--admin-orange);
+  color: #ffffff !important;
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 4px rgba(237, 107, 29, 0.25);
+  transition: all 0.15s ease;
+}
+
+.btn-category-add:hover {
+  background-color: var(--admin-orange-hover);
+  transform: translateY(-1px);
+}
+
+.btn-category-edit {
+  background-color: #ffffff;
+  border: 1.5px solid #a89f97;
+  border-radius: 5px;
+  color: #2b2623 !important;
+  font-weight: 600;
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.btn-category-edit:hover {
+  border-color: var(--admin-orange);
+  color: var(--admin-orange) !important;
+  background-color: #fdf5f0;
+}
+
+.btn-category-delete {
+  background-color: #ffffff;
+  border: 1.5px solid #e15554;
+  border-radius: 5px;
+  color: #e15554 !important;
+  font-weight: 600;
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.btn-category-delete:hover {
+  background-color: #fdf2f2;
+  border-color: #dc2626;
+  color: #dc2626 !important;
+}
+
+/* Aksi Monitoring Transaksi */
+.btn-export-csv {
+  background-color: #ffffff;
+  border: 1.5px solid var(--admin-dark-border);
+  border-radius: 6px;
+  color: #2b2623;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 6px 14px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 1px 3px rgba(43, 38, 35, 0.05);
+  transition: all 0.15s ease;
+}
+
+.btn-export-csv:hover {
+  background-color: #fdf5f0;
+  border-color: var(--admin-orange);
+  color: var(--admin-orange);
+}
+
+.btn-detail-log {
+  background-color: #ffffff;
+  border: 1.5px solid var(--admin-orange);
+  border-radius: 5px;
+  color: var(--admin-orange) !important;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap !important;
+  transition: all 0.15s ease;
+}
+
+.btn-detail-log:hover {
+  background-color: #fdf5f0;
+  border-color: var(--admin-orange-hover);
+  color: var(--admin-orange-hover) !important;
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   9. MODAL DIALOG & FORMULIR KATEGORI (TAMBAH, EDIT, HAPUS)
+   ========================================================================== */
+.modal-category-card {
+  border: 1.5px solid var(--admin-dark-border) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 10px 30px rgba(43, 38, 35, 0.18) !important;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.modal-category-header {
+  border-bottom: 1px solid #ebdcd1 !important;
+  padding: 16px 20px !important;
+}
+
+.modal-category-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.modal-category-body {
+  padding: 18px 20px !important;
+}
+
+.form-label-admin {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 6px;
+}
+
+.input-slug-prefix {
+  background-color: #f7f3ee !important;
+  border: 1.5px solid #ebdcd1 !important;
+  border-right: none !important;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #7a685d;
+  padding: 7px 12px;
+}
+
+.input-slug-field {
+  border: 1.5px solid #ebdcd1 !important;
+  border-left: none !important;
+  font-size: 0.82rem;
+  padding: 7px 12px;
+}
+
+.input-slug-field:focus {
+  box-shadow: none !important;
+  border-color: #ebdcd1 !important;
+}
+
+.modal-category-footer {
+  border-top: 1px solid #ebdcd1 !important;
+  padding: 14px 20px !important;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn-modal-cancel {
+  background-color: #ffffff;
+  border: 1.5px solid #a89f97;
+  color: #2b2623;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.btn-modal-cancel:hover {
+  background-color: #f7f3ee;
+}
+
+.btn-modal-submit {
+  background-color: var(--admin-orange);
+  border: none;
+  color: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.15s ease;
+}
+
+.btn-modal-submit:hover {
+  background-color: var(--admin-orange-hover);
+}
+
+/* Modal Konfirmasi Peringatan Hapus */
+.delete-warning-icon-wrap {
+  width: 52px;
+  height: 46px;
+  margin: 0 auto 14px auto;
+  color: #c92a2a;
+}
+
+.delete-warning-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.delete-warning-desc {
+  font-size: 0.88rem;
+  color: #2b2623;
+  margin-bottom: 16px;
+}
+
+.delete-warning-info {
+  color: #c92a2a;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 22px;
+}
+
+.btn-modal-confirm-delete {
+  background-color: #ffffff;
+  border: 1.5px solid #c92a2a;
+  color: #c92a2a;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 6px 18px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.btn-modal-confirm-delete:hover {
+  background-color: #fdf2f2;
+}
+
+/* ==========================================================================
+   10. MODAL RINCIAN TRANSAKSI, REVENUE SPLIT & JSON GATEWAY
+   ========================================================================== */
+.trx-modal-box {
+  background-color: #fcfbfa;
+  border: 1px solid #ebdcd1;
+  border-radius: 6px;
+  padding: 12px 14px;
+  height: 100%;
+}
+
+.trx-modal-box-title {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--admin-text-muted);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.trx-modal-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 0.78rem;
+  margin-bottom: 6px;
+}
+
+.trx-modal-row:last-child {
+  margin-bottom: 0;
+}
+
+.trx-modal-row-label {
+  color: #7a685d;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.trx-modal-row-val {
+  color: #1a1a1a;
+  font-weight: 700;
+  text-align: right;
+  word-break: break-all;
+}
+
+.trx-split-box {
+  background-color: #f7f3ee;
+  border: 1px solid #ebdcd1;
+  border-radius: 6px;
+  padding: 12px 16px;
+}
+
+.trx-split-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+}
+
+.trx-split-row.total-row {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1.5px solid #2b2623;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 0;
+}
+
+/* Accordion JSON Viewer */
+.trx-raw-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #88786f;
+  font-size: 0.76rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.trx-raw-toggle:hover {
+  color: var(--admin-orange);
+}
+
+.trx-json-viewer {
+  background-color: #211c19;
+  color: #a7f3d0;
+  padding: 12px 14px;
+  border-radius: 6px;
+  font-family: "Consolas", monospace;
+  font-size: 0.74rem;
+  max-height: 160px;
+  overflow-y: auto;
+  margin-top: 8px;
+  display: none;
+}
+
+.trx-json-viewer.show {
+  display: block;
+}
+
+/* ==========================================================================
+   11. FOOTER ADMINISTRATOR (FIGMA ACCURATE)
+   ========================================================================== */
 .footer-admin {
   background-color: #ffffff;
   border-top: 1px solid rgba(43, 38, 35, 0.08);
@@ -510,7 +1032,7 @@ body.admin-body {
 .footer-admin-content {
   text-align: center;
   max-width: 720px;
-  margin: 0 auto 60px auto; /* Jarak lega ke copyright sesuai gambar 3 */
+  margin: 0 auto 60px auto;
   padding: 0 20px;
 }
 
@@ -538,6 +1060,22 @@ body.admin-body {
   width: 100%;
 }
 
+/* ==========================================================================
+   12. ATURAN TAMPILAN RESPONSIF (TABLET & MOBILE)
+   ========================================================================== */
+@media (max-width: 991.98px) {
+  .navbar-admin-container {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .admin-main-content {
+    padding: 20px 16px;
+  }
+  .admin-sidebar {
+    width: 200px;
+  }
+}
+
 @media (max-width: 768px) {
   .footer-admin {
     padding: 40px 0 24px 0;
@@ -551,4 +1089,201 @@ body.admin-body {
     text-align: center;
     padding: 0 20px;
   }
+}
+
+/* ========================================================
+   13.MODAL DETAIL PENGAJUAN PENJUAL (FIGMA ACCURATE)
+   ======================================================== */
+.seller-modal-card {
+  border: 1.5px solid #ebdcd1 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 12px 36px rgba(43, 38, 35, 0.16) !important;
+  background-color: #ffffff;
+}
+
+.seller-modal-header {
+  padding: 18px 24px 14px 24px;
+  border-bottom: 1px solid #ebdcd1;
+}
+
+.seller-header-icon-box {
+  width: 36px;
+  height: 36px;
+  background-color: #fdf3ec;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--admin-orange);
+  font-size: 1.15rem;
+}
+
+.seller-modal-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.btn-seller-close {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #d5cbc3;
+  background: #ffffff;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #555555;
+  font-size: 0.85rem;
+  transition: all 0.15s ease;
+}
+
+.btn-seller-close:hover {
+  background-color: #fdf5f0;
+  color: var(--admin-orange);
+  border-color: var(--admin-orange);
+}
+
+.seller-modal-body {
+  padding: 24px;
+}
+
+.seller-section-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 18px;
+  letter-spacing: -0.3px;
+}
+
+.seller-data-row {
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #ebdcd1;
+}
+
+.seller-data-row:last-of-type {
+  border-bottom: 1px solid #ebdcd1;
+  margin-bottom: 18px;
+}
+
+.seller-label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #7a685d;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.seller-val {
+  font-size: 0.88rem;
+  color: #1a1a1a;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.seller-attachment-link {
+  color: var(--admin-orange);
+  font-weight: 700;
+  font-size: 0.88rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.seller-attachment-link:hover {
+  color: var(--admin-orange-hover);
+}
+
+.seller-attachment-size {
+  font-size: 0.74rem;
+  color: #7a685d;
+  margin-top: 2px;
+  display: block;
+}
+
+/* Catatan Admin & Alert Peringatan */
+.seller-textarea {
+  border: 1.5px solid #ebdcd1;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  padding: 10px 14px;
+  width: 100%;
+  height: 95px;
+  resize: none;
+  background-color: #ffffff;
+}
+
+.seller-textarea:focus {
+  outline: none;
+  border-color: var(--admin-orange);
+  box-shadow: 0 0 0 2px rgba(237, 107, 29, 0.12);
+}
+
+.seller-textarea.is-invalid-note {
+  border-color: #dc2626 !important;
+  background-color: #fffbfb;
+}
+
+.seller-reject-alert {
+  background-color: #fde8e8;
+  color: #991b1b;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* Footer Modal & Tombol Keputusan */
+.seller-modal-footer {
+  padding: 0 24px 24px 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-seller-reject {
+  background-color: #ffffff;
+  border: 1.5px solid #ef4444;
+  color: #dc2626;
+  font-size: 0.84rem;
+  font-weight: 700;
+  padding: 8px 20px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.btn-seller-reject:hover {
+  background-color: #fef2f2;
+  border-color: #dc2626;
+}
+
+.btn-seller-approve {
+  background-color: var(--admin-orange);
+  border: none;
+  color: #ffffff;
+  font-size: 0.84rem;
+  font-weight: 700;
+  padding: 8px 24px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 6px rgba(237, 107, 29, 0.25);
+  transition: all 0.15s ease;
+}
+
+.btn-seller-approve:hover {
+  background-color: var(--admin-orange-hover);
+  transform: translateY(-1px);
 }
