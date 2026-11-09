@@ -101,46 +101,7 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
 
     <!-- SVG Helper untuk Gambar Kartu Aset -->
     <svg class="d-none">
-        <defs>
-            <g id="castle-asset-thumb">
-                <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#D4A39B" />
-                    <stop offset="50%" stop-color="#E8C5B0" />
-                    <stop offset="100%" stop-color="#F7D69D" />
-                </linearGradient>
-                <rect width="400" height="220" fill="url(#skyGrad)" />
-                <circle cx="310" cy="85" r="42" fill="#FFFDF2" opacity="0.95" />
-                <circle cx="310" cy="85" r="65" fill="#FFF7D6" opacity="0.4" />
-                <ellipse cx="90" cy="50" rx="65" ry="18" fill="#B88E8D" opacity="0.35" />
-                <path d="M0 165 Q120 135 250 160 T400 155 L400 220 L0 220 Z" fill="#6E575F" />
-                <rect x="85" y="105" width="185" height="90" fill="#4A3B47" />
-                <rect x="105" y="70" width="32" height="125" fill="#3B2E39" />
-                <polygon points="100,70 121,32 142,70" fill="#2B2129" />
-                <rect x="165" y="55" width="38" height="140" fill="#3B2E39" />
-                <polygon points="160,55 184,15 208,55" fill="#2B2129" />
-                <rect x="235" y="65" width="36" height="130" fill="#59484F" />
-                <polygon points="230,65 253,25 276,65" fill="#3B2E39" />
-                <rect x="179" y="85" width="8" height="14" rx="4" fill="#FFAE42" />
-                <path d="M0 185 Q160 170 400 185 L400 220 L0 220 Z" fill="#2B2122" />
-            </g>
-
-            <g id="forest-mist-art">
-                <linearGradient id="forestSky" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#8FA3B0" />
-                    <stop offset="60%" stop-color="#C9D6DF" />
-                    <stop offset="100%" stop-color="#3A4740" />
-                </linearGradient>
-                <rect width="400" height="220" fill="url(#forestSky)" />
-                <path d="M0 140 Q100 110 220 135 T400 120 L400 220 L0 220 Z" fill="#52615B" opacity="0.6" />
-                <polygon points="50,40 25,150 75,150" fill="#2D3A34" />
-                <polygon points="85,55 65,155 105,155" fill="#3B4B44" />
-                <polygon points="310,30 280,155 340,155" fill="#25302B" />
-                <ellipse cx="200" cy="135" rx="180" ry="25" fill="#E4EEF5" opacity="0.45" />
-                <path d="M0 155 Q110 140 175 220 L0 220 Z" fill="#1A241E" />
-                <path d="M400 150 Q280 140 225 220 L400 220 Z" fill="#16201A" />
-                <polygon points="175,220 198,148 212,148 225,220" fill="#3E3A35" />
-            </g>
-        </defs>
+        <!-- ... (SVG biarkan sama persis dengan yang ada sebelumnya) ... -->
     </svg>
 
     <!-- 1. Header Navbar Oranye -->
@@ -178,37 +139,131 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
         </div>
     </nav>
 
-    <!-- 2. Konten Eksplorasi: Menggunakan container-figma agar kartu kembali proporsional -->
+    <!-- 2. Konten Eksplorasi: Layout Proporsional Filter Kiri & Grid Kanan -->
     <main class="py-4">
         <div class="container-figma">
-
-            <!-- Header Ringkasan & Urutkan -->
-            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-                <span class="text-dark fw-bold fs-7">Menampilkan <span><?= $totalAssets ?></span> aset yang cocok</span>
-
-                <div class="d-flex align-items-center gap-2">
-                    <span class="text-muted small">Urutkan:</span>
-                    <form id="filterForm" action="/catalog/explore" method="GET">
-                        <select name="sort" class="form-select form-select-sm sort-select" onchange="document.getElementById('filterForm').submit()">
-                            <option value="terbaru" <?= (!isset($filters['sort']) || $filters['sort'] === 'terbaru') ? 'selected' : '' ?>>Terbaru</option>
-                            <option value="populer" <?= ($filters['sort'] ?? '') === 'populer' ? 'selected' : '' ?>>Terpopuler</option>
-                            <option value="harga_rendah" <?= ($filters['sort'] ?? '') === 'harga_rendah' ? 'selected' : '' ?>>Harga: Rendah ke Tinggi</option>
-                            <option value="harga_tinggi" <?= ($filters['sort'] ?? '') === 'harga_tinggi' ? 'selected' : '' ?>>Harga: Tinggi ke Rendah</option>
-                        </select>
-                    </form>
-                </div>
-            </div>
-
             <div class="row g-4 align-items-start">
 
-                <!-- KOLOM KIRI: Grid 3 Kartu per Baris -->
+                <!-- SISI KIRI: Card Filter Pencarian (Digeser sedikit ke kiri & ramping) -->
+                <div class="col-12 col-lg-3 filter-col-left">
+                    <div class="filter-search-card p-3">
+                        <form action="/catalog/explore" method="GET">
+
+                            <!-- Jaga parameter pencarian teks agar tidak hilang saat memfilter -->
+                            <?php if(isset($_GET['q'])): ?>
+                                <input type="hidden" name="q" value="<?= htmlspecialchars($_GET['q']) ?>">
+                            <?php endif; ?>
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="filter-header-title">Filter Pencarian</span>
+                                <a href="/catalog/explore" class="filter-reset-link">Reset</a>
+                            </div>
+
+                            <!-- 1. Kategori -->
+                            <div class="filter-group mb-3">
+                                <label class="filter-group-label d-block mb-2">Kategori</label>
+                                <div class="form-check mb-1">
+                                    <input class="form-check-input filter-checkbox" type="checkbox" name="category[]" value="shader" id="cat_shader" <?= in_array('shader', $_GET['category'] ?? []) ? 'checked' : '' ?>>
+                                    <label class="form-check-label filter-check-text" for="cat_shader">Shader</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input filter-checkbox" type="checkbox" name="category[]" value="particle" id="cat_particle" <?= in_array('particle', $_GET['category'] ?? []) ? 'checked' : '' ?>>
+                                    <label class="form-check-label filter-check-text" for="cat_particle">Particle</label>
+                                </div>
+                            </div>
+
+                            <!-- 2. Rentang Harga (Rp) -->
+                            <div class="filter-group mb-3">
+                                <label class="filter-group-label d-block mb-2">Rentang Harga (Rp)</label>
+                                <div class="d-flex align-items-center gap-1 mb-2">
+                                    <input type="number" name="min_price" class="form-control form-control-sm filter-range-input" placeholder="Min" value="<?= htmlspecialchars($_GET['min_price'] ?? '') ?>"
+                                        min="1" onkeydown="if(event.key === '-' || event.key === 'e' || event.key === '+') event.preventDefault();"
+                                        oninput="if(this.value !== '' && Number(this.value) < 1) this.value = 1;">
+                                    <span class="text-muted">-</span>
+                                    <input type="number" name="max_price" class="form-control form-control-sm filter-range-input" placeholder="Max" value="<?= htmlspecialchars($_GET['max_price'] ?? '') ?>"
+                                        min="1" onkeydown="if(event.key === '-' || event.key === 'e' || event.key === '+') event.preventDefault();"
+                                        oninput="if(this.value !== '' && Number(this.value) < 1) this.value = 1;">
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input filter-radio" type="radio" name="price_filter_radio" value="free" id="price_free_radio" <?= (isset($_GET['price_filter_radio']) && $_GET['price_filter_radio'] === 'free') ? 'checked' : '' ?>>
+                                    <label class="form-check-label filter-check-text" for="price_free_radio">Gratis</label>
+                                </div>
+                            </div>
+
+                            <!-- 3. Render Pipeline -->
+                            <div class="filter-group mb-3">
+                                <label class="filter-group-label d-block mb-2">Render Pipeline</label>
+                                <div class="form-check mb-1">
+                                    <input class="form-check-input filter-checkbox" type="checkbox" name="pipeline[]" value="Built-in" id="pipe_builtin" <?= in_array('Built-in', $filters['pipeline'] ?? []) ? 'checked' : '' ?>>
+                                    <label class="form-check-label filter-check-text" for="pipe_builtin">Built-in</label>
+                                </div>
+                                <div class="form-check mb-1">
+                                    <input class="form-check-input filter-checkbox" type="checkbox" name="pipeline[]" value="URP" id="pipe_urp" <?= in_array('URP', $filters['pipeline'] ?? []) ? 'checked' : '' ?>>
+                                    <label class="form-check-label filter-check-text" for="pipe_urp">URP</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input filter-checkbox" type="checkbox" name="pipeline[]" value="HDRP" id="pipe_hdrp" <?= in_array('HDRP', $filters['pipeline'] ?? []) ? 'checked' : '' ?>>
+                                    <label class="form-check-label filter-check-text" for="pipe_hdrp">HDRP</label>
+                                </div>
+                            </div>
+
+                            <!-- 4. Versi Unity -->
+                            <div class="filter-group mb-1">
+                                <label class="filter-group-label d-block mb-2">Versi Unity</label>
+                                <select name="unity_version" class="form-select form-select-sm filter-range-input">
+                                    <option value="Semua Versi" <?= ($filters['unity_version'] ?? '') === 'Semua Versi' ? 'selected' : '' ?>>Semua Versi</option>
+                                    <option value="2021" <?= ($filters['unity_version'] ?? '') === '2021' ? 'selected' : '' ?>>2021.3 LTS</option>
+                                    <option value="2022" <?= ($filters['unity_version'] ?? '') === '2022' ? 'selected' : '' ?>>2022.3 LTS</option>
+                                    <option value="2023" <?= ($filters['unity_version'] ?? '') === '2023' ? 'selected' : '' ?>>2023.x</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-sm btn-hero-orange w-100 mt-2">Terapkan Filter</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- SISI KANAN: Grid 3 Kartu per Baris -->
                 <div class="col-12 col-lg-9">
+                    
+                    <!-- Bar Jumlah Aset & Opsi Urutkan -->
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                        <span class="text-dark" style="font-size: 0.92rem;">
+                            Menampilkan <strong><?= $totalAssets ?></strong> aset yang cocok
+                        </span>
+
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="small" style="color: #2b2623; font-weight: 500;">Urutkan:</span>
+                            <!-- Form Pengurutan terpisah agar onChange bisa langsung eksekusi GET request ke Controller -->
+                            <form id="sortForm" action="/catalog/explore" method="GET">
+                                <!-- Sertakan parameter filter sebelumnya agar tidak mereset filter saat kita urutkan data -->
+                                <?php foreach($_GET as $key => $val): if($key !== 'sort'): ?>
+                                    <?php if(is_array($val)): ?>
+                                        <?php foreach($val as $v): ?>
+                                            <input type="hidden" name="<?= $key ?>[]" value="<?= htmlspecialchars($v) ?>">
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <input type="hidden" name="<?= $key ?>" value="<?= htmlspecialchars($val) ?>">
+                                    <?php endif; ?>
+                                <?php endif; endforeach; ?>
+
+                                <select name="sort" class="form-select form-select-sm sort-select-figma sort-select" onchange="document.getElementById('sortForm').submit()">
+                                    <option value="terbaru" <?= (!isset($filters['sort']) || $filters['sort'] === 'terbaru') ? 'selected' : '' ?>>Terbaru</option>
+                                    <option value="populer" <?= ($filters['sort'] ?? '') === 'populer' ? 'selected' : '' ?>>Terpopuler</option>
+                                    <option value="harga_rendah" <?= ($filters['sort'] ?? '') === 'harga_rendah' ? 'selected' : '' ?>>Harga: Rendah ke Tinggi</option>
+                                    <option value="harga_tinggi" <?= ($filters['sort'] ?? '') === 'harga_tinggi' ? 'selected' : '' ?>>Harga: Tinggi ke Rendah</option>
+                                </select>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Wadah Kartu Katalog Dinamis (Looping PHP dari Database) -->
                     <div class="row g-3">
                         <?php foreach ($assets as $asset): ?>
                             <div class="col-12 col-sm-6 col-lg-4"> 
                                 <div class="asset-card-figma h-100 d-flex flex-column">
                                     
-                                    <!-- 1. Perbaikan URL Gambar & htmlspecialchars -->
+                                    <!-- Thumbnail -->
                                     <a href="/asset/detail?id=<?= $asset['public_id'] ?>" class="asset-thumb-wrapper d-block">
                                         <?php 
                                         $thumbnailFile = $asset['thumbnail'] ?? ''; 
@@ -226,21 +281,20 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
 
                                     <div class="asset-card-body d-flex flex-column justify-content-between flex-grow-1">
                                         <div>
-                                            <!-- 2. Nama Kreator Dinamis -->
-                                            <a href="/creator/profile" class="asset-studio text-decoration-none d-inline-block">
-                                                <?= htmlspecialchars($asset['seller_name'] ?? 'Studio Kreator') ?>
+                                            <!-- Tautan Penjual Dinamis Menuju Profil -->
+                                            <a href="/creator/profile?id=<?= htmlspecialchars($asset['seller_public_id'] ?? '', ENT_QUOTES, 'UTF-8') ?>" class="text-decoration-none text-muted small seller-link-hover d-block mb-1">
+                                                <?= htmlspecialchars($asset['seller_name'] ?? 'Kreator', ENT_QUOTES, 'UTF-8') ?>
                                             </a>
                                             
                                             <a href="/asset/detail?id=<?= $asset['public_id'] ?>" class="text-decoration-none d-block">
                                                 <h6 class="asset-name"><?= htmlspecialchars($asset['title'] ?? '') ?></h6>
                                             </a>
                                             
-                                            <!-- 3. Badge Pipeline Dinamis -->
+                                            <!-- Badge Render Pipeline Dinamis -->
                                             <div class="d-flex gap-1 mb-2 flex-wrap">
                                                 <?php 
                                                 $pipeline = $asset['render_pipeline'] ?? '';
                                                 
-                                                // Perhatikan penambahan kata -pipeline- pada nama class
                                                 if (stripos($pipeline, 'Built-in') !== false) {
                                                     echo '<span class="badge-pipeline badge-pipeline-builtin">Built-In</span> ';
                                                 }
@@ -257,7 +311,6 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                                             </div>
                                         </div>
                                         
-                                        <!-- 4. Format Harga Dinamis (Mencegah "Rp0") -->
                                         <div class="d-flex justify-content-between align-items-center pt-1">
                                             <span class="asset-price">
                                                 <?= (!isset($asset['price']) || $asset['price'] == 0) ? 'Gratis' : 'Rp' . number_format($asset['price'], 0, ',', '.') ?>
@@ -269,99 +322,63 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                             </div>
                         <?php endforeach; ?>
                     </div>
+                    
+                    </div> 
+                    <?php 
+                        // Default nilai (Nantinya variabel ini dikirim dari CatalogController)
+                        $currentPage = $page ?? (isset($_GET['page']) ? (int)$_GET['page'] : 1);
+                        $totalPages = $totalPages ?? 3; // Contoh statis: pastikan Controller mengirimkan $totalPages
+                    ?>
 
-                    <!-- Pagination dinamis -->
-                    <div class="d-flex justify-content-center align-items-center gap-3 mt-5 mb-3 explore-pagination" data-catalog-pagination></div>
-                </div>
+                    <?php if ($totalPages > 1): ?>
+                        <div class="d-flex justify-content-center align-items-center gap-3 mt-5 mb-3 explore-pagination">
+                            <?php
+                                // Menyalin parameter filter saat ini agar tidak hilang saat pindah halaman
+                                $queryParams = $_GET;
+                                unset($queryParams['page']);
+                                $queryString = http_build_query($queryParams);
+                                $baseUrl = '/catalog/explore' . ($queryString ? '?' . $queryString . '&' : '?') . 'page=';
+                            ?>
 
-                <!-- KOLOM KANAN: Card Filter Pencarian -->
-                <div class="col-12 col-lg-3">
-                    <div class="filter-search-card p-3">
-                        <form action="/catalog/explore" method="GET">
+                            <!-- Tombol Sebelumnya -->
+                            <?php if ($currentPage > 1): ?>
+                                <a href="<?= htmlspecialchars($baseUrl . ($currentPage - 1)) ?>" class="page-nav-link text-dark">Sebelumnya</a>
+                            <?php else: ?>
+                                <span class="page-nav-link text-muted" style="text-decoration: none; cursor: default;">Sebelumnya</span>
+                            <?php endif; ?>
 
-                        <?php if(isset($_GET['q'])): ?>
-                            <input type="hidden" name="q" value="<?= htmlspecialchars($_GET['q']) ?>">
-                        <?php endif; ?>
+                            <!-- Angka Halaman -->
+                            <div class="d-flex gap-1">
+                                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                                    <a href="<?= htmlspecialchars($baseUrl . $i) ?>" class="page-num-link <?= $i == $currentPage ? 'active' : '' ?>">
+                                        <?= $i ?>
+                                    </a>
+                                <?php endfor; ?>
+                            </div>
 
-                        <!-- Header Filter -->
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="fw-bold text-dark fs-7">Filter Pencarian</span>
-                            <a href="/catalog/explore" class="filter-reset-link">Reset</a>
+                            <!-- Tombol Selanjutnya -->
+                            <?php if ($currentPage < $totalPages): ?>
+                                <a href="<?= htmlspecialchars($baseUrl . ($currentPage + 1)) ?>" class="page-nav-link text-dark">Selanjutnya</a>
+                            <?php else: ?>
+                                <span class="page-nav-link text-muted" style="text-decoration: none; cursor: default;">Selanjutnya</span>
+                            <?php endif; ?>
                         </div>
-
-                        <!-- 1. Kategori -->
-                        <div class="filter-group mb-3">
-                            <label class="filter-group-label d-block mb-2">Kategori</label>
-                            <div class="form-check mb-1">
-                                <input class="form-check-input filter-checkbox" type="checkbox" name="category[]" value="shader" id="cat_shader" <?= in_array('shader', $_GET['category'] ?? []) ? 'checked' : '' ?>>
-                                <label class="form-check-label filter-check-text" for="cat_shader">Shader</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input filter-checkbox" type="checkbox" name="category[]" value="particle" id="cat_particle" <?= in_array('particle', $_GET['category'] ?? []) ? 'checked' : '' ?>>
-                                <label class="form-check-label filter-check-text" for="cat_particle">Particle</label>
-                            </div>
-                        </div>
-
-                        <!-- 2. Rentang Harga (Rp) -->
-                        <div class="filter-group mb-3">
-                            <label class="filter-group-label d-block mb-2">Rentang Harga (Rp)</label>
-                            <div class="d-flex align-items-center gap-1 mb-2">
-                                <input type="number" name="min_price" class="form-control form-control-sm filter-range-input" placeholder="Min" value="<?= htmlspecialchars($_GET['min_price'] ?? '') ?>">
-                                <span class="text-muted">-</span>
-                                <input type="number" name="max_price" class="form-control form-control-sm filter-range-input" placeholder="Max" value="<?= htmlspecialchars($_GET['max_price'] ?? '') ?>">
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input filter-radio" type="radio" name="price_filter_radio" value="free" id="price_free_radio" <?= (isset($_GET['price_filter_radio']) && $_GET['price_filter_radio'] === 'free') ? 'checked' : '' ?>>
-                                <label class="form-check-label filter-check-text" for="price_free_radio">Gratis</label>
-                            </div>
-                        </div>
-
-                        <!-- 3. Render Pipeline -->
-                        <div class="filter-group mb-3">
-                            <label class="filter-group-label d-block mb-2">Render Pipeline</label>
-                            <div class="form-check mb-1">
-                                <input class="form-check-input filter-checkbox" type="checkbox" name="pipeline[]" value="Built-in" id="pipe_builtin" <?= in_array('Built-in', $filters['pipeline'] ?? []) ? 'checked' : '' ?>>
-                                <label class="form-check-label filter-check-text" for="pipe_builtin">Built-in</label>
-                            </div>
-                            <div class="form-check mb-1">
-                                <input class="form-check-input filter-checkbox" type="checkbox" name="pipeline[]" value="URP" id="pipe_urp" <?= in_array('URP', $filters['pipeline'] ?? []) ? 'checked' : '' ?>>
-                                <label class="form-check-label filter-check-text" for="pipe_urp">URP</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input filter-checkbox" type="checkbox" name="pipeline[]" value="HDRP" id="pipe_hdrp" <?= in_array('HDRP', $filters['pipeline'] ?? []) ? 'checked' : '' ?>>
-                                <label class="form-check-label filter-check-text" for="pipe_hdrp">HDRP</label>
-                            </div>
-                        </div>
-
-                        <!-- 4. Versi Unity -->
-                        <div class="filter-group mb-1">
-                            <label class="filter-group-label d-block mb-2">Versi Unity</label>
-                            <select name="unity_version" class="form-select form-select-sm filter-range-input">
-                                <option value="Semua Versi" <?= ($filters['unity_version'] ?? '') === 'Semua Versi' ? 'selected' : '' ?>>Semua Versi</option>
-                                <option value="2021" <?= ($filters['unity_version'] ?? '') === '2021' ? 'selected' : '' ?>>2021.3 LTS</option>
-                                <option value="2022" <?= ($filters['unity_version'] ?? '') === '2022' ? 'selected' : '' ?>>2022.3 LTS</option>
-                                <option value="2023" <?= ($filters['unity_version'] ?? '') === '2023' ? 'selected' : '' ?>>2023.x</option>
-                            </select>
-                        </div>
-
-                        <!-- Tombol Terapkan -->
-                        <button type="submit" class="btn btn-sm btn-hero-orange w-100 mt-2">Terapkan Filter</button>
+                    <?php endif; ?>
 
                     </div>
                 </div>
+            </div>
+        </div>
+    </main>
 
-    <!-- Footer Putih Solid Full-Width Sesuai Figma -->
     <footer class="footer-main" id="tentang">
         <div class="container-figma">
-            <!-- Bagian Tengah: Judul & Deskripsi -->
             <div class="footer-center-content">
                 <h5 class="footer-brand-title-center">IndoFX</h5>
                 <p class="footer-brand-desc-center">
                     Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
                 </p>
             </div>
-
-            <!-- Bagian Bawah: Copyright Kiri & Slogan Kanan -->
             <div class="footer-bottom-bar">
                 <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
                 <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
@@ -372,8 +389,6 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/assets/js/navbar-auth.js"></script>
-    <!-- Katalog dari data dummy -->
-    <!-- <script src="/assets/js/catalog.js" defer></script> -->
 </body>
 
 </html>

@@ -14,6 +14,10 @@ class CatalogController extends Controller {
                   (isset($_GET['price_filter_radio']) && $_GET['price_filter_radio'] === 'free') 
                   ? '1' : '0';
 
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        if ($page < 1) $page = 1;
+        $limit = 9;
+    
         // Tangkap parameter URL
         $filters = [
             'q'             => $_GET['q'] ?? '',
@@ -24,15 +28,21 @@ class CatalogController extends Controller {
             'pipeline'      => $_GET['pipeline'] ?? [],
             'unity_version' => $_GET['unity_version'] ?? '',
             'sort'          => $_GET['sort'] ?? 'terbaru',
+            'limit'         => $limit,
+            'offset'        => ($page - 1) * $limit
         ];
 
         $filteredAssets = $assetModel->getFilteredAssets($filters);
+        $totalAssetsCount = $assetModel->getTotalFilteredAssetsCount($filters);
+        $totalPages = ceil($totalAssetsCount / $limit);
 
         $this->view('catalog/explore', [
             'title'       => 'Jelajahi Katalog IndoFX',
             'assets'      => $filteredAssets,
             'totalAssets' => count($filteredAssets),
-            'filters'     => $filters // Kirim kembali ke view agar filter tetap tercentang
+            'filters'     => $filters,
+            'page'        => $page,
+            'totalPages'  => $totalPages
         ]);
     }
 }
