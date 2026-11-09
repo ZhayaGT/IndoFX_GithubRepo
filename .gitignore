@@ -36,3 +36,9 @@ Thumbs.db
 .phpunit.result.cache
 .php-cs-fixer.cache
 .phpunit.cache/
+
+# Unggahan pengguna
+/public/uploads/previews/*
+!/public/uploads/previews/.gitkeep
+/storage/uploads/assets/*
+!/storage/uploads/assets/.gitkeep

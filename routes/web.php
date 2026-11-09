@@ -23,6 +23,9 @@ $router->add('GET', '/register', 'AuthController', 'register');
 $router->add('POST', '/register', 'AuthController', 'processRegister');
 $router->add('GET', '/logout', 'AuthController', 'logout');
 
+// Unduhan paket aset: pemilik atau pembeli yang punya entitlement.
+$router->get('/download', 'MediaController', 'download');
+
 // Seller
 $router->get('/seller/register', function () {
     require BASE_PATH . '/resources/views/auth/seller_register.php';
