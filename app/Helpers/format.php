@@ -36,3 +36,11 @@ function pipeline_badge_class(string $label): string
         default => '',
     };
 }
+
+// Slug judul aset: "Forest Mist!" menjadi "forest-mist".
+function slugify(string $text): string
+{
+    $slug = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $text), '-'));
+
+    return $slug === '' ? 'aset' : substr($slug, 0, 120);
+}
