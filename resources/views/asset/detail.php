@@ -51,12 +51,17 @@ $isLoggedIn = isset($_SESSION['user_id']);
 
     <!-- 1. Header Navbar Oranye -->
     <nav class="navbar navbar-orange sticky-top">
-        <div class="container-figma d-flex justify-content-between align-items-center w-100">
+        <div class="navbar-figma-container">
             <a class="navbar-brand m-0 d-flex align-items-center gap-2 text-decoration-none" href="/">
-                <span class="brand-icon-box">
-                    <i class="bi bi-layers-half"></i>
-                </span>
-                <span class="brand-text">IndoFX</span>
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L20.66 7V17L12 22L3.34 17V7L12 2Z" fill="#ED6B1D" stroke="#1A1A1A" stroke-width="1.8" stroke-linejoin="round" />
+                    <path d="M12 2L20.66 7L12 12L3.34 7L12 2Z" fill="#FDBA74" stroke="#1A1A1A" stroke-width="1.5" stroke-linejoin="round" />
+                    <path d="M12 12V22" stroke="#1A1A1A" stroke-width="1.5" />
+                    <path d="M12 12L20.66 7" stroke="#1A1A1A" stroke-width="1.5" />
+                    <path d="M12 12L3.34 7" stroke="#1A1A1A" stroke-width="1.5" />
+                    <path d="M12 4.5L16.5 7L12 9.5L7.5 7L12 4.5Z" fill="#FED7AA" stroke="#1A1A1A" stroke-width="1" stroke-linejoin="round" />
+                </svg>
+                <span class="brand-text text-white fw-bold">IndoFX</span>
             </a>
 
             <?php
@@ -241,9 +246,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
 
                     </div>
                 </div>
-                <!-- ==================== AKHIR KOLOM KIRI ==================== -->
 
-                <!-- ==================== KOLOM KANAN (4 KOLOM) ==================== -->
                 <div class="col-12 col-lg-4">
                     <div class="asset-purchase-card p-4">
                         <span class="asset-category-tag d-block mb-1"><?= mb_strtoupper(htmlspecialchars($categoryLabel ?? 'KATEGORI')) ?></span>
@@ -287,7 +290,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
                                     </button>
                                 <?php else: ?>
                                     <a href="/login" class="btn btn-cart-secondary text-decoration-none">
-                                        <span><span class="link-masuk fw-bold">Masuk</span> untuk menambahkan ke Library</span>
+                                        <span class="link-masuk fw-bold">Masuk untuk menambahkan ke Library</span>
                                     </a>
                                 <?php endif; ?>
                             <?php else: ?>

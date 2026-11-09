@@ -152,7 +152,7 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
             <section class="category-section text-center">
                 <h3 class="section-heading-center mb-1">Telusuri Berdasarkan Kategori</h3>
                 <p class="section-sub-center mb-4">Temukan spesifikasi aset yang tepat untuk game engine Anda</p>
-                    <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <div class="d-flex justify-content-center gap-3 mb-4 flex-wrap">
                         <a href="/catalog/explore?category[]=shader" class="btn category-pill">Shader</a>
                         <a href="/catalog/explore?category[]=particle" class="btn category-pill">Particle</a>
                         <a href="/catalog/explore?price_filter_radio=free" class="btn category-pill">Gratis</a>
@@ -193,14 +193,14 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                                 <div class="asset-card-body d-flex flex-column justify-content-between flex-grow-1">
                                     <div>
                                         <!-- 2. Nama Kreator Dinamis -->
-                                        <a href="/creator/profile" class="asset-studio text-decoration-none d-inline-block">
-                                            <?= htmlspecialchars($asset['seller_name'] ?? 'Studio Kreator') ?>
+                                        <a href="/creator/profile?id=<?= htmlspecialchars($asset['seller_public_id'] ?? '', ENT_QUOTES, 'UTF-8') ?>" class="text-decoration-none text-muted small seller-link-hover">
+                                            <?= htmlspecialchars($asset['seller_name'] ?? 'Kreator', ENT_QUOTES, 'UTF-8') ?>
                                         </a>
                                         
                                         <a href="/asset/detail?id=<?= $asset['public_id'] ?>" class="text-decoration-none d-block">
                                             <h6 class="asset-name"><?= htmlspecialchars($asset['title'] ?? '') ?></h6>
                                         </a>
-                                        
+
                                         <!-- 3. Badge Pipeline Dinamis -->
                                         <div class="d-flex gap-1 mb-2 flex-wrap">
                                             <?php 
@@ -271,8 +271,8 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                                 <div class="asset-card-body d-flex flex-column justify-content-between flex-grow-1">
                                     <div>
                                         <!-- 2. Nama Kreator Dinamis -->
-                                        <a href="/creator/profile" class="asset-studio text-decoration-none d-inline-block">
-                                            <?= htmlspecialchars($asset['seller_name'] ?? 'Studio Kreator') ?>
+                                        <a href="/creator/profile?id=<?= htmlspecialchars($asset['seller_public_id'] ?? '', ENT_QUOTES, 'UTF-8') ?>" class="text-decoration-none text-muted small seller-link-hover">
+                                            <?= htmlspecialchars($asset['seller_name'] ?? 'Kreator', ENT_QUOTES, 'UTF-8') ?>
                                         </a>
                                         
                                         <a href="/asset/detail?id=<?= $asset['public_id'] ?>" class="text-decoration-none d-block">

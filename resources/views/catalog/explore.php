@@ -147,9 +147,10 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                 <!-- SISI KIRI: Card Filter Pencarian (Digeser sedikit ke kiri & ramping) -->
                 <div class="col-12 col-lg-3 filter-col-left">
                     <div class="filter-search-card p-3">
-                        <form action="/catalog/explore" method="GET">
+                        <!-- Tambahkan ID form agar mudah dikontrol -->
+                        <form id="filterSidebarForm" action="/catalog/explore" method="GET">
 
-                            <!-- Jaga parameter pencarian teks agar tidak hilang saat memfilter -->
+                            <!-- Jaga parameter pencarian teks agar tidak hilang -->
                             <?php if(isset($_GET['q'])): ?>
                                 <input type="hidden" name="q" value="<?= htmlspecialchars($_GET['q']) ?>">
                             <?php endif; ?>
@@ -163,11 +164,11 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                             <div class="filter-group mb-3">
                                 <label class="filter-group-label d-block mb-2">Kategori</label>
                                 <div class="form-check mb-1">
-                                    <input class="form-check-input filter-checkbox" type="checkbox" name="category[]" value="shader" id="cat_shader" <?= in_array('shader', $_GET['category'] ?? []) ? 'checked' : '' ?>>
+                                    <input class="form-check-input filter-checkbox" type="checkbox" name="category[]" value="shader" id="cat_shader" <?= in_array('shader', $_GET['category'] ?? []) ? 'checked' : '' ?> onchange="this.form.submit()">
                                     <label class="form-check-label filter-check-text" for="cat_shader">Shader</label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input filter-checkbox" type="checkbox" name="category[]" value="particle" id="cat_particle" <?= in_array('particle', $_GET['category'] ?? []) ? 'checked' : '' ?>>
+                                    <input class="form-check-input filter-checkbox" type="checkbox" name="category[]" value="particle" id="cat_particle" <?= in_array('particle', $_GET['category'] ?? []) ? 'checked' : '' ?> onchange="this.form.submit()">
                                     <label class="form-check-label filter-check-text" for="cat_particle">Particle</label>
                                 </div>
                             </div>
@@ -178,14 +179,16 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                                 <div class="d-flex align-items-center gap-1 mb-2">
                                     <input type="number" name="min_price" class="form-control form-control-sm filter-range-input" placeholder="Min" value="<?= htmlspecialchars($_GET['min_price'] ?? '') ?>"
                                         min="1" onkeydown="if(event.key === '-' || event.key === 'e' || event.key === '+') event.preventDefault();"
-                                        oninput="if(this.value !== '' && Number(this.value) < 1) this.value = 1;">
+                                        oninput="if(this.value !== '' && Number(this.value) < 1) this.value = 1;"
+                                        onchange="this.form.submit()">
                                     <span class="text-muted">-</span>
                                     <input type="number" name="max_price" class="form-control form-control-sm filter-range-input" placeholder="Max" value="<?= htmlspecialchars($_GET['max_price'] ?? '') ?>"
                                         min="1" onkeydown="if(event.key === '-' || event.key === 'e' || event.key === '+') event.preventDefault();"
-                                        oninput="if(this.value !== '' && Number(this.value) < 1) this.value = 1;">
+                                        oninput="if(this.value !== '' && Number(this.value) < 1) this.value = 1;"
+                                        onchange="this.form.submit()">
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input filter-radio" type="radio" name="price_filter_radio" value="free" id="price_free_radio" <?= (isset($_GET['price_filter_radio']) && $_GET['price_filter_radio'] === 'free') ? 'checked' : '' ?>>
+                                    <input class="form-check-input filter-radio" type="radio" name="price_filter_radio" value="free" id="price_free_radio" <?= (isset($_GET['price_filter_radio']) && $_GET['price_filter_radio'] === 'free') ? 'checked' : '' ?> onchange="this.form.submit()">
                                     <label class="form-check-label filter-check-text" for="price_free_radio">Gratis</label>
                                 </div>
                             </div>
@@ -194,15 +197,15 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                             <div class="filter-group mb-3">
                                 <label class="filter-group-label d-block mb-2">Render Pipeline</label>
                                 <div class="form-check mb-1">
-                                    <input class="form-check-input filter-checkbox" type="checkbox" name="pipeline[]" value="Built-in" id="pipe_builtin" <?= in_array('Built-in', $filters['pipeline'] ?? []) ? 'checked' : '' ?>>
+                                    <input class="form-check-input filter-checkbox" type="checkbox" name="pipeline[]" value="Built-in" id="pipe_builtin" <?= in_array('Built-in', $filters['pipeline'] ?? []) ? 'checked' : '' ?> onchange="this.form.submit()">
                                     <label class="form-check-label filter-check-text" for="pipe_builtin">Built-in</label>
                                 </div>
                                 <div class="form-check mb-1">
-                                    <input class="form-check-input filter-checkbox" type="checkbox" name="pipeline[]" value="URP" id="pipe_urp" <?= in_array('URP', $filters['pipeline'] ?? []) ? 'checked' : '' ?>>
+                                    <input class="form-check-input filter-checkbox" type="checkbox" name="pipeline[]" value="URP" id="pipe_urp" <?= in_array('URP', $filters['pipeline'] ?? []) ? 'checked' : '' ?> onchange="this.form.submit()">
                                     <label class="form-check-label filter-check-text" for="pipe_urp">URP</label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input filter-checkbox" type="checkbox" name="pipeline[]" value="HDRP" id="pipe_hdrp" <?= in_array('HDRP', $filters['pipeline'] ?? []) ? 'checked' : '' ?>>
+                                    <input class="form-check-input filter-checkbox" type="checkbox" name="pipeline[]" value="HDRP" id="pipe_hdrp" <?= in_array('HDRP', $filters['pipeline'] ?? []) ? 'checked' : '' ?> onchange="this.form.submit()">
                                     <label class="form-check-label filter-check-text" for="pipe_hdrp">HDRP</label>
                                 </div>
                             </div>
@@ -210,15 +213,13 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                             <!-- 4. Versi Unity -->
                             <div class="filter-group mb-1">
                                 <label class="filter-group-label d-block mb-2">Versi Unity</label>
-                                <select name="unity_version" class="form-select form-select-sm filter-range-input">
+                                <select name="unity_version" class="form-select form-select-sm filter-range-input" onchange="this.form.submit()">
                                     <option value="Semua Versi" <?= ($filters['unity_version'] ?? '') === 'Semua Versi' ? 'selected' : '' ?>>Semua Versi</option>
                                     <option value="2021" <?= ($filters['unity_version'] ?? '') === '2021' ? 'selected' : '' ?>>2021.3 LTS</option>
                                     <option value="2022" <?= ($filters['unity_version'] ?? '') === '2022' ? 'selected' : '' ?>>2022.3 LTS</option>
                                     <option value="2023" <?= ($filters['unity_version'] ?? '') === '2023' ? 'selected' : '' ?>>2023.x</option>
                                 </select>
                             </div>
-
-                            <button type="submit" class="btn btn-sm btn-hero-orange w-100 mt-2">Terapkan Filter</button>
                         </form>
                     </div>
                 </div>
@@ -329,7 +330,6 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                         $currentPage = $page ?? (isset($_GET['page']) ? (int)$_GET['page'] : 1);
                         $totalPages = $totalPages ?? 3; // Contoh statis: pastikan Controller mengirimkan $totalPages
                     ?>
-
                     <?php if ($totalPages > 1): ?>
                         <div class="d-flex justify-content-center align-items-center gap-3 mt-5 mb-3 explore-pagination">
                             <?php
@@ -364,7 +364,6 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                             <?php endif; ?>
                         </div>
                     <?php endif; ?>
-
                     </div>
                 </div>
             </div>

@@ -29,105 +29,23 @@ $router->get('/seller/register', function () {
 });
 $router->add('POST', '/seller/register', 'AuthController', 'processSellerRegister');
 
-// Profil Publik Kreator
-$router->add('GET', '/creator/profile', function () {
-    require __DIR__ . '/../resources/views/creator/profile.php';
-});
+// =======================
+// 3. PROFIL & KELOLA PROFIL 
+// =======================
 
-// ==========================================
-// 3. DASHBOARD PENJUAL & PROFIL
-// ==========================================
-$router->add('GET', '/dashboard', function () {
-    require __DIR__ . '/../resources/views/dashboard/main.php';
-});
-$router->add('GET', '/dashboard/assets', function () {
-    require __DIR__ . '/../resources/views/dashboard/dashboard.php';
-});
-$router->add('GET', '/dashboard/transactions', function () {
-    require __DIR__ . '/../resources/views/dashboard/transactions.php';
-});
-$router->add('GET', '/dashboard/add-asset', function () {
-    require __DIR__ . '/../resources/views/dashboard/add_asset.php';
-});
-$router->add('GET', '/dashboard/profile', function () {
-    require __DIR__ . '/../resources/views/dashboard/profile.php';
-});
+// 1. Profil Publik (Tanpa Sidebar - Untuk dilihat orang lain)
+$router->add('GET', '/creator/profile', 'ProfileController', 'publicProfile');
 
-// Kelola Profil Pembeli (Format URL dengan strip: /dashboard/ubah-profil)
-$router->get('/dashboard/ubah-profil', function () {
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: /login');
-        exit;
-    }
-    require BASE_PATH . '/resources/views/dashboard/ubahprofile.php';
-});
+// 2. Profil Dashboard Penjual (Dengan Sidebar)
+$router->add('GET', '/dashboard/profile', 'ProfileController', 'dashboardProfile');
 
-$router->post('/dashboard/ubah-profil', function () {
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: /login');
-        exit;
-    }
+// 3. Menampilkan Halaman Edit Profil (Ubah Profil)
+$router->add('GET', '/dashboard/ubah-profil', 'ProfileController', 'edit');
+$router->add('GET', '/dashboard/ubahprofile', 'ProfileController', 'edit'); 
 
-    $userId  = $_SESSION['user_id'];
-    $newName = trim($_POST['name'] ?? '');
-    $newBio  = trim($_POST['bio'] ?? '');
-
-    if ($newName !== '') {
-        $db = Database::getInstance();
-        $db->query(
-            "UPDATE users SET name = :name, bio = :bio, updated_at = NOW() WHERE id = :id",
-            [
-                'name' => $newName,
-                'bio'  => $newBio,
-                'id'   => $userId
-            ]
-        );
-
-        $_SESSION['name'] = $newName;
-        $_SESSION['bio']  = $newBio;
-    }
-
-    header('Location: /dashboard/ubah-profil?success=1');
-    exit;
-});
-
-// Kelola Profil Pembeli (Format URL tanpa strip: /dashboard/ubahprofile)
-$router->get('/dashboard/ubahprofile', function () {
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: /login');
-        exit;
-    }
-    require BASE_PATH . '/resources/views/dashboard/ubahprofile.php';
-});
-
-$router->post('/dashboard/ubahprofile', function () {
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: /login');
-        exit;
-    }
-
-    $userId  = $_SESSION['user_id'];
-    $newName = trim($_POST['name'] ?? '');
-    $newBio  = trim($_POST['bio'] ?? '');
-
-    if ($newName !== '') {
-        $db = Database::getInstance();
-        $db->query(
-            "UPDATE users SET name = :name, bio = :bio, updated_at = NOW() WHERE id = :id",
-            [
-                'name' => $newName,
-                'bio'  => $newBio,
-                'id'   => $userId
-            ]
-        );
-
-        $_SESSION['name'] = $newName;
-        $_SESSION['bio']  = $newBio;
-    }
-
-    header('Location: /dashboard/ubahprofile?success=1');
-    exit;
-});
+// 4. Memproses Form Penyimpanan Profil
+$router->add('POST', '/dashboard/ubah-profil', 'ProfileController', 'updateBuyer');
+$router->add('POST', '/dashboard/ubah-profil-toko', 'ProfileController', 'updateSeller');
 
 // ==========================================
 // 4. KERANJANG, CHECKOUT & INVOICE

@@ -1,30 +1,42 @@
 <?php
+// Tangkap URL Supabase dari env dan buat Base Path seperti di index.php
+$supabaseUrl = $_ENV['SUPABASE_URL'] ?? $_SERVER['SUPABASE_URL'] ?? getenv('SUPABASE_URL') ?? '';
+$storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-previews/catalog/';
+
+// 1. Ambil data sesi utama (Siapa yang sedang login)
 $isLoggedIn = isset($_SESSION['user_id']);
-$userKey    = (string) ($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user');
-$userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna');
+$sessionPublicId = (string) ($_SESSION['public_id'] ?? '');
 
-$creatorParam = $_GET['name'] ?? $_GET['creator'] ?? null;
-$isOwnProfile = isset($_GET['me']) && $_GET['me'] === '1';
+// 2. Data Pengguna yang Sedang Dilihat (Dikirim oleh Controller)
+$userData = $user ?? []; 
+$viewedIsSeller = ($userData['role'] ?? 'buyer') === 'seller';
+$isOwnProfile = $isOwnProfile ?? false;
 
-if ($creatorParam !== null && trim($creatorParam) !== '') {
-    $profileName = trim($creatorParam);
-    $profileBio  = 'Game Asset Creator & VFX Artist';
-} elseif ($isOwnProfile && $isLoggedIn) {
-    $profileName = $userName;
-    $profileBio  = !empty($_SESSION['bio']) ? $_SESSION['bio'] : 'Pengembang independen aset visual Unity berkualitas tinggi.';
+// 3. Penentuan Nama & Bio: Hindari bentrok dengan navbar-auth (Gunakan awalan $viewed)
+$viewedName = '';
+if ($viewedIsSeller && !empty($userData['store_name'])) {
+    $viewedName = $userData['store_name'];
 } else {
-    $profileName = $userName ?: 'Arga Studio';
-    $profileBio  = !empty($_SESSION['bio']) ? $_SESSION['bio'] : 'Pengembang independen aset visual Unity berkualitas tinggi.';
+    $viewedName = $userData['name'] ?? 'Pengguna';
 }
+$viewedName = htmlspecialchars($viewedName, ENT_QUOTES, 'UTF-8');
+$viewedBio = htmlspecialchars($userData['bio'] ?? 'Belum ada bio atau deskripsi.', ENT_QUOTES, 'UTF-8');
 
-$profileInitials = '';
-$nameParts = preg_split('/\s+/', trim($profileName)) ?: [];
+// 4. Menyiapkan Inisial Avatar
+$viewedInitials = '';
+$nameParts = preg_split('/\s+/', trim($viewedName)) ?: [];
 foreach (array_slice($nameParts, 0, 2) as $p) {
-    $profileInitials .= mb_strtoupper(mb_substr($p, 0, 1));
+    $viewedInitials .= mb_strtoupper(mb_substr($p, 0, 1));
 }
-if ($profileInitials === '') {
-    $profileInitials = 'AS';
-}
+if ($viewedInitials === '') $viewedInitials = 'U';
+
+// 5. Data Katalog / Library dari Database
+$assetsData = $assetsList ?? []; 
+$totalAssets = count($assetsData);
+
+// 6. Tema Visual
+$bannerColor = $viewedIsSeller ? '#35211B' : 'linear-gradient(135deg, #7a1919 0%, #a32424 100%)';
+$avatarTextColor = $viewedIsSeller ? '#35211B' : '#7a1919';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -32,7 +44,7 @@ if ($profileInitials === '') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($profileName, ENT_QUOTES, 'UTF-8') ?> - IndoFX</title>
+    <title><?= $viewedName ?> - IndoFX</title>
 
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -65,7 +77,6 @@ if ($profileInitials === '') {
 
         .seller-figma-banner {
             height: 175px;
-            background-color: #35211B;
             width: 100%;
         }
 
@@ -77,11 +88,12 @@ if ($profileInitials === '') {
             position: relative;
         }
 
+        /* Diperbarui dengan !important untuk mengalahkan Dark Mode browser */
         .seller-avatar-large {
             width: 140px;
             height: 140px;
             border-radius: 50%;
-            background-color: #ffffff;
+            background-color: #ffffff !important;
             border: 5px solid #ffffff;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
             margin-top: -65px;
@@ -91,8 +103,7 @@ if ($profileInitials === '') {
             justify-content: center;
             font-size: 2.8rem;
             font-weight: 800;
-            color: #35211B;
-            background-color: #FAF4EF;
+            z-index: 10;
         }
 
         .seller-info-content {
@@ -158,10 +169,6 @@ if ($profileInitials === '') {
             color: var(--ifx-orange, #ED6B1D);
         }
 
-        .seller-social-link i {
-            font-size: 1.15rem;
-        }
-
         /* 2. DAFTAR ASET TOKO FIGMA */
         .catalog-seller-heading {
             font-size: 1.4rem;
@@ -196,12 +203,6 @@ if ($profileInitials === '') {
             width: 100%;
             background-color: #2b2129;
             overflow: hidden;
-        }
-
-        .card-asset-thumb svg {
-            width: 100%;
-            height: 100%;
-            display: block;
         }
 
         .card-asset-body {
@@ -242,17 +243,9 @@ if ($profileInitials === '') {
             display: inline-block;
         }
 
-        .pipe-urp {
-            background-color: #c92a2a;
-        }
-
-        .pipe-hdrp {
-            background-color: #5c3582;
-        }
-
-        .pipe-builtin {
-            background-color: #0b72b9;
-        }
+        .pipe-urp { background-color: #c92a2a; }
+        .pipe-hdrp { background-color: #5c3582; }
+        .pipe-builtin { background-color: #0b72b9; }
 
         @media (max-width: 768px) {
             .seller-figma-body {
@@ -261,26 +254,15 @@ if ($profileInitials === '') {
                 text-align: center;
                 padding: 0 20px 24px 20px;
             }
-
-            .seller-avatar-large {
-                margin-top: -60px;
-            }
-
-            .seller-title-row {
-                justify-content: center;
-            }
-
-            .seller-social-links {
-                justify-content: center;
-                gap: 16px;
-            }
+            .seller-avatar-large { margin-top: -60px; }
+            .seller-title-row { justify-content: center; }
+            .seller-social-links { justify-content: center; gap: 16px; }
         }
     </style>
 </head>
 
 <body>
-
-    <!-- SVG Helper untuk Thumbnail Kartu Aset -->
+    <!-- SVG Helper Opsional -->
     <svg class="d-none">
         <defs>
             <g id="castle-asset-thumb">
@@ -290,15 +272,6 @@ if ($profileInitials === '') {
                 <polygon points="200,35 165,195 235,195" fill="#100D10" />
                 <polygon points="300,45 275,190 320,190" fill="#151115" />
                 <circle cx="200" cy="85" r="8" fill="#C4B5A5" opacity="0.8" />
-            </g>
-            <g id="forest-mist-art">
-                <rect width="400" height="220" fill="#1E2A28" />
-                <ellipse cx="200" cy="130" rx="180" ry="45" fill="#4E6D66" opacity="0.45" />
-                <polygon points="70,45 40,200 100,200" fill="#141E1C" />
-                <polygon points="150,30 115,210 185,210" fill="#182421" />
-                <polygon points="260,25 220,215 300,215" fill="#0E1615" />
-                <polygon points="340,40 310,200 370,200" fill="#141E1C" />
-                <circle cx="200" cy="100" r="7" fill="#E8F1EF" opacity="0.75" />
             </g>
         </defs>
     </svg>
@@ -318,13 +291,16 @@ if ($profileInitials === '') {
                 <span class="brand-text">IndoFX</span>
             </a>
 
-            <div class="search-box-header d-none d-md-flex align-items-center">
-                <i class="bi bi-search search-icon-header"></i>
-                <input type="text" class="form-control search-input-header" placeholder="Cari aset...">
-            </div>
+            <?php
+                $searchPartial = BASE_PATH . '/resources/views/partials/navbar-search.php';
+                if (file_exists($searchPartial)) {
+                    require $searchPartial;
+                }
+            ?>
 
             <div class="d-flex align-items-center gap-2">
                 <?php
+                // Navbar di-load di sini secara aman tanpa merusak variabel
                 $authPartial = BASE_PATH . '/resources/views/partials/navbar-auth.php';
                 if (file_exists($authPartial)) {
                     require $authPartial;
@@ -340,50 +316,146 @@ if ($profileInitials === '') {
 
             <!-- 1. KARTU BANNER & IDENTITAS KREATOR SESUAI FIGMA -->
             <div class="seller-figma-card">
-                <div class="seller-figma-banner"></div>
+                <!-- Tema warna disesuaikan oleh PHP (Merah untuk pembeli, Cokelat untuk Penjual) -->
+                <div class="seller-figma-banner" style="background: <?= $bannerColor ?>;"></div>
 
                 <div class="seller-figma-body">
-                    <div class="seller-avatar-large" id="creatorAvatarText">
-                        <?= htmlspecialchars($profileInitials, ENT_QUOTES, 'UTF-8') ?>
+                    <!-- Penambahan properti !important untuk mencegah masalah Dark Mode Browser -->
+                    <div class="seller-avatar-large" style="color: <?= $avatarTextColor ?> !important; background-color: #ffffff !important;">
+                        <?= $viewedInitials ?>
                     </div>
 
                     <div class="seller-info-content">
                         <div class="seller-title-row">
-                            <h1 class="seller-name-heading" id="creatorNameText"><?= htmlspecialchars($profileName, ENT_QUOTES, 'UTF-8') ?></h1>
-                            <span id="roleBadgeContainer">
+                            <h1 class="seller-name-heading"><?= $viewedName ?></h1>
+                            
+                            <?php if ($viewedIsSeller): ?>
                                 <span class="badge-verified-figma">
                                     <i class="bi bi-patch-check-fill"></i> Penjual Terverifikasi
                                 </span>
-                            </span>
+                            <?php else: ?>
+                                <span class="badge bg-light text-secondary border px-2 py-1" style="font-size: 0.72rem;">Member Pembeli</span>
+                            <?php endif; ?>
                         </div>
 
-                        <p class="seller-bio-text" id="creatorBioText"><?= htmlspecialchars($profileBio, ENT_QUOTES, 'UTF-8') ?></p>
+                        <p class="seller-bio-text"><?= nl2br($viewedBio) ?></p>
 
-                        <!-- Tautan Sosial Khusus Penjual (Sesuai Figma) -->
-                        <div class="seller-social-links" id="sellerSocialLinksContainer">
-                            <a href="#" id="linkArtStation" target="_blank" class="seller-social-link">
-                                <i class="bi bi-palette"></i> <span>ArtStation</span>
-                            </a>
-                            <a href="#" id="linkGithub" target="_blank" class="seller-social-link">
-                                <i class="bi bi-github"></i> <span>Github</span>
-                            </a>
-                            <a href="#" id="linkEmail" class="seller-social-link">
-                                <i class="bi bi-envelope"></i> <span>Kontak E-Mail</span>
-                            </a>
-                        </div>
+                        <!-- Tautan Sosial Khusus Penjual (Disembunyikan jika pembeli biasa) -->
+                        <?php if ($viewedIsSeller): ?>
+                            <div class="seller-social-links">
+                                <?php if (!empty($userData['portofolio_url'])): ?>
+                                    <a href="<?= htmlspecialchars($userData['portofolio_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" class="seller-social-link">
+                                        <i class="bi bi-palette"></i> <span>ArtStation</span>
+                                    </a>
+                                <?php endif; ?>
+                                <?php if (!empty($userData['website_url'])): ?>
+                                    <a href="<?= htmlspecialchars($userData['website_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" class="seller-social-link">
+                                        <i class="bi bi-github"></i> <span>Github</span>
+                                    </a>
+                                <?php endif; ?>
+                                <?php if (!empty($userData['contact_email'] ?? $userData['email'])): ?>
+                                    <a href="mailto:<?= htmlspecialchars($userData['contact_email'] ?? $userData['email'], ENT_QUOTES, 'UTF-8') ?>" class="seller-social-link">
+                                        <i class="bi bi-envelope"></i> <span>Kontak E-Mail</span>
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
 
-            <!-- 2. SEKSI KATALOG: DARI [NAMA TOKO] -->
-            <section class="mb-5">
-                <h3 class="catalog-seller-heading" id="sectionCatalogTitle">
-                    Dari <span id="sectionStoreName"><?= htmlspecialchars($profileName, ENT_QUOTES, 'UTF-8') ?></span>
-                </h3>
+            <!-- 2. SEKSI KATALOG (Privasi dilindungi oleh PHP) -->
+            <?php 
+            // LOGIKA PRIVASI: Jika profil pembeli biasa dilihat oleh publik/orang lain, SEMBUNYIKAN
+            if (!$viewedIsSeller && !$isOwnProfile): 
+                // Tidak melakukan render HTML apapun di sini
+            else: 
+            ?>
+                <section class="mb-5">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="catalog-seller-heading mb-0">
+                            <?= $viewedIsSeller ? "Dari <span>{$viewedName}</span>" : "Aset Dimiliki ({$totalAssets})" ?>
+                        </h3>
+                        
+                        <?php if (!$viewedIsSeller && $isOwnProfile): ?>
+                            <a href="/library" style="font-size: 0.85rem; font-weight: 700; color: #1a1a1a; text-decoration: underline;">Library Saya</a>
+                        <?php endif; ?>
+                    </div>
 
-                <!-- Wadah Kartu Aset Dinamis -->
-                <div class="row g-3" id="assetsDisplayContainer"></div>
-            </section>
+                    <!-- Wadah Kartu Aset Dinamis dari Database -->
+                    <div class="row g-3">
+                        <?php if ($totalAssets === 0): ?>
+                            <div class="col-12">
+                                <div class="card border rounded-3 text-center p-5 bg-white shadow-sm" style="border-color: #ebdcd1 !important;">
+                                    <i class="bi <?= $viewedIsSeller ? 'bi-shop' : 'bi-box-seam' ?> fs-1 text-secondary mb-2"></i>
+                                    <h5 class="fw-bold text-dark mb-1">
+                                        <?= $viewedIsSeller ? "Belum Ada Aset dari {$viewedName}" : "Belum Ada Aset Dimiliki" ?>
+                                    </h5>
+                                    <p class="text-muted small mb-3">
+                                        <?= $viewedIsSeller ? 'Toko ini belum merilis aset visual ke marketplace.' : 'Aset yang Anda beli atau klaim gratis akan tersimpan di Library Anda.' ?>
+                                    </p>
+                                    
+                                    <?php if ($isOwnProfile): ?>
+                                        <div>
+                                            <a href="<?= $viewedIsSeller ? '/dashboard/add-asset' : '/catalog/explore' ?>" class="btn btn-hero-orange px-4 py-2" style="background-color: #ED6B1D; color:white; border:none; border-radius:6px; font-weight:600;">
+                                                <?= $viewedIsSeller ? '+ Unggah Aset Baru' : 'Jelajahi Katalog' ?>
+                                            </a>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        <?php else: ?>
+                            <!-- Melakukan perulangan data langsung dari database -->
+                            <?php foreach ($assetsData as $asset): ?>
+                                <div class="col-12 col-sm-6 col-md-3">
+                                    <div class="card-asset-figma">
+                                        <a href="/asset/detail?id=<?= htmlspecialchars($asset['public_id'], ENT_QUOTES, 'UTF-8') ?>" class="card-asset-thumb d-block">
+                                            <?php 
+                                                $thumbnailFile = $asset['thumbnail'] ?? ''; 
+                                                
+                                                if (empty($thumbnailFile)) {
+                                                    $imageUrl = "https://via.placeholder.com/400x220/2C3A47/FFFFFF?text=Gambar+Kosong";
+                                                } elseif (strpos($thumbnailFile, 'http') === 0) {
+                                                    $imageUrl = $thumbnailFile; 
+                                                } else {
+                                                    // Menggabungkan Base Path dengan nama file (misal: 01.jpg)
+                                                    $imageUrl = $storageBasePath . $thumbnailFile;
+                                                }
+                                            ?>
+
+                                            <img src="<?= htmlspecialchars($imageUrl, ENT_QUOTES, 'UTF-8') ?>" 
+                                                 style="width: 100%; height: 100%; object-fit: cover;" 
+                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" alt="Thumbnail">
+                                            <svg style="display: none; width: 100%; height: 100%;" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice"><use href="#castle-asset-thumb" /></svg>
+                                        </a>
+                                        <div class="card-asset-body">
+                                            <div>
+                                                <span class="card-asset-studio"><?= htmlspecialchars($asset['seller_name'] ?? $viewedName, ENT_QUOTES, 'UTF-8') ?></span>
+                                                <a href="/asset/detail?id=<?= htmlspecialchars($asset['public_id'], ENT_QUOTES, 'UTF-8') ?>" class="card-asset-title text-truncate">
+                                                    <?= htmlspecialchars($asset['title'], ENT_QUOTES, 'UTF-8') ?>
+                                                </a>
+                                                <div class="d-flex flex-wrap gap-1 mt-1">
+                                                    <?php 
+                                                        // Memecah format render pipeline (misal: "URP, HDRP")
+                                                        $pipelines = explode(',', $asset['render_pipeline'] ?? 'Built-In');
+                                                        foreach ($pipelines as $pipe): 
+                                                            $p = trim($pipe);
+                                                            $cls = 'pipe-urp';
+                                                            if (stripos($p, 'HDRP') !== false) $cls = 'pipe-hdrp';
+                                                            if (stripos($p, 'Built') !== false) $cls = 'pipe-builtin';
+                                                    ?>
+                                                        <span class="pipe-badge <?= $cls ?>"><?= htmlspecialchars($p, ENT_QUOTES, 'UTF-8') ?></span>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+                </section>
+            <?php endif; ?>
 
         </div>
     </main>
@@ -407,180 +479,5 @@ if ($profileInitials === '') {
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const userKey = '<?= $userKey ?>';
-            const isOwnProfile = <?= $isOwnProfile ? 'true' : 'false' ?>;
-            const container = document.getElementById('assetsDisplayContainer');
-            const socialLinks = document.getElementById('sellerSocialLinksContainer');
-            const badgeContainer = document.getElementById('roleBadgeContainer');
-            const titleHeading = document.getElementById('sectionCatalogTitle');
-            const storeNameSpan = document.getElementById('sectionStoreName');
-
-            // 1. Cek status akun penjual
-            let sellerProfile = null;
-            if (isOwnProfile && userKey) {
-                const rawSeller = localStorage.getItem('indofx_seller_profile_' + userKey);
-                if (rawSeller) {
-                    try {
-                        sellerProfile = JSON.parse(rawSeller);
-                    } catch (e) {}
-                }
-            }
-
-            // KONDISI 1: JIKA PENGGUNA ADALAH PENJUAL (TAMPILAN FIGMA)
-            if (sellerProfile && (sellerProfile.is_seller || sellerProfile.store_name)) {
-                const storeName = sellerProfile.store_name || '<?= htmlspecialchars($profileName, ENT_QUOTES, 'UTF-8') ?>';
-                document.getElementById('creatorNameText').innerText = storeName;
-                storeNameSpan.innerText = storeName;
-                document.getElementById('creatorBioText').innerText = sellerProfile.bio || 'Pengembang independen khusus aset shader, efek visual partikel (VFX) dan material prosedural berkualitas tinggi untuk proyek game Unity lokal.';
-
-                // Inisial Toko
-                const words = storeName.trim().split(/\s+/);
-                let inits = '';
-                words.slice(0, 2).forEach(w => inits += w.charAt(0).toUpperCase());
-                document.getElementById('creatorAvatarText').innerText = inits || 'AS';
-
-                // Tautan Portofolio, Github, Email
-                socialLinks.style.display = 'flex';
-                const linkArtStation = document.getElementById('linkArtStation');
-                const linkGithub = document.getElementById('linkGithub');
-                const linkEmail = document.getElementById('linkEmail');
-
-                if (linkArtStation) linkArtStation.href = sellerProfile.portfolio_url || '#';
-                if (linkGithub) linkGithub.href = sellerProfile.website_url || '#';
-                if (linkEmail) linkEmail.href = 'mailto:' + (sellerProfile.contact_email || 'contact@argastudio.com');
-
-                badgeContainer.innerHTML = `
-                    <span class="badge-verified-figma">
-                        <i class="bi bi-patch-check-fill"></i> Penjual Terverifikasi
-                    </span>
-                `;
-
-                // Ambil daftar aset yang dijual oleh toko ini
-                let sellerAssets = [];
-                try {
-                    sellerAssets = JSON.parse(localStorage.getItem('indofx_seller_assets_' + userKey)) || [];
-                } catch (e) {
-                    sellerAssets = [];
-                }
-
-                if (sellerAssets.length === 0) {
-                    container.innerHTML = `
-                        <div class="col-12">
-                            <div class="card border rounded-3 text-center p-5 bg-white shadow-sm" style="border-color: #ebdcd1 !important;">
-                                <i class="bi bi-shop fs-1 text-secondary mb-2"></i>
-                                <h5 class="fw-bold text-dark mb-1">Belum Ada Aset dari ${storeName}</h5>
-                                <p class="text-muted small mb-3">Toko ini belum merilis aset visual ke marketplace.</p>
-                                <div><a href="/dashboard/add-asset" class="btn btn-hero-orange px-4 py-2">+ Unggah Aset Baru</a></div>
-                            </div>
-                        </div>
-                    `;
-                    return;
-                }
-
-                // Render Kartu Aset Sesuai Figma (Thumbnail, Studio, Judul, Badge Pipeline)
-                container.innerHTML = sellerAssets.map(asset => {
-                    const title = asset.title || 'Aset Game';
-                    const category = asset.category || 'VFX Partikel';
-                    const pipes = Array.isArray(asset.pipelines) ? asset.pipelines : (asset.pipeline ? [asset.pipeline] : ['Built-in', 'URP']);
-
-                    const pipesHtml = pipes.map(p => {
-                        const pLow = String(p).toLowerCase();
-                        let cls = 'pipe-urp';
-                        if (pLow.includes('hdrp')) cls = 'pipe-hdrp';
-                        if (pLow.includes('built')) cls = 'pipe-builtin';
-                        return `<span class="pipe-badge ${cls} me-1">${p}</span>`;
-                    }).join('');
-
-                    const detailUrl = `/asset/detail?id=${encodeURIComponent(asset.id || '')}&title=${encodeURIComponent(title)}&creator=${encodeURIComponent(storeName)}&price=${encodeURIComponent(asset.price || 0)}`;
-                    const artId = (asset.art === 'forest' || asset.art === 'forest-mist-art') ? 'forest-mist-art' : 'castle-asset-thumb';
-
-                    return `
-                        <div class="col-12 col-sm-6 col-md-3">
-                            <div class="card-asset-figma">
-                                <a href="${detailUrl}" class="card-asset-thumb d-block">
-                                    <svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice"><use href="#${artId}" /></svg>
-                                </a>
-                                <div class="card-asset-body">
-                                    <div>
-                                        <span class="card-asset-studio">${storeName}</span>
-                                        <a href="${detailUrl}" class="card-asset-title text-truncate" title="${title}">${title}</a>
-                                        <div class="d-flex flex-wrap gap-1 mt-1">
-                                            ${pipesHtml}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-
-            } else {
-                // KONDISI 2: JIKA PENGGUNA ADALAH PEMBELI BIASA
-                socialLinks.style.display = 'none';
-                badgeContainer.innerHTML = `<span class="badge bg-light text-secondary border px-2 py-1" style="font-size: 0.72rem;">Member Pembeli</span>`;
-                titleHeading.innerHTML = `Aset Dimiliki (<span id="buyerAssetCount">0</span>)`;
-
-                let ownedAssets = [];
-                if (userKey) {
-                    try {
-                        ownedAssets = JSON.parse(localStorage.getItem('indofx_library_' + userKey)) || [];
-                    } catch (e) {
-                        ownedAssets = [];
-                    }
-                }
-
-                const buyerCount = document.getElementById('buyerAssetCount');
-                if (buyerCount) buyerCount.innerText = ownedAssets.length;
-
-                if (ownedAssets.length === 0) {
-                    container.innerHTML = `
-                        <div class="col-12">
-                            <div class="card border rounded-3 text-center p-5 bg-white shadow-sm" style="border-color: #ebdcd1 !important;">
-                                <i class="bi bi-box-seam text-secondary fs-1 mb-2"></i>
-                                <h5 class="fw-bold text-dark mb-1">Belum Ada Aset Dimiliki</h5>
-                                <p class="text-muted small mb-3">Aset yang Anda beli atau klaim gratis akan tersimpan di Library Anda.</p>
-                                <div><a href="/catalog/explore" class="btn btn-hero-orange px-4 py-2">Jelajahi Katalog</a></div>
-                            </div>
-                        </div>
-                    `;
-                    return;
-                }
-
-                container.innerHTML = ownedAssets.map(asset => {
-                    const title = asset.title || 'Game Asset Pack';
-                    const studio = asset.creator || 'Studio Kreator';
-                    const detailUrl = `/asset/detail?id=${encodeURIComponent(asset.id || '1')}&title=${encodeURIComponent(title)}`;
-                    const artId = (asset.art === 'forest' || asset.art === 'forest-mist-art') ? 'forest-mist-art' : 'castle-asset-thumb';
-
-                    return `
-                        <div class="col-12 col-sm-6 col-md-3">
-                            <div class="card-asset-figma">
-                                <a href="${detailUrl}" class="card-asset-thumb d-block">
-                                    <svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice"><use href="#${artId}" /></svg>
-                                </a>
-                                <div class="card-asset-body">
-                                    <div>
-                                        <span class="card-asset-studio">${studio}</span>
-                                        <a href="${detailUrl}" class="card-asset-title text-truncate" title="${title}">${title}</a>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center pt-2 border-top mt-2">
-                                        <span class="small fw-bold text-success">
-                                            <i class="bi bi-check-circle-fill me-1"></i>Dimiliki
-                                        </span>
-                                        <a href="/library" class="text-decoration-none text-muted small fw-bold">
-                                            Unduh <i class="bi bi-download ms-1"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
-        });
-    </script>
 </body>
-
 </html>
