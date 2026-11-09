@@ -36,3 +36,47 @@ function pipeline_badge_class(string $label): string
         default => '',
     };
 }
+
+// Slug judul aset: "Forest Mist!" menjadi "forest-mist".
+function slugify(string $text): string
+{
+    $slug = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $text), '-'));
+
+    return $slug === '' ? 'aset' : substr($slug, 0, 120);
+}
+
+// URL gambar aset: berkas upload lokal, URL penuh, atau nama berkas di bucket.
+function image_url(?string $path): string
+{
+    $path = trim((string) $path);
+
+    if ($path === '') {
+        return '';
+    }
+    if (str_starts_with($path, 'http') || str_starts_with($path, '/')) {
+        return $path;
+    }
+    if (str_starts_with($path, 'uploads/')) {
+        return '/' . $path;
+    }
+
+    $base = rtrim((string) \IndoFX\Core\Env::get('STORAGE_BASE_URL', ''), '/');
+
+    return $base . '/catalog/' . $path;
+}
+
+// Label dan kelas badge untuk status moderasi aset penjual.
+function asset_status_badge(?string $status): array
+{
+    return match ((string) $status) {
+        'published' => ['Disetujui', 'badge-status-approved'],
+        'rejected'  => ['Ditolak', 'badge-status-rejected'],
+        default     => ['Menunggu', 'badge-status-pending'],
+    };
+}
+
+// Nominal uang yang selalu berupa angka, termasuk nol: "Rp0".
+function format_rupiah_amount(int $amount): string
+{
+    return 'Rp' . number_format($amount, 0, ',', '.');
+}

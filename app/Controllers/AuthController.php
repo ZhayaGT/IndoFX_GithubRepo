@@ -37,9 +37,16 @@ class AuthController extends Controller {
             $_SESSION['public_id']  = $user['public_id'];
             $_SESSION['role']    = $user['role'];
             $_SESSION['name']    = $user['name'];
+            $_SESSION['email']   = $user['email'];
 
             // Mengambil bio dari database (jika belum diisi, pakai bio default)
             $_SESSION['bio']     = $user['bio'] ?? 'Hanya game developer pemula :v';
+
+            // Nama toko dipakai navbar dan halaman dashboard penjual
+            if ($user['role'] === 'seller') {
+                $profile = (new \IndoFX\Models\SellerProfile())->find((int) $user['id']);
+                $_SESSION['store_name'] = $profile['store_name'] ?? $user['name'];
+            }
             
             // Fitur "Ingat Saya"
             if (isset($_POST['remember_me'])) {
