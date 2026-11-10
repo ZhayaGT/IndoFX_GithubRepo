@@ -23,9 +23,6 @@ $router->add('GET', '/register', 'AuthController', 'register');
 $router->add('POST', '/register', 'AuthController', 'processRegister');
 $router->add('GET', '/logout', 'AuthController', 'logout');
 
-// Unduhan paket aset: pemilik atau pembeli yang punya entitlement.
-$router->get('/download', 'MediaController', 'download');
-
 // Seller
 $router->get('/seller/register', function () {
     require BASE_PATH . '/resources/views/auth/seller_register.php';
@@ -55,20 +52,17 @@ $router->add('GET', '/dashboard/profile', function () {
     require __DIR__ . '/../resources/views/dashboard/profile.php';
 });
 
+// Unduhan paket aset, wajib pemilik atau pembeli berhak
+$router->get('/download', 'MediaController', 'download');
+
 // Kelola Profil Pembeli (Format URL dengan strip: /dashboard/ubah-profil)
 $router->get('/dashboard/ubah-profil', function () {
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: /login');
-        exit;
-    }
+    \IndoFX\Core\Controller::guardLogin();
     require BASE_PATH . '/resources/views/dashboard/ubahprofile.php';
 });
 
 $router->post('/dashboard/ubah-profil', function () {
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: /login');
-        exit;
-    }
+    \IndoFX\Core\Controller::guardLogin();
 
     $userId  = $_SESSION['user_id'];
     $newName = trim($_POST['name'] ?? '');
@@ -95,18 +89,12 @@ $router->post('/dashboard/ubah-profil', function () {
 
 // Kelola Profil Pembeli (Format URL tanpa strip: /dashboard/ubahprofile)
 $router->get('/dashboard/ubahprofile', function () {
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: /login');
-        exit;
-    }
+    \IndoFX\Core\Controller::guardLogin();
     require BASE_PATH . '/resources/views/dashboard/ubahprofile.php';
 });
 
 $router->post('/dashboard/ubahprofile', function () {
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: /login');
-        exit;
-    }
+    \IndoFX\Core\Controller::guardLogin();
 
     $userId  = $_SESSION['user_id'];
     $newName = trim($_POST['name'] ?? '');
@@ -137,10 +125,7 @@ $router->post('/dashboard/ubahprofile', function () {
 
 // Keranjang Belanja
 $router->get('/cart', function () {
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: /login');
-        exit;
-    }
+    \IndoFX\Core\Controller::guardLogin();
     $cartPath = BASE_PATH . '/resources/views/cart/keranjang.php';
     if (!file_exists($cartPath)) {
         $cartPath = BASE_PATH . '/resources/views/keranjang.php';
@@ -150,10 +135,7 @@ $router->get('/cart', function () {
 
 // Checkout Pembayaran (Sesuai folder checkout/pembayaran.php)
 $router->get('/checkout', function () {
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: /login');
-        exit;
-    }
+    \IndoFX\Core\Controller::guardLogin();
 
     $checkoutCandidates = [
         BASE_PATH . '/resources/views/checkout/pembayaran.php',
@@ -175,10 +157,7 @@ $router->get('/checkout', function () {
 
 // Riwayat Transaksi & Invoice
 $router->get('/invoice', function () {
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: /login');
-        exit;
-    }
+    \IndoFX\Core\Controller::guardLogin();
     $invoicePath = BASE_PATH . '/resources/views/dashboard/invoice.php';
     if (!file_exists($invoicePath)) {
         $invoicePath = BASE_PATH . '/resources/views/invoice.php';
@@ -203,10 +182,7 @@ if (!function_exists('getUserLibraryFile')) {
 
 // Halaman Tampilan Library
 $router->get('/library', function () {
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: /login');
-        exit;
-    }
+    \IndoFX\Core\Controller::guardLogin();
 
     $userId = $_SESSION['user_id'];
     $filePath = getUserLibraryFile($userId);
@@ -376,10 +352,7 @@ $router->get('/api/reviews', function () {
 
 // Halaman Detail Aset Milik User di Library (Untuk Unduh)
 $router->get('/library/detail', function () {
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: /login');
-        exit;
-    }
+    \IndoFX\Core\Controller::guardLogin();
 
     $detailLibCandidates = [
         BASE_PATH . '/resources/views/dashboard/detail-library.php',
