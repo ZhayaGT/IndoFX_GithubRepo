@@ -23,10 +23,9 @@ $router->add('GET', '/register', 'AuthController', 'register');
 $router->add('POST', '/register', 'AuthController', 'processRegister');
 $router->add('GET', '/logout', 'AuthController', 'logout');
 
-// Seller
-$router->get('/seller/register', function () {
-    require BASE_PATH . '/resources/views/auth/seller_register.php';
-});
+// Pendaftaran penjual (upgrade role pembeli)
+$router->get('/seller/register', 'SellerController', 'upgradeForm');
+$router->post('/seller/register', 'SellerController', 'upgrade');
 
 // Profil Publik Kreator
 $router->add('GET', '/creator/profile', function () {
