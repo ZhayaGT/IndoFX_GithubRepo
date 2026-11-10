@@ -35,21 +35,15 @@ $router->add('GET', '/creator/profile', function () {
 // ==========================================
 // 3. DASHBOARD PENJUAL & PROFIL
 // ==========================================
-$router->add('GET', '/dashboard', function () {
-    require __DIR__ . '/../resources/views/dashboard/main.php';
-});
-$router->add('GET', '/dashboard/assets', function () {
-    require __DIR__ . '/../resources/views/dashboard/dashboard.php';
-});
-$router->add('GET', '/dashboard/transactions', function () {
-    require __DIR__ . '/../resources/views/dashboard/transactions.php';
-});
-$router->add('GET', '/dashboard/add-asset', function () {
-    require __DIR__ . '/../resources/views/dashboard/add_asset.php';
-});
-$router->add('GET', '/dashboard/profile', function () {
-    require __DIR__ . '/../resources/views/dashboard/profile.php';
-});
+$router->get('/dashboard', 'SellerController', 'dashboard');
+$router->get('/dashboard/assets', 'SellerController', 'assets');
+$router->get('/dashboard/transactions', 'SellerController', 'transactions');
+$router->get('/dashboard/profile', 'SellerController', 'profile');
+$router->post('/dashboard/profile', 'SellerController', 'saveProfile');
+
+// Form aset penjual
+$router->get('/dashboard/add-asset', 'SellerAssetController', 'form');
+$router->post('/dashboard/assets/save', 'SellerAssetController', 'save');
 
 // Unduhan paket aset, wajib pemilik atau pembeli berhak
 $router->get('/download', 'MediaController', 'download');

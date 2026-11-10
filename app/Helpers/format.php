@@ -44,3 +44,19 @@ function slugify(string $text): string
 
     return $slug === '' ? 'aset' : substr($slug, 0, 120);
 }
+
+// Label dan kelas badge untuk status moderasi aset penjual.
+function asset_status_badge(?string $status): array
+{
+    return match ((string) $status) {
+        'published' => ['Disetujui', 'badge-status-approved'],
+        'rejected'  => ['Ditolak', 'badge-status-rejected'],
+        default     => ['Menunggu', 'badge-status-pending'],
+    };
+}
+
+// Nominal uang yang selalu berupa angka, termasuk nol: "Rp0".
+function format_rupiah_amount(int $amount): string
+{
+    return 'Rp' . number_format($amount, 0, ',', '.');
+}
