@@ -491,3 +491,8 @@ $router->add('GET', '/admin/transactions', function () use ($checkAdminAccess) {
     $checkAdminAccess();
     require __DIR__ . '/../resources/views/admin/transactions.php';
 });
+
+$router->add('GET', '/admin/assets/review', function () use ($checkAdminAccess) {
+    $checkAdminAccess();
+    require __DIR__ . '/../resources/views/admin/asset_review.php';
+});

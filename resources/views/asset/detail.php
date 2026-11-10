@@ -1,5 +1,5 @@
 <?php
-// 1. Database Aset Katalog IndoFX
+// 1. Database Aset Katalog IndoFX (Basis Bawaan)
 $catalogDB = [
     '1' => [
         'title' => 'Volumetric Rain & Storm URP',
@@ -152,7 +152,7 @@ if (is_numeric($assetPriceRaw)) {
 $isLoggedIn = isset($_SESSION['user_id']);
 $userKey    = $isLoggedIn ? (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user') : '';
 
-// 3. Susun URL Checkout Dinamis dengan seluruh parameter aset yang dibeli
+// 3. Susun URL Checkout Dinamis
 $checkoutQuery = http_build_query([
     'asset_id' => $assetId,
     'id'       => $assetId,
@@ -197,14 +197,12 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
             flex-direction: column;
         }
 
-        /* Pembungkus Konten Utama Stabil */
         .content-detail-wrapper {
             background-color: var(--indofx-cream-bg, #FAF0E6);
             padding: 32px 0 54px 0;
             flex-grow: 1;
         }
 
-        /* Frame Pratinjau Utama */
         .main-preview-card {
             border-radius: 8px;
             overflow: hidden;
@@ -214,7 +212,6 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
             width: 100%;
         }
 
-        /* 4 Thumbnail Galeri */
         .thumb-gallery-row {
             display: flex;
             gap: 12px;
@@ -241,7 +238,6 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
             opacity: 0.9;
         }
 
-        /* Tab Navigasi */
         .detail-nav-tabs {
             display: flex;
             align-items: center;
@@ -273,6 +269,27 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
             line-height: 1.65;
             color: var(--indofx-text-main);
             padding: 24px;
+        }
+
+        /* Seksi Judul & Konten Dinamis */
+        .section-content-title {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .section-text-body {
+            white-space: pre-line;
+            line-height: 1.7;
+            color: #2b2623;
+            font-size: 0.88rem;
+        }
+
+        .section-divider {
+            border: none;
+            border-top: 1px solid #ebdcd1;
+            margin: 24px 0;
         }
 
         /* Kartu Sisi Kanan */
@@ -356,7 +373,6 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
             color: var(--indofx-text-main);
         }
 
-        /* Tombol Aksi */
         .btn-figma-buy-orange {
             background-color: var(--indofx-orange);
             color: #ffffff !important;
@@ -445,7 +461,6 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
             font-weight: 800;
         }
 
-        /* Status Kepemilikan & Unduh Oranye */
         .owned-badge-card {
             background-color: #F0FDF4;
             border: 1.5px solid #86EFAC;
@@ -493,7 +508,6 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
             transform: translateY(-1px);
         }
 
-        /* Ringkasan Ulasan */
         .rating-summary-box {
             background-color: #fdf5ef;
             border: 1px solid #ebdcd1;
@@ -572,7 +586,6 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
             border-bottom: none;
         }
 
-        /* Footer Putih Solid Full-Width Sesuai Figma */
         .footer-figma-white {
             background-color: #ffffff !important;
             width: 100%;
@@ -704,21 +717,36 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                         <a href="javascript:void(0)" class="tab-link" onclick="switchDetailTab(event, 'tab-ulasan')">Ulasan</a>
                     </div>
 
+                    <!-- WADAH TAB KONTEN DINAMIS -->
                     <div class="detail-content-box" id="tabContentArea">
+                        <!-- TAB 1: DESKRIPSI & PANDUAN PENGGUNAAN (MURNI INPUT PENJUAL) -->
                         <div id="tab-deskripsi" class="tab-pane-detail active">
-                            <p class="mb-3">
-                                Paket aset visual <strong><?= htmlspecialchars($assetTitle) ?></strong> dirancang khusus oleh <strong><?= htmlspecialchars($assetCreator) ?></strong> untuk mewujudkan sistem visual berkualitas tinggi dalam pipeline rendering <?= htmlspecialchars($assetPipeline) ?> di engine Unity. Dilengkapi dengan kontrol intensitas, shader material yang teroptimasi, dan performa tinggi tanpa membebani draw calls.
-                            </p>
-                            <p class="mb-0">
-                                Sangat cocok untuk proyek game bertema petualangan, aksi, simulasi, maupun kebutuhan prototipe karya game developer Indonesia.
-                            </p>
+                            <!-- Seksi 1: Deskripsi Aset -->
+                            <div class="mb-4">
+                                <h6 class="section-content-title">Deskripsi Aset</h6>
+                                <div class="section-text-body" id="displayAssetDescription">
+                                    Memuat deskripsi aset...
+                                </div>
+                            </div>
+
+                            <hr class="section-divider">
+
+                            <!-- Seksi 2: Panduan Penggunaan Aset -->
+                            <div>
+                                <h6 class="section-content-title">Panduan Penggunaan Aset</h6>
+                                <div class="section-text-body" id="displayAssetHowToUse">
+                                    Memuat panduan penggunaan...
+                                </div>
+                            </div>
                         </div>
 
+                        <!-- TAB 2: CHANGELOG -->
                         <div id="tab-changelog" class="tab-pane-detail d-none">
                             <h6 class="fw-bold mb-2">Versi 1.2.0</h6>
                             <p class="text-muted small">Pembaruan shader dan optimasi performa partikel untuk rilis Unity 2022 LTS</p>
                         </div>
 
+                        <!-- TAB 3: ULASAN -->
                         <div id="tab-ulasan" class="tab-pane-detail d-none">
                             <div id="ratingSummaryWrapper" class="rating-summary-box p-3 mb-4">
                                 <div class="row align-items-center g-3">
@@ -791,19 +819,19 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                 <div class="col-12 col-lg-4">
                     <div class="asset-purchase-card">
                         <!-- Kategori -->
-                        <span class="asset-category-tag d-block"><?= htmlspecialchars($assetCategory) ?></span>
+                        <span class="asset-category-tag d-block" id="displayCategoryBadge"><?= htmlspecialchars($assetCategory) ?></span>
 
                         <!-- Judul Aset -->
-                        <h2 class="asset-detail-title"><?= htmlspecialchars($assetTitle) ?></h2>
+                        <h2 class="asset-detail-title" id="displayAssetTitle"><?= htmlspecialchars($assetTitle) ?></h2>
 
                         <!-- Pembuat Aset -->
                         <div class="detail-creator-line">
-                            Oleh <a href="/creator/profile"><?= htmlspecialchars($assetCreator) ?></a>
+                            Oleh <a href="/creator/profile" id="displayCreatorName"><?= htmlspecialchars($assetCreator) ?></a>
                         </div>
 
                         <!-- Label & Angka Harga -->
                         <div class="price-label-text">Harga Aset</div>
-                        <div class="price-amount-text">
+                        <div class="price-amount-text" id="displayAssetPrice">
                             <?php if ($isGratis): ?>
                                 Gratis
                             <?php else: ?>
@@ -815,19 +843,19 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                         <div class="specs-table-box">
                             <div class="spec-item-row">
                                 <span class="label-col">Versi Unity</span>
-                                <span class="val-col"><?= htmlspecialchars($assetUnity) ?></span>
+                                <span class="val-col" id="displayUnityVer"><?= htmlspecialchars($assetUnity) ?></span>
                             </div>
                             <div class="spec-item-row">
                                 <span class="label-col">Render Pipeline</span>
-                                <span class="val-col"><?= htmlspecialchars($assetPipeline) ?></span>
+                                <span class="val-col" id="displayPipeline"><?= htmlspecialchars($assetPipeline) ?></span>
                             </div>
                             <div class="spec-item-row">
                                 <span class="label-col">Format File</span>
-                                <span class="val-col"><?= htmlspecialchars($assetFormat) ?></span>
+                                <span class="val-col" id="displayFormatFile"><?= htmlspecialchars($assetFormat) ?></span>
                             </div>
                         </div>
 
-                        <!-- Tombol Aksi: Terdeteksi Otomatis Guest vs Login -->
+                        <!-- Tombol Aksi -->
                         <div id="actionButtonWrapper" class="d-grid gap-2">
                             <?php if ($isGratis): ?>
                                 <?php if ($isLoggedIn): ?>
@@ -875,7 +903,7 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
         const currentAssetId = '<?= htmlspecialchars((string)$assetId, ENT_QUOTES, 'UTF-8') ?>';
         const isAssetGratis = <?= $isGratis ? 'true' : 'false' ?>;
         const assetTitle = '<?= htmlspecialchars($assetTitle, ENT_QUOTES, 'UTF-8') ?>';
-        const assetFormat = '<?= htmlspecialchars($assetFormat, ENT_QUOTES, 'UTF-8') ?>';
+        let assetFormat = '<?= htmlspecialchars($assetFormat, ENT_QUOTES, 'UTF-8') ?>';
 
         function switchDetailTab(evt, tabId) {
             document.querySelectorAll('.detail-nav-tabs .tab-link').forEach(link => link.classList.remove('active'));
@@ -891,6 +919,99 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
             const targetPane = document.getElementById(tabId);
             if (targetPane) {
                 targetPane.classList.remove('d-none');
+            }
+        }
+
+        // =========================================================================
+        // SINKRONISASI DINAMIS: MENARIK DESKRIPSI & PANDUAN PENGGUNAAN ASLI PENJUAL
+        // =========================================================================
+        function loadDynamicAssetContent() {
+            let assetData = null;
+
+            // 1. Cari data di Katalog Publik
+            try {
+                const pub = JSON.parse(localStorage.getItem('indofx_public_catalog')) || [];
+                assetData = pub.find(a => String(a.id) === String(currentAssetId) || a.title.trim().toLowerCase() === assetTitle.trim().toLowerCase());
+            } catch (e) {}
+
+            // 2. Jika belum ditemukan, cari di antrean moderasi Admin
+            if (!assetData || (!assetData.description && !assetData.how_to_use)) {
+                try {
+                    const queue = JSON.parse(localStorage.getItem('indofx_moderation_queue')) || [];
+                    const foundInQueue = queue.find(a => String(a.id) === String(currentAssetId) || a.title.trim().toLowerCase() === assetTitle.trim().toLowerCase());
+                    if (foundInQueue) {
+                        assetData = Object.assign({}, foundInQueue, assetData || {});
+                        if (foundInQueue.description) assetData.description = foundInQueue.description;
+                        if (foundInQueue.how_to_use) assetData.how_to_use = foundInQueue.how_to_use;
+                    }
+                } catch (e) {}
+            }
+
+            // 3. Jika masih belum lengkap, periksa seluruh daftar aset milik penjual
+            if (!assetData || (!assetData.description && !assetData.how_to_use)) {
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith('indofx_seller_assets_')) {
+                        try {
+                            const sAssets = JSON.parse(localStorage.getItem(key)) || [];
+                            const foundInSeller = sAssets.find(a => String(a.id) === String(currentAssetId) || a.title.trim().toLowerCase() === assetTitle.trim().toLowerCase());
+                            if (foundInSeller) {
+                                assetData = Object.assign({}, foundInSeller, assetData || {});
+                                if (foundInSeller.description) assetData.description = foundInSeller.description;
+                                if (foundInSeller.how_to_use) assetData.how_to_use = foundInSeller.how_to_use;
+                            }
+                        } catch (e) {}
+                    }
+                });
+            }
+
+            // Render Seksi Deskripsi Aset
+            const descEl = document.getElementById('displayAssetDescription');
+            if (descEl) {
+                if (assetData && assetData.description && assetData.description.trim() !== '') {
+                    descEl.innerText = assetData.description.trim();
+                } else {
+                    descEl.innerText = 'Belum ada deskripsi khusus yang dicantumkan untuk paket aset ' + assetTitle + '.';
+                }
+            }
+
+            // Render Seksi Panduan Penggunaan Aset
+            const howToUseEl = document.getElementById('displayAssetHowToUse');
+            if (howToUseEl) {
+                if (assetData && assetData.how_to_use && assetData.how_to_use.trim() !== '') {
+                    howToUseEl.innerText = assetData.how_to_use.trim();
+                } else {
+                    howToUseEl.innerHTML = '1. Buka Unity Package Manager / Installer.\n2. Impor berkas package ke project Unity Anda.\n3. Masukkan prefab ke dalam hierarchy scene.';
+                }
+            }
+
+            // Update Format File dan Spek jika ada
+            if (assetData) {
+                if (assetData.format || assetData.file_info) {
+                    const fmt = assetData.format || (assetData.file_info.includes('.zip') ? '.zip' : '.unitypackage');
+                    assetFormat = fmt;
+                    const fmtEl = document.getElementById('displayFormatFile');
+                    if (fmtEl) fmtEl.innerText = fmt;
+                }
+                if (assetData.unity_ver || assetData.unity_version) {
+                    const verEl = document.getElementById('displayUnityVer');
+                    if (verEl) verEl.innerText = assetData.unity_ver || assetData.unity_version;
+                }
+            }
+
+            // Render Gambar Asli jika diunggah penjual (Base64 / URL)
+            if (assetData && assetData.image && (assetData.image.startsWith('data:') || assetData.image.includes('/'))) {
+                const carouselInner = document.querySelector('.main-preview-card .carousel-inner');
+                if (carouselInner) {
+                    carouselInner.innerHTML = `
+                        <div class="carousel-item active h-100">
+                            <img src="${assetData.image}" alt="${assetTitle}" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                    `;
+                }
+                const thumbItems = document.querySelectorAll('.thumb-card-item');
+                thumbItems.forEach(t => {
+                    t.innerHTML = `<img src="${assetData.image}" alt="${assetTitle}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                });
             }
         }
 
@@ -1071,7 +1192,6 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                 btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
             }
 
-            // 1. Simpan ke Library Akun Pembeli Aktif
             const storageKey = 'indofx_library_' + userKey;
             let currentLibrary = [];
             try {
@@ -1096,7 +1216,6 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                 localStorage.setItem(storageKey, JSON.stringify(currentLibrary));
             }
 
-            // 2. NAIKKAN JUMLAH UNDUHAN PADA ASET MILIK PENJUAL
             const rawCreator = ('<?= htmlspecialchars($assetCreator, ENT_QUOTES, 'UTF-8') ?>').trim();
             const cleanCreatorKey = rawCreator.toLowerCase().replace(/[^a-z0-9]/g, '');
             const assetKeys = [
@@ -1118,7 +1237,6 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                 } catch (e) {}
             });
 
-            // 3. NAIKKAN JUMLAH UNDUHAN DI KATALOG PUBLIK
             try {
                 let pubCatalog = JSON.parse(localStorage.getItem('indofx_public_catalog')) || [];
                 pubCatalog = pubCatalog.map(pa => {
@@ -1135,6 +1253,9 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            // Muat Konten Deskripsi & Panduan Dinamis Asli
+            loadDynamicAssetContent();
+
             loadAssetReviews();
 
             if (window.location.hash === '#tab-ulasan' || window.location.hash === '#ulasan') {
