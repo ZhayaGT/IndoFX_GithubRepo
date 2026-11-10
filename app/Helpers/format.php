@@ -45,6 +45,26 @@ function slugify(string $text): string
     return $slug === '' ? 'aset' : substr($slug, 0, 120);
 }
 
+// URL gambar aset: berkas upload lokal, URL penuh, atau nama berkas di bucket.
+function image_url(?string $path): string
+{
+    $path = trim((string) $path);
+
+    if ($path === '') {
+        return '';
+    }
+    if (str_starts_with($path, 'http') || str_starts_with($path, '/')) {
+        return $path;
+    }
+    if (str_starts_with($path, 'uploads/')) {
+        return '/' . $path;
+    }
+
+    $base = rtrim((string) \IndoFX\Core\Env::get('STORAGE_BASE_URL', ''), '/');
+
+    return $base . '/catalog/' . $path;
+}
+
 // Label dan kelas badge untuk status moderasi aset penjual.
 function asset_status_badge(?string $status): array
 {

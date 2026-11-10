@@ -1,7 +1,4 @@
-<?php
-// Basis URL gambar katalog: STORAGE_BASE_URL + folder catalog/ di bucket.
-$storageBasePath = rtrim((string) \IndoFX\Core\Env::get('STORAGE_BASE_URL', ''), '/') . '/catalog/';
-?>
+
 
 <!DOCTYPE html>
 <html lang="id">
@@ -207,15 +204,10 @@ $storageBasePath = rtrim((string) \IndoFX\Core\Env::get('STORAGE_BASE_URL', ''),
                                     
                                     <!-- 1. Perbaikan URL Gambar & htmlspecialchars -->
                                     <a href="/asset/detail?id=<?= $asset['public_id'] ?>" class="asset-thumb-wrapper d-block">
-                                        <?php 
-                                        $thumbnailFile = $asset['thumbnail'] ?? ''; 
-                                        
-                                        if (empty($thumbnailFile)) {
-                                            $imageUrl = "https://via.placeholder.com/400x220/2C3A47/FFFFFF?text=Gambar+Kosong";
-                                        } elseif (strpos($thumbnailFile, 'http') === 0) {
-                                            $imageUrl = $thumbnailFile; 
-                                        } else {
-                                            $imageUrl = $storageBasePath . $thumbnailFile;
+                                        <?php
+                                        $imageUrl = image_url($asset['thumbnail'] ?? '');
+                                        if ($imageUrl === '') {
+                                            $imageUrl = 'https://via.placeholder.com/400x220/2C3A47/FFFFFF?text=Gambar+Kosong';
                                         }
                                         ?>
                                         <img src="<?= htmlspecialchars($imageUrl) ?>" alt="<?= htmlspecialchars($asset['title'] ?? 'Aset IndoFX') ?>" style="width: 100%; height: 175px; object-fit: cover;">
