@@ -12,7 +12,7 @@
    9. Modal Dialog & Formulir Kategori (Tambah, Edit, Hapus)
    10. Modal Rincian Transaksi, Revenue Split & JSON Gateway
    11. Footer Administrator
-   12. Aturan Tampilan Responsif (Tablet & Mobile)
+   12. Aturan Tampilan Responsif (Tablet & Mobile Fix)
    13. MODAL DETAIL PENGAJUAN PENJUAL
    ========================================================================== */
 
@@ -1061,38 +1061,105 @@ body.admin-body {
 }
 
 /* ==========================================================================
-   12. ATURAN TAMPILAN RESPONSIF (TABLET & MOBILE)
+   12. ATURAN TAMPILAN RESPONSIF (TABLET & MOBILE FIX)
    ========================================================================== */
 @media (max-width: 991.98px) {
-  .navbar-admin-container {
-    padding-left: 20px;
-    padding-right: 20px;
+  /* Layout berganti vertikal penuh */
+  .admin-layout-container {
+    flex-direction: column !important;
   }
-  .admin-main-content {
-    padding: 20px 16px;
-  }
+
+  /* Sidebar berubah menjadi horizontal bar navigasi */
   .admin-sidebar {
-    width: 200px;
+    width: 100% !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--admin-card-border) !important;
+    padding: 8px 12px !important;
+  }
+
+  .admin-sidebar .nav {
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    gap: 6px !important;
+    padding-bottom: 4px !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .admin-sidebar-link {
+    margin: 0 !important;
+    white-space: nowrap !important;
+    padding: 6px 12px !important;
+    font-size: 0.78rem !important;
+    flex-shrink: 0;
+    gap: 8px;
+  }
+
+  .navbar-admin-container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .admin-main-content {
+    padding: 20px 16px 36px 16px !important;
+    width: 100% !important;
   }
 }
 
 @media (max-width: 768px) {
+  .admin-main-content {
+    padding: 16px 12px 30px 12px !important;
+  }
+
+  .admin-page-title {
+    font-size: 1.3rem !important;
+  }
+
+  .admin-page-sub {
+    font-size: 0.78rem !important;
+    margin-bottom: 14px !important;
+  }
+
+  .admin-stat-card {
+    padding: 12px 14px !important;
+  }
+
+  .admin-stat-val {
+    font-size: 1.4rem !important;
+  }
+
+  .admin-table-card .table-responsive {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Perbaikan Footer Mobile agar tidak menempel ke sidebar */
   .footer-admin {
-    padding: 40px 0 24px 0;
+    padding: 36px 16px 20px 16px !important;
+    margin-top: auto !important;
+    width: 100% !important;
   }
+
   .footer-admin-content {
-    margin-bottom: 35px;
+    margin-bottom: 25px !important;
+    padding: 0 10px !important;
   }
+
+  .footer-admin-title {
+    font-size: 1.15rem !important;
+  }
+
   .footer-admin-bottom {
-    flex-direction: column;
-    gap: 10px;
-    text-align: center;
-    padding: 0 20px;
+    flex-direction: column !important;
+    gap: 10px !important;
+    text-align: center !important;
+    padding: 12px 10px 0 10px !important;
+    border-top: 1px solid rgba(43, 38, 35, 0.08);
   }
 }
 
 /* ========================================================
-   13.MODAL DETAIL PENGAJUAN PENJUAL (FIGMA ACCURATE)
+   13. MODAL DETAIL PENGAJUAN PENJUAL (FIGMA ACCURATE)
    ======================================================== */
 .seller-modal-card {
   border: 1.5px solid #ebdcd1 !important;
