@@ -27,15 +27,15 @@ if ($initials === '') {
     <title>Selesaikan Pembayaran - IndoFX</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
 
     <style>
         body {
-            background-color: var(--ifx-cream-bg, #FDECE2);
+            background-color: var(--ifx-cream-bg, #FAF0E6);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -202,61 +202,54 @@ if ($initials === '') {
             background-color: #0b72b9;
         }
 
-        .payment-method-box {
+        /* CARD METODE PEMBAYARAN KHUSUS QRIS PERSIS FIGMA image_df847a */
+        .qris-payment-card {
             background-color: #ffffff;
             border: 1.5px solid #2B2129;
             border-radius: 8px;
-            padding: 18px 20px;
-            box-shadow: 0 4px 12px rgba(43, 33, 41, 0.04);
-        }
-
-        .payment-row {
+            padding: 14px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 14px;
-            border: 1px solid #e2d7cf;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            background-color: #ffffff;
-            cursor: pointer;
-            transition: all 0.15s ease;
+            box-shadow: 0 4px 12px rgba(43, 33, 41, 0.04);
+            margin-bottom: 24px;
         }
 
-        .payment-row:last-child {
-            margin-bottom: 0;
+        .qris-label-text {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1A1A1A;
+            margin: 0;
         }
 
-        .payment-row:hover,
-        .payment-row.selected {
-            border-color: #ED6B1D;
-            background-color: #fff9f6;
-        }
-
-        .payment-label {
-            font-size: 0.88rem;
-            font-weight: 600;
-            color: #1a1a1a;
-            margin-bottom: 0;
-        }
-
-        .payment-logos {
-            display: flex;
+        /* BADGE LOGO QRIS SESUAI GAMBAR ACUAN image_df6923 */
+        .qris-official-badge {
+            background-color: #FAF2E8;
+            border: 1.5px solid #D5C7BB;
+            border-radius: 10px;
+            padding: 6px 14px;
+            display: inline-flex;
             align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
+            gap: 12px;
+            user-select: none;
         }
 
-        .logo-badge {
-            font-size: 0.72rem;
-            font-weight: 800;
-            padding: 2px 8px;
-            border-radius: 4px;
-            border: 1px solid #d0c0b6;
-            background-color: #ffffff;
-            color: #2b2129;
+        .qris-badge-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.25;
+            text-align: left;
         }
 
+        .qris-badge-text span {
+            color: #1A1A1A !important;
+            font-size: 11px !important;
+            font-weight: 600 !important;
+            letter-spacing: -0.1px;
+            font-family: 'Inter', -apple-system, sans-serif !important;
+        }
+
+        /* Detail Pembayaran Kanan */
         .detail-payment-card {
             background-color: #ffffff;
             border: 1.5px solid #2B2129;
@@ -338,6 +331,48 @@ if ($initials === '') {
             margin-top: 14px;
             margin-bottom: 0;
         }
+
+        /* FOOTER PUTIH SOLID PENUH PERSIS GAMBAR image_df71bc */
+        .footer-white-solid {
+            background-color: #ffffff !important;
+            border-top: 1px solid #ebdcd1;
+            padding: 48px 0 24px 0;
+            width: 100%;
+            margin-top: auto;
+        }
+
+        .footer-white-brand {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #1A1A1A;
+            margin-bottom: 6px;
+        }
+
+        .footer-white-desc {
+            font-size: 0.85rem;
+            color: #3C2A21;
+            margin-bottom: 8px;
+        }
+
+        .footer-white-contact {
+            font-size: 0.85rem;
+            color: #1A1A1A;
+            margin-bottom: 46px;
+        }
+
+        .footer-white-contact strong {
+            font-weight: 800;
+        }
+
+        .footer-white-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #1A1A1A;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
     </style>
 </head>
 
@@ -372,6 +407,7 @@ if ($initials === '') {
         </defs>
     </svg>
 
+    <!-- Header Navbar Oranye -->
     <nav class="navbar navbar-checkout sticky-top">
         <div class="container-figma d-flex justify-content-between align-items-center w-100">
             <a class="navbar-brand m-0 d-flex align-items-center gap-2 text-decoration-none" href="/">
@@ -425,56 +461,51 @@ if ($initials === '') {
 
             <div class="row g-4 align-items-start">
                 <div class="col-12 col-lg-8">
+                    <!-- Ringkasan Pesanan -->
                     <div class="section-subtitle">Ringkasan Pesanan</div>
                     <div class="order-summary-box" id="orderSummaryContainer"></div>
 
+                    <!-- METODE PEMBAYARAN: HANYA QRIS SESUAI FIGMA image_df847a & image_df6923 -->
                     <div class="section-subtitle">Pilih Metode Pembayaran</div>
-                    <div class="payment-method-box">
-                        <label class="payment-row selected" onclick="choosePayment(this)">
-                            <div class="d-flex align-items-center gap-2">
-                                <input type="radio" name="payment_method" value="ewallet" class="form-check-input m-0" checked>
-                                <span class="payment-label">E-wallet</span>
-                            </div>
-                            <div class="payment-logos">
-                                <span class="logo-badge" style="color: #00a5cf;">gopay</span>
-                                <span class="logo-badge" style="color: #e53e3e;">QRIS</span>
-                                <span class="logo-badge" style="color: #ee4d2d;">ShopeePay</span>
-                                <span class="logo-badge" style="color: #118eea;">DANA</span>
-                                <span class="logo-badge" style="color: #4285f4;">GPay</span>
-                            </div>
-                        </label>
+                    <div class="qris-payment-card">
+                        <span class="qris-label-text">Bayar dengan</span>
 
-                        <label class="payment-row" onclick="choosePayment(this)">
-                            <div class="d-flex align-items-center gap-2">
-                                <input type="radio" name="payment_method" value="card" class="form-check-input m-0">
-                                <span class="payment-label">Bayar dengan kartu</span>
-                            </div>
-                            <div class="payment-logos">
-                                <span class="logo-badge" style="color: #1a1f71;">VISA</span>
-                                <span class="logo-badge" style="color: #eb001b;">Mastercard</span>
-                                <span class="logo-badge" style="color: #0079be;">JCB</span>
-                                <span class="logo-badge" style="color: #002663;">AMEX</span>
-                            </div>
-                        </label>
+                        <!-- Lencana QRIS Presisi Sesuai image_df6923 -->
+                        <div class="qris-official-badge">
+                            <!-- Vektor Logo QRIS Asli Hitam Monokrom -->
+                            <svg width="84" height="28" viewBox="0 0 106 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <!-- Bracket Kiri Atas -->
+                                <path d="M1 1H16V3.8H3.8V16H1V1Z" fill="#1A1A1A" />
 
-                        <label class="payment-row" onclick="choosePayment(this)">
-                            <div class="d-flex align-items-center gap-2">
-                                <input type="radio" name="payment_method" value="bank" class="form-check-input m-0">
-                                <span class="payment-label">Transfer Bank</span>
+                                <!-- Huruf Q (Finder QR Code) -->
+                                <rect x="7" y="6" width="19" height="19" rx="1.5" fill="#1A1A1A" />
+                                <rect x="10.5" y="9.5" width="12" height="12" rx="0.5" fill="#FAF2E8" />
+                                <rect x="13.2" y="12.2" width="6.6" height="6.6" fill="#1A1A1A" />
+                                <path d="M22 21H26V30H22V21Z" fill="#1A1A1A" />
+
+                                <!-- Huruf R -->
+                                <path d="M31 7H43.5C46.8 7 49 9.1 49 12.2C49 14.8 47.2 16.6 44.5 17L49.5 25H44.2L39.8 17.8H35.8V25H31V7ZM35.8 14H42.8C44 14 44.8 13.3 44.8 12.2C44.8 11.1 44 10.4 42.8 10.4H35.8V14Z" fill="#1A1A1A" />
+
+                                <!-- Huruf I -->
+                                <rect x="54" y="7" width="4.8" height="18" fill="#1A1A1A" />
+
+                                <!-- Huruf S -->
+                                <path d="M63 7H77V10.6H67.8V13H77V25H63V21.4H72.2V19H63V7Z" fill="#1A1A1A" />
+
+                                <!-- Bracket Kanan Bawah -->
+                                <path d="M85 19H87.8V30.2H76.6V33H87.8H90.6V30.2V19H85Z" fill="#1A1A1A" />
+                            </svg>
+
+                            <!-- Teks Samping QR Code Standar Pembayaran Nasional -->
+                            <div class="qris-badge-text">
+                                <span>QR Code Standar</span>
+                                <span>Pembayaran Nasional</span>
                             </div>
-                            <div class="payment-logos">
-                                <span class="logo-badge" style="color: #005eac;">BCA</span>
-                                <span class="logo-badge" style="color: #f15a24;">BNI</span>
-                                <span class="logo-badge" style="color: #00529c;">BRIVA</span>
-                                <span class="logo-badge" style="color: #003d79;">Mandiri</span>
-                                <span class="logo-badge" style="color: #008139;">Permata</span>
-                                <span class="logo-badge" style="color: #7b2182;">CIMB</span>
-                                <span class="logo-badge" style="color: #00a39d;">BSI</span>
-                            </div>
-                        </label>
+                        </div>
                     </div>
                 </div>
 
+                <!-- Kolom Kanan: Rincian Pembayaran -->
                 <div class="col-12 col-lg-4">
                     <div class="detail-payment-card">
                         <div class="detail-payment-title">Detail Pembayaran</div>
@@ -513,13 +544,20 @@ if ($initials === '') {
         </div>
     </main>
 
-    <footer class="footer-creator-center py-5 mt-auto">
-        <div class="container text-center">
-            <h5 class="fw-bold mb-2 text-dark">IndoFX</h5>
-            <p class="text-muted small mb-3 mx-auto" style="max-width: 540px;">
+    <!-- FOOTER SOLID PUTIH PENUH PERSIS GAMBAR image_df71bc -->
+    <footer class="footer-white-solid">
+        <div class="container-figma text-center">
+            <h5 class="footer-white-brand">IndoFX</h5>
+            <p class="footer-white-desc">
                 Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
             </p>
-            <div class="d-flex justify-content-between align-items-center text-muted small pt-3 border-top flex-wrap gap-2">
+            <div class="footer-white-contact">
+                <strong>Kontak dan Email:</strong>
+                <span class="ms-3 me-4">08123456xxxx</span>
+                <span>helpdesk@indofx.com</span>
+            </div>
+
+            <div class="footer-white-bottom">
                 <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
                 <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
             </div>
@@ -575,7 +613,6 @@ if ($initials === '') {
             const paramCreator = urlParams.get('creator');
             const paramPipeline = urlParams.get('pipeline');
 
-            // 1. PRIORITAS UTAMA: Jika URL membawa parameter lengkap (dari klik Beli di detail.php)
             if (paramTitle) {
                 let cleanPrice = 0;
                 if (paramPrice) {
@@ -595,7 +632,6 @@ if ($initials === '') {
                 return;
             }
 
-            // 2. PRIORITAS KEDUA: Cek di database katalog publik LocalStorage
             if (directAssetId) {
                 try {
                     const publicCatalog = JSON.parse(localStorage.getItem('indofx_public_catalog')) || [];
@@ -628,7 +664,6 @@ if ($initials === '') {
                 }
             }
 
-            // 3. PRIORITAS KETIGA: Cek dari keranjang checkout (sessionStorage)
             try {
                 activeItems = JSON.parse(sessionStorage.getItem('indofx_checkout_items')) || [];
             } catch (e) {
@@ -642,7 +677,6 @@ if ($initials === '') {
             renderOrderSummary();
         }
 
-        // Fungsi pendeteksi otomatis pemilik aset berdasarkan database lokal toko
         function detectCreatorByTitle(title) {
             let foundOwner = '';
             Object.keys(localStorage).forEach(k => {
@@ -704,25 +738,12 @@ if ($initials === '') {
             document.getElementById('calcTotal').innerText = 'Rp' + grandTotal.toLocaleString('id-ID');
         }
 
-        function choosePayment(el) {
-            document.querySelectorAll('.payment-row').forEach(r => {
-                r.classList.remove('selected');
-                const radio = r.querySelector('input[type="radio"]');
-                if (radio) radio.checked = false;
-            });
-            el.classList.add('selected');
-            const radio = el.querySelector('input[type="radio"]');
-            if (radio) radio.checked = true;
-        }
-
-        // PROSES PEMBAYARAN CERDAS: Otomatis mendeteksi toko pemilik aset & mencatat penjualan
         function handlePaymentSubmit() {
             const btn = document.getElementById('btnSubmitPayment');
             btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Memproses Pembayaran...';
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Memproses QRIS...';
 
             setTimeout(() => {
-                // 1. Simpan semua item yang dibeli ke Library akun pembeli aktif
                 const libKey = 'indofx_library_' + userKey;
                 let currentLibrary = [];
                 try {
@@ -747,7 +768,6 @@ if ($initials === '') {
                 });
                 localStorage.setItem(libKey, JSON.stringify(currentLibrary));
 
-                // 2. Data Waktu & No Invoice Unik
                 const now = new Date();
                 const randNum = Math.floor(1000 + Math.random() * 9000);
                 const yyyy = now.getFullYear();
@@ -755,10 +775,7 @@ if ($initials === '') {
                 const dd = String(now.getDate()).padStart(2, '0');
                 const invoiceNo = `INV-${yyyy}${mm}${dd}-${randNum}`;
 
-                const selectedRadio = document.querySelector('input[name="payment_method"]:checked')?.value || 'ewallet';
-                let paymentMethodLabel = 'QRIS/GoPay';
-                if (selectedRadio === 'card') paymentMethodLabel = 'Kartu Kredit / Debit';
-                if (selectedRadio === 'bank') paymentMethodLabel = 'BCA Virtual Account';
+                const paymentMethodLabel = 'QRIS';
 
                 const subtotal = activeItems.reduce((acc, curr) => acc + (parseFloat(curr.price) || 0), 0);
                 const totalBayar = subtotal + feeAdmin;
@@ -769,7 +786,6 @@ if ($initials === '') {
                 const shortDateStr = `${now.getDate()} ${monthsIndoShort[now.getMonth()]} ${yyyy}, ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
                 const rawDateStr = `${yyyy}-${mm}-${dd}`;
 
-                // 3. Simpan Riwayat Transaksi ke Invoice Pembeli
                 const txKey = 'indofx_transactions_' + userKey;
                 let transactions = [];
                 try {
@@ -799,7 +815,6 @@ if ($initials === '') {
                 transactions.unshift(newTransaction);
                 localStorage.setItem(txKey, JSON.stringify(transactions));
 
-                // 4. SMART SELLER ATTRIBUTION: Cari pemilik aset di seluruh LocalStorage & catat penjualan
                 activeItems.forEach(item => {
                     const priceVal = parseFloat(item.price) || 0;
                     const saleRecord = {
@@ -815,14 +830,11 @@ if ($initials === '') {
                     };
 
                     let targetKeys = new Set();
-
-                    // Dari kreator eksplisit jika ada
                     if (item.creator) {
                         targetKeys.add('indofx_seller_sales_' + item.creator.toLowerCase().replace(/[^a-z0-9]/g, ''));
                         targetKeys.add('indofx_seller_sales_' + item.creator.trim());
                     }
 
-                    // Pindai semua aset toko penjual di sistem
                     Object.keys(localStorage).forEach(key => {
                         if (key.startsWith('indofx_seller_assets_')) {
                             try {
@@ -833,7 +845,6 @@ if ($initials === '') {
                                     targetKeys.add('indofx_seller_sales_' + sellerSuffix);
                                     targetKeys.add('indofx_seller_sales_' + sellerSuffix.toLowerCase().replace(/[^a-z0-9]/g, ''));
 
-                                    // Periksa juga nama toko dari profil penjual tersebut
                                     const rawProf = localStorage.getItem('indofx_seller_profile_' + sellerSuffix);
                                     if (rawProf) {
                                         const p = JSON.parse(rawProf);
@@ -843,7 +854,6 @@ if ($initials === '') {
                                         }
                                     }
 
-                                    // Perbarui jumlah unduhan/terjual langsung pada aset toko tersebut
                                     sAssets = sAssets.map(sa => {
                                         if (String(sa.id) === String(item.id) || sa.title === item.title) {
                                             const currentCount = parseInt(String(sa.downloads || '0').replace(/[^0-9]/g, ''), 10) || 0;
@@ -857,7 +867,6 @@ if ($initials === '') {
                         }
                     });
 
-                    // Simpan ke seluruh kunci toko penjual terkait
                     targetKeys.forEach(tKey => {
                         let sales = [];
                         try {
@@ -873,7 +882,6 @@ if ($initials === '') {
                     });
                 });
 
-                // 5. Hapus aset yang dibeli dari Keranjang belanja akun pembeli
                 const cartKey = 'indofx_cart_' + userKey;
                 try {
                     let currentCart = JSON.parse(localStorage.getItem(cartKey)) || [];
@@ -882,10 +890,9 @@ if ($initials === '') {
                     localStorage.setItem(cartKey, JSON.stringify(currentCart));
                 } catch (e) {}
 
-                // 6. Bersihkan sesi sementara checkout & arahkan ke halaman invoice
                 sessionStorage.removeItem('indofx_checkout_items');
                 window.location.href = '/invoice';
-            }, 800);
+            }, 700);
         }
 
         document.addEventListener('DOMContentLoaded', function() {
