@@ -269,17 +269,24 @@ $adminInitials = 'AP';
         </div>
     </div>
 
-    <!-- 6. Footer Sesuai Desain Figma -->
-    <footer class="footer-admin">
-        <div class="footer-admin-content">
-            <h5 class="footer-admin-title">IndoFX</h5>
-            <p class="footer-admin-desc">
-                Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
-            </p>
-        </div>
-        <div class="footer-admin-bottom">
-            <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
-            <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
+    <footer class="footer-main">
+        <div class="container-figma">
+            <div class="footer-center-content">
+                <h5 class="footer-brand-title-center">IndoFX</h5>
+                <p class="footer-brand-desc-center">
+                    Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
+                </p>
+                <!-- Baris Kontak dan Email sesuai desain baru -->
+                <div style="font-size: 0.85rem; color: #1a1a1a; margin-top: 10px;">
+                    <strong style="font-weight: 800;">Kontak dan Email:</strong>
+                    <span style="margin: 0 16px;">08123456xxxx</span>
+                    <span>helpdesk@indofx.com</span>
+                </div>
+            </div>
+            <div class="footer-bottom-bar">
+                <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
+                <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
+            </div>
         </div>
     </footer>
 
