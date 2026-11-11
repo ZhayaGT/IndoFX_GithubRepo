@@ -51,42 +51,40 @@ $router->add('POST', '/dashboard/ubah-profil-toko', 'ProfileController', 'update
 // 4. KERANJANG, CHECKOUT & INVOICE
 // ==========================================
 
-// Keranjang Belanja
+// Menampilkan halaman keranjang
 $router->get('/cart', function () {
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: /login');
-        exit;
-    }
-    $cartPath = BASE_PATH . '/resources/views/cart/keranjang.php';
-    if (!file_exists($cartPath)) {
-        $cartPath = BASE_PATH . '/resources/views/keranjang.php';
-    }
-    require $cartPath;
+    $controller = new \IndoFX\Controllers\CartController();
+    $controller->index();
 });
 
-// Checkout Pembayaran (Sesuai folder checkout/pembayaran.php)
+// Endpoint untuk menambahkan barang ke keranjang
+$router->post('/cart/add', function () {
+    $controller = new \IndoFX\Controllers\CartController();
+    $controller->add();
+});
+
+// Endpoint untuk menghapus barang dari keranjang
+$router->post('/cart/remove', function () {
+    $controller = new \IndoFX\Controllers\CartController();
+    $controller->remove();
+});
+
+// Rute untuk menampilkan halaman checkout dari tombol "Beli" (GET)
 $router->get('/checkout', function () {
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: /login');
-        exit;
-    }
+    $controller = new \IndoFX\Controllers\CheckoutController();
+    $controller->index();
+});
 
-    $checkoutCandidates = [
-        BASE_PATH . '/resources/views/checkout/pembayaran.php',
-        BASE_PATH . '/resources/views/checkout/checkout.php',
-        BASE_PATH . '/resources/views/pembayaran.php',
-        BASE_PATH . '/resources/views/checkout.php',
-    ];
+// Rute untuk menampilkan halaman checkout dari form "Keranjang" (POST)
+$router->post('/checkout', function () {
+    $controller = new \IndoFX\Controllers\CheckoutController();
+    $controller->index();
+});
 
-    foreach ($checkoutCandidates as $path) {
-        if (file_exists($path)) {
-            require $path;
-            return;
-        }
-    }
-
-    http_response_code(404);
-    die('Berkas halaman checkout pembayaran tidak ditemukan.');
+// Rute untuk memproses tombol "Lanjutkan Pembayaran"
+$router->post('/checkout/process', function () {
+    $controller = new \IndoFX\Controllers\CheckoutController();
+    $controller->process();
 });
 
 // Riwayat Transaksi & Invoice

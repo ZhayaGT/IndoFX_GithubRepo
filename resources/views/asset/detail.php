@@ -303,15 +303,25 @@ $isLoggedIn = isset($_SESSION['user_id']);
                                 <a href="<?= $isLoggedIn ? htmlspecialchars($checkoutUrl, ENT_QUOTES, 'UTF-8') : '/login' ?>" class="btn btn-buy-primary" id="btnBuyPrimary">
                                     Beli
                                 </a>
-                                <button type="button" class="btn btn-cart-secondary">
-                                    Tambahkan ke Keranjang
-                                </button>
+                                
+                                <?php if ($isLoggedIn): ?>
+                                    <!-- Form POST untuk menambahkan item ke Cart Database -->
+                                    <form action="/cart/add" method="POST" class="d-grid m-0 p-0">
+                                        <input type="hidden" name="asset_id" value="<?= htmlspecialchars($asset['id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                                        <button type="submit" class="btn btn-cart-secondary">
+                                            Tambahkan ke Keranjang
+                                        </button>
+                                    </form>
+                                <?php else: ?>
+                                    <!-- Jika belum login, arahkan ke login -->
+                                    <a href="/login" class="btn btn-cart-secondary text-decoration-none text-center">
+                                        Tambahkan ke Keranjang
+                                    </a>
+                                <?php endif; ?>
                             <?php endif; ?>
                         </div>
                     </div>
                 </div>
-                <!-- ==================== AKHIR KOLOM KANAN ==================== -->
-
             </div>
         </div>
     </main>

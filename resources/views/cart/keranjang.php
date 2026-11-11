@@ -1,9 +1,11 @@
 <?php
+// 1. Validasi Sesi Pengguna
 if (!isset($_SESSION['user_id'])) {
     header('Location: /login');
     exit;
 }
 
+// 2. Data Pengguna untuk Header
 $userKey  = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user');
 $userName = (string)($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna');
 
@@ -12,9 +14,16 @@ $words = preg_split('/\s+/', trim($userName)) ?: [];
 foreach (array_slice($words, 0, 2) as $word) {
     $initials .= mb_strtoupper(mb_substr($word, 0, 1));
 }
-if ($initials === '') {
-    $initials = 'U';
-}
+if ($initials === '') $initials = 'U';
+
+// 3. Konfigurasi URL Gambar Supabase (Dinamis dari .env)
+$supabaseUrl = $_ENV['SUPABASE_URL'] ?? $_SERVER['SUPABASE_URL'] ?? getenv('SUPABASE_URL') ?? '';
+$storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-previews/catalog/';
+
+// 4. Data Keranjang dari Controller (Misal: $cartItems ditarik dari database)
+// Jika $cartItems belum dikirim dari Controller, kita set sebagai array kosong agar tidak error
+$cartData = $cartItems ?? []; 
+$isCartEmpty = empty($cartData);
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -26,7 +35,7 @@ if ($initials === '') {
 
     <!-- Google Fonts & Bootstrap Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -165,12 +174,6 @@ if ($initials === '') {
             background-color: #241E24;
         }
 
-        .cart-item-thumb svg {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
         .cart-item-content {
             flex-grow: 1;
         }
@@ -208,17 +211,9 @@ if ($initials === '') {
             line-height: 1.2;
         }
 
-        .badge-hdrp {
-            background-color: #4f378b;
-        }
-
-        .badge-urp {
-            background-color: #a3161c;
-        }
-
-        .badge-builtin {
-            background-color: #0088ff;
-        }
+        .badge-hdrp { background-color: #4f378b; }
+        .badge-urp { background-color: #a3161c; }
+        .badge-builtin { background-color: #0088ff; }
 
         .cart-checkbox {
             width: 18px;
@@ -237,6 +232,7 @@ if ($initials === '') {
             border: none;
             cursor: pointer;
             transition: opacity 0.15s ease;
+            text-decoration: none;
         }
 
         .btn-cart-delete:hover {
@@ -311,25 +307,6 @@ if ($initials === '') {
             margin-bottom: 24px;
         }
 
-        .delete-info-box i {
-            font-size: 1.4rem;
-            flex-shrink: 0;
-        }
-
-        .delete-info-box span {
-            font-size: 0.88rem;
-            font-weight: 600;
-            text-align: left;
-            line-height: 1.35;
-        }
-
-        .delete-modal-actions {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 14px;
-        }
-
         .btn-cancel-delete {
             background-color: #ffffff;
             color: #1A1A1A;
@@ -339,11 +316,6 @@ if ($initials === '') {
             padding: 8px 24px;
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.15s ease;
-        }
-
-        .btn-cancel-delete:hover {
-            background-color: #f7f1ec;
         }
 
         .btn-confirm-delete {
@@ -358,50 +330,12 @@ if ($initials === '') {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            transition: all 0.15s ease;
-        }
-
-        .btn-confirm-delete:hover {
-            background-color: #fff5f5;
-            border-color: #7f1414;
-            color: #7f1414 !important;
-        }
-
-        /* ========================================================
-           FOOTER BLOK PUTIH SOLID PERSIS FIGMA
-           ======================================================== */
-        .footer-figma-white {
-            background-color: #ffffff !important;
-            width: 100%;
-            padding: 48px 0 24px 0;
-            margin-top: auto;
-        }
-
-        .footer-figma-white .brand-title {
-            font-size: 1.35rem;
-            font-weight: 800;
-            color: #1A1A1A;
-            margin-bottom: 6px;
-        }
-
-        .footer-figma-white .brand-desc {
-            font-size: 0.86rem;
-            color: #736b66;
-            line-height: 1.5;
-            max-width: 600px;
-            margin: 0 auto 36px auto;
-        }
-
-        .footer-figma-white .copyright-row {
-            font-size: 0.82rem;
-            color: #1A1A1A;
         }
     </style>
 </head>
 
 <body>
-
-    <!-- SVG Gambar Castle Sesuai Figma -->
+    <!-- SVG Fallback untuk Gambar yang Gagal Dimuat -->
     <svg class="d-none">
         <defs>
             <g id="cart-art-castle">
@@ -412,26 +346,10 @@ if ($initials === '') {
                 <polygon points="130,22 120,90 140,90" fill="#151115" />
                 <circle cx="87" cy="38" r="4" fill="#C4B5A5" opacity="0.8" />
             </g>
-            <g id="cart-art-water">
-                <rect width="175" height="98" fill="#14232C" />
-                <ellipse cx="87" cy="55" rx="75" ry="25" fill="#234657" opacity="0.5" />
-                <polygon points="45,25 35,90 55,90" fill="#0C171E" />
-                <polygon points="87,15 72,95 102,95" fill="#081015" />
-                <polygon points="130,22 120,90 140,90" fill="#0C171E" />
-                <circle cx="87" cy="38" r="4" fill="#64B5F6" opacity="0.8" />
-            </g>
-            <g id="cart-art-fire">
-                <rect width="175" height="98" fill="#2D1A14" />
-                <ellipse cx="87" cy="55" rx="75" ry="25" fill="#572B1B" opacity="0.5" />
-                <polygon points="45,25 35,90 55,90" fill="#190E0A" />
-                <polygon points="87,15 72,95 102,95" fill="#110906" />
-                <polygon points="130,22 120,90 140,90" fill="#190E0A" />
-                <circle cx="87" cy="38" r="4" fill="#FF8A65" opacity="0.8" />
-            </g>
         </defs>
     </svg>
 
-    <!-- Header Navbar Sesuai Figma (Hanya Logo + Cart + Profil) -->
+    <!-- Header Navbar Sesuai Figma -->
     <nav class="navbar-figma-cart">
         <div class="container-figma d-flex justify-content-between align-items-center w-100">
             <a class="navbar-brand m-0 d-flex align-items-center gap-2 text-decoration-none" href="/">
@@ -458,28 +376,19 @@ if ($initials === '') {
                     </button>
 
                     <div class="profile-custom-menu" id="profileDropdownMenu">
-                        <a href="/creator/profile?me=1" class="profile-custom-item fw-bold">
+                        <a href="/creator/profile?id=<?= $_SESSION['public_id'] ?? '' ?>" class="profile-custom-item fw-bold">
                             <?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>
                         </a>
-                        <a href="/dashboard/ubah-profil" class="profile-custom-item">
-                            Edit Profile
-                        </a>
-                        <a href="/invoice" class="profile-custom-item">
-                            Histori Pembelian
-                        </a>
-                        <a href="/#tentang" class="profile-custom-item">
-                            Dukungan
-                        </a>
-                        <a href="/logout" class="profile-custom-item text-danger">
-                            Keluar
-                        </a>
+                        <a href="/dashboard/ubah-profil" class="profile-custom-item">Edit Profile</a>
+                        <a href="/invoice" class="profile-custom-item">Histori Pembelian</a>
+                        <a href="/logout" class="profile-custom-item text-danger">Keluar</a>
                     </div>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Konten Utama Keranjang -->
+    <!-- Konten Utama Keranjang (Form untuk Submit ke Checkout) -->
     <main class="flex-grow-1 py-5">
         <div class="container-figma">
             <div class="mb-4">
@@ -487,11 +396,91 @@ if ($initials === '') {
                 <p class="cart-page-sub mb-0">Semua aset visual Unity yang Anda Ingin Beli</p>
             </div>
 
-            <div id="cartListContainer"></div>
+            <!-- Form dibungkus untuk mengirim data Array ID yang dichecklist ke endpoint Checkout -->
+            <form action="/checkout" method="POST" id="cartForm">
+                
+                <div id="cartListContainer">
+                    <?php if ($isCartEmpty): ?>
+                        <div class="empty-cart-card">
+                            <i class="bi bi-cart-x text-dark fs-1 mb-2"></i>
+                            <h5 class="fw-bold text-dark mb-1">Keranjang Belanja Anda Kosong</h5>
+                            <p class="text-muted small m-0 mb-3">Temukan aset visual pilihan untuk game Anda di Katalog</p>
+                            <a href="/catalog/explore" class="btn btn-hero-orange">Jelajahi Aset</a>
+                        </div>
+                    <?php else: ?>
+                        <!-- Loop Render Kartu Keranjang dari Database PHP -->
+                        <?php foreach ($cartData as $item): ?>
+                            <div class="cart-item-card" id="cart-item-<?= htmlspecialchars($item['id'], ENT_QUOTES, 'UTF-8') ?>">
+                                <div class="cart-item-thumb">
+                                    <?php 
+                                        $thumbPath = $item['thumbnail'] ?? '';
+                                        $finalThumbUrl = empty($thumbPath) 
+                                            ? '' 
+                                            : ((strpos($thumbPath, 'http') === 0) ? $thumbPath : $storageBasePath . $thumbPath);
+                                    ?>
+                                    <?php if ($finalThumbUrl): ?>
+                                        <img src="<?= htmlspecialchars($finalThumbUrl, ENT_QUOTES, 'UTF-8') ?>" 
+                                             style="width: 100%; height: 100%; object-fit: cover;" 
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" alt="Thumb">
+                                        <svg style="display: none; width: 100%; height: 100%;" viewBox="0 0 175 98"><use href="#cart-art-castle" /></svg>
+                                    <?php else: ?>
+                                        <svg class="w-100 h-100 d-block" viewBox="0 0 175 98"><use href="#cart-art-castle" /></svg>
+                                    <?php endif; ?>
+                                </div>
 
-            <div id="cartFooterArea" class="d-flex justify-content-end align-items-center mt-4">
-                <button type="button" class="btn-cart-checkout" onclick="proceedCheckout()">Checkout</button>
-            </div>
+                                <div class="cart-item-content">
+                                    <div class="cart-status-line">
+                                        <!-- Jika belum dibeli (di dalam keranjang), tidak ada label DIBELI, namun karena format Figma meminta label tersebut: -->
+                                        <span class="cart-status-badge">DIBELI</span> 
+                                        <span class="text-muted ms-2">
+                                            Perolehan: <?= htmlspecialchars(date('d M Y', strtotime($item['added_at'] ?? 'now'))) ?>
+                                        </span>
+                                    </div>
+
+                                    <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
+                                        <h5 class="cart-asset-title m-0">
+                                            <?= htmlspecialchars($item['title'], ENT_QUOTES, 'UTF-8') ?>
+                                        </h5>
+                                        <div class="d-flex gap-1">
+                                            <?php 
+                                                $pipelines = explode(',', $item['render_pipeline'] ?? 'URP');
+                                                foreach ($pipelines as $pipe): 
+                                                    $p = trim($pipe);
+                                                    $cls = 'badge-urp';
+                                                    if (stripos($p, 'HDRP') !== false) $cls = 'badge-hdrp';
+                                                    if (stripos($p, 'Built') !== false) $cls = 'badge-builtin';
+                                            ?>
+                                                <span class="badge-tag-custom <?= $cls ?>"><?= htmlspecialchars($p, ENT_QUOTES, 'UTF-8') ?></span>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+
+                                    <p class="cart-asset-creator m-0">
+                                        Oleh <?= htmlspecialchars($item['seller_name'] ?? 'Kreator', ENT_QUOTES, 'UTF-8') ?>
+                                    </p>
+                                </div>
+
+                                <div class="d-flex align-items-center gap-3">
+                                    <!-- Checkbox ini yang akan dikirim ke Checkout (name="selected_items[]") -->
+                                    <input type="checkbox" name="selected_items[]" class="cart-checkbox" checked value="<?= htmlspecialchars($item['id'], ENT_QUOTES, 'UTF-8') ?>">
+                                    
+                                    <!-- Tombol Hapus: Akan membuka Modal Konfirmasi (mengoper ID) -->
+                                    <button type="button" class="btn-cart-delete" onclick="openDeleteModal('<?= htmlspecialchars($item['id'], ENT_QUOTES, 'UTF-8') ?>')">
+                                        Hapus
+                                    </button>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+
+                <?php if (!$isCartEmpty): ?>
+                    <div id="cartFooterArea" class="d-flex justify-content-end align-items-center mt-4">
+                        <button type="submit" class="btn-cart-checkout">Checkout</button>
+                    </div>
+                <?php endif; ?>
+                
+            </form>
         </div>
     </main>
 
@@ -510,30 +499,31 @@ if ($initials === '') {
                     <span>Anda dapat menambahkannya<br>kembali kapan saja.</span>
                 </div>
 
-                <div class="delete-modal-actions">
+                <!-- Form khusus untuk menghapus (Metode POST ke endpoint penghapusan) -->
+                <form action="/cart/remove" method="POST" class="delete-modal-actions w-100">
+                    <input type="hidden" name="asset_id" id="deleteTargetId" value="">
+                    
                     <button type="button" class="btn-cancel-delete" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" class="btn-confirm-delete" onclick="executeDeleteCartItem()">
+                    <button type="submit" class="btn-confirm-delete">
                         <i class="bi bi-trash3"></i>
                         <span>Ya, Hapus</span>
                     </button>
-                </div>
+                </form>
             </div>
         </div>
     </div>
 
+    <!-- Footer -->
     <footer class="footer-main" id="tentang">
         <div class="container-figma">
-            <!-- Bagian Tengah: Judul & Deskripsi -->
             <div class="footer-center-content">
                 <h5 class="footer-brand-title-center">IndoFX</h5>
                 <p class="footer-brand-desc-center">
                     Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
                 </p>
             </div>
-
-            <!-- Bagian Bawah: Copyright Kiri & Slogan Kanan -->
             <div class="footer-bottom-bar">
-                <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
+                <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi.</span>
                 <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
             </div>
         </div>
@@ -541,129 +531,15 @@ if ($initials === '') {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const userKey = '<?= $userKey ?>';
-        const cartStorageKey = 'indofx_cart_' + userKey;
-        let itemPendingDeleteId = null;
-
-        function getCartData() {
-            try {
-                return JSON.parse(localStorage.getItem(cartStorageKey)) || [];
-            } catch (e) {
-                return [];
-            }
-        }
-
-        function renderCart() {
-            const listContainer = document.getElementById('cartListContainer');
-            const footerArea = document.getElementById('cartFooterArea');
-            const items = getCartData();
-
-            if (items.length === 0) {
-                if (footerArea) footerArea.style.display = 'none';
-                listContainer.innerHTML = `
-                    <div class="empty-cart-card">
-                        <i class="bi bi-cart-x text-dark fs-1 mb-2"></i>
-                        <h5 class="fw-bold text-dark mb-1">Keranjang Belanja Anda Kosong</h5>
-                        <p class="text-muted small m-0 mb-3">
-                            Temukan aset visual pilihan untuk game Anda di <a href="/catalog/explore" class="text-dark fw-bold text-decoration-none">Katalog</a>
-                        </p>
-                        <a href="/catalog/explore" class="btn btn-hero-orange">Jelajahi Aset</a>
-                    </div>
-                `;
-                return;
-            }
-
-            if (footerArea) footerArea.style.display = 'flex';
-
-            listContainer.innerHTML = items.map(item => {
-                const artSvg = item.art ? ('cart-art-' + item.art) : 'cart-art-castle';
-                const pipelines = Array.isArray(item.pipelines) ? item.pipelines : ['URP'];
-
-                const badgesHtml = pipelines.map(p => {
-                    let cls = 'badge-urp';
-                    if (p.toLowerCase().includes('hdrp')) cls = 'badge-hdrp';
-                    if (p.toLowerCase().includes('built')) cls = 'badge-builtin';
-                    return `<span class="badge-tag-custom ${cls}">${p}</span>`;
-                }).join(' ');
-
-                return `
-                    <div class="cart-item-card" id="cart-item-${item.id}">
-                        <div class="cart-item-thumb">
-                            <svg class="w-100 h-100 d-block" viewBox="0 0 175 98">
-                                <use href="#${artSvg}" />
-                            </svg>
-                        </div>
-
-                        <div class="cart-item-content">
-                            <div class="cart-status-line">
-                                <span class="cart-status-badge">DIBELI</span>
-                                <span class="text-muted ms-2">Perolehan: ${item.date || '02 Nov 2026'}</span>
-                            </div>
-
-                            <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
-                                <h5 class="cart-asset-title m-0">${item.title}</h5>
-                                <div class="d-flex gap-1">${badgesHtml}</div>
-                            </div>
-
-                            <p class="cart-asset-creator m-0">Oleh ${item.creator || 'Arga Studio'}</p>
-                        </div>
-
-                        <div class="d-flex align-items-center gap-3">
-                            <input type="checkbox" class="cart-checkbox" checked value="${item.id}">
-                            <button type="button" class="btn-cart-delete" onclick="openDeleteModal('${item.id}')">
-                                Hapus
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
+        // Membuka modal konfirmasi hapus dan menyisipkan ID aset ke input form tersembunyi
         function openDeleteModal(assetId) {
-            itemPendingDeleteId = assetId;
+            document.getElementById('deleteTargetId').value = assetId;
             const modalEl = document.getElementById('deleteConfirmModal');
             const modal = new bootstrap.Modal(modalEl);
             modal.show();
         }
 
-        function executeDeleteCartItem() {
-            if (!itemPendingDeleteId) return;
-
-            let items = getCartData();
-            items = items.filter(item => String(item.id) !== String(itemPendingDeleteId));
-            localStorage.setItem(cartStorageKey, JSON.stringify(items));
-
-            const modalEl = document.getElementById('deleteConfirmModal');
-            const modal = bootstrap.Modal.getInstance(modalEl);
-            if (modal) modal.hide();
-
-            itemPendingDeleteId = null;
-            renderCart();
-        }
-
-        function proceedCheckout() {
-            const items = getCartData();
-            if (items.length === 0) {
-                alert('Keranjang Anda kosong!');
-                return;
-            }
-
-            const checkedBoxes = document.querySelectorAll('.cart-checkbox:checked');
-            if (checkedBoxes.length === 0) {
-                alert('Pilih minimal satu aset yang ingin di-checkout!');
-                return;
-            }
-
-            const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
-            const checkoutItems = items.filter(item => selectedIds.includes(String(item.id)));
-
-            sessionStorage.setItem('indofx_checkout_items', JSON.stringify(checkoutItems));
-            window.location.href = '/checkout';
-        }
-
         document.addEventListener('DOMContentLoaded', function() {
-            renderCart();
-
             // Dropdown Profil Header
             const dropdownBtn = document.getElementById('profileDropdownBtn');
             const dropdownMenu = document.getElementById('profileDropdownMenu');
@@ -680,8 +556,19 @@ if ($initials === '') {
                     }
                 });
             }
+
+            // Validasi sebelum submit form checkout
+            const cartForm = document.getElementById('cartForm');
+            if (cartForm) {
+                cartForm.addEventListener('submit', function(e) {
+                    const checkedBoxes = document.querySelectorAll('.cart-checkbox:checked');
+                    if (checkedBoxes.length === 0) {
+                        e.preventDefault();
+                        alert('Silakan pilih minimal satu aset yang ingin dibeli (centang kotak).');
+                    }
+                });
+            }
         });
     </script>
 </body>
-
 </html>

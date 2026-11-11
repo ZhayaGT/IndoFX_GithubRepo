@@ -105,6 +105,13 @@ class AuthController extends Controller {
 
     // 5. Menghapus sesi pengguna
     public function logout() {
+        // Hapus token dari database jika user masih memiliki sesi aktif
+        if (isset($_SESSION['user_id'])) {
+            $userModel = new \IndoFX\Models\User();
+            // Mengosongkan kolom remember_token dengan mengirimkan nilai null
+            $userModel->updateRememberToken($_SESSION['user_id'], null);
+        }
+
         session_unset();
         session_destroy();
 
