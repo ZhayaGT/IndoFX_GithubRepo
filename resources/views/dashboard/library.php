@@ -30,321 +30,12 @@ if ($initials === '') {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- CSS terpusat murni tanpa tag style tambahan -->
     <link rel="stylesheet" href="/assets/css/style.css">
-
-    <style>
-        :root {
-            --indofx-cream-bg: #FAF0E6;
-            --indofx-text-main: #3C2A21;
-            --indofx-border: #4A3B32;
-            --indofx-orange: #ED6B1D;
-        }
-
-        body {
-            background-color: var(--indofx-cream-bg, #FAF0E6);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            font-family: 'Inter', sans-serif;
-            color: var(--indofx-text-main);
-        }
-
-        .library-title {
-            font-size: 1.85rem;
-            font-weight: 800;
-            color: var(--indofx-text-main);
-        }
-
-        .library-sub {
-            font-size: 0.88rem;
-            color: #7A685D;
-        }
-
-        .filter-nav-tabs .filter-tab-btn {
-            background: none;
-            border: none;
-            font-size: 0.92rem;
-            font-weight: 600;
-            color: #7A685D;
-            padding: 4px 10px;
-            cursor: pointer;
-            transition: color 0.15s ease;
-        }
-
-        .filter-nav-tabs .filter-tab-btn.active {
-            color: var(--indofx-text-main);
-            font-weight: 800;
-        }
-
-        /* Kartu Aset Library Interaktif */
-        .library-item-card {
-            background-color: #ffffff;
-            border: 1.5px solid var(--indofx-border);
-            border-radius: 8px;
-            padding: 12px 18px 12px 14px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            box-shadow: 0 4px 12px rgba(60, 42, 33, 0.04);
-            margin-bottom: 14px;
-            cursor: pointer;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-        }
-
-        .library-item-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(60, 42, 33, 0.08);
-        }
-
-        .library-item-thumb {
-            width: 175px;
-            height: 98px;
-            flex-shrink: 0;
-            border-radius: 6px;
-            overflow: hidden;
-            background-color: #241E24;
-        }
-
-        .library-item-thumb svg {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        .library-item-content {
-            flex-grow: 1;
-        }
-
-        .status-badge-blue {
-            background-color: #2563eb;
-            color: #ffffff;
-            font-size: 0.7rem;
-            font-weight: 800;
-            padding: 2px 8px;
-            border-radius: 4px;
-            letter-spacing: 0.5px;
-        }
-
-        .library-asset-heading {
-            font-size: 1.15rem;
-            font-weight: 800;
-            color: var(--indofx-text-main);
-            margin: 0;
-            transition: color 0.15s ease;
-        }
-
-        .library-item-card:hover .library-asset-heading {
-            color: var(--indofx-orange);
-        }
-
-        .badge-tag-custom {
-            display: inline-block;
-            font-size: 0.62rem;
-            font-weight: 800;
-            padding: 2px 7px;
-            border-radius: 4px;
-            color: #ffffff;
-            line-height: 1.2;
-        }
-
-        .badge-hdrp {
-            background-color: #4f378b;
-        }
-
-        .badge-urp {
-            background-color: #a3161c;
-        }
-
-        .badge-builtin {
-            background-color: #0088ff;
-        }
-
-        /* Tombol Aksi */
-        .btn-action-delete {
-            background-color: #dc2626;
-            color: #ffffff !important;
-            font-size: 0.82rem;
-            font-weight: 700;
-            padding: 7px 18px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            transition: opacity 0.15s ease;
-        }
-
-        .btn-action-delete:hover {
-            opacity: 0.88;
-        }
-
-        .btn-action-review {
-            background-color: #0284c7;
-            color: #ffffff !important;
-            font-size: 0.82rem;
-            font-weight: 700;
-            padding: 7px 18px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            transition: opacity 0.15s ease;
-        }
-
-        .btn-action-review:hover {
-            opacity: 0.88;
-        }
-
-        /* Tombol Sudah Diulas */
-        .btn-already-reviewed {
-            background-color: #ffffff;
-            color: #b5a498 !important;
-            border: 1.5px solid #d8c8bd !important;
-            font-size: 0.85rem;
-            font-weight: 700;
-            padding: 7px 20px;
-            border-radius: 6px;
-            cursor: default;
-            user-select: none;
-        }
-
-        .empty-library-card {
-            border: 1.5px dashed var(--indofx-border);
-            border-radius: 8px;
-            min-height: 340px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 40px 20px;
-        }
-
-        /* ========================================================
-           MODAL ULASAN DENGAN BINTANG ORANYE
-           ======================================================== */
-        .modal-review-figma .modal-content {
-            border: 1px solid #e0d0c5;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            background-color: #ffffff;
-            padding: 8px 12px;
-        }
-
-        .modal-review-figma .modal-header {
-            border-bottom: 1px solid #ebdcd1;
-            padding: 16px 20px;
-        }
-
-        .modal-review-figma .modal-title {
-            font-size: 1.4rem;
-            font-weight: 800;
-            color: #1A1A1A;
-            letter-spacing: -0.3px;
-        }
-
-        .modal-review-figma .modal-body {
-            padding: 24px 20px 16px 20px;
-        }
-
-        .modal-review-figma .form-label-figma {
-            font-size: 0.95rem;
-            font-weight: 800;
-            color: #1A1A1A;
-            margin-bottom: 8px;
-        }
-
-        /* Bintang Oranye */
-        .interactive-stars-box {
-            display: flex;
-            gap: 16px;
-            font-size: 2.1rem;
-            color: var(--indofx-orange, #ED6B1D) !important;
-            cursor: pointer;
-            line-height: 1;
-            margin-bottom: 22px;
-        }
-
-        .interactive-stars-box i {
-            color: var(--indofx-orange, #ED6B1D) !important;
-            transition: transform 0.1s ease;
-        }
-
-        .interactive-stars-box i:hover {
-            transform: scale(1.15);
-        }
-
-        .input-review-figma {
-            border: 1.5px solid #d8c8bd;
-            border-radius: 6px;
-            padding: 10px 14px;
-            font-size: 0.9rem;
-            color: #1A1A1A;
-            background-color: #ffffff;
-            transition: border-color 0.15s ease;
-        }
-
-        .input-review-figma:focus {
-            border-color: #ED6B1D;
-            box-shadow: none;
-            outline: none;
-        }
-
-        .input-review-figma::placeholder {
-            color: #736b66;
-            opacity: 0.85;
-        }
-
-        .modal-review-figma .modal-footer {
-            border-top: none;
-            padding: 8px 20px 20px 20px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-        }
-
-        .btn-modal-cancel {
-            background-color: #ffffff;
-            color: #1A1A1A;
-            border: 1.5px solid #d8c8bd;
-            font-weight: 700;
-            font-size: 0.92rem;
-            padding: 10px 28px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-
-        .btn-modal-cancel:hover {
-            background-color: #f7f1ec;
-        }
-
-        .btn-modal-upload {
-            background-color: #ED6B1D;
-            color: #ffffff !important;
-            border: none;
-            font-weight: 700;
-            font-size: 0.92rem;
-            padding: 10px 24px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.15s ease;
-        }
-
-        .btn-modal-upload:hover {
-            background-color: #d85a0e;
-        }
-
-        .review-success-message {
-            font-size: 1.45rem;
-            font-weight: 800;
-            color: #1A1A1A;
-            text-align: center;
-            padding: 65px 15px;
-            margin: 0;
-            letter-spacing: -0.3px;
-        }
-    </style>
 </head>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
 
     <!-- SVG Thumbnails -->
     <svg class="d-none">
@@ -377,7 +68,7 @@ if ($initials === '') {
     <nav class="navbar navbar-orange sticky-top">
         <div class="container-figma d-flex justify-content-between align-items-center w-100">
             <a class="navbar-brand m-0 d-flex align-items-center gap-2 text-decoration-none" href="/">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 2L20.66 7V17L12 22L3.34 17V7L12 2Z" fill="#ED6B1D" stroke="#1A1A1A" stroke-width="1.8" stroke-linejoin="round" />
                     <path d="M12 2L20.66 7L12 12L3.34 7L12 2Z" fill="#FDBA74" stroke="#1A1A1A" stroke-width="1.5" stroke-linejoin="round" />
                     <path d="M12 12V22" stroke="#1A1A1A" stroke-width="1.5" />
@@ -402,7 +93,7 @@ if ($initials === '') {
     <!-- Konten Utama Library -->
     <main class="flex-grow-1 py-5">
         <div class="container-figma">
-            <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
+            <div class="d-flex justify-content-between align-items-sm-end align-items-start mb-4 flex-wrap gap-2">
                 <div>
                     <h1 class="library-title mb-1">Library Saya</h1>
                     <p class="library-sub mb-0">Semua aset visual Unity yang telah Anda peroleh</p>
@@ -418,6 +109,34 @@ if ($initials === '') {
             <div id="libraryContainer"></div>
         </div>
     </main>
+
+    <!-- Footer Resmi IndoFX Membentang Penuh di Dasar Halaman -->
+    <?php
+    $footerPartial = BASE_PATH . '/resources/views/partials/footer.php';
+    if (file_exists($footerPartial)) {
+        require $footerPartial;
+    } else {
+    ?>
+        <footer class="footer-main mt-auto">
+            <div class="container-figma">
+                <div class="footer-center-content">
+                    <h5 class="footer-brand-title-center">IndoFX</h5>
+                    <p class="footer-brand-desc-center">
+                        Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
+                    </p>
+                    <div class="footer-contact-row">
+                        <strong>Kontak dan Email:</strong>
+                        <span class="ms-3 me-3">08123456xxxx</span>
+                        <span>helpdesk@indofx.com</span>
+                    </div>
+                </div>
+                <div class="footer-bottom-bar">
+                    <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
+                    <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
+                </div>
+            </div>
+        </footer>
+    <?php } ?>
 
     <!-- Modal Ulasan Persis Figma -->
     <div class="modal fade modal-review-figma" id="reviewModal" tabindex="-1" aria-hidden="true">
@@ -448,7 +167,7 @@ if ($initials === '') {
                         <!-- Judul Ulasan -->
                         <div class="mb-3">
                             <label class="form-label-figma">Judul Ulasan</label>
-                            <input type="text" class="form-control input-review-figma" id="reviewTitleInput" placeholder="Lorem ipsum dolor sit amet consectetur.">
+                            <input type="text" class="form-control input-review-figma" id="reviewTitleInput" placeholder="Contoh: Mudah dipelajari untuk prototipe">
                         </div>
 
                         <!-- Feedback -->
@@ -533,7 +252,7 @@ if ($initials === '') {
                 container.innerHTML = `
                     <div class="empty-library-card">
                         <i class="bi bi-box-seam fs-1 text-secondary mb-2"></i>
-                        <h5 class="fw-bold mb-1" style="color: var(--indofx-text-main);">Belum ada aset di Library Anda</h5>
+                        <h5 class="fw-bold mb-1" style="color: var(--indofx-dark, #2b2623);">Belum ada aset di Library Anda</h5>
                         <p class="text-muted small mb-3">Temukan dan tambahkan aset visual pilihan Anda melalui katalog.</p>
                         <a href="/catalog/explore" class="btn btn-hero-orange">Jelajahi Katalog</a>
                     </div>
@@ -584,7 +303,7 @@ if ($initials === '') {
                             </div>
                             <p class="text-muted small m-0">Oleh ${item.creator || 'Arga Studio'}</p>
                         </div>
-                        <div class="d-flex align-items-center gap-2">
+                        <div class="library-actions-wrap">
                             ${actionButtonHtml}
                         </div>
                     </div>
@@ -607,7 +326,6 @@ if ($initials === '') {
             renderLibrary();
         }
 
-        /* Update Bintang Oranye Interaktif */
         function updateStarUI(rating) {
             const stars = document.querySelectorAll('#starRatingGroup i');
             stars.forEach((star, index) => {
@@ -646,7 +364,6 @@ if ($initials === '') {
             document.getElementById('reviewFormView').classList.remove('d-none');
             document.getElementById('reviewSuccessView').classList.add('d-none');
 
-            // Default bintang 5 terisi oranye
             selectStar(5);
 
             const modal = new bootstrap.Modal(document.getElementById('reviewModal'));
