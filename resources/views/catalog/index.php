@@ -1,4 +1,12 @@
+<?php
+// Tautan profil penjual per kartu aset.
+function seller_profile_url(array $asset): string
+{
+    $sellerId = trim((string) ($asset['seller_public_id'] ?? ''));
 
+    return $sellerId === '' ? '/creator/profile' : '/creator/profile?id=' . urlencode($sellerId);
+}
+?>
 
 <!DOCTYPE html>
 <html lang="id">
@@ -182,7 +190,7 @@
                                 <div class="asset-card-body d-flex flex-column justify-content-between flex-grow-1">
                                     <div>
                                         <!-- 2. Nama Kreator Dinamis -->
-                                        <a href="/creator/profile" class="asset-studio text-decoration-none d-inline-block">
+                                        <a href="<?= htmlspecialchars(seller_profile_url($asset), ENT_QUOTES, 'UTF-8') ?>" class="asset-studio text-decoration-none d-inline-block">
                                             <?= htmlspecialchars($asset['seller_name'] ?? 'Studio Kreator') ?>
                                         </a>
                                         
@@ -255,7 +263,7 @@
                                 <div class="asset-card-body d-flex flex-column justify-content-between flex-grow-1">
                                     <div>
                                         <!-- 2. Nama Kreator Dinamis -->
-                                        <a href="/creator/profile" class="asset-studio text-decoration-none d-inline-block">
+                                        <a href="<?= htmlspecialchars(seller_profile_url($asset), ENT_QUOTES, 'UTF-8') ?>" class="asset-studio text-decoration-none d-inline-block">
                                             <?= htmlspecialchars($asset['seller_name'] ?? 'Studio Kreator') ?>
                                         </a>
                                         

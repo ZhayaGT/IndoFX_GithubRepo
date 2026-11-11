@@ -27,10 +27,8 @@ $router->add('GET', '/logout', 'AuthController', 'logout');
 $router->get('/seller/register', 'SellerController', 'upgradeForm');
 $router->post('/seller/register', 'SellerController', 'upgrade');
 
-// Profil Publik Kreator
-$router->add('GET', '/creator/profile', function () {
-    require __DIR__ . '/../resources/views/creator/profile.php';
-});
+// Profil publik kreator, bisa dibuka tamu
+$router->get('/creator/profile', 'ProfileController', 'show');
 
 // ==========================================
 // 3. DASHBOARD PENJUAL & PROFIL

@@ -9,10 +9,11 @@ class Asset extends Model {
     // Halaman beranda
     // Mengambil 4 aset terbaru untuk section "Aset CG & VFX Terbaru"
     public function getLatestAssets($limit = 4) {
-        $sql = "SELECT a.*, ai.image_path as thumbnail, u.name as seller_name, u.public_id as seller_public_id
+        $sql = "SELECT a.*, ai.image_path as thumbnail, COALESCE(sp.store_name, u.name) as seller_name, u.public_id as seller_public_id
                 FROM assets a 
                 LEFT JOIN asset_images ai ON a.id = ai.asset_id AND ai.sort_order = 1 
                 LEFT JOIN users u ON a.seller_id = u.id
+                LEFT JOIN seller_profiles sp ON sp.user_id = u.id
                 WHERE a.status = 'published' AND a.deleted_at IS NULL
                 ORDER BY a.created_at DESC LIMIT :limit";
         $stmt = $this->db->prepare($sql);
@@ -23,10 +24,11 @@ class Asset extends Model {
 
     // Mengambil 4 aset gratis untuk section "Aset Gratis Unggulan"
     public function getFreeAssets($limit = 4) {
-        $sql = "SELECT a.*, ai.image_path as thumbnail, u.name as seller_name, u.public_id as seller_public_id
+        $sql = "SELECT a.*, ai.image_path as thumbnail, COALESCE(sp.store_name, u.name) as seller_name, u.public_id as seller_public_id
                 FROM assets a 
                 LEFT JOIN asset_images ai ON a.id = ai.asset_id AND ai.sort_order = 1 
                 LEFT JOIN users u ON a.seller_id = u.id
+                LEFT JOIN seller_profiles sp ON sp.user_id = u.id
                 WHERE a.price = 0 AND a.status = 'published' AND a.deleted_at IS NULL 
                 ORDER BY a.created_at DESC LIMIT :limit";
         $stmt = $this->db->prepare($sql);
@@ -38,10 +40,11 @@ class Asset extends Model {
     // Halaman Explore
     // Mengambil semua data aset, diurutkan dari yang terbaru untuk ditampilkan pada halaman explore
     public function getAllAssets() {
-        $sql = "SELECT a.*, ai.image_path as thumbnail, u.name as seller_name, u.public_id as seller_public_id
+        $sql = "SELECT a.*, ai.image_path as thumbnail, COALESCE(sp.store_name, u.name) as seller_name, u.public_id as seller_public_id
                 FROM assets a 
                 LEFT JOIN asset_images ai ON a.id = ai.asset_id AND ai.sort_order = 1 
                 LEFT JOIN users u ON a.seller_id = u.id
+                LEFT JOIN seller_profiles sp ON sp.user_id = u.id
                 ORDER BY a.created_at DESC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
@@ -63,11 +66,12 @@ class Asset extends Model {
             $order = 'a.created_at DESC';
         }
 
-        $sql = "SELECT a.*, c.name as category_name, c.slug as category_slug, ai.image_path as thumbnail, u.name as seller_name, u.public_id as seller_public_id
+        $sql = "SELECT a.*, c.name as category_name, c.slug as category_slug, ai.image_path as thumbnail, COALESCE(sp.store_name, u.name) as seller_name, u.public_id as seller_public_id
                 FROM assets a
                 LEFT JOIN categories c ON a.category_id = c.id
                 LEFT JOIN asset_images ai ON a.id = ai.asset_id AND ai.sort_order = 1
                 LEFT JOIN users u ON a.seller_id = u.id
+                LEFT JOIN seller_profiles sp ON sp.user_id = u.id
                 WHERE 1=1" . $where . " ORDER BY " . $order;
 
         // Pagination hanya aktif bila limit diminta.
@@ -168,9 +172,10 @@ class Asset extends Model {
     // Halaman Detail Aset
     // Mengambil satu aset beserta nama penjual dan nama kategori berdasarkan ID
     public function getAssetById($publicId) {
-        $sql = "SELECT a.*, u.name as seller_name, u.public_id as seller_public_id, c.name as category_name, c.slug as category_slug
+        $sql = "SELECT a.*, COALESCE(sp.store_name, u.name) as seller_name, u.public_id as seller_public_id, c.name as category_name, c.slug as category_slug
                 FROM assets a
                 LEFT JOIN users u ON a.seller_id = u.id
+                LEFT JOIN seller_profiles sp ON sp.user_id = u.id
                 LEFT JOIN categories c ON a.category_id = c.id
                 WHERE a.public_id = :public_id::uuid
                 LIMIT 1";
@@ -253,11 +258,12 @@ class Asset extends Model {
         }
 
         $sql = "SELECT a.*, c.name as category_name, ai.image_path as thumbnail,
-                       u.name as seller_name, u.public_id as seller_public_id
+                       COALESCE(sp.store_name, u.name) as seller_name, u.public_id as seller_public_id
                 FROM assets a
                 LEFT JOIN categories c ON a.category_id = c.id
                 LEFT JOIN asset_images ai ON a.id = ai.asset_id AND ai.sort_order = 1
                 LEFT JOIN users u ON a.seller_id = u.id
+                LEFT JOIN seller_profiles sp ON sp.user_id = u.id
                 WHERE 1=1" . $where . "
                 ORDER BY a.created_at DESC";
 
