@@ -484,8 +484,8 @@
             itemCat.includes("partikel") ||
             itemCat.includes("vfx") ||
             itemCat.includes("particle");
-          if (checkShader && !checkParticle && !isShader) return false;
-          if (checkParticle && !checkShader && !isParticle) return false;
+          var matchCat = (checkShader && isShader) || (checkParticle && isParticle);
+          if (!matchCat) return false;
         }
 
         // 4. Filter Render Pipeline

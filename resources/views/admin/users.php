@@ -656,7 +656,7 @@ try {
             }
 
             btnsHtml += `
-                <button type="button" class="btn-page-admin ${currentPage === totalPages ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})">
+                <button type="button" class="btn-page-admin ${currentPage === totalPages ? 'disabled' : ''}" onclick="goToPage(${currentPage + 1})">
                     <i class="bi bi-chevron-right"></i>
                 </button>
             `;
