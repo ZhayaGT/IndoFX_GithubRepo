@@ -61,8 +61,12 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
 
             <!-- Judul Halaman & Tombol Kembali -->
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-                <h2 class="dash-page-title mb-0">Tambah Aset Baru</h2>
+                <h2 class="dash-page-title mb-0" id="pageFormTitle">Tambah Aset Baru</h2>
                 <a href="/dashboard/assets" class="btn btn-outline-secondary btn-sm px-3 fw-bold">Kembali ke Semua Aset Saya</a>
+            </div>
+
+            <div class="alert alert-warning py-2 px-3 small d-none" id="editApprovalNotice">
+                Perubahan aset akan masuk antrean moderasi dan perlu disetujui ulang oleh admin sebelum kembali tayang di katalog.
             </div>
 
             <form id="formAddAsset">
@@ -239,6 +243,8 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
     <script>
         const sellerUserId = '<?= $userKey ?>';
         const sellerUsername = '<?= $userName ?>';
+        const editAssetId = new URLSearchParams(window.location.search).get('edit_id') || '';
+        let editingAsset = null;
         let uploadedImageBase64 = '';
         let uploadedPackageName = '';
 
@@ -265,6 +271,58 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
             let inits = '';
             words.slice(0, 2).forEach(w => inits += w.charAt(0).toUpperCase());
             document.getElementById('navDashAvatar').innerText = inits || 'NH';
+
+            // Mode edit: muat data aset yang akan direvisi
+            if (editAssetId) {
+                const myAssets = IndoFXStorage.readSellerAssets(sellerUserId, [sellerUsername, storeName]);
+                editingAsset = myAssets.find(a => String(a.id) === String(editAssetId)) || null;
+            }
+
+            if (editingAsset) {
+                const titleEl = document.getElementById('pageFormTitle');
+                if (titleEl) titleEl.innerText = 'Edit Aset';
+                const noticeEl = document.getElementById('editApprovalNotice');
+                if (noticeEl) noticeEl.classList.remove('d-none');
+                const submitBtn = document.getElementById('btnSubmitAsset');
+                if (submitBtn) submitBtn.innerHTML = '<i class="bi bi-send-check me-1"></i> Simpan Perubahan & Ajukan Ulang';
+
+                document.getElementById('asset_title').value = editingAsset.title || '';
+                document.getElementById('category_id').value = editingAsset.category || '';
+                document.getElementById('description').value = editingAsset.description || '';
+                document.getElementById('how_to_use').value = editingAsset.how_to_use || '';
+                document.getElementById('preview_video_url').value = editingAsset.video_url || '';
+
+                const unityValue = String(editingAsset.unity_version || '').replace(/[^0-9.]/g, '');
+                if (unityValue) {
+                    document.getElementById('unity_version').value = unityValue;
+                }
+
+                const pipes = Array.isArray(editingAsset.pipelines) ?
+                    editingAsset.pipelines : [editingAsset.pipeline || 'URP'];
+                document.querySelectorAll('input[name="render_pipeline"]').forEach(cb => {
+                    cb.checked = pipes.some(p => String(p).toLowerCase() === cb.value.toLowerCase());
+                });
+
+                const priceValue = parseFloat(editingAsset.price) || 0;
+                if (priceValue <= 0) {
+                    document.getElementById('price_free').checked = true;
+                    document.getElementById('price_paid').checked = false;
+                    togglePriceInput(false);
+                } else {
+                    document.getElementById('price_paid').checked = true;
+                    document.getElementById('price_free').checked = false;
+                    document.getElementById('price').value = priceValue;
+                    togglePriceInput(true);
+                }
+
+                const imageLabel = document.getElementById('imageNameLabel');
+                if (imageLabel) imageLabel.innerText = editingAsset.image ? 'Gambar pratinjau sebelumnya dipertahankan' : 'Belum ada gambar pratinjau';
+
+                const packageLabel = document.getElementById('packageNameLabel');
+                if (packageLabel && editingAsset.file_info) {
+                    packageLabel.innerText = String(editingAsset.file_info).replace(/^File:\s*/i, '');
+                }
+            }
 
             // Nama File Indikator Gambar
             const imgInput = document.getElementById('imageFileInput');
@@ -316,8 +374,14 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                     month: 'short',
                     year: 'numeric'
                 });
-                const assetId = 'asset-' + Date.now();
-                const fileName = uploadedPackageName || (title.toLowerCase().replace(/[^a-z0-9]/g, '_') + '.unitypackage');
+                const assetId = editAssetId || ('asset-' + Date.now());
+                const previousFile = editingAsset && editingAsset.file_info ?
+                    String(editingAsset.file_info).replace(/^File:\s*/i, '').replace(/\s*\([^)]*\)\s*$/, '') : '';
+                const fileName = uploadedPackageName || previousFile ||
+                    (title.toLowerCase().replace(/[^a-z0-9]/g, '_') + '.unitypackage');
+                const imageValue = uploadedImageBase64 ||
+                    (editingAsset && editingAsset.image) ||
+                    'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80';
                 const sellerStorageKey = IndoFXStorage.sellerAssetsKey(sellerUserId);
 
                 // 1. Simpan ke ruang aset toko penjual
@@ -336,7 +400,7 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                     date: dateStr,
                     created_at: dateStr,
                     file_info: 'File: ' + fileName + ' (18 MB)',
-                    image: uploadedImageBase64 || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80',
+                    image: imageValue,
                     video_url: videoUrl,
                     seller: storeName,
                     creator: storeName,
@@ -345,6 +409,9 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                 };
 
                 let sellerAssets = IndoFXStorage.readSellerAssets(sellerUserId, [sellerUsername, storeName]);
+                if (editAssetId) {
+                    sellerAssets = sellerAssets.filter(a => String(a.id) !== String(editAssetId));
+                }
                 sellerAssets.unshift(sellerAssetObj);
                 localStorage.setItem(sellerStorageKey, JSON.stringify(sellerAssets));
 
@@ -355,6 +422,11 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                 } catch (err) {
                     adminQueue = [];
                 }
+
+                // Revisi aset: buang entri lama agar tidak duplikat dan wajib ditinjau ulang
+                adminQueue = adminQueue.filter(q =>
+                    String(q.id) !== String(assetId) && String(q.title || '').trim() !== title
+                );
 
                 adminQueue.unshift({
                     id: assetId,
@@ -379,11 +451,24 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                     description: description,
                     how_to_use: howToUse,
                     video_url: videoUrl,
-                    image: uploadedImageBase64 || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80'
+                    image: imageValue
                 });
                 localStorage.setItem('indofx_moderation_queue', JSON.stringify(adminQueue));
 
-                alert('Aset berhasil diajukan! Status saat ini: "Menunggu" verifikasi Administrator.');
+                // 3. Sembunyikan dari katalog publik sampai admin menyetujui ulang
+                if (editAssetId) {
+                    try {
+                        let publicCatalog = JSON.parse(localStorage.getItem('indofx_public_catalog')) || [];
+                        publicCatalog = publicCatalog.filter(c =>
+                            String(c.id) !== String(assetId) && String(c.title || '').trim() !== title
+                        );
+                        localStorage.setItem('indofx_public_catalog', JSON.stringify(publicCatalog));
+                    } catch (e) {}
+                }
+
+                alert(editAssetId ?
+                    'Perubahan aset berhasil diajukan ulang! Menunggu persetujuan Administrator.' :
+                    'Aset berhasil diajukan! Status saat ini: "Menunggu" verifikasi Administrator.');
                 window.location.href = '/dashboard/assets';
             });
         });
