@@ -280,4 +280,29 @@ class Asset extends Model {
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+    // Mengambil data aset berdasarkan ID internal (angka / INT8)
+    // Sangat berguna untuk operasi backend seperti Checkout & Keranjang
+    public function getAssetByInternalId($id) {
+        $sql = "SELECT a.*, 
+                       u.public_id as seller_public_id,
+                       u.email as seller_email,
+                       p.name as seller_name, 
+                       s.store_name,
+                       s.payout_number as seller_phone,
+                       c.name as category_name, 
+                       c.slug as category_slug
+                FROM assets a
+                LEFT JOIN users u ON a.seller_id = u.id
+                LEFT JOIN user_profiles p ON u.id = p.user_id
+                LEFT JOIN seller_profiles s ON u.id = s.user_id
+                LEFT JOIN categories c ON a.category_id = c.id
+                WHERE a.id = :id
+                LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        // Bind sebagai integer
+        $stmt->bindValue(':id', $id, \PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
+    }
 }

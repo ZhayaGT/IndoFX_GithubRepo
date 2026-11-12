@@ -11,6 +11,7 @@
     "ext-pdo_pgsql": "*",
     "erusev/parsedown": "^1.7",
     "google/apiclient": "^2.16",
+    "midtrans/midtrans-php": "^2.6",
     "monolog/monolog": "^3.6",
     "phpmailer/phpmailer": "^6.9",
     "vlucas/phpdotenv": "^5.7"
