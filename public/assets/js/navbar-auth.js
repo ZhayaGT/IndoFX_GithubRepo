@@ -63,33 +63,15 @@
         }
     }
 
-    /** Buka/tutup menu kecil di avatar. */
+    /**
+     * Buka/tutup menu kecil di avatar.
+     *
+     * Catatan: handler klik dropdown sudah ditangani inline di partial
+     * navbar-auth.php. Fungsi ini sengaja tidak dipakai lagi agar menu
+     * tidak ter-toggle dua kali (terbuka lalu langsung tertutup).
+     */
     function initAvatarMenu() {
-        var button = document.getElementById('navbar-avatar');
-        var menu = document.getElementById('navbar-avatar-menu');
-
-        if (!button || !menu) {
-            return;
-        }
-
-        button.addEventListener('click', function (event) {
-            event.stopPropagation();
-            var isOpen = !menu.hidden;
-            menu.hidden = isOpen;
-            button.setAttribute('aria-expanded', String(!isOpen));
-        });
-
-        document.addEventListener('click', function () {
-            menu.hidden = true;
-            button.setAttribute('aria-expanded', 'false');
-        });
-
-        document.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape') {
-                menu.hidden = true;
-                button.setAttribute('aria-expanded', 'false');
-            }
-        });
+        // Dibiarkan kosong untuk kompatibilitas pemanggilan lama.
     }
 
     document.addEventListener('DOMContentLoaded', function () {

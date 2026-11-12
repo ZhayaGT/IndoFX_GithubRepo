@@ -156,5 +156,15 @@ if ($initials === '') {
                 avatarBtn.setAttribute('aria-expanded', 'false');
             }
         });
+
+        // Tutup dropdown dengan tombol Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key !== 'Escape') return;
+            const avatarBtn = document.getElementById('navbar-avatar');
+            const avatarMenu = document.getElementById('navbar-avatar-menu');
+            if (!avatarBtn || !avatarMenu) return;
+            avatarMenu.setAttribute('hidden', '');
+            avatarBtn.setAttribute('aria-expanded', 'false');
+        });
     })();
 </script>

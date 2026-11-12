@@ -94,8 +94,8 @@ $adminInitials = 'AP';
 
         <!-- Konten Utama Kanan -->
         <main class="admin-main-content">
-            <h1 class="admin-page-title">Pengelolaan Pengguna Platform</h1>
-            <p class="admin-page-sub">Kelola akun penjual, pembeli, dan administrator terdaftar di IndoFX Marketplace.</p>
+            <h1 class="admin-page-title">Pengajuan Menjadi Penjual</h1>
+            <p class="admin-page-sub">Tinjau dan verifikasi pengajuan akun penjual baru di IndoFX Marketplace.</p>
 
             <!-- 4 Kartu Ringkasan Murni Dinamis Sesuai Data Akun Riil -->
             <div class="row g-3 mb-4">
