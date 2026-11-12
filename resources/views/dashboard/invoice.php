@@ -429,6 +429,9 @@ if ($initials === '') {
     <?php } ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Helper escape output HTML -->
+    <script src="/assets/js/indofx-utils.js"></script>
     <script src="/assets/js/navbar-auth.js"></script>
     <script>
         const userKey = '<?= $userKey ?>';
@@ -472,11 +475,11 @@ if ($initials === '') {
 
                 return `
                     <tr>
-                        <td><strong>${tx.invoice_no}</strong></td>
-                        <td>${displayTitle}</td>
-                        <td>${tx.short_date || tx.date}</td>
+                        <td><strong>${esc(tx.invoice_no)}</strong></td>
+                        <td>${esc(displayTitle)}</td>
+                        <td>${esc(tx.short_date || tx.date)}</td>
                         <td><strong>${totalDisplay}</strong></td>
-                        <td><span class="badge-status-berhasil">${tx.status || 'Berhasil'}</span></td>
+                        <td><span class="badge-status-berhasil">${esc(tx.status || 'Berhasil')}</span></td>
                         <td>
                             <a href="javascript:void(0)" class="btn-view-invoice" onclick="selectInvoice(${idx})">
                                 Lihat Invoice
@@ -496,7 +499,7 @@ if ($initials === '') {
             document.getElementById('invNoText').innerText = tx.invoice_no;
             document.getElementById('invBadgeStatus').innerText = tx.status || 'Berhasil';
             document.getElementById('invDateText').innerText = 'Tanggal: ' + (tx.full_date || tx.date);
-            document.getElementById('invBuyerName').innerText = tx.buyer_name || '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>';
+            document.getElementById('invBuyerName').innerText = tx.buyer_name || <?= json_encode($userName, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
             document.getElementById('invBuyerEmail').innerText = tx.buyer_email || 'user@email.com';
             document.getElementById('invPaymentMethod').innerText = tx.payment_method || 'QRIS (GoPay)';
 
@@ -504,14 +507,14 @@ if ($initials === '') {
             if (tx.items && tx.items.length > 0) {
                 itemsContainer.innerHTML = tx.items.map(it => `
                     <tr>
-                        <td><strong>${it.title}</strong></td>
+                        <td><strong>${esc(it.title)}</strong></td>
                         <td class="text-end"><strong>Rp${(parseFloat(it.price) || 0).toLocaleString('id-ID')}</strong></td>
                     </tr>
                 `).join('');
             } else {
                 itemsContainer.innerHTML = `
                     <tr>
-                        <td><strong>${tx.asset_title || 'Aset Visual IndoFX'}</strong></td>
+                        <td><strong>${esc(tx.asset_title || 'Aset Visual IndoFX')}</strong></td>
                         <td class="text-end"><strong>Rp${(parseFloat(tx.total) || 0).toLocaleString('id-ID')}</strong></td>
                     </tr>
                 `;

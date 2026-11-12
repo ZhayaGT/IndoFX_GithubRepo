@@ -188,6 +188,27 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
             overflow-y: auto;
             background-color: #ffffff;
         }
+
+        @media (max-width: 576px) {
+            body {
+                padding: 20px 12px;
+                align-items: flex-start;
+            }
+
+            .seller-register-card {
+                padding: 22px 18px;
+                border-radius: 12px;
+            }
+
+            .seller-register-title {
+                font-size: 1.35rem;
+            }
+
+            .seller-register-sub {
+                font-size: 0.8rem;
+                margin-bottom: 18px;
+            }
+        }
     </style>
 </head>
 
@@ -365,7 +386,7 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
                 const fileInput = document.getElementById('regAssetFile');
                 const assetDesc = document.getElementById('regAssetDesc').value.trim();
 
-                const targetKey = '<?= $userKey ?>' || ('user_' + Date.now());
+                const targetKey = <?= json_encode($userKey, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?> || ('user_' + Date.now());
 
                 // Simpan Profil Toko / Penjual
                 const sellerProfile = {

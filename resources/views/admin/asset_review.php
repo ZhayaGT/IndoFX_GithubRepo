@@ -271,6 +271,9 @@ $adminInitials = 'AP';
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Helper escape output HTML -->
+    <script src="/assets/js/indofx-utils.js"></script>
+
     <!-- Helper penyimpanan lokal (kunci berbasis user_id) -->
     <script src="/assets/js/indofx-storage.js"></script>
 

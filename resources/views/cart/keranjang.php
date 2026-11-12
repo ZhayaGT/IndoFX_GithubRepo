@@ -542,6 +542,9 @@ if ($initials === '') {
         </div>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Helper escape output HTML -->
+    <script src="/assets/js/indofx-utils.js"></script>
     <script>
         const userKey = '<?= $userKey ?>';
         const cartStorageKey = 'indofx_cart_' + userKey;
@@ -583,13 +586,13 @@ if ($initials === '') {
 
                 const badgesHtml = pipelines.map(p => {
                     let cls = 'badge-urp';
-                    if (p.toLowerCase().includes('hdrp')) cls = 'badge-hdrp';
-                    if (p.toLowerCase().includes('built')) cls = 'badge-builtin';
-                    return `<span class="badge-tag-custom ${cls}">${p}</span>`;
+                    if (String(p).toLowerCase().includes('hdrp')) cls = 'badge-hdrp';
+                    if (String(p).toLowerCase().includes('built')) cls = 'badge-builtin';
+                    return `<span class="badge-tag-custom ${cls}">${esc(p)}</span>`;
                 }).join(' ');
 
                 return `
-                    <div class="cart-item-card" id="cart-item-${item.id}">
+                    <div class="cart-item-card" id="cart-item-${esc(item.id)}">
                         <div class="cart-item-thumb">
                             <svg class="w-100 h-100 d-block" viewBox="0 0 175 98">
                                 <use href="#${artSvg}" />
@@ -599,20 +602,20 @@ if ($initials === '') {
                         <div class="cart-item-content">
                             <div class="cart-status-line">
                                 <span class="cart-status-badge">DIBELI</span>
-                                <span class="text-muted ms-2">Perolehan: ${item.date || '02 Nov 2026'}</span>
+                                <span class="text-muted ms-2">Perolehan: ${esc(item.date || '02 Nov 2026')}</span>
                             </div>
 
                             <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
-                                <h5 class="cart-asset-title m-0">${item.title}</h5>
+                                <h5 class="cart-asset-title m-0">${esc(item.title)}</h5>
                                 <div class="d-flex gap-1">${badgesHtml}</div>
                             </div>
 
-                            <p class="cart-asset-creator m-0">Oleh ${item.creator || 'Arga Studio'}</p>
+                            <p class="cart-asset-creator m-0">Oleh ${esc(item.creator || 'Arga Studio')}</p>
                         </div>
 
                         <div class="d-flex align-items-center gap-3">
-                            <input type="checkbox" class="cart-checkbox" checked value="${item.id}">
-                            <button type="button" class="btn-cart-delete" onclick="openDeleteModal('${item.id}')">
+                            <input type="checkbox" class="cart-checkbox" checked value="${esc(item.id)}">
+                            <button type="button" class="btn-cart-delete" data-cart-delete-id="${esc(item.id)}">
                                 Hapus
                             </button>
                         </div>
@@ -665,6 +668,13 @@ if ($initials === '') {
 
         document.addEventListener('DOMContentLoaded', function() {
             renderCart();
+
+            // Delegasi tombol hapus item keranjang
+            document.addEventListener('click', function(event) {
+                const deleteBtn = event.target.closest('[data-cart-delete-id]');
+                if (!deleteBtn) return;
+                openDeleteModal(deleteBtn.getAttribute('data-cart-delete-id'));
+            });
 
             // Dropdown Profil Header
             const dropdownBtn = document.getElementById('profileDropdownBtn');

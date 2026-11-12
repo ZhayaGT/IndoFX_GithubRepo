@@ -236,13 +236,16 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Helper escape output HTML -->
+    <script src="/assets/js/indofx-utils.js"></script>
+
     <!-- Helper penyimpanan lokal (kunci berbasis user_id) -->
     <script src="/assets/js/indofx-storage.js"></script>
 
     <!-- Script Form Pengajuan & Sinkronisasi Antrean Admin -->
     <script>
         const sellerUserId = '<?= $userKey ?>';
-        const sellerUsername = '<?= $userName ?>';
+        const sellerUsername = <?= json_encode($userName, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
         const editAssetId = new URLSearchParams(window.location.search).get('edit_id') || '';
         let editingAsset = null;
         let uploadedImageBase64 = '';

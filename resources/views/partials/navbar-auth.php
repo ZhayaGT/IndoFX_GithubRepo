@@ -88,7 +88,7 @@ if ($initials === '') {
 <script>
     (function() {
         const isLoggedIn = <?= $isLoggedIn ? 'true' : 'false' ?>;
-        const userKey = '<?= $userKey ?>';
+        const userKey = <?= json_encode($userKey, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 
         if (!isLoggedIn || !userKey) {
             return;

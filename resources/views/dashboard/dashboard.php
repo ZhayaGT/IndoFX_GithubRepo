@@ -185,13 +185,16 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Helper escape output HTML -->
+    <script src="/assets/js/indofx-utils.js"></script>
+
     <!-- Helper penyimpanan lokal (kunci berbasis user_id) -->
     <script src="/assets/js/indofx-storage.js"></script>
 
     <!-- SCRIPT HIDRASI DATA DINAMIS & PENGHITUNG TERJUAL -->
     <script>
         const userKey = '<?= $userKey ?>';
-        const defaultUserName = '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>';
+        const defaultUserName = <?= json_encode($userName, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
         let allAssets = [];
         let storeName = defaultUserName || 'Arga Studio';
         let sellerSales = [];
@@ -400,7 +403,7 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                     let cls = 'badge-urp';
                     if (pLower.includes('hdrp')) cls = 'badge-hdrp';
                     else if (pLower.includes('built')) cls = 'badge-builtin';
-                    return `<span class="badge-pipe ${cls} me-1">${p}</span>`;
+                    return `<span class="badge-pipe ${cls} me-1">${esc(p)}</span>`;
                 }).join('');
 
                 let priceNum = 0;
@@ -466,14 +469,14 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                 return `
                     <tr>
                         <td>
-                            <div class="fw-bold text-dark item-asset-title">${item.title}</div>
+                            <div class="fw-bold text-dark item-asset-title">${esc(item.title)}</div>
                             <div class="d-flex flex-wrap gap-1 mt-1">${pipeHtml}</div>
                         </td>
-                        <td class="text-muted small">${item.category || 'VFX Partikel'}</td>
-                        <td class="fw-bold text-dark">${item.price_text || (isGratis ? 'Gratis' : 'Rp' + priceNum.toLocaleString('id-ID'))}</td>
+                        <td class="text-muted small">${esc(item.category || 'VFX Partikel')}</td>
+                        <td class="fw-bold text-dark">${esc(item.price_text || (isGratis ? 'Gratis' : 'Rp' + priceNum.toLocaleString('id-ID')))}</td>
                         <td>${statusBadge}</td>
-                        <td class="text-muted small">${downloadOrSalesText}</td>
-                        <td class="text-muted small">${item.created_at || '15 Jan 2026'}</td>
+                        <td class="text-muted small">${esc(downloadOrSalesText)}</td>
+                        <td class="text-muted small">${esc(item.created_at || '15 Jan 2026')}</td>
                         <td class="text-end pe-4 text-nowrap">${actionBtn}</td>
                     </tr>
                 `;

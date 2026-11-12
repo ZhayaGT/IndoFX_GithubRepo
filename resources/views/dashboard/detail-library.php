@@ -661,12 +661,15 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Helper escape output HTML -->
+    <script src="/assets/js/indofx-utils.js"></script>
     <script src="/assets/js/navbar-auth.js"></script>
     <script>
         const userKey = '<?= $userKey ?>';
-        const currentAssetId = '<?= htmlspecialchars((string)$assetId, ENT_QUOTES, 'UTF-8') ?>';
-        const assetTitle = '<?= htmlspecialchars($assetTitle, ENT_QUOTES, 'UTF-8') ?>';
-        const assetFormat = '<?= htmlspecialchars($assetFormat, ENT_QUOTES, 'UTF-8') ?>';
+        const currentAssetId = <?= json_encode((string)$assetId, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+        const assetTitle = <?= json_encode($assetTitle, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+        const assetFormat = <?= json_encode($assetFormat, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 
         function switchDetailTab(evt, tabId) {
             document.querySelectorAll('.detail-nav-tabs .tab-link').forEach(link => link.classList.remove('active'));
@@ -796,14 +799,14 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
                     <div class="review-item-block">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <div class="d-flex align-items-center gap-2">
-                                <strong style="color: var(--indofx-text-main);">${r.user_name}</strong>
+                                <strong style="color: var(--indofx-text-main);">${esc(r.user_name)}</strong>
                                 <span class="badge-owner">Pemilik aset</span>
                             </div>
-                            <span class="text-muted small">${r.date}</span>
+                            <span class="text-muted small">${esc(r.date)}</span>
                         </div>
                         <div class="mb-1" style="font-size: 0.85rem;">${starIcons}</div>
-                        ${r.title ? `<h6 class="fw-bold mb-1" style="color: var(--indofx-text-main); font-size: 0.95rem;">${r.title}</h6>` : ''}
-                        <p class="mb-0 text-secondary" style="font-size: 0.88rem; line-height: 1.6;">${r.comment}</p>
+                        ${r.title ? `<h6 class="fw-bold mb-1" style="color: var(--indofx-text-main); font-size: 0.95rem;">${esc(r.title)}</h6>` : ''}
+                        <p class="mb-0 text-secondary" style="font-size: 0.88rem; line-height: 1.6;">${esc(r.comment)}</p>
                     </div>
                 `;
             }).join('');

@@ -167,6 +167,9 @@ $adminInitials = 'AP';
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Helper escape output HTML -->
+    <script src="/assets/js/indofx-utils.js"></script>
+
     <!-- Helper penyimpanan lokal (kunci berbasis user_id) -->
     <script src="/assets/js/indofx-storage.js"></script>
 
@@ -341,17 +344,17 @@ $adminInitials = 'AP';
                     <tr>
                         <td>
                             <div class="d-inline-flex align-items-center gap-2 flex-nowrap">
-                                <span class="fw-bold text-dark text-nowrap">${item.title}</span>
-                                <span class="badge-pipe-admin ${pipeClass}">${pipe}</span>
+                                <span class="fw-bold text-dark text-nowrap">${esc(item.title)}</span>
+                                <span class="badge-pipe-admin ${pipeClass}">${esc(pipe)}</span>
                             </div>
-                            <div class="text-muted small" style="font-size: 0.73rem;">${item.file_info}</div>
+                            <div class="text-muted small" style="font-size: 0.73rem;">${esc(item.file_info)}</div>
                         </td>
-                        <td class="fw-bold text-dark cell-nowrap">${item.studio}</td>
-                        <td class="text-dark cell-nowrap">${item.unity_ver || 'Unity 2022.3 LTS'}</td>
-                        <td class="fw-bold text-dark cell-nowrap">${item.price}</td>
+                        <td class="fw-bold text-dark cell-nowrap">${esc(item.studio)}</td>
+                        <td class="text-dark cell-nowrap">${esc(item.unity_ver || 'Unity 2022.3 LTS')}</td>
+                        <td class="fw-bold text-dark cell-nowrap">${esc(item.price)}</td>
                         <td class="cell-nowrap">
-                            <div class="text-dark">${displayDate}</div>
-                            <div class="text-muted small" style="font-size: 0.72rem;">${displayTime}</div>
+                            <div class="text-dark">${esc(displayDate)}</div>
+                            <div class="text-muted small" style="font-size: 0.72rem;">${esc(displayTime)}</div>
                         </td>
                         <td class="cell-nowrap">${statusBadge}</td>
                         <td class="text-end pe-3 cell-nowrap">${actionBtn}</td>

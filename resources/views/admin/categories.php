@@ -260,7 +260,7 @@ $adminInitials = 'AP';
                 </div>
 
                 <div class="d-flex justify-content-center gap-3">
-                    <button type="button" class="btn-modal-cancel" style="border: 1.5px solid #2B2623;" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Batal</button>
                     <button type="button" class="btn-modal-confirm-delete" onclick="confirmDeleteCategory()">
                         <i class="bi bi-trash3"></i> Ya, Hapus
                     </button>
@@ -292,6 +292,9 @@ $adminInitials = 'AP';
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Helper escape output HTML -->
+    <script src="/assets/js/indofx-utils.js"></script>
 
     <script>
         // Data Awal Kategori Sesuai Figma image_1ee300
@@ -367,18 +370,18 @@ $adminInitials = 'AP';
                     <tr>
                         <td class="text-muted fw-bold">${index + 1}</td>
                         <td>
-                            <div class="fw-bold text-dark" style="font-size: 0.88rem;">${cat.name}</div>
-                            <div class="text-muted" style="font-size: 0.74rem;">${cat.desc || '-'}</div>
+                            <div class="fw-bold text-dark" style="font-size: 0.88rem;">${esc(cat.name)}</div>
+                            <div class="text-muted" style="font-size: 0.74rem;">${esc(cat.desc || '-')}</div>
                         </td>
-                        <td style="color: #c05e19; font-weight: 500;">/kategori/${cat.slug}</td>
+                        <td style="color: #c05e19; font-weight: 500;">/kategori/${esc(cat.slug)}</td>
                         <td>
-                            <span class="badge-category-count">${cat.count || '0 Aset'}</span>
+                            <span class="badge-category-count">${esc(cat.count || '0 Aset')}</span>
                         </td>
                         <td class="text-end pe-4 text-nowrap">
-                            <button type="button" class="btn-category-edit me-1" onclick="openEditCategoryModal(${cat.id})">
+                            <button type="button" class="btn-category-edit me-1" data-category-action="edit" data-category-id="${esc(cat.id)}">
                                 <i class="bi bi-pencil-square"></i> Edit
                             </button>
-                            <button type="button" class="btn-category-delete" onclick="openDeleteCategoryModal(${cat.id})">
+                            <button type="button" class="btn-category-delete" data-category-action="delete" data-category-id="${esc(cat.id)}">
                                 <i class="bi bi-trash3"></i> Hapus
                             </button>
                         </td>
@@ -490,6 +493,19 @@ $adminInitials = 'AP';
             modalDeleteInstance = new bootstrap.Modal(document.getElementById('modalDeleteCategory'));
 
             loadCategories();
+
+            // Delegasi tombol Edit/Hapus kategori
+            document.addEventListener('click', function(event) {
+                const actionBtn = event.target.closest('[data-category-action]');
+                if (!actionBtn) return;
+
+                const categoryId = actionBtn.getAttribute('data-category-id');
+                if (actionBtn.getAttribute('data-category-action') === 'edit') {
+                    openEditCategoryModal(categoryId);
+                } else {
+                    openDeleteCategoryModal(categoryId);
+                }
+            });
 
             // Dropdown Profil Admin
             const btn = document.getElementById('adminDropdownBtn');

@@ -412,6 +412,9 @@ if ($profileInitials === '') {
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Helper escape output HTML -->
+    <script src="/assets/js/indofx-utils.js"></script>
+
     <!-- Helper penyimpanan lokal (kunci berbasis user_id) -->
     <script src="/assets/js/indofx-storage.js"></script>
 
@@ -419,8 +422,8 @@ if ($profileInitials === '') {
         document.addEventListener('DOMContentLoaded', function() {
             const userKey = '<?= $userKey ?>';
             const isOwnProfile = <?= $isOwnProfile ? 'true' : 'false' ?>;
-            const profileName = '<?= htmlspecialchars($profileName, ENT_QUOTES, 'UTF-8') ?>';
-            const creatorParam = '<?= htmlspecialchars((string) ($creatorParam ?? ''), ENT_QUOTES, 'UTF-8') ?>';
+            const profileName = <?= json_encode($profileName, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+            const creatorParam = <?= json_encode((string) ($creatorParam ?? ''), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
             const isPublicProfile = !isOwnProfile && creatorParam.trim() !== '';
             const container = document.getElementById('assetsDisplayContainer');
             const socialLinks = document.getElementById('sellerSocialLinksContainer');
@@ -444,7 +447,7 @@ if ($profileInitials === '') {
 
             // KONDISI 1: JIKA PENGGUNA ADALAH PENJUAL (TAMPILAN FIGMA)
             if (sellerProfile && (sellerProfile.is_seller || sellerProfile.store_name)) {
-                const storeName = sellerProfile.store_name || '<?= htmlspecialchars($profileName, ENT_QUOTES, 'UTF-8') ?>';
+                const storeName = sellerProfile.store_name || <?= json_encode($profileName, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
                 document.getElementById('creatorNameText').innerText = storeName;
                 storeNameSpan.innerText = storeName;
                 document.getElementById('creatorBioText').innerText = sellerProfile.bio || 'Pengembang independen khusus aset shader, efek visual partikel (VFX) dan material prosedural berkualitas tinggi untuk proyek game Unity lokal.';
@@ -482,7 +485,7 @@ if ($profileInitials === '') {
                         <div class="col-12">
                             <div class="card border rounded-3 text-center p-5 bg-white shadow-sm" style="border-color: #ebdcd1 !important;">
                                 <i class="bi bi-shop fs-1 text-secondary mb-2"></i>
-                                <h5 class="fw-bold text-dark mb-1">Belum Ada Aset dari ${storeName}</h5>
+                                <h5 class="fw-bold text-dark mb-1">Belum Ada Aset dari ${esc(storeName)}</h5>
                                 <p class="text-muted small mb-3">Toko ini belum merilis aset visual ke marketplace.</p>
                                 ${isOwnProfile ? '<div><a href="/dashboard/add-asset" class="btn btn-hero-orange px-4 py-2">+ Unggah Aset Baru</a></div>' : ''}
                             </div>
@@ -502,7 +505,7 @@ if ($profileInitials === '') {
                         let cls = 'pipe-urp';
                         if (pLow.includes('hdrp')) cls = 'pipe-hdrp';
                         if (pLow.includes('built')) cls = 'pipe-builtin';
-                        return `<span class="pipe-badge ${cls} me-1">${p}</span>`;
+                        return `<span class="pipe-badge ${cls} me-1">${esc(p)}</span>`;
                     }).join('');
 
                     const detailUrl = `/asset/detail?id=${encodeURIComponent(asset.id || '')}&title=${encodeURIComponent(title)}&creator=${encodeURIComponent(storeName)}&price=${encodeURIComponent(asset.price || 0)}`;
@@ -516,8 +519,8 @@ if ($profileInitials === '') {
                                 </a>
                                 <div class="card-asset-body">
                                     <div>
-                                        <span class="card-asset-studio">${storeName}</span>
-                                        <a href="${detailUrl}" class="card-asset-title text-truncate" title="${title}">${title}</a>
+                                        <span class="card-asset-studio">${esc(storeName)}</span>
+                                        <a href="${detailUrl}" class="card-asset-title text-truncate" title="${esc(title)}">${esc(title)}</a>
                                         <div class="d-flex flex-wrap gap-1 mt-1">
                                             ${pipesHtml}
                                         </div>
@@ -574,8 +577,8 @@ if ($profileInitials === '') {
                                 </a>
                                 <div class="card-asset-body">
                                     <div>
-                                        <span class="card-asset-studio">${studio}</span>
-                                        <a href="${detailUrl}" class="card-asset-title text-truncate" title="${title}">${title}</a>
+                                        <span class="card-asset-studio">${esc(studio)}</span>
+                                        <a href="${detailUrl}" class="card-asset-title text-truncate" title="${esc(title)}">${esc(title)}</a>
                                     </div>
                                     <div class="d-flex justify-content-between align-items-center pt-2 border-top mt-2">
                                         <span class="small fw-bold text-success">

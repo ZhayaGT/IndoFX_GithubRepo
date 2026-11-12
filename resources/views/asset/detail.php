@@ -906,12 +906,15 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Helper escape output HTML -->
+    <script src="/assets/js/indofx-utils.js"></script>
     <script>
         const userKey = '<?= $userKey ?>';
-        const currentAssetId = '<?= htmlspecialchars((string)$assetId, ENT_QUOTES, 'UTF-8') ?>';
+        const currentAssetId = <?= json_encode((string)$assetId, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
         const isAssetGratis = <?= $isGratis ? 'true' : 'false' ?>;
-        const assetTitle = '<?= htmlspecialchars($assetTitle, ENT_QUOTES, 'UTF-8') ?>';
-        let assetFormat = '<?= htmlspecialchars($assetFormat, ENT_QUOTES, 'UTF-8') ?>';
+        const assetTitle = <?= json_encode($assetTitle, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+        let assetFormat = <?= json_encode($assetFormat, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 
         function switchDetailTab(evt, tabId) {
             document.querySelectorAll('.detail-nav-tabs .tab-link').forEach(link => link.classList.remove('active'));
@@ -1008,17 +1011,19 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
 
             // Render Gambar Asli jika diunggah penjual (Base64 / URL)
             if (assetData && assetData.image && (assetData.image.startsWith('data:') || assetData.image.includes('/'))) {
+                const safeImage = esc(assetData.image);
+                const safeTitle = esc(assetTitle);
                 const carouselInner = document.querySelector('.main-preview-card .carousel-inner');
                 if (carouselInner) {
                     carouselInner.innerHTML = `
                         <div class="carousel-item active h-100">
-                            <img src="${assetData.image}" alt="${assetTitle}" style="width: 100%; height: 100%; object-fit: cover;">
+                            <img src="${safeImage}" alt="${safeTitle}" style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
                     `;
                 }
                 const thumbItems = document.querySelectorAll('.thumb-card-item');
                 thumbItems.forEach(t => {
-                    t.innerHTML = `<img src="${assetData.image}" alt="${assetTitle}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                    t.innerHTML = `<img src="${safeImage}" alt="${safeTitle}" style="width: 100%; height: 100%; object-fit: cover;">`;
                 });
             }
         }
@@ -1136,20 +1141,20 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                         '<i class="bi bi-star text-muted me-1"></i>';
                 }
 
-                const titleHtml = rev.title ? `<h6 class="fw-bold mt-2 mb-1" style="font-size: 0.95rem; color: var(--indofx-text-main);">${rev.title}</h6>` : '';
+                const titleHtml = rev.title ? `<h6 class="fw-bold mt-2 mb-1" style="font-size: 0.95rem; color: var(--indofx-text-main);">${esc(rev.title)}</h6>` : '';
 
                 return `
                     <div class="review-item-block">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <div class="d-flex align-items-center gap-2">
-                                <strong style="font-size: 0.95rem; color: var(--indofx-text-main);">${rev.user_name}</strong>
+                                <strong style="font-size: 0.95rem; color: var(--indofx-text-main);">${esc(rev.user_name)}</strong>
                                 <span class="badge-owner">Pemilik aset</span>
                             </div>
-                            <span class="text-muted small">${rev.date}</span>
+                            <span class="text-muted small">${esc(rev.date)}</span>
                         </div>
                         <div class="mb-1" style="font-size: 0.85rem;">${starsHtml}</div>
                         ${titleHtml}
-                        <p class="mb-0 text-secondary" style="font-size: 0.88rem; line-height: 1.6;">${rev.comment}</p>
+                        <p class="mb-0 text-secondary" style="font-size: 0.88rem; line-height: 1.6;">${esc(rev.comment)}</p>
                     </div>
                 `;
             }).join('');
@@ -1171,12 +1176,12 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
 
             const cartItem = {
                 id: currentAssetId,
-                title: '<?= htmlspecialchars($assetTitle, ENT_QUOTES, 'UTF-8') ?>',
-                creator: '<?= htmlspecialchars($assetCreator, ENT_QUOTES, 'UTF-8') ?>',
+                title: <?= json_encode($assetTitle, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+                creator: <?= json_encode($assetCreator, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
                 price: <?= (float)$numericPrice ?>,
                 date: '<?= date("d M Y") ?>',
                 pipelines: <?= json_encode(array_values(array_filter(array_map('trim', explode(',', $assetPipeline))))) ?>,
-                art: '<?= htmlspecialchars($assetArt, ENT_QUOTES, 'UTF-8') ?>'
+                art: <?= json_encode($assetArt, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
             };
 
             const exists = currentCart.some(item => String(item.id) === String(cartItem.id));
@@ -1210,12 +1215,12 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
 
             const newAsset = {
                 id: currentAssetId,
-                title: '<?= htmlspecialchars($assetTitle, ENT_QUOTES, 'UTF-8') ?>',
-                creator: '<?= htmlspecialchars($assetCreator, ENT_QUOTES, 'UTF-8') ?>',
+                title: <?= json_encode($assetTitle, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+                creator: <?= json_encode($assetCreator, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
                 type: 'Gratis',
                 date: '<?= date("d M Y") ?>',
                 pipelines: <?= json_encode(array_values(array_filter(array_map('trim', explode(',', $assetPipeline))))) ?>,
-                art: '<?= htmlspecialchars($assetArt, ENT_QUOTES, 'UTF-8') ?>'
+                art: <?= json_encode($assetArt, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
             };
 
             const alreadyExists = currentLibrary.some(item => String(item.id) === String(newAsset.id));
@@ -1224,7 +1229,7 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                 localStorage.setItem(storageKey, JSON.stringify(currentLibrary));
             }
 
-            const rawCreator = ('<?= htmlspecialchars($assetCreator, ENT_QUOTES, 'UTF-8') ?>').trim();
+            const rawCreator = (<?= json_encode($assetCreator, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>).trim();
             const cleanCreatorKey = rawCreator.toLowerCase().replace(/[^a-z0-9]/g, '');
             const assetKeys = [
                 'indofx_seller_assets_' + cleanCreatorKey,
@@ -1235,7 +1240,7 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                 try {
                     let sAssets = JSON.parse(localStorage.getItem(k)) || [];
                     sAssets = sAssets.map(sa => {
-                        if (String(sa.id) === String(currentAssetId) || sa.title === '<?= htmlspecialchars($assetTitle, ENT_QUOTES, 'UTF-8') ?>') {
+                        if (String(sa.id) === String(currentAssetId) || sa.title === <?= json_encode($assetTitle, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>) {
                             const currentCount = parseInt(String(sa.downloads || '0').replace(/[^0-9]/g, ''), 10) || 0;
                             sa.downloads = (currentCount + 1) + 'x Unduhan';
                         }
@@ -1248,7 +1253,7 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
             try {
                 let pubCatalog = JSON.parse(localStorage.getItem('indofx_public_catalog')) || [];
                 pubCatalog = pubCatalog.map(pa => {
-                    if (String(pa.id) === String(currentAssetId) || pa.title === '<?= htmlspecialchars($assetTitle, ENT_QUOTES, 'UTF-8') ?>') {
+                    if (String(pa.id) === String(currentAssetId) || pa.title === <?= json_encode($assetTitle, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>) {
                         const currentCount = parseInt(String(pa.downloads || '0').replace(/[^0-9]/g, ''), 10) || 0;
                         pa.downloads = (currentCount + 1) + 'x Unduhan';
                     }
@@ -1292,7 +1297,7 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                         </div>
                         <button type="button" class="btn-download-package" onclick="downloadAssetPackage()">
                             <i class="bi bi-download"></i>
-                            <span>Unduh Aset (${assetFormat})</span>
+                            <span>Unduh Aset (${esc(assetFormat)})</span>
                         </button>
                     `;
                 }

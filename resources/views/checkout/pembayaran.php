@@ -567,6 +567,9 @@ if ($initials === '') {
     <!-- Helper penyimpanan lokal (kunci berbasis user_id) -->
     <script src="/assets/js/indofx-storage.js"></script>
 
+    <!-- Helper escape output HTML -->
+    <script src="/assets/js/indofx-utils.js"></script>
+
     <script>
         const userKey = '<?= $userKey ?>';
         const directAssetId = '<?= htmlspecialchars((string)$directAssetId, ENT_QUOTES, 'UTF-8') ?>';
@@ -700,9 +703,9 @@ if ($initials === '') {
 
                 const badgeHtml = pipelines.map(p => {
                     let cls = 'tag-urp';
-                    if (p.toLowerCase().includes('hdrp')) cls = 'tag-hdrp';
-                    if (p.toLowerCase().includes('built')) cls = 'tag-builtin';
-                    return `<span class="badge-pipeline-tag ${cls}">${p}</span>`;
+                    if (String(p).toLowerCase().includes('hdrp')) cls = 'tag-hdrp';
+                    if (String(p).toLowerCase().includes('built')) cls = 'tag-builtin';
+                    return `<span class="badge-pipeline-tag ${cls}">${esc(p)}</span>`;
                 }).join(' ');
 
                 return `
@@ -713,10 +716,10 @@ if ($initials === '') {
                             </div>
                             <div>
                                 <div class="d-flex align-items-center gap-2 flex-wrap">
-                                    <span class="item-name">${item.title}</span>
+                                    <span class="item-name">${esc(item.title)}</span>
                                     ${badgeHtml}
                                 </div>
-                                <p class="item-author">Oleh ${item.creator || 'Arga Studio'}</p>
+                                <p class="item-author">Oleh ${esc(item.creator || 'Arga Studio')}</p>
                             </div>
                         </div>
                         <div class="item-price">Rp${price.toLocaleString('id-ID')}</div>
@@ -790,8 +793,8 @@ if ($initials === '') {
                     invoice_no: invoiceNo,
                     full_date: fullDateStr,
                     short_date: shortDateStr,
-                    buyer_name: '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>',
-                    buyer_email: '<?= htmlspecialchars($userEmail, ENT_QUOTES, 'UTF-8') ?>',
+                    buyer_name: <?= json_encode($userName, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+                    buyer_email: <?= json_encode($userEmail, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
                     payment_method: paymentMethodLabel,
                     status: 'Berhasil',
                     items: activeItems.map(i => ({
@@ -819,7 +822,7 @@ if ($initials === '') {
                         date: shortDateStr,
                         date_raw: rawDateStr,
                         status: 'Settlement',
-                        buyer_name: '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>'
+                        buyer_name: <?= json_encode($userName, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
                     };
 
                     const seller = IndoFXStorage.findSellerByAsset(item.id, item.title);

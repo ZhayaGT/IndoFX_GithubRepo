@@ -263,6 +263,9 @@ $adminInitials = 'AP';
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Helper escape output HTML -->
+    <script src="/assets/js/indofx-utils.js"></script>
+
     <!-- Helper penyimpanan lokal (kunci berbasis user_id) -->
     <script src="/assets/js/indofx-storage.js"></script>
 
@@ -579,7 +582,7 @@ $adminInitials = 'AP';
                         </a>
                     ` :
                     `
-                        <button type="button" class="btn-admin-detail" onclick="openReviewModal('${item.id}')">
+                        <button type="button" class="btn-admin-detail" data-review-id="${esc(item.id)}">
                             <i class="bi bi-file-earmark-text"></i> Detail
                         </button>
                     `;
@@ -588,17 +591,17 @@ $adminInitials = 'AP';
                     <tr>
                         <td>
                             <div class="d-inline-flex align-items-center gap-2 flex-nowrap">
-                                <span class="fw-bold text-dark text-nowrap">${item.title}</span>
-                                <span class="badge-pipe-admin ${pipeClass}">${pipe}</span>
+                                <span class="fw-bold text-dark text-nowrap">${esc(item.title)}</span>
+                                <span class="badge-pipe-admin ${pipeClass}">${esc(pipe)}</span>
                             </div>
-                            <div class="text-muted small" style="font-size: 0.73rem;">${item.file_info || 'File: package.zip'}</div>
+                            <div class="text-muted small" style="font-size: 0.73rem;">${esc(item.file_info || 'File: package.zip')}</div>
                         </td>
-                        <td class="fw-bold text-dark cell-nowrap">${item.studio || 'Studio Kreator'}</td>
-                        <td class="text-dark cell-nowrap">${item.unity_ver || 'Unity 2022.3 LTS'}</td>
-                        <td class="fw-bold text-dark cell-nowrap">${item.price || 'Gratis'}</td>
+                        <td class="fw-bold text-dark cell-nowrap">${esc(item.studio || 'Studio Kreator')}</td>
+                        <td class="text-dark cell-nowrap">${esc(item.unity_ver || 'Unity 2022.3 LTS')}</td>
+                        <td class="fw-bold text-dark cell-nowrap">${esc(item.price || 'Gratis')}</td>
                         <td class="cell-nowrap">
-                            <div class="text-dark">${item.created_at || 'Hari ini'}</div>
-                            <div class="text-muted small" style="font-size: 0.72rem;">${item.time || 'WIB'}</div>
+                            <div class="text-dark">${esc(item.created_at || 'Hari ini')}</div>
+                            <div class="text-muted small" style="font-size: 0.72rem;">${esc(item.time || 'WIB')}</div>
                         </td>
                         <td class="cell-nowrap">${statusBadge}</td>
                         <td class="text-end pe-3 cell-nowrap">${actionBtn}</td>
@@ -733,6 +736,13 @@ $adminInitials = 'AP';
         document.addEventListener('DOMContentLoaded', function() {
             modalReviewInstance = new bootstrap.Modal(document.getElementById('modalReviewAsset'));
             syncAdminDashboardData();
+
+            // Delegasi tombol Detail pada tabel antrean
+            document.addEventListener('click', function(event) {
+                const detailBtn = event.target.closest('[data-review-id]');
+                if (!detailBtn) return;
+                openReviewModal(detailBtn.getAttribute('data-review-id'));
+            });
 
             // Dropdown Profil Admin
             const btn = document.getElementById('adminDropdownBtn');

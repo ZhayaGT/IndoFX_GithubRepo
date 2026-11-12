@@ -201,6 +201,9 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Helper escape output HTML -->
+    <script src="/assets/js/indofx-utils.js"></script>
+
     <script>
         const userKey = '<?= $userKey ?>';
         let storeName = 'Arga Studio';
@@ -315,11 +318,11 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                 return `
                     <tr>
                         <td>
-                            <a href="javascript:void(0)" class="action-link fw-semibold">${item.invoice_no}</a>
+                            <a href="javascript:void(0)" class="action-link fw-semibold">${esc(item.invoice_no)}</a>
                         </td>
-                        <td class="fw-bold text-dark item-asset-title">${item.asset_title}</td>
-                        <td class="text-secondary small">${item.payment_method || 'QRIS/GoPay'}</td>
-                        <td class="text-muted small">${item.date || 'Hari ini'}</td>
+                        <td class="fw-bold text-dark item-asset-title">${esc(item.asset_title)}</td>
+                        <td class="text-secondary small">${esc(item.payment_method || 'QRIS/GoPay')}</td>
+                        <td class="text-muted small">${esc(item.date || 'Hari ini')}</td>
                         <td>
                             <span class="badge-status-approved">Settlement</span>
                         </td>

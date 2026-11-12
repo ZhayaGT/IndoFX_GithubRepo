@@ -321,6 +321,9 @@ $adminInitials = 'AP';
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Helper escape output HTML -->
+    <script src="/assets/js/indofx-utils.js"></script>
+
     <!-- ENGINE PENGAJUAN PENJUAL DINAMIS -->
     <script>
         // Data Awal Cadangan (Figma accurate)
@@ -547,7 +550,7 @@ $adminInitials = 'AP';
                 let actionColumnContent = '';
 
                 if (item.status === 'Aktif' || item.status === 'Diterima') {
-                    statusBadge = `<span class="badge-status-active">${item.status}</span>`;
+                    statusBadge = `<span class="badge-status-active">${esc(item.status)}</span>`;
                     // KETENTUAN 1: JIKA DITERIMA / AKTIF -> GANTI DENGAN CENTANG SAJA
                     actionColumnContent = `
                         <span class="btn-action-check" title="Pengajuan Telah Diterima">
@@ -558,7 +561,7 @@ $adminInitials = 'AP';
                     statusBadge = `<span class="badge-status-waiting">Menunggu</span>`;
                     // KETENTUAN 2: JIKA MENUNGGU -> TOMBOL LIHAT UNTUK MEMVERIFIKASI
                     actionColumnContent = `
-                        <button type="button" class="btn-action-view" onclick="openViewSellerModal('${item.id}')">
+                        <button type="button" class="btn-action-view" data-seller-request-id="${esc(item.id)}">
                             <i class="bi bi-eye"></i> Lihat
                         </button>
                     `;
@@ -566,7 +569,7 @@ $adminInitials = 'AP';
                     statusBadge = `<span class="badge-status-blocked">Ditolak</span>`;
                     // KETENTUAN 3: JIKA DITOLAK -> TOMBOL LIHAT BERISI DETAIL & ALASAN DITOLAK ADMIN
                     actionColumnContent = `
-                        <button type="button" class="btn-action-view" onclick="openViewSellerModal('${item.id}')">
+                        <button type="button" class="btn-action-view" data-seller-request-id="${esc(item.id)}">
                             <i class="bi bi-eye"></i> Lihat
                         </button>
                     `;
@@ -576,15 +579,15 @@ $adminInitials = 'AP';
                     <tr>
                         <td>
                             <div class="d-flex align-items-center gap-2">
-                                <span class="user-avatar-tag" style="background-color: ${item.bg || '#FEEFD8'}; color: ${item.color || '#B76E00'};">
-                                    ${item.inits || 'US'}
+                                <span class="user-avatar-tag" style="background-color: ${esc(item.bg || '#FEEFD8')}; color: ${esc(item.color || '#B76E00')};">
+                                    ${esc(item.inits || 'US')}
                                 </span>
-                                <span class="fw-bold text-dark">${item.name || item.full_name}</span>
+                                <span class="fw-bold text-dark">${esc(item.name || item.full_name)}</span>
                             </div>
                         </td>
-                        <td class="text-muted">${item.email}</td>
+                        <td class="text-muted">${esc(item.email)}</td>
                         <td>${statusBadge}</td>
-                        <td class="text-muted">${item.join_date || item.submission_date}</td>
+                        <td class="text-muted">${esc(item.join_date || item.submission_date)}</td>
                         <td class="text-end pe-4">
                             ${actionColumnContent}
                         </td>
@@ -618,7 +621,7 @@ $adminInitials = 'AP';
             } else if (item.status === 'Menunggu') {
                 badgeContainer.innerHTML = `<span class="badge-status-waiting">Menunggu Verifikasi</span>`;
             } else {
-                badgeContainer.innerHTML = `<span class="badge-status-active">${item.status}</span>`;
+                badgeContainer.innerHTML = `<span class="badge-status-active">${esc(item.status)}</span>`;
             }
 
             // KONDISI PENAMPILAN ALASAN DITOLAK vs FORM INPUT ADMIN
@@ -737,6 +740,13 @@ $adminInitials = 'AP';
 
         document.addEventListener('DOMContentLoaded', function() {
             modalViewInstance = new bootstrap.Modal(document.getElementById('modalViewSeller'));
+
+            // Delegasi tombol Lihat pengajuan penjual
+            document.addEventListener('click', function(event) {
+                const viewBtn = event.target.closest('[data-seller-request-id]');
+                if (!viewBtn) return;
+                openViewSellerModal(viewBtn.getAttribute('data-seller-request-id'));
+            });
 
             // Inisialisasi data dinamis
             loadSellerRequestsData();

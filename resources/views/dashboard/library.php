@@ -198,10 +198,13 @@ if ($initials === '') {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Helper escape output HTML -->
+    <script src="/assets/js/indofx-utils.js"></script>
     <script src="/assets/js/navbar-auth.js"></script>
     <script>
         const userKey = '<?= $userKey ?>';
-        const userName = '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>';
+        const userName = <?= json_encode($userName, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
         const storageKey = 'indofx_library_' + userKey;
         const reviewedStorageKey = 'indofx_reviewed_assets_' + userKey;
 
@@ -236,6 +239,11 @@ if ($initials === '') {
             window.location.href = '/library/detail?' + params.toString();
         }
 
+        function openAssetDetailById(assetId) {
+            const asset = getLibraryData().find(i => String(i.id) === String(assetId));
+            if (asset) openAssetDetail(asset);
+        }
+
         function renderLibrary() {
             const container = document.getElementById('libraryContainer');
             const items = getLibraryData();
@@ -266,42 +274,41 @@ if ($initials === '') {
 
                 const badgesHtml = pipelines.map(p => {
                     let cls = 'badge-urp';
-                    if (p.toLowerCase().includes('hdrp')) cls = 'badge-hdrp';
-                    if (p.toLowerCase().includes('built')) cls = 'badge-builtin';
-                    return `<span class="badge-tag-custom ${cls}">${p}</span>`;
+                    if (String(p).toLowerCase().includes('hdrp')) cls = 'badge-hdrp';
+                    if (String(p).toLowerCase().includes('built')) cls = 'badge-builtin';
+                    return `<span class="badge-tag-custom ${cls}">${esc(p)}</span>`;
                 }).join(' ');
 
-                const itemJson = JSON.stringify(item).replace(/"/g, '&quot;');
                 const alreadyReviewed = reviewedList.includes(String(item.id));
 
                 const actionButtonHtml = alreadyReviewed ? `
-                    <button type="button" class="btn-already-reviewed" disabled onclick="event.stopPropagation()">
+                    <button type="button" class="btn-already-reviewed" disabled>
                         Sudah Diulas
                     </button>
                 ` : `
-                    <button type="button" class="btn-action-delete" onclick="event.stopPropagation(); removeLibraryItem('${item.id}')">
+                    <button type="button" class="btn-action-delete" data-library-action="remove" data-library-id="${esc(item.id)}">
                         Hapus
                     </button>
-                    <button type="button" class="btn-action-review" onclick="event.stopPropagation(); openReviewModal('${item.id}', '${item.title.replace(/'/g, "\\'")}')">
+                    <button type="button" class="btn-action-review" data-library-action="review" data-library-id="${esc(item.id)}">
                         Beri Ulasan
                     </button>
                 `;
 
                 return `
-                    <div class="library-item-card" onclick="openAssetDetail(${itemJson})" title="Klik untuk membuka detail dan unduh aset">
+                    <div class="library-item-card" data-library-action="open" data-library-id="${esc(item.id)}" title="Klik untuk membuka detail dan unduh aset">
                         <div class="library-item-thumb">
                             <svg viewBox="0 0 175 98"><use href="#${artId}" /></svg>
                         </div>
                         <div class="library-item-content">
                             <div class="d-flex align-items-center gap-2 mb-1">
                                 <span class="status-badge-blue">DIBELI</span>
-                                <span class="text-muted small">Perolehan: ${item.date || '02 Nov 2026'}</span>
+                                <span class="text-muted small">Perolehan: ${esc(item.date || '02 Nov 2026')}</span>
                             </div>
                             <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
-                                <h5 class="library-asset-heading">${item.title}</h5>
+                                <h5 class="library-asset-heading">${esc(item.title)}</h5>
                                 <div>${badgesHtml}</div>
                             </div>
-                            <p class="text-muted small m-0">Oleh ${item.creator || 'Arga Studio'}</p>
+                            <p class="text-muted small m-0">Oleh ${esc(item.creator || 'Arga Studio')}</p>
                         </div>
                         <div class="library-actions-wrap">
                             ${actionButtonHtml}
@@ -310,6 +317,26 @@ if ($initials === '') {
                 `;
             }).join('');
         }
+
+        document.addEventListener('click', function (event) {
+            const trigger = event.target.closest('[data-library-action]');
+            if (!trigger) return;
+
+            const action = trigger.getAttribute('data-library-action');
+            const assetId = trigger.getAttribute('data-library-id');
+            if (!assetId) return;
+
+            if (action === 'remove') {
+                event.stopPropagation();
+                removeLibraryItem(assetId);
+            } else if (action === 'review') {
+                event.stopPropagation();
+                const asset = getLibraryData().find(i => String(i.id) === String(assetId));
+                openReviewModal(assetId, asset ? asset.title : 'Aset IndoFX');
+            } else if (action === 'open') {
+                openAssetDetailById(assetId);
+            }
+        });
 
         function setFilter(filterType, el) {
             currentFilter = filterType;

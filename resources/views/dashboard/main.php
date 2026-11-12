@@ -208,13 +208,16 @@ $sellerInitials = mb_strtoupper(mb_substr($sellerUsername, 0, 1));
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Helper escape output HTML -->
+    <script src="/assets/js/indofx-utils.js"></script>
+
     <!-- Helper penyimpanan lokal (kunci berbasis user_id) -->
     <script src="/assets/js/indofx-storage.js"></script>
 
     <!-- Script Hidrasi Data Lintas Storage Dinamis -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const currentSeller = '<?= $sellerUsername ?>';
+            const currentSeller = <?= json_encode($sellerUsername, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
             const currentUserId = '<?= $sellerUserId ?>';
 
             // 1. Profil Toko Penjual (kunci user_id, fallback nama lama)
@@ -347,11 +350,11 @@ $sellerInitials = mb_strtoupper(mb_substr($sellerUsername, 0, 1));
 
                 return `
                     <tr>
-                        <td class="fw-bold text-dark item-asset-title">${item.title}</td>
-                        <td class="text-muted small">${item.category || 'VFX Partikel'}</td>
-                        <td class="fw-bold text-dark">${item.price_text || (priceNum === 0 ? 'Gratis' : 'Rp' + priceNum.toLocaleString('id-ID'))}</td>
+                        <td class="fw-bold text-dark item-asset-title">${esc(item.title)}</td>
+                        <td class="text-muted small">${esc(item.category || 'VFX Partikel')}</td>
+                        <td class="fw-bold text-dark">${esc(item.price_text || (priceNum === 0 ? 'Gratis' : 'Rp' + priceNum.toLocaleString('id-ID')))}</td>
                         <td>${badgeHtml}</td>
-                        <td class="text-muted small">${item.created_at}</td>
+                        <td class="text-muted small">${esc(item.created_at)}</td>
                         <td class="text-end pe-4 text-nowrap">
                             <a href="/dashboard/assets" class="action-link me-2">Edit</a>
                             <span class="text-muted mx-1">|</span>
@@ -409,10 +412,10 @@ $sellerInitials = mb_strtoupper(mb_substr($sellerUsername, 0, 1));
                 transTbody.innerHTML = sellerSales.slice(0, 5).map(item => `
                     <tr>
                         <td class="fw-semibold">
-                            <a href="/dashboard/transactions" class="action-link">${item.invoice_no}</a>
+                            <a href="/dashboard/transactions" class="action-link">${esc(item.invoice_no)}</a>
                         </td>
-                        <td class="fw-bold text-dark item-asset-title">${item.asset_title}</td>
-                        <td class="text-muted small">${item.date}</td>
+                        <td class="fw-bold text-dark item-asset-title">${esc(item.asset_title)}</td>
+                        <td class="text-muted small">${esc(item.date)}</td>
                         <td class="text-end pe-4 fw-bold text-success">Rp${(parseFloat(item.price) || 0).toLocaleString('id-ID')}</td>
                     </tr>
                 `).join('');

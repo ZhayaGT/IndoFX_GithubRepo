@@ -185,13 +185,16 @@ $userEmail  = (string) ($_SESSION['email'] ?? ($userName . '@gmail.com'));
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Helper escape output HTML -->
+    <script src="/assets/js/indofx-utils.js"></script>
+
     <!-- Helper penyimpanan lokal (kunci berbasis user_id) -->
     <script src="/assets/js/indofx-storage.js"></script>
 
     <script>
         const userKey = '<?= $userKey ?>';
-        const defaultName = '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>';
-        const defaultEmail = '<?= htmlspecialchars($userEmail, ENT_QUOTES, 'UTF-8') ?>';
+        const defaultName = <?= json_encode($userName, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+        const defaultEmail = <?= json_encode($userEmail, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 
         document.addEventListener('DOMContentLoaded', function() {
             // 1. Ambil data profil toko tersimpan
