@@ -10,9 +10,9 @@
  *   - Akun yang belum ada akan dibuat.
  *   - Akun seed yang sudah ada dengan hash password valid akan dilewati.
  *   - Akun seed dengan hash rusak (mis. berisi teks error) atau password yang
- *     tidak sesuai akan direset hash-nya memakai password default di bawah.
- *     Hash di-update di tempat (bukan hapus baris) agar aset yang terhubung
- *     ke akun tersebut tidak ikut terhapus oleh ON DELETE CASCADE.
+ *     tidak sesuai akan direset. Jika akun sudah punya aset, hash di-update
+ *     di tempat agar aset tidak terhapus oleh ON DELETE CASCADE; jika belum
+ *     punya aset, baris lama dihapus lalu dibuat ulang.
  */
 
 declare(strict_types=1);
@@ -50,16 +50,25 @@ foreach ($users as $user) {
             continue;
         }
 
-        // Hash rusak atau password tidak sesuai seed: reset hash di tempat.
-        $db->query(
-            'UPDATE users SET password_hash = :hash, updated_at = NOW() WHERE email = :email',
-            [
-                ':hash'  => password_hash($user['password'], PASSWORD_DEFAULT),
-                ':email' => $user['email'],
-            ]
-        );
-        echo "Reset kredensial: {$user['email']}\n";
-        continue;
+        $assetCount = (int) $db
+            ->query('SELECT COUNT(*) FROM assets WHERE seller_id = :id', [':id' => $existing['id']])
+            ->fetchColumn();
+
+        if ($assetCount > 0) {
+            // Pertahankan baris agar aset yang terhubung tidak ikut terhapus.
+            $db->query(
+                'UPDATE users SET password_hash = :hash, updated_at = NOW() WHERE id = :id',
+                [
+                    ':hash' => password_hash($user['password'], PASSWORD_DEFAULT),
+                    ':id'   => $existing['id'],
+                ]
+            );
+            echo "Reset kredensial (aset dipertahankan): {$user['email']}\n";
+            continue;
+        }
+
+        $db->query('DELETE FROM users WHERE id = :id', [':id' => $existing['id']]);
+        echo "Hapus akun demo lama: {$user['email']}\n";
     }
 
     $model->create($user['name'], $user['email'], password_hash($user['password'], PASSWORD_DEFAULT), $user['role']);
