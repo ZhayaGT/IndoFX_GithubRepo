@@ -11,7 +11,7 @@ class User extends Model {
     public function findByEmail($email) {
         $sql = "SELECT u.*, p.name, p.bio 
                 FROM users u
-                LEFT JOIN user_profiles p ON u.id = p.user_id
+               LEFT JOIN user_profiles p ON u.id = p.user_id
                 WHERE u.email = :email 
                 LIMIT 1";
         $stmt = $this->db->prepare($sql);

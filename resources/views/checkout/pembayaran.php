@@ -45,15 +45,15 @@ $grandTotal = $subtotal > 0 ? ($subtotal + $feeAdmin) : 0;
     <title>Selesaikan Pembayaran - IndoFX</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
 
     <style>
         body {
-            background-color: var(--ifx-cream-bg, #FDECE2);
+            background-color: var(--ifx-cream-bg, #FAF0E6);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -149,35 +149,56 @@ $grandTotal = $subtotal > 0 ? ($subtotal + $feeAdmin) : 0;
         .tag-urp { background-color: #a82828; }
         .tag-builtin { background-color: #0b72b9; }
 
-        /* Metode Pembayaran Sesuai Figma */
-        .payment-method-box {
+        /* CARD METODE PEMBAYARAN KHUSUS QRIS PERSIS FIGMA image_df847a */
+        .qris-payment-card {
             background-color: #ffffff;
             border: 1.5px solid #2B2129;
             border-radius: 8px;
-            padding: 18px 20px;
-            box-shadow: 0 4px 12px rgba(43, 33, 41, 0.04);
-        }
-
-        .payment-row {
+            padding: 14px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 14px;
-            border: 1px solid #e2d7cf;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            background-color: #ffffff;
-            cursor: pointer;
-            transition: all 0.15s ease;
+            box-shadow: 0 4px 12px rgba(43, 33, 41, 0.04);
+            margin-bottom: 24px;
         }
         .payment-row:last-child { margin-bottom: 0; }
         .payment-row:hover, .payment-row.selected { border-color: #ED6B1D; background-color: #fff9f6; }
 
-        .payment-label { font-size: 0.88rem; font-weight: 600; color: #1a1a1a; margin-bottom: 0; }
-        .payment-logos { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-        .logo-badge { font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; border: 1px solid #d0c0b6; background-color: #ffffff; color: #2b2129; }
+        .qris-label-text {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1A1A1A;
+            margin: 0;
+        }
 
-        /* Detail Pembayaran (Panel Kanan) Sesuai Figma */
+        /* BADGE LOGO QRIS SESUAI GAMBAR ACUAN image_df6923 */
+        .qris-official-badge {
+            background-color: #FAF2E8;
+            border: 1.5px solid #D5C7BB;
+            border-radius: 10px;
+            padding: 6px 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            user-select: none;
+        }
+
+        .qris-badge-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.25;
+            text-align: left;
+        }
+
+        .qris-badge-text span {
+            color: #1A1A1A !important;
+            font-size: 11px !important;
+            font-weight: 600 !important;
+            letter-spacing: -0.1px;
+            font-family: 'Inter', -apple-system, sans-serif !important;
+        }
+
+        /* Detail Pembayaran Kanan */
         .detail-payment-card {
             background-color: #ffffff;
             border: 1.5px solid #2B2129;
@@ -201,8 +222,48 @@ $grandTotal = $subtotal > 0 ? ($subtotal + $feeAdmin) : 0;
             background-color: #ED6B1D; color: #ffffff !important; font-weight: 800; font-size: 1rem;
             border: none; border-radius: 6px; padding: 12px; width: 100%; text-align: center; cursor: pointer; transition: background-color 0.15s ease;
         }
-        .btn-buy:hover { background-color: #d95d12; }
-        .payment-disclaimer { font-size: 0.7rem; color: #555555; line-height: 1.4; margin-top: 14px; margin-bottom: 0; }
+
+        /* FOOTER PUTIH SOLID PENUH PERSIS GAMBAR image_df71bc */
+        .footer-white-solid {
+            background-color: #ffffff !important;
+            border-top: 1px solid #ebdcd1;
+            padding: 48px 0 24px 0;
+            width: 100%;
+            margin-top: auto;
+        }
+
+        .footer-white-brand {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #1A1A1A;
+            margin-bottom: 6px;
+        }
+
+        .footer-white-desc {
+            font-size: 0.85rem;
+            color: #3C2A21;
+            margin-bottom: 8px;
+        }
+
+        .footer-white-contact {
+            font-size: 0.85rem;
+            color: #1A1A1A;
+            margin-bottom: 46px;
+        }
+
+        .footer-white-contact strong {
+            font-weight: 800;
+        }
+
+        .footer-white-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #1A1A1A;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
     </style>
 
     <!-- Library Pop-Up Midtrans Snap (Sandbox) -->
@@ -226,7 +287,7 @@ $grandTotal = $subtotal > 0 ? ($subtotal + $feeAdmin) : 0;
         </defs>
     </svg>
 
-    <!-- Header Navbar Sesuai Figma -->
+    <!-- Header Navbar Oranye -->
     <nav class="navbar navbar-checkout sticky-top">
         <div class="container-figma d-flex justify-content-between align-items-center w-100">
             <a class="navbar-brand m-0 d-flex align-items-center gap-2 text-decoration-none" href="/">
@@ -418,7 +479,13 @@ $grandTotal = $subtotal > 0 ? ($subtotal + $feeAdmin) : 0;
             <p class="text-muted small mb-3 mx-auto" style="max-width: 540px;">
                 Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
             </p>
-            <div class="d-flex justify-content-between align-items-center text-muted small pt-3 border-top flex-wrap gap-2">
+            <div class="footer-white-contact">
+                <strong>Kontak dan Email:</strong>
+                <span class="ms-3 me-4">08123456xxxx</span>
+                <span>helpdesk@indofx.com</span>
+            </div>
+
+            <div class="footer-white-bottom">
                 <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
                 <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
             </div>

@@ -15,6 +15,15 @@
   --ifx-cream-bg: #faf0e6;
 }
 
+/* ========================================================
+   1. RESET GLOBAL & ANTI-OVERFLOW
+   ======================================================== */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   font-family:
     "Inter",
@@ -25,28 +34,26 @@ body {
   background-color: var(--indofx-cream-bg);
 }
 
-/* Kontainer Konten Halaman Bawah: Rapat & Padat */
 .container-figma {
   max-width: 1360px;
   width: 100%;
   margin: 0 auto;
   padding: 0 24px;
 }
-/* Kontainer Khusus Katalog: Sejajar Sempurna dengan Navbar */
+
 .container-catalog-figma {
   width: 100% !important;
   max-width: 100% !important;
   margin: 0 !important;
-  padding-left: 145px !important; /* Lurus sejajar vertikal di bawah Logo IndoFX */
-  padding-right: 100px !important; /* Lurus sejajar vertikal di bawah Profil Kanan */
+  padding-left: 145px !important;
+  padding-right: 100px !important;
 }
 
-/* Lebar Kolom Filter Tetap Ramping & Berjarak Lega ke Aset */
 .filter-sidebar-col {
   width: 270px !important;
   flex: 0 0 270px !important;
   max-width: 270px !important;
-  margin-right: 28px !important; /* Memberi jeda pemisah yang lega dari kumpulan aset */
+  margin-right: 28px !important;
 }
 
 .catalog-grid-col {
@@ -54,50 +61,29 @@ body {
   min-width: 0 !important;
 }
 
-/* Responsif Layar Laptop / Tablet */
-@media (max-width: 1200px) {
-  .container-catalog-figma {
-    padding-left: 40px !important;
-    padding-right: 40px !important;
-  }
-}
-
-@media (max-width: 991.98px) {
-  .container-catalog-figma {
-    padding-left: 16px !important;
-    padding-right: 16px !important;
-  }
-  .filter-sidebar-col {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin-right: 0 !important;
-    margin-bottom: 20px !important;
-  }
-}
-
 /* ========================================================
-   1. HEADER NAVBAR (POSISI PRESISI SESUAI FIGMA)
+   2. HEADER NAVBAR & STATUS LOGIN
    ======================================================== */
 .navbar-orange {
   background-color: var(--indofx-orange);
-  padding: 0.75rem 0;
+  padding: 0.65rem 0;
   z-index: 1030;
   width: 100%;
   position: sticky;
   top: 0;
 }
 
-/* Navbar: Logo agak ke kanan (145px), tombol tetap di kanan (100px) */
 .navbar-figma-container {
   width: 100% !important;
   max-width: 100% !important;
   margin: 0 !important;
-  padding-left: 145px !important; /* Menjaga logo IndoFX masuk agak ke kanan */
-  padding-right: 100px !important; /* Menjaga tombol & profil tetap di sisi kanan */
+  padding-left: 60px !important;
+  padding-right: 60px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
   position: relative !important;
+  gap: 16px;
 }
 
 .brand-text {
@@ -107,7 +93,6 @@ body {
   letter-spacing: -0.5px;
 }
 
-/* Kotak Pencarian Presisi di Tengah Seimbang */
 .search-box-header {
   position: relative;
   width: 100%;
@@ -121,6 +106,8 @@ body {
     margin: 0 20px !important; 
     flex-grow: 1; 
   }
+  flex: 0 1 420px;
+  margin: 0 16px;
 }
 
 .search-input-header {
@@ -131,6 +118,7 @@ body {
   border: 1px solid #d8c8bd;
   background-color: #ffffff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+  width: 100%;
 }
 
 .search-input-header::placeholder {
@@ -167,10 +155,8 @@ body {
   color: var(--ifx-orange);
 }
 
-/* ========================================================
-   NAVBAR AUTHENTICATED STATE (FIGMA ACCURATE)
-   ======================================================== */
-.navbar-auth {
+.navbar-auth,
+.navbar-auth-group {
   display: flex;
   align-items: center;
   position: relative;
@@ -179,13 +165,9 @@ body {
 }
 
 .navbar-auth-group {
-  display: flex;
-  align-items: center;
   gap: 12px;
-  flex-shrink: 0;
 }
 
-/* 1. Tombol Jadi Penjual / Dashboard */
 .btn-nav-seller {
   background: linear-gradient(180deg, #ffffff 0%, #faede2 100%) !important;
   color: #2b2623 !important;
@@ -210,7 +192,6 @@ body {
   color: #2b2623 !important;
 }
 
-/* 2. Tombol Library Saya */
 .btn-nav-library {
   background-color: transparent !important;
   color: #ffffff !important;
@@ -233,7 +214,6 @@ body {
   color: #ffffff !important;
 }
 
-/* 3. Ikon Keranjang Belanja */
 .btn-nav-cart {
   color: #ffffff !important;
   font-size: 1.35rem;
@@ -253,7 +233,6 @@ body {
   transform: scale(1.08);
 }
 
-/* 4. Trigger Avatar & Profiling */
 .navbar-avatar-wrap {
   position: relative;
   display: inline-block;
@@ -271,7 +250,8 @@ body {
   text-decoration: none;
 }
 
-.avatar-circle-inner {
+.avatar-circle-inner,
+.avatar-circle {
   width: 34px;
   height: 34px;
   border-radius: 50%;
@@ -298,7 +278,6 @@ body {
   letter-spacing: -0.2px;
 }
 
-/* 5. Dropdown Menu Profil */
 .navbar-avatar-menu {
   position: absolute;
   top: calc(100% + 10px);
@@ -358,9 +337,9 @@ body {
   color: #d32f2f !important;
 }
 
-/* ==========================================
-   2. HERO SECTION
-   ========================================== */
+/* ========================================================
+   3. HERO SECTION & KATEGORI CEPAT
+   ======================================================== */
 .hero-section {
   background-color: #ffffff;
   position: relative;
@@ -376,6 +355,8 @@ body {
   font-size: 2.1rem;
   color: var(--indofx-dark);
   line-height: 1.25;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 .hero-desc {
@@ -394,7 +375,7 @@ body {
 
 .btn-hero-orange {
   background-color: var(--indofx-orange, #ed6b1d);
-  color: #2b2623;
+  color: #ffffff !important;
   font-weight: 700;
   font-size: 0.88rem;
   padding: 0.65rem 1.4rem;
@@ -405,11 +386,11 @@ body {
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
+  display: inline-block;
 }
 
 .btn-hero-orange:hover {
   background-color: var(--indofx-orange-hover, #d85a0e);
-  color: #2b2623;
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(237, 107, 29, 0.45);
 }
@@ -427,6 +408,7 @@ body {
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
+  display: inline-block;
 }
 
 .btn-hero-cream:hover {
@@ -435,9 +417,6 @@ body {
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
 }
 
-/* ==========================================
-   3. CONTENT BODY & KATEGORI
-   ========================================== */
 .content-body-wrapper {
   background-color: var(--indofx-cream-bg);
   position: relative;
@@ -454,6 +433,7 @@ body {
 .section-sub-center {
   font-size: 0.82rem;
   color: #666666;
+  margin-bottom: 1.25rem;
 }
 
 .category-pill {
@@ -466,6 +446,7 @@ body {
   color: var(--indofx-dark);
   text-decoration: none;
   transition: all 0.15s ease;
+  display: inline-block;
 }
 
 .category-pill:hover {
@@ -492,9 +473,9 @@ body {
   text-underline-offset: 3px;
 }
 
-/* ==========================================
-   KARTU ASET FIGMA (PROPORSI PADAT PERSIS FIGMA)
-   ========================================== */
+/* ========================================================
+   4. KARTU ASET & PIPELINE BADGES
+   ======================================================== */
 .asset-card-figma {
   background-color: #ffffff;
   border: 1.5px solid var(--ifx-border-dark);
@@ -556,8 +537,8 @@ body {
   color: #736b66;
 }
 
-/* Tag Pipeline */
-.badge-pipeline {
+.badge-pipeline,
+.badge-tag-custom {
   display: inline-block;
   font-size: 0.62rem;
   font-weight: 800;
@@ -568,26 +549,29 @@ body {
 }
 
 .badge-pipeline-urp,
-.tag-urp {
+.tag-urp,
+.badge-urp {
   background-color: #a3161c !important;
   color: #ffffff !important;
 }
 
 .badge-pipeline-hdrp,
-.tag-hdrp {
+.tag-hdrp,
+.badge-hdrp {
   background-color: #4f378b !important;
   color: #ffffff !important;
 }
 
 .badge-pipeline-builtin,
-.tag-builtin {
+.tag-builtin,
+.badge-builtin {
   background-color: #0088ff !important;
   color: #ffffff !important;
 }
 
-/* ==========================================
-   4. FILTER & PAGINATION EKSPLORASI
-   ========================================== */
+/* ========================================================
+   5. FILTER & PAGINASI KATALOG
+   ======================================================== */
 .filter-search-card {
   background-color: #ffffff;
   border: 1.5px solid var(--ifx-border-dark);
@@ -667,9 +651,9 @@ body {
   background-color: rgba(59, 35, 20, 0.08);
 }
 
-/* ==========================================
-   5. HALAMAN DETAIL ASET
-   ========================================== */
+/* ========================================================
+   6. HALAMAN DETAIL ASET
+   ======================================================== */
 .asset-detail-page {
   padding: 28px 0 56px 0;
   background-color: #fdf3ec;
@@ -874,179 +858,9 @@ body {
   color: var(--ifx-brown-dark);
 }
 
-/* ==========================================
-   6. HALAMAN PROFIL KREATOR
-   ========================================== */
-.avatar-circle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  background-color: #6c5548;
-  color: #ffffff;
-  border-radius: 50%;
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
-.creator-profile-card {
-  background-color: #ffffff;
-  border: 1.5px solid var(--ifx-border-dark);
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 4px 14px rgba(59, 35, 20, 0.06);
-}
-
-.creator-banner-maroon {
-  height: 120px;
-  background: linear-gradient(135deg, #7a1919 0%, #a32424 100%);
-  width: 100%;
-}
-
-.creator-info-body {
-  position: relative;
-  padding: 0 28px 24px 28px;
-  display: flex;
-  align-items: flex-end;
-  gap: 20px;
-}
-
-.creator-avatar-float {
-  position: relative;
-  margin-top: -46px;
-  width: 92px;
-  height: 92px;
-  border-radius: 50%;
-  background-color: #553e32;
-  border: 4px solid #ffffff;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
-  font-size: 1.8rem;
-  font-weight: 800;
-  flex-shrink: 0;
-}
-
-.creator-name {
-  font-size: 1.4rem;
-  font-weight: 800;
-  color: var(--ifx-brown-dark);
-  margin-bottom: 2px;
-}
-
-.creator-bio {
-  font-size: 0.82rem;
-  color: var(--ifx-brown-muted);
-}
-
-/* ==========================================
-   7. FOOTER MINIMAL (SESUAI GAMBAR TERBARU)
-   ========================================== */
-.footer-main {
-  background-color: #ffffff;
-  padding: 3.5rem 0 2rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
-  position: relative;
-  z-index: 10;
-  width: 100%;
-}
-
-.footer-center-content {
-  text-align: center;
-  max-width: 680px;
-  margin: 0 auto 3.5rem auto;
-}
-
-.footer-brand-title-center {
-  font-weight: 800;
-  font-size: 1.25rem;
-  color: var(--indofx-dark, #2b2623);
-  margin-bottom: 8px;
-}
-
-.footer-brand-desc-center {
-  font-size: 0.85rem;
-  line-height: 1.5;
-  color: #666666;
-  margin: 0;
-}
-
-.footer-bottom-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: gap;
-  gap: 12px;
-  font-size: 0.82rem;
-  color: #333333;
-}
-
-@media (max-width: 768px) {
-  .footer-bottom-bar {
-    flex-direction: column;
-    text-align: center;
-  }
-}
-
-/* ==========================================
-   RESPONSIVE NAVBAR RULES
-   ========================================== */
-@media (max-width: 991.98px) {
-  .navbar-figma-container {
-    padding: 0 16px !important;
-  }
-
-  .avatar-username-label {
-    display: none !important;
-  }
-
-  .navbar-auth-group {
-    gap: 10px;
-  }
-}
-
-@media (max-width: 767.98px) {
-  .search-box-header {
-    flex: 1 1 auto;
-    min-width: 140px;
-    margin: 0 8px !important;
-  }
-
-  .search-input-header {
-    font-size: 0.8rem;
-    height: 35px;
-    padding-left: 2.1rem;
-  }
-
-  .search-icon-header {
-    left: 0.65rem;
-    font-size: 0.85rem;
-  }
-
-  .btn-nav-cart {
-    font-size: 1.25rem;
-    padding: 2px 4px;
-  }
-
-  .avatar-circle-inner {
-    width: 32px;
-    height: 32px;
-    font-size: 0.78rem;
-  }
-}
-
-@media (max-width: 440px) {
-  .brand-text {
-    display: none;
-  }
-}
-
-/* ==========================================================================
-   STYLING HALAMAN PROFIL KREATOR & ASET DIMILIKI (CREATOR/PROFILE.PHP)
-   ========================================================================== */
+/* ========================================================
+   7. PROFIL KREATOR & ASET DIMILIKI
+   ======================================================== */
 .profile-page-wrapper {
   background-color: var(--indofx-cream-bg, #faf0e6);
   min-height: calc(100vh - 160px);
@@ -1189,7 +1003,7 @@ body {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
-  line-clamp: 2; /* Menambahkan properti standar agar peringatan hilang */
+  line-clamp: 2;
   overflow: hidden;
   text-decoration: none;
   line-height: 1.35;
@@ -1228,4 +1042,529 @@ body {
   border-radius: 10px;
   padding: 48px 24px;
   text-align: center;
+}
+
+/* ========================================================
+   8. LIBRARY SAYA & MODAL ULASAN
+   ======================================================== */
+.library-title {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--indofx-dark, #2b2623);
+}
+
+.library-sub {
+  font-size: 0.88rem;
+  color: #7a685d;
+}
+
+.filter-nav-tabs .filter-tab-btn {
+  background: none;
+  border: none;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #7a685d;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.filter-nav-tabs .filter-tab-btn.active {
+  color: var(--indofx-dark, #2b2623);
+  font-weight: 800;
+}
+
+.library-item-card {
+  background-color: #ffffff;
+  border: 1.5px solid var(--ifx-border-dark, #2b2623);
+  border-radius: 8px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 4px 12px rgba(60, 42, 33, 0.04);
+  margin-bottom: 14px;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+  overflow: hidden;
+}
+
+.library-item-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(60, 42, 33, 0.08);
+}
+
+.library-item-thumb {
+  width: 175px;
+  height: 98px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: #241e24;
+}
+
+.library-item-thumb svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.library-item-content {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.status-badge-blue {
+  background-color: #2563eb;
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.library-asset-heading {
+  font-size: 1.12rem;
+  font-weight: 800;
+  color: var(--indofx-dark, #2b2623);
+  margin: 0;
+  transition: color 0.15s ease;
+}
+
+.library-item-card:hover .library-asset-heading {
+  color: var(--indofx-orange, #ed6b1d);
+}
+
+.library-actions-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-action-delete {
+  background-color: #dc2626;
+  color: #ffffff !important;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 7px 18px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.btn-action-delete:hover {
+  opacity: 0.88;
+}
+
+.btn-action-review {
+  background-color: #0284c7;
+  color: #ffffff !important;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 7px 18px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.btn-action-review:hover {
+  opacity: 0.88;
+}
+
+.btn-already-reviewed {
+  background-color: #ffffff;
+  color: #b5a498 !important;
+  border: 1.5px solid #d8c8bd !important;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 7px 18px;
+  border-radius: 6px;
+  cursor: default;
+  user-select: none;
+}
+
+.empty-library-card {
+  border: 1.5px dashed var(--ifx-border-dark, #2b2623);
+  border-radius: 8px;
+  min-height: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.modal-review-figma .modal-content {
+  border: 1px solid #e0d0c5;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  background-color: #ffffff;
+  padding: 8px 12px;
+}
+
+.modal-review-figma .modal-header {
+  border-bottom: 1px solid #ebdcd1;
+  padding: 16px 20px;
+}
+
+.modal-review-figma .modal-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  letter-spacing: -0.3px;
+}
+
+.modal-review-figma .modal-body {
+  padding: 24px 20px 16px 20px;
+}
+
+.modal-review-figma .form-label-figma {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.interactive-stars-box {
+  display: flex;
+  gap: 16px;
+  font-size: 2.1rem;
+  color: var(--indofx-orange, #ed6b1d) !important;
+  cursor: pointer;
+  line-height: 1;
+  margin-bottom: 22px;
+}
+
+.interactive-stars-box i {
+  color: var(--indofx-orange, #ed6b1d) !important;
+  transition: transform 0.1s ease;
+}
+
+.interactive-stars-box i:hover {
+  transform: scale(1.15);
+}
+
+.input-review-figma {
+  border: 1.5px solid #d8c8bd;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  color: #1a1a1a;
+  background-color: #ffffff;
+  transition: border-color 0.15s ease;
+}
+
+.input-review-figma:focus {
+  border-color: #ed6b1d;
+  box-shadow: none;
+  outline: none;
+}
+
+.input-review-figma::placeholder {
+  color: #736b66;
+  opacity: 0.85;
+}
+
+.modal-review-figma .modal-footer {
+  border-top: none;
+  padding: 8px 20px 20px 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-modal-cancel {
+  background-color: #ffffff;
+  color: #1a1a1a;
+  border: 1.5px solid #d8c8bd;
+  font-weight: 700;
+  font-size: 0.92rem;
+  padding: 10px 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-modal-cancel:hover {
+  background-color: #f7f1ec;
+}
+
+.btn-modal-upload {
+  background-color: #ed6b1d;
+  color: #ffffff !important;
+  border: none;
+  font-weight: 700;
+  font-size: 0.92rem;
+  padding: 10px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.btn-modal-upload:hover {
+  background-color: #d85a0e;
+}
+
+.review-success-message {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  text-align: center;
+  padding: 65px 15px;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+/* ========================================================
+   9. FOOTER GLOBAL RESMI (PUTIH SOLID PENUH)
+   ======================================================== */
+.footer-main {
+  background-color: #ffffff !important;
+  padding: 3.5rem 0 2rem;
+  border-top: 1px solid #ebdcd1;
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  margin-top: auto;
+}
+
+.footer-center-content {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 3rem auto;
+}
+
+.footer-brand-title-center {
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: var(--indofx-dark, #2b2623);
+  margin-bottom: 8px;
+}
+
+.footer-brand-desc-center {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #4a3b32;
+  margin: 0;
+}
+
+.footer-contact-row {
+  font-size: 0.85rem;
+  color: #1a1a1a;
+  margin-top: 10px;
+}
+
+.footer-contact-row strong {
+  font-weight: 800;
+}
+
+.footer-bottom-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.82rem;
+  color: #1a1a1a;
+  flex-wrap: wrap;
+}
+
+/* ========================================================
+   10. MEDIA QUERIES & RESPONSIF (TERKONSOLIDASI RAPI)
+   ======================================================== */
+@media (min-width: 1250px) {
+  .search-box-header {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    max-width: 420px !important;
+    margin: 0 !important;
+    z-index: 5;
+  }
+}
+
+@media (max-width: 1249.98px) and (min-width: 992px) {
+  .navbar-figma-container {
+    padding-left: 32px !important;
+    padding-right: 32px !important;
+  }
+  .search-box-header {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    transform: none !important;
+    margin: 0 auto !important;
+    max-width: 320px !important;
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 1200px) {
+  .container-catalog-figma {
+    padding-left: 40px !important;
+    padding-right: 40px !important;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .container-catalog-figma {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+  .filter-sidebar-col {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-right: 0 !important;
+    margin-bottom: 20px !important;
+  }
+  .navbar-figma-container {
+    padding: 0 16px !important;
+    gap: 8px;
+  }
+  .avatar-username-label {
+    display: none !important;
+  }
+  .navbar-auth-group {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .navbar-orange {
+    padding: 0.5rem 0;
+  }
+  .navbar-figma-container {
+    padding: 0 14px !important;
+    gap: 8px !important;
+  }
+  .search-box-header {
+    flex: 1 1 auto;
+    min-width: 110px;
+    max-width: none;
+    margin: 0 4px !important;
+  }
+  .search-input-header {
+    font-size: 0.78rem;
+    height: 35px;
+    padding-left: 2rem;
+  }
+  .search-icon-header {
+    left: 0.65rem;
+    font-size: 0.82rem;
+  }
+  .btn-nav-cart {
+    font-size: 1.25rem;
+    padding: 2px 4px;
+  }
+  .avatar-circle-inner {
+    width: 32px;
+    height: 32px;
+    font-size: 0.76rem;
+  }
+  .container-figma {
+    padding: 0 16px !important;
+  }
+  .hero-section {
+    padding: 2.2rem 0 !important;
+  }
+  .hero-title {
+    font-size: 1.5rem !important;
+    line-height: 1.3 !important;
+    margin-bottom: 12px !important;
+  }
+  .hero-desc {
+    font-size: 0.82rem !important;
+    line-height: 1.55 !important;
+    margin-bottom: 18px !important;
+  }
+  .btn-hero-orange,
+  .btn-hero-cream {
+    font-size: 0.82rem !important;
+    padding: 0.55rem 1.1rem !important;
+  }
+  .hero-image-wrapper {
+    margin-top: 24px !important;
+    max-height: 220px !important;
+  }
+  .content-body-wrapper {
+    padding: 2rem 0 3rem !important;
+  }
+  .section-heading-center {
+    font-size: 1.15rem !important;
+  }
+  .section-sub-center {
+    font-size: 0.78rem !important;
+    margin-bottom: 1rem !important;
+  }
+  .category-pill {
+    padding: 0.35rem 1rem !important;
+    font-size: 0.78rem !important;
+  }
+  .content-body-wrapper .d-flex.justify-content-center,
+  .content-body-wrapper [class*="category"] {
+    margin-bottom: 1.75rem !important;
+  }
+  .catalog-heading {
+    font-size: 1.1rem !important;
+    margin-top: 0.75rem !important;
+  }
+  .footer-bottom-bar {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+/* RESPONSIF MOBILE KARTU LIBRARY */
+@media (max-width: 680px) {
+  .library-title {
+    font-size: 1.5rem !important;
+  }
+  .library-item-card {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 14px !important;
+    gap: 12px !important;
+  }
+  .library-item-thumb {
+    width: 100% !important;
+    height: 170px !important;
+  }
+  .library-item-content {
+    width: 100% !important;
+  }
+  .library-asset-heading {
+    font-size: 1.05rem !important;
+  }
+  .library-actions-wrap {
+    width: 100% !important;
+    display: flex !important;
+    gap: 8px !important;
+    border-top: 1px solid #f2ebe5;
+    padding-top: 12px;
+    margin-top: 4px;
+  }
+  .library-actions-wrap .btn-action-delete,
+  .library-actions-wrap .btn-action-review,
+  .library-actions-wrap .btn-already-reviewed {
+    flex: 1 1 auto !important;
+    text-align: center !important;
+    padding: 9px 12px !important;
+    font-size: 0.8rem !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .brand-text {
+    display: none !important;
+  }
+  .navbar-figma-container {
+    padding: 0 10px !important;
+  }
 }

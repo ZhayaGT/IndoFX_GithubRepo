@@ -1,7 +1,12 @@
 <?php
-$isLoggedIn = isset($_SESSION['user_id']);
+if (!isset($_SESSION['user_id'])) {
+    header('Location: /login');
+    exit;
+}
+
 $userKey    = (string) ($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user');
-$userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna');
+$userName   = (string) ($_SESSION['username'] ?? $_SESSION['name'] ?? 'naufalhaidarazmi');
+$sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -20,7 +25,7 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    <!-- Stylesheets -->
+    <!-- Stylesheets Asli Dashboard Figma (Tanpa admin.css agar tidak merusak layout) -->
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/dashboard.css">
 </head>
@@ -42,22 +47,22 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                 <span class="brand-text">IndoFX</span>
             </a>
 
-            <!-- Profil Kreator Kanan Dinamis -->
-            <a href="/" class="d-flex align-items-center gap-2 text-white text-decoration-none" title="Kembali ke Beranda">
-                <span class="avatar-circle" id="navDashAvatar">AS</span>
-                <span class="fw-bold fs-7 tracking-wide" id="navDashStoreName">ARGA STUDIO</span>
+            <!-- Profil Penjual Kanan -->
+            <a href="/dashboard/assets" class="d-flex align-items-center gap-2 text-white text-decoration-none" title="Semua Aset Saya">
+                <span class="avatar-circle" id="navDashAvatar"><?= htmlspecialchars($sellerInitials) ?></span>
+                <span class="fw-bold fs-7 tracking-wide text-uppercase" id="navDashStoreName"><?= htmlspecialchars($userName) ?></span>
             </a>
         </div>
     </nav>
 
-    <!-- 2. Konten Form Utama -->
+    <!-- 2. Konten Form Utama Bersih Sesuai Desain Figma -->
     <main class="py-4 form-page-wrapper">
         <div class="container-form">
 
-            <!-- Judul Halaman -->
+            <!-- Judul Halaman & Tombol Kembali -->
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                 <h2 class="dash-page-title mb-0">Tambah Aset Baru</h2>
-                <a href="/dashboard/assets" class="btn btn-outline-secondary btn-sm px-3 fw-bold">Kembali ke Daftar Aset</a>
+                <a href="/dashboard/assets" class="btn btn-outline-secondary btn-sm px-3 fw-bold">Kembali ke Semua Aset Saya</a>
             </div>
 
             <form id="formAddAsset">
@@ -79,12 +84,13 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                             <option value="Shader">Shader</option>
                             <option value="Model 3D">Model 3D</option>
                             <option value="Tekstur & Material">Tekstur &amp; Material</option>
+                            <option value="Script / Tool">Script / Tool</option>
                         </select>
                     </div>
 
                     <div class="mb-0">
-                        <label for="description" class="form-label form-field-label">Deskripsi Aset</label>
-                        <textarea class="form-control form-field-input" id="description" rows="4" placeholder="Tulis deskripsi lengkap aset Anda..."></textarea>
+                        <label for="description" class="form-label form-field-label">Deskripsi Aset *</label>
+                        <textarea class="form-control form-field-input" id="description" rows="4" placeholder="Tulis deskripsi lengkap aset Anda..." required></textarea>
                     </div>
                 </div>
 
@@ -141,7 +147,7 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                         <label for="price" class="form-label form-field-label">Harga Jual (Rupiah) *</label>
                         <div class="input-group">
                             <span class="input-group-text form-addon-rp">Rp</span>
-                            <input type="number" class="form-control form-field-input" id="price" value="150000" placeholder="150000">
+                            <input type="number" class="form-control form-field-input" id="price" value="150000" placeholder="150000" min="0" step="5000">
                         </div>
                     </div>
                 </div>
@@ -152,10 +158,10 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
 
                     <div class="mb-3">
                         <label class="form-label form-field-label">Gambar Pratinjau Utama (16:9) *</label>
-                        <div class="dropzone-box text-center p-4" onclick="document.getElementById('imageFileInput').click()">
+                        <div class="dropzone-box text-center p-4" onclick="document.getElementById('imageFileInput').click()" style="cursor: pointer;">
                             <input type="file" id="imageFileInput" class="d-none" accept="image/png, image/jpeg">
                             <div class="dropzone-icon mb-2">
-                                <i class="bi bi-card-image fs-3"></i>
+                                <i class="bi bi-card-image fs-3 text-secondary"></i>
                             </div>
                             <div class="dropzone-title fw-bold mb-1" id="imageNameLabel">Tarik &amp; lepas gambar pratinjau di sini</div>
                             <div class="dropzone-hint text-muted small">Format PNG, JPG maks 5MB. Direkomendasikan resolusi 1920×1080.</div>
@@ -173,16 +179,16 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                     <h5 class="form-section-title mb-3">Panduan Penggunaan &amp; Berkas Aset</h5>
 
                     <div class="mb-3">
-                        <label for="how_to_use" class="form-label form-field-label">Panduan Penggunaan Aset</label>
-                        <textarea class="form-control form-field-input" id="how_to_use" rows="3" placeholder="Tulis panduan lengkap cara penggunaan aset..."></textarea>
+                        <label for="how_to_use" class="form-label form-field-label">Panduan Penggunaan Aset *</label>
+                        <textarea class="form-control form-field-input" id="how_to_use" rows="4" placeholder="Tulis panduan lengkap cara penggunaan aset Anda langkah demi langkah..." required></textarea>
                     </div>
 
                     <div class="mb-0">
                         <label class="form-label form-field-label">Berkas Aset (.unitypackage / .zip) *</label>
-                        <div class="dropzone-box text-center p-4" onclick="document.getElementById('packageFileInput').click()">
-                            <input type="file" id="packageFileInput" class="d-none" accept=".unitypackage, .zip, .rar" required>
+                        <div class="dropzone-box text-center p-4" onclick="document.getElementById('packageFileInput').click()" style="cursor: pointer;">
+                            <input type="file" id="packageFileInput" class="d-none" accept=".unitypackage, .zip, .rar">
                             <div class="dropzone-icon mb-2">
-                                <i class="bi bi-box-seam fs-3"></i>
+                                <i class="bi bi-box-seam fs-3 text-secondary"></i>
                             </div>
                             <div class="dropzone-title fw-bold mb-1" id="packageNameLabel">Pilih berkas package untuk diunggah</div>
                             <div class="dropzone-hint text-muted small">Maksimal ukuran berkas 500MB.</div>
@@ -190,10 +196,10 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                     </div>
                 </div>
 
-                <!-- TOMBOL SUBMIT KANAN -->
+                <!-- TOMBOL SUBMIT -->
                 <div class="d-flex justify-content-end mb-5">
                     <button type="submit" class="btn btn-submit-upload" id="btnSubmitAsset">
-                        Ajukan Pengunggahan
+                        <i class="bi bi-upload me-1"></i> Ajukan Pengunggahan
                     </button>
                 </div>
 
@@ -202,14 +208,19 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
         </div>
     </main>
 
-    <!-- 3. Footer Sesuai Desain Minimal Baru -->
-    <footer class="footer-main" id="tentang">
+    <footer class="footer-main">
         <div class="container-figma">
             <div class="footer-center-content">
                 <h5 class="footer-brand-title-center">IndoFX</h5>
                 <p class="footer-brand-desc-center">
                     Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
                 </p>
+                <!-- Baris Kontak dan Email sesuai desain baru -->
+                <div style="font-size: 0.85rem; color: #1a1a1a; margin-top: 10px;">
+                    <strong style="font-weight: 800;">Kontak dan Email:</strong>
+                    <span style="margin: 0 16px;">08123456xxxx</span>
+                    <span>helpdesk@indofx.com</span>
+                </div>
             </div>
             <div class="footer-bottom-bar">
                 <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
@@ -221,8 +232,11 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Script Form Pengajuan & Sinkronisasi Antrean Admin -->
     <script>
-        const userKey = '<?= $userKey ?>';
+        const sellerUsername = '<?= $userName ?>';
+        let uploadedImageBase64 = '';
+        let uploadedPackageName = '';
 
         function togglePriceInput(isPaid) {
             const priceInput = document.getElementById('price');
@@ -239,9 +253,9 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Ambil Nama Studio
-            const profileRaw = localStorage.getItem('indofx_seller_profile_' + userKey);
-            let storeName = 'Arga Studio';
+            // Ambil Nama Studio jika ada
+            const profileRaw = localStorage.getItem('indofx_seller_profile_' + sellerUsername);
+            let storeName = sellerUsername;
             if (profileRaw) {
                 try {
                     const prof = JSON.parse(profileRaw);
@@ -252,67 +266,128 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
             const words = storeName.trim().split(/\s+/);
             let inits = '';
             words.slice(0, 2).forEach(w => inits += w.charAt(0).toUpperCase());
-            document.getElementById('navDashAvatar').innerText = inits || 'AS';
+            document.getElementById('navDashAvatar').innerText = inits || 'NH';
 
-            // Nama File Indikator
+            // Nama File Indikator Gambar
             const imgInput = document.getElementById('imageFileInput');
             imgInput.addEventListener('change', function() {
-                if (this.files && this.files.length > 0) {
-                    document.getElementById('imageNameLabel').innerText = this.files[0].name;
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    document.getElementById('imageNameLabel').innerText = file.name;
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        uploadedImageBase64 = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
                 }
             });
 
+            // Nama File Indikator Package
             const pkgInput = document.getElementById('packageFileInput');
             pkgInput.addEventListener('change', function() {
-                if (this.files && this.files.length > 0) {
-                    document.getElementById('packageNameLabel').innerText = this.files[0].name;
+                if (this.files && this.files[0]) {
+                    uploadedPackageName = this.files[0].name;
+                    document.getElementById('packageNameLabel').innerText = uploadedPackageName;
                 }
             });
 
-            // Form Submit Logic
+            // SUBMIT: MENYIMPAN KE ANTREAN MODERASI SECARA OTOMATIS
             document.getElementById('formAddAsset').addEventListener('submit', function(e) {
                 e.preventDefault();
 
                 const isFree = document.getElementById('price_free').checked;
-                const rawPrice = document.getElementById('price').value;
-                const priceFormatted = isFree ? 'Gratis' : ('Rp' + Number(rawPrice).toLocaleString('id-ID'));
+                const rawPrice = isFree ? 0 : (parseFloat(document.getElementById('price').value) || 0);
+                const priceFormatted = isFree ? 'Gratis' : ('Rp' + rawPrice.toLocaleString('id-ID'));
 
                 const selectedPipes = [];
                 document.querySelectorAll('input[name="render_pipeline"]:checked').forEach(cb => {
                     selectedPipes.push(cb.value);
                 });
+                if (selectedPipes.length === 0) selectedPipes.push('URP');
 
-                const newAsset = {
-                    id: 'asset-' + Date.now(),
-                    title: document.getElementById('asset_title').value.trim(),
-                    category: document.getElementById('category_id').value,
-                    description: document.getElementById('description').value.trim(),
-                    price: priceFormatted,
-                    pipelines: selectedPipes.length > 0 ? selectedPipes : ['URP'],
-                    unity_version: document.getElementById('unity_version').value,
-                    status: 'Pending', // Selalu Pending saat baru diunggah
-                    downloads: '0x Unduhan',
-                    created_at: new Date().toLocaleDateString('id-ID', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric'
-                    }),
+                const title = document.getElementById('asset_title').value.trim();
+                const category = document.getElementById('category_id').value;
+                const description = document.getElementById('description').value.trim();
+                const howToUse = document.getElementById('how_to_use').value.trim();
+                const unityVer = document.getElementById('unity_version').value;
+                const videoUrl = document.getElementById('preview_video_url').value.trim();
+
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                });
+                const assetId = 'asset-' + Date.now();
+                const fileName = uploadedPackageName || (title.toLowerCase().replace(/[^a-z0-9]/g, '_') + '.unitypackage');
+
+                // 1. Simpan ke ruang aset toko penjual
+                const sellerAssetObj = {
+                    id: assetId,
+                    title: title,
+                    category: category,
+                    description: description,
+                    how_to_use: howToUse,
+                    price: rawPrice,
+                    price_text: priceFormatted,
+                    pipelines: selectedPipes,
+                    unity_version: unityVer,
+                    status: 'Menunggu',
+                    sales: '0x Terjual',
+                    date: dateStr,
+                    created_at: dateStr,
+                    file_info: 'File: ' + fileName + ' (18 MB)',
+                    image: uploadedImageBase64 || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80',
+                    video_url: videoUrl,
                     seller: storeName,
                     creator: storeName
                 };
 
-                // Simpan ke daftar aset toko pengguna
-                let assets = [];
+                const sellerStorageKey = 'indofx_seller_assets_' + storeName;
+                let sellerAssets = [];
                 try {
-                    assets = JSON.parse(localStorage.getItem('indofx_seller_assets_' + userKey)) || [];
+                    sellerAssets = JSON.parse(localStorage.getItem(sellerStorageKey)) || [];
                 } catch (err) {
-                    assets = [];
+                    sellerAssets = [];
+                }
+                sellerAssets.unshift(sellerAssetObj);
+                localStorage.setItem(sellerStorageKey, JSON.stringify(sellerAssets));
+
+                // 2. Suntikkan ke antrean moderasi admin (indofx_moderation_queue)
+                let adminQueue = [];
+                try {
+                    adminQueue = JSON.parse(localStorage.getItem('indofx_moderation_queue')) || [];
+                } catch (err) {
+                    adminQueue = [];
                 }
 
-                assets.unshift(newAsset);
-                localStorage.setItem('indofx_seller_assets_' + userKey, JSON.stringify(assets));
+                adminQueue.unshift({
+                    id: assetId,
+                    title: title,
+                    pipeline: selectedPipes[0] || 'URP',
+                    pipelines: selectedPipes,
+                    category: category,
+                    file_info: 'File: ' + fileName + ' (18 MB)',
+                    studio: storeName,
+                    creator: storeName,
+                    seller: storeName,
+                    unity_ver: 'Unity ' + unityVer + ' LTS',
+                    price: priceFormatted,
+                    price_num: rawPrice,
+                    date: dateStr,
+                    created_at: dateStr,
+                    time: 'Baru saja',
+                    status: 'Pending Review',
+                    seller_storage_key: sellerStorageKey,
+                    seller_key: sellerStorageKey,
+                    description: description,
+                    how_to_use: howToUse,
+                    video_url: videoUrl,
+                    image: uploadedImageBase64 || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80'
+                });
+                localStorage.setItem('indofx_moderation_queue', JSON.stringify(adminQueue));
 
-                // Arahkan kembali ke halaman Semua Aset Saya
+                alert('Aset berhasil diajukan! Status saat ini: "Menunggu" verifikasi Administrator.');
                 window.location.href = '/dashboard/assets';
             });
         });

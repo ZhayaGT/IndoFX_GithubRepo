@@ -7,9 +7,13 @@ use IndoFX\Models\User;
 
 class AuthController extends Controller {
     // 1. Menampilkan halaman Login
-    public function login() {
+    public function login()
+    {
         // Pengguna yang sudah login tidak perlu melihat form login
         if (isset($_SESSION['user_id'])) {
+            if (($_SESSION['role'] ?? '') === 'admin') {
+                $this->redirect('/admin/dashboard');
+            }
             $this->redirect('/');
         }
 
@@ -39,8 +43,13 @@ class AuthController extends Controller {
             $_SESSION['name'] = $user['name'];
             $_SESSION['email'] = $user['email'];
 
-            // Mengambil bio dari database (jika belum diisi, pakai bio default)
-            $_SESSION['bio'] = $user['bio'] ?? 'Hanya game developer pemula :v';
+            // Mengambil bio dari database
+            $_SESSION['bio'] = $user['bio'] ?? 'Halo saya adalah pengguna baru';
+
+            // PENGALIHAN ADMIN: Seragam ke Dashboard Utama Admin
+            if ($user['role'] === 'admin') {
+                $this->redirect('/admin/dashboard');
+            }
 
             // Fitur "Ingat Saya"
             if (isset($_POST['remember_me'])) {
@@ -65,6 +74,9 @@ class AuthController extends Controller {
     // 3. Menampilkan halaman Register
     public function register() {
         if (isset($_SESSION['user_id'])) {
+            if (($_SESSION['role'] ?? '') === 'admin') {
+                $this->redirect('/admin/dashboard');
+            }
             $this->redirect('/');
         }
 
@@ -84,7 +96,6 @@ class AuthController extends Controller {
 
         $userModel = new User();
 
-        // Mencegah pendaftaran dengan email yang sama
         if ($userModel->findByEmail($email)) {
             $_SESSION['register_error'] = 'Email sudah terdaftar!';
             $_SESSION['register_old']   = ['name' => $name, 'email' => $email];
@@ -92,10 +103,7 @@ class AuthController extends Controller {
             $this->redirect('/register');
         }
 
-        // Mengenkripsi kata sandi sebelum masuk ke database
         $passwordHash = password_hash($password, PASSWORD_BCRYPT);
-
-        // Menyimpan user baru (role default 'buyer')
         $userModel->create($name, $email, $passwordHash, 'buyer');
 
         $_SESSION['login_success'] = 'Registrasi berhasil! Silakan masuk.';

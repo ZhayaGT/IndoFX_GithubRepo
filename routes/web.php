@@ -310,3 +310,89 @@ $router->get('/library/detail', function () {
     http_response_code(404);
     die('Berkas detail-library.php tidak ditemukan.');
 });
+
+// ==========================================
+// 7. DASHBOARD ADMINISTRATOR (PROTEKSI ROLE)
+// ==========================================
+
+// Helper pengecekan hak akses admin
+$checkAdminAccess = function () {
+    if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
+        header('Location: /login');
+        exit;
+    }
+};
+
+// 1. Dashboard Utama Admin
+$router->add('GET', '/admin', function () use ($checkAdminAccess) {
+    $checkAdminAccess();
+    require __DIR__ . '/../resources/views/admin/dashboard.php';
+});
+
+$router->add('GET', '/admin/dashboard', function () use ($checkAdminAccess) {
+    $checkAdminAccess();
+    require __DIR__ . '/../resources/views/admin/dashboard.php';
+});
+
+// 2. Kelola Pengguna Platform
+$router->add('GET', '/admin/users', function () use ($checkAdminAccess) {
+    $checkAdminAccess();
+    require __DIR__ . '/../resources/views/admin/users.php';
+});
+
+// 3. Moderasi Aset (Cegah 404 saat sidebar/tombol diklik)
+$router->add('GET', '/admin/assets', function () use ($checkAdminAccess) {
+    $checkAdminAccess();
+    $viewPath = __DIR__ . '/../resources/views/admin/assets.php';
+    if (file_exists($viewPath)) {
+        require $viewPath;
+    } else {
+        // Fallback sementara ke dashboard jika file belum dibuat
+        require __DIR__ . '/../resources/views/admin/dashboard.php';
+    }
+});
+
+// 4. Kelola Kategori (Cegah 404)
+$router->add('GET', '/admin/categories', function () use ($checkAdminAccess) {
+    $checkAdminAccess();
+    $viewPath = __DIR__ . '/../resources/views/admin/categories.php';
+    if (file_exists($viewPath)) {
+        require $viewPath;
+    } else {
+        require __DIR__ . '/../resources/views/admin/dashboard.php';
+    }
+});
+
+// 5. Monitor Transaksi (Cegah 404)
+$router->add('GET', '/admin/transactions', function () use ($checkAdminAccess) {
+    $checkAdminAccess();
+    $viewPath = __DIR__ . '/../resources/views/admin/transactions.php';
+    if (file_exists($viewPath)) {
+        require $viewPath;
+    } else {
+        require __DIR__ . '/../resources/views/admin/dashboard.php';
+    }
+});
+$router->add('GET', '/admin/assets', function () use ($checkAdminAccess) {
+    $checkAdminAccess();
+    require __DIR__ . '/../resources/views/admin/assets.php';
+});
+
+$router->add('GET', '/admin/categories', function () use ($checkAdminAccess) {
+    $checkAdminAccess();
+    require __DIR__ . '/../resources/views/admin/categories.php';
+});
+
+$router->add('GET', '/admin/seller-requests', function () use ($checkAdminAccess) {
+    $checkAdminAccess();
+    require __DIR__ . '/../resources/views/admin/seller_requests.php';
+});
+$router->add('GET', '/admin/transactions', function () use ($checkAdminAccess) {
+    $checkAdminAccess();
+    require __DIR__ . '/../resources/views/admin/transactions.php';
+});
+
+$router->add('GET', '/admin/assets/review', function () use ($checkAdminAccess) {
+    $checkAdminAccess();
+    require __DIR__ . '/../resources/views/admin/asset_review.php';
+});

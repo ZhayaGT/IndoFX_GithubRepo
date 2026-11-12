@@ -246,7 +246,8 @@ if ($initials === '') {
             .col-lg-7,
             .table-custom-container,
             .btn-print-invoice,
-            footer {
+            footer,
+            .footer-main {
                 display: none !important;
             }
 
@@ -398,6 +399,34 @@ if ($initials === '') {
             </div>
         </div>
     </main>
+
+    <!-- Footer Resmi IndoFX Membentang Penuh di Dasar Halaman -->
+    <?php
+    $footerPartial = BASE_PATH . '/resources/views/partials/footer.php';
+    if (file_exists($footerPartial)) {
+        require $footerPartial;
+    } else {
+    ?>
+        <footer class="footer-main mt-auto">
+            <div class="container-figma">
+                <div class="footer-center-content">
+                    <h5 class="footer-brand-title-center">IndoFX</h5>
+                    <p class="footer-brand-desc-center">
+                        Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
+                    </p>
+                    <div style="font-size: 0.85rem; color: #1a1a1a; margin-top: 10px;">
+                        <strong style="font-weight: 800;">Kontak dan Email:</strong>
+                        <span style="margin: 0 16px;">08123456xxxx</span>
+                        <span>helpdesk@indofx.com</span>
+                    </div>
+                </div>
+                <div class="footer-bottom-bar">
+                    <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
+                    <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
+                </div>
+            </div>
+        </footer>
+    <?php } ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/assets/js/navbar-auth.js"></script>

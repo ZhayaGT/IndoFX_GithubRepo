@@ -45,6 +45,422 @@ $isLoggedIn = isset($_SESSION['user_id']);
     <!-- CSS Utama & CSS Detail -->
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/detail.css">
+
+    <style>
+        :root {
+            --indofx-cream-bg: #FAF0E6;
+            --indofx-text-main: #3C2A21;
+            --indofx-text-muted: #7A685D;
+            --indofx-border: #4A3B32;
+            --indofx-orange: #ED6B1D;
+        }
+
+        body {
+            background-color: var(--indofx-cream-bg, #FAF0E6);
+            font-family: 'Inter', sans-serif;
+            color: var(--indofx-text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-detail-wrapper {
+            background-color: var(--indofx-cream-bg, #FAF0E6);
+            padding: 32px 0 54px 0;
+            flex-grow: 1;
+        }
+
+        .main-preview-card {
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1.5px solid var(--indofx-border);
+            background-color: #2b2129;
+            height: 420px;
+            width: 100%;
+        }
+
+        .thumb-gallery-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .thumb-card-item {
+            width: 76px;
+            height: 52px;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1.5px solid var(--indofx-border);
+            cursor: pointer;
+            background-color: #2b2129;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
+        }
+
+        .thumb-card-item.active {
+            border: 2px solid var(--indofx-orange);
+        }
+
+        .thumb-card-item:hover {
+            opacity: 0.9;
+        }
+
+        .detail-nav-tabs {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            margin-bottom: 16px;
+        }
+
+        .detail-nav-tabs .tab-link {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--indofx-text-muted);
+            text-decoration: none;
+            padding-bottom: 6px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.15s ease;
+        }
+
+        .detail-nav-tabs .tab-link.active {
+            color: var(--indofx-text-main);
+            font-weight: 800;
+            border-bottom: 2.5px solid var(--indofx-orange);
+        }
+
+        .detail-content-box {
+            background-color: #ffffff;
+            border-radius: 8px;
+            border: 1.5px solid var(--indofx-border);
+            font-size: 0.88rem;
+            line-height: 1.65;
+            color: var(--indofx-text-main);
+            padding: 24px;
+        }
+
+        /* Seksi Judul & Konten Dinamis */
+        .section-content-title {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .section-text-body {
+            white-space: pre-line;
+            line-height: 1.7;
+            color: #2b2623;
+            font-size: 0.88rem;
+        }
+
+        .section-divider {
+            border: none;
+            border-top: 1px solid #ebdcd1;
+            margin: 24px 0;
+        }
+
+        /* Kartu Sisi Kanan */
+        .asset-purchase-card {
+            background-color: #ffffff;
+            border: 1.5px solid var(--indofx-border);
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 4px 14px rgba(60, 42, 33, 0.05);
+        }
+
+        .asset-category-tag {
+            font-size: 0.76rem;
+            font-weight: 800;
+            color: var(--indofx-text-main);
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .asset-detail-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--indofx-text-main) !important;
+            line-height: 1.25;
+            letter-spacing: -0.3px;
+            margin-top: 2px;
+            margin-bottom: 6px;
+        }
+
+        .detail-creator-line {
+            font-size: 0.88rem;
+            color: var(--indofx-text-muted);
+            margin-bottom: 22px;
+        }
+
+        .detail-creator-line a {
+            color: var(--indofx-text-main) !important;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .detail-creator-line a:hover {
+            text-decoration: underline;
+        }
+
+        .price-label-text {
+            font-size: 0.8rem;
+            color: var(--indofx-text-muted);
+            margin-bottom: 2px;
+        }
+
+        .price-amount-text {
+            font-size: 1.95rem;
+            font-weight: 800;
+            color: var(--indofx-text-main) !important;
+            letter-spacing: -0.5px;
+            margin-bottom: 24px;
+        }
+
+        .specs-table-box {
+            border-top: 1px solid #EBDCD1;
+            margin-bottom: 24px;
+        }
+
+        .spec-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 11px 0;
+            border-bottom: 1px solid #EBDCD1;
+            font-size: 0.85rem;
+        }
+
+        .spec-item-row .label-col {
+            color: var(--indofx-text-muted);
+        }
+
+        .spec-item-row .val-col {
+            font-weight: 800;
+            color: var(--indofx-text-main);
+        }
+
+        .btn-figma-buy-orange {
+            background-color: var(--indofx-orange);
+            color: #ffffff !important;
+            font-weight: 800;
+            font-size: 0.95rem;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            transition: background-color 0.15s ease;
+        }
+
+        .btn-figma-buy-orange:hover {
+            background-color: #D85A0E;
+        }
+
+        .btn-figma-add-cart-outline {
+            background-color: #FFFDFC;
+            color: var(--indofx-text-main) !important;
+            border: 1.5px solid var(--indofx-border);
+            font-weight: 800;
+            font-size: 0.92rem;
+            border-radius: 6px;
+            padding: 11px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-figma-add-cart-outline:hover {
+            background-color: #F8EFE9;
+        }
+
+        .btn-figma-free-library {
+            background-color: var(--indofx-border);
+            color: #ffffff !important;
+            font-weight: 800;
+            font-size: 0.95rem;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 16px;
+            text-align: center;
+            cursor: pointer;
+            width: 100%;
+            display: block;
+            text-decoration: none;
+            transition: opacity 0.15s ease;
+        }
+
+        .btn-figma-free-library:hover {
+            opacity: 0.92;
+        }
+
+        .btn-figma-guest-login {
+            background-color: #FCEEE6 !important;
+            color: var(--indofx-text-main, #3C2A21) !important;
+            border: 1.5px solid var(--indofx-border, #3C2A21) !important;
+            font-weight: 700;
+            font-size: 0.88rem;
+            border-radius: 6px;
+            padding: 12px 14px;
+            text-align: center;
+            text-decoration: none !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            width: 100%;
+            transition: all 0.15s ease;
+        }
+
+        .btn-figma-guest-login:hover {
+            background-color: #F8DFD2 !important;
+        }
+
+        .btn-figma-guest-login .link-masuk {
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            text-decoration-thickness: 1.5px;
+            font-weight: 800;
+        }
+
+        .owned-badge-card {
+            background-color: #F0FDF4;
+            border: 1.5px solid #86EFAC;
+            border-radius: 8px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #15803D;
+            font-weight: 700;
+            font-size: 0.88rem;
+            text-align: center;
+            line-height: 1.35;
+        }
+
+        .owned-badge-card i {
+            color: #16A34A;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .btn-download-package {
+            background-color: var(--indofx-orange, #ED6B1D) !important;
+            color: #ffffff !important;
+            font-weight: 800;
+            font-size: 0.95rem;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 18px;
+            text-align: center;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.15s ease, transform 0.1s ease;
+            box-shadow: 0 4px 12px rgba(237, 107, 29, 0.25);
+        }
+
+        .btn-download-package:hover {
+            background-color: #D85A0E !important;
+            transform: translateY(-1px);
+        }
+
+        .rating-summary-box {
+            background-color: #fdf5ef;
+            border: 1px solid #ebdcd1;
+            border-radius: 8px;
+        }
+
+        .rating-big-score {
+            font-size: 2.3rem;
+            font-weight: 800;
+            color: var(--indofx-text-main);
+            line-height: 1;
+        }
+
+        .rating-out-of {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--indofx-text-muted);
+        }
+
+        .rating-stars-gold {
+            color: var(--indofx-orange);
+            font-size: 0.95rem;
+        }
+
+        .rating-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.78rem;
+            margin-bottom: 4px;
+        }
+
+        .rating-bar-label {
+            width: 25px;
+            color: var(--indofx-text-main);
+            font-weight: 600;
+        }
+
+        .rating-bar-track {
+            flex-grow: 1;
+            height: 6px;
+            background-color: #eeddd2;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .rating-bar-fill {
+            height: 100%;
+            background-color: var(--indofx-orange);
+            border-radius: 999px;
+        }
+
+        .rating-bar-num {
+            width: 20px;
+            text-align: right;
+            color: var(--indofx-text-muted);
+            font-weight: 600;
+        }
+
+        .badge-owner {
+            background-color: #fef3eb;
+            color: var(--indofx-orange);
+            border: 1px solid #fed7aa;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .review-item-block {
+            padding: 14px 0;
+            border-bottom: 1px solid #efe0d5;
+        }
+
+        .review-item-block:last-child {
+            border-bottom: none;
+        }
+
+        .footer-figma-white {
+            background-color: #ffffff !important;
+            width: 100%;
+            padding: 42px 0 24px 0;
+            margin-top: auto;
+            border-top: 1px solid #efe0d5;
+        }
+    </style>
 </head>
 
 <body class="detail-page-body">
@@ -283,7 +699,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
                             </div>
                         </div>
 
-                        <!-- Tombol Aksi: Terdeteksi Otomatis Guest vs Login -->
+                        <!-- Tombol Aksi -->
                         <div id="actionButtonWrapper" class="d-grid gap-2">
                             <?php if ($isGratis): ?>
                                 <?php if ($isLoggedIn): ?>
@@ -326,19 +742,21 @@ $isLoggedIn = isset($_SESSION['user_id']);
         </div>
     </main>
 
-    <!-- Footer Putih Solid Full-Width Sesuai Figma -->
-    <footer class="footer-main" id="tentang">
+    <footer class="footer-main">
         <div class="container-figma">
-            <!-- Bagian Tengah: Judul & Deskripsi -->
             <div class="footer-center-content">
                 <h5 class="footer-brand-title-center">IndoFX</h5>
                 <p class="footer-brand-desc-center">
                     Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
                 </p>
+                <!-- Baris Kontak dan Email sesuai desain baru -->
+                <div style="font-size: 0.85rem; color: #1a1a1a; margin-top: 10px;">
+                    <strong style="font-weight: 800;">Kontak dan Email:</strong>
+                    <span style="margin: 0 16px;">08123456xxxx</span>
+                    <span>helpdesk@indofx.com</span>
+                </div>
             </div>
-
-            <!-- Bagian Bawah: Copyright Kiri & Slogan Kanan -->
-            <div class="footer-bottom-bar flex-wrap gap-2">
+            <div class="footer-bottom-bar">
                 <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
                 <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
             </div>

@@ -49,7 +49,7 @@ if ($initials === '') {
             <i class="bi bi-cart3"></i>
         </a>
 
-        <!-- Avatar Lingkaran Profil -->
+        <!-- Avatar Lingkaran Profil Murni (Tanpa teks label nama agar sejajar rapi) -->
         <div class="navbar-avatar-wrap">
             <button type="button" id="navbar-avatar" class="navbar-avatar"
                 aria-haspopup="true" aria-expanded="false" aria-controls="navbar-avatar-menu"
