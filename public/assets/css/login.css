@@ -96,3 +96,26 @@
   margin-top: 20px;
   text-align: center;
 }
+
+/* ==========================================================================
+   RESPONSIF LAYAR KECIL
+   ========================================================================== */
+@media (max-width: 576px) {
+  .auth-wrapper {
+    min-height: auto;
+    padding: 28px 12px;
+  }
+
+  .auth-card {
+    padding: 24px 18px;
+    border-radius: 10px;
+  }
+
+  .auth-title {
+    font-size: 1.15rem;
+  }
+
+  .auth-subtitle {
+    margin-bottom: 18px;
+  }
+}

@@ -33,41 +33,10 @@
             }
         }
 
-        .filter-search-card {
-            background-color: #ffffff;
-            border: 1.5px solid var(--ifx-border-dark, #2b2623);
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(60, 42, 33, 0.04);
-        }
-
         .filter-header-title {
             font-size: 0.95rem;
             font-weight: 800;
             color: #1a1a1a;
-        }
-
-        .filter-reset-link {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: #736b66;
-            text-decoration: underline;
-            text-underline-offset: 2px;
-        }
-
-        .filter-reset-link:hover {
-            color: var(--indofx-orange, #ed6b1d);
-        }
-
-        .filter-group-label {
-            font-size: 0.82rem;
-            font-weight: 800;
-            color: #1a1a1a;
-        }
-
-        .filter-check-text {
-            font-size: 0.8rem;
-            color: #2b2623;
-            font-weight: 500;
         }
 
         .sort-select-figma {

@@ -430,7 +430,7 @@ body.admin-body {
 }
 
 .badge-pipe-builtin {
-  background-color: #0b72b9;
+  background-color: #0088ff;
 }
 
 /* Moderation Status Badges */
@@ -1259,6 +1259,9 @@ body.admin-body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .seller-attachment-link:hover {

@@ -7,20 +7,7 @@
   min-height: 100vh;
 }
 
-/* User Avatar Kanan Navbar */
-.avatar-circle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  background-color: #ed9564;
-  color: #ffffff;
-  font-weight: 800;
-  font-size: 0.8rem;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-}
+/* Avatar dashboard memakai gaya global .avatar-circle dari style.css */
 
 .fs-7 {
   font-size: 0.82rem;
@@ -170,8 +157,8 @@
 }
 
 .table-custom thead th {
-  background-color: #e2e4e8;
-  color: #4a4a4a;
+  background-color: #f2eae3;
+  color: #4a3b32;
   font-size: 0.72rem;
   font-weight: 700;
   padding: 12px 16px;
@@ -194,7 +181,7 @@
   margin-bottom: 3px;
 }
 
-/* Pipeline Badges */
+/* Pipeline Badges (warna disamakan dengan style.css) */
 .badge-pipe {
   display: inline-block;
   font-size: 0.6rem;
@@ -205,21 +192,21 @@
 }
 
 .badge-urp {
-  background-color: #8b1e1e;
+  background-color: #a3161c;
 }
 
 .badge-builtin {
-  background-color: #0d6efd;
+  background-color: #0088ff;
 }
 
 .badge-hdrp {
-  background-color: #2e3a8c;
+  background-color: #4f378b;
 }
 
-/* Moderation Status Badges */
+/* Moderation Status Badges (palet disamakan dengan admin.css) */
 .badge-status-approved {
-  background-color: #d4edda;
-  color: #155724;
+  background-color: #e6f4ea;
+  color: #137333;
   font-size: 0.68rem;
   font-weight: 700;
   padding: 3px 10px;
@@ -227,8 +214,8 @@
 }
 
 .badge-status-pending {
-  background-color: #fff3cd;
-  color: #b45309;
+  background-color: #fef3e2;
+  color: #c07300;
   font-size: 0.68rem;
   font-weight: 700;
   padding: 3px 10px;
@@ -237,7 +224,7 @@
 
 .badge-status-rejected {
   background-color: #f8d7da;
-  color: #721c24;
+  color: #842029;
   font-size: 0.68rem;
   font-weight: 700;
   padding: 3px 8px;
@@ -256,17 +243,6 @@
   color: #0a58ca;
 }
 
-.action-link-danger {
-  color: #dc3545;
-  text-decoration: underline;
-  font-size: 0.76rem;
-  font-weight: 700;
-}
-
-.action-link-danger:hover {
-  color: #b02a37;
-}
-
 /* Responsif Mobile & Tablet */
 @media (max-width: 768px) {
   .dashboard-layout-container {
@@ -276,6 +252,23 @@
     width: 100%;
     border-right: none;
     border-bottom: 1px solid #e5d5cb;
+    padding: 8px 12px;
+  }
+  /* Sidebar menjadi navigasi horizontal agar tidak memakan tinggi layar */
+  .dashboard-sidebar .sidebar-nav-list {
+    flex-direction: row !important;
+    flex-wrap: nowrap;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .dashboard-sidebar .sidebar-link {
+    flex: 0 0 auto;
+    width: auto;
+    white-space: nowrap;
+    padding: 8px 12px;
+    font-size: 0.78rem;
   }
   .dashboard-main-content {
     padding: 20px 16px;
@@ -327,7 +320,7 @@
 }
 
 .stripe-green {
-  border-left-color: #10b981 !important;
+  border-left-color: #117a43 !important;
 }
 
 .stripe-blue {
@@ -335,12 +328,12 @@
 }
 
 .stripe-yellow {
-  border-left-color: #eab308 !important;
+  border-left-color: #f59e0b !important;
 }
 
 /* Warna Teks Metrik Spesifik */
 .text-stat-green {
-  color: #10b981 !important;
+  color: #117a43 !important;
 }
 
 .text-stat-blue {

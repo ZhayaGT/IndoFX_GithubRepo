@@ -21,7 +21,9 @@
 html,
 body {
   max-width: 100%;
-  overflow-x: hidden;
+  /* `clip` mencegah scroll horizontal tanpa membuat scroll container,
+     sehingga `position: sticky` pada navbar tetap bekerja. */
+  overflow-x: clip;
 }
 
 body {
@@ -41,25 +43,6 @@ body {
   padding: 0 24px;
 }
 
-.container-catalog-figma {
-  width: 100% !important;
-  max-width: 100% !important;
-  margin: 0 !important;
-  padding-left: 145px !important;
-  padding-right: 100px !important;
-}
-
-.filter-sidebar-col {
-  width: 270px !important;
-  flex: 0 0 270px !important;
-  max-width: 270px !important;
-  margin-right: 28px !important;
-}
-
-.catalog-grid-col {
-  flex: 1 1 0% !important;
-  min-width: 0 !important;
-}
 
 /* ========================================================
    2. HEADER NAVBAR & STATUS LOGIN
@@ -542,22 +525,22 @@ body {
 .badge-pipeline-urp,
 .tag-urp,
 .badge-urp {
-  background-color: #a3161c !important;
-  color: #ffffff !important;
+  background-color: #a3161c;
+  color: #ffffff;
 }
 
 .badge-pipeline-hdrp,
 .tag-hdrp,
 .badge-hdrp {
-  background-color: #4f378b !important;
-  color: #ffffff !important;
+  background-color: #4f378b;
+  color: #ffffff;
 }
 
 .badge-pipeline-builtin,
 .tag-builtin,
 .badge-builtin {
-  background-color: #0088ff !important;
-  color: #ffffff !important;
+  background-color: #0088ff;
+  color: #ffffff;
 }
 
 /* ========================================================
@@ -567,24 +550,31 @@ body {
   background-color: #ffffff;
   border: 1.5px solid var(--ifx-border-dark);
   border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(60, 42, 33, 0.04);
 }
 
 .filter-reset-link {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--indofx-dark);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #736b66;
   text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.filter-reset-link:hover {
+  color: var(--indofx-orange, #ed6b1d);
 }
 
 .filter-group-label {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--indofx-dark);
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #1a1a1a;
 }
 
 .filter-check-text {
-  font-size: 0.76rem;
-  color: #333333;
+  font-size: 0.8rem;
+  color: #2b2623;
+  font-weight: 500;
 }
 
 .filter-checkbox,
@@ -643,400 +633,7 @@ body {
 }
 
 /* ========================================================
-   6. HALAMAN DETAIL ASET
-   ======================================================== */
-.asset-detail-page {
-  padding: 28px 0 56px 0;
-  background-color: #fdf3ec;
-}
-
-.asset-detail-main {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  border-radius: 4px;
-  background-color: #e7d6c8;
-}
-
-.asset-detail-main-img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.asset-detail-thumbs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 12px;
-}
-
-.asset-detail-thumb {
-  width: 72px;
-  height: 48px;
-  padding: 0;
-  overflow: hidden;
-  border: 1.5px solid transparent;
-  border-radius: 4px;
-  background-color: transparent;
-  cursor: pointer;
-  transition: border-color 0.15s ease;
-}
-
-.asset-detail-thumb img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.asset-detail-thumb:hover,
-.asset-detail-thumb.is-active {
-  border-color: var(--ifx-orange);
-}
-
-.asset-buy-card {
-  background-color: #ffffff;
-  border: 1.5px solid var(--ifx-border-dark);
-  border-radius: 8px;
-  padding: 18px 18px 20px 18px;
-}
-
-.asset-buy-category {
-  display: block;
-  font-size: 0.6rem;
-  font-weight: 800;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-  color: var(--ifx-brown-muted);
-  margin-bottom: 4px;
-}
-
-.asset-buy-title {
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: var(--ifx-brown-dark);
-  line-height: 1.25;
-  margin-bottom: 4px;
-}
-
-.asset-buy-seller {
-  font-size: 0.72rem;
-  color: var(--ifx-brown-muted);
-  margin-bottom: 16px;
-}
-
-.asset-buy-price-label {
-  font-size: 0.68rem;
-  color: var(--ifx-brown-muted);
-  margin-bottom: 0;
-}
-
-.asset-buy-price {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--ifx-brown-dark);
-  line-height: 1.2;
-  margin-bottom: 14px;
-}
-
-.asset-buy-meta {
-  margin-bottom: 16px;
-}
-
-.asset-buy-meta-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  padding: 6px 0;
-  border-bottom: 1px solid #efe0d5;
-  font-size: 0.7rem;
-}
-
-.asset-buy-meta-row:last-child {
-  border-bottom: none;
-}
-
-.asset-buy-meta-row dt {
-  font-weight: 400;
-  color: var(--ifx-brown-muted);
-}
-
-.asset-buy-meta-row dd {
-  margin: 0;
-  font-weight: 700;
-  color: var(--ifx-brown-dark);
-  text-align: right;
-}
-
-.btn-detail-buy,
-.btn-detail-cart {
-  display: block;
-  width: 100%;
-  font-size: 0.78rem;
-  font-weight: 700;
-  padding: 8px 14px;
-  border-radius: 5px;
-  transition: all 0.15s ease;
-}
-
-.btn-detail-buy {
-  background-color: var(--ifx-orange);
-  border: 1.5px solid var(--ifx-border-dark);
-  color: #ffffff;
-  margin-bottom: 8px;
-}
-
-.btn-detail-buy:hover {
-  background-color: var(--ifx-orange-hover);
-  color: #ffffff;
-}
-
-.btn-detail-cart {
-  background-color: var(--ifx-cream-btn);
-  border: 1.5px solid var(--ifx-border-dark);
-  color: var(--ifx-brown-dark);
-}
-
-.btn-detail-cart:hover {
-  background-color: #f3d4c2;
-  color: var(--ifx-brown-dark);
-}
-
-.asset-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 18px;
-  margin-top: 26px;
-  border-bottom: 1px solid #d8c8bd;
-}
-
-.asset-tab-link {
-  padding: 0 0 8px 0;
-  border: none;
-  border-bottom: 2px solid transparent;
-  background: none;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--ifx-brown-muted);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.asset-tab-link:hover {
-  color: var(--ifx-brown-dark);
-}
-
-.asset-tab-link.active {
-  font-weight: 800;
-  color: var(--ifx-brown-dark);
-  border-bottom-color: var(--ifx-orange);
-}
-
-.asset-tab-panel {
-  background-color: #ffffff;
-  border: 1.5px solid var(--ifx-border-dark);
-  border-radius: 6px;
-  padding: 18px 20px;
-  margin-top: 14px;
-}
-
-.asset-description-text {
-  font-size: 0.78rem;
-  line-height: 1.7;
-  color: var(--ifx-brown-dark);
-}
-
-/* ========================================================
-   7. PROFIL KREATOR & ASET DIMILIKI
-   ======================================================== */
-.profile-page-wrapper {
-  background-color: var(--indofx-cream-bg, #faf0e6);
-  min-height: calc(100vh - 160px);
-  padding: 28px 0 60px 0;
-}
-
-.creator-profile-card {
-  background-color: #ffffff;
-  border: 1.5px solid var(--ifx-border-dark, #2b2623);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 14px rgba(59, 35, 20, 0.05);
-  margin-bottom: 32px;
-}
-
-.creator-banner-maroon {
-  height: 140px;
-  background: linear-gradient(135deg, #7a1919 0%, #a32424 100%);
-  width: 100%;
-}
-
-.creator-info-body {
-  position: relative;
-  padding: 0 28px 24px 28px;
-  display: flex;
-  align-items: flex-end;
-  gap: 20px;
-}
-
-.creator-avatar-float {
-  position: relative;
-  margin-top: -50px;
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
-  background-color: #4a3b32;
-  border: 4px solid #ffffff;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
-  font-size: 2rem;
-  font-weight: 800;
-  flex-shrink: 0;
-}
-
-.creator-name {
-  font-size: 1.4rem;
-  font-weight: 800;
-  color: var(--ifx-brown-dark, #2b2623);
-  margin-bottom: 2px;
-}
-
-.creator-bio {
-  font-size: 0.85rem;
-  color: var(--ifx-brown-muted, #736b66);
-  margin: 0;
-}
-
-.owned-assets-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.owned-assets-title {
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: #1a1a1a;
-  margin: 0;
-}
-
-.owned-library-link {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.owned-library-link:hover {
-  color: var(--indofx-orange, #ed6b1d);
-}
-
-.owned-card-figma {
-  background-color: #ffffff;
-  border: 1.5px solid var(--ifx-border-dark, #2b2623);
-  border-radius: 8px;
-  overflow: hidden;
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.owned-card-figma:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
-}
-
-.owned-thumb-wrapper {
-  height: 160px;
-  background-color: #2b2129;
-  overflow: hidden;
-  position: relative;
-}
-
-.owned-thumb-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.owned-card-body {
-  padding: 14px 16px;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.owned-creator-name {
-  font-size: 0.72rem;
-  color: #736b66;
-  font-weight: 600;
-  margin-bottom: 2px;
-  display: block;
-}
-
-.owned-asset-title {
-  font-size: 0.92rem;
-  font-weight: 800;
-  color: #1a1a1a;
-  margin-bottom: 8px;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  overflow: hidden;
-  text-decoration: none;
-  line-height: 1.35;
-}
-
-.owned-asset-title:hover {
-  color: var(--indofx-orange, #ed6b1d);
-}
-
-.owned-card-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 8px;
-  border-top: 1px solid #f2ebe5;
-  margin-top: 10px;
-}
-
-.owned-btn-action {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--indofx-orange, #ed6b1d);
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.owned-btn-action:hover {
-  text-decoration: underline;
-}
-
-.empty-owned-box {
-  background-color: #ffffff;
-  border: 1.5px dashed #d8c8bd;
-  border-radius: 10px;
-  padding: 48px 24px;
-  text-align: center;
-}
-
-/* ========================================================
-   8. LIBRARY SAYA & MODAL ULASAN
+   6. LIBRARY SAYA & MODAL ULASAN
    ======================================================== */
 .library-title {
   font-size: 1.85rem;
@@ -1314,7 +911,7 @@ body {
 }
 
 /* ========================================================
-   9. FOOTER GLOBAL RESMI (PUTIH SOLID PENUH)
+   7. FOOTER GLOBAL RESMI (PUTIH SOLID PENUH)
    ======================================================== */
 .footer-main {
   background-color: #ffffff !important;
@@ -1367,7 +964,7 @@ body {
 }
 
 /* ========================================================
-   10. MEDIA QUERIES & RESPONSIF (TERKONSOLIDASI RAPI)
+   8. MEDIA QUERIES & RESPONSIF (TERKONSOLIDASI RAPI)
    ======================================================== */
 @media (min-width: 1250px) {
   .search-box-header {
@@ -1397,24 +994,8 @@ body {
   }
 }
 
-@media (max-width: 1200px) {
-  .container-catalog-figma {
-    padding-left: 40px !important;
-    padding-right: 40px !important;
-  }
-}
 
 @media (max-width: 991.98px) {
-  .container-catalog-figma {
-    padding-left: 16px !important;
-    padding-right: 16px !important;
-  }
-  .filter-sidebar-col {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin-right: 0 !important;
-    margin-bottom: 20px !important;
-  }
   .navbar-figma-container {
     padding: 0 16px !important;
     gap: 8px;
@@ -1499,7 +1080,7 @@ body {
     font-size: 0.78rem !important;
   }
   .content-body-wrapper .d-flex.justify-content-center,
-  .content-body-wrapper [class*="category"] {
+  .content-body-wrapper .category-section {
     margin-bottom: 1.75rem !important;
   }
   .catalog-heading {
