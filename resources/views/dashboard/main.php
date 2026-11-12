@@ -208,23 +208,18 @@ $sellerInitials = mb_strtoupper(mb_substr($sellerUsername, 0, 1));
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Helper penyimpanan lokal (kunci berbasis user_id) -->
+    <script src="/assets/js/indofx-storage.js"></script>
+
     <!-- Script Hidrasi Data Lintas Storage Dinamis -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const currentSeller = '<?= $sellerUsername ?>';
             const currentUserId = '<?= $sellerUserId ?>';
 
-            // 1. Profil Toko Penjual
-            let storeName = currentSeller;
-            const profileRaw = localStorage.getItem('indofx_seller_profile_' + currentUserId) ||
-                localStorage.getItem('indofx_seller_profile_' + currentSeller);
-
-            if (profileRaw) {
-                try {
-                    const profile = JSON.parse(profileRaw);
-                    if (profile.store_name) storeName = profile.store_name;
-                } catch (e) {}
-            }
+            // 1. Profil Toko Penjual (kunci user_id, fallback nama lama)
+            const profile = IndoFXStorage.readSellerProfile(currentUserId, [currentSeller]);
+            let storeName = profile.store_name || currentSeller;
 
             const titleEl = document.getElementById('dashContentStoreName');
             const navStoreEl = document.getElementById('navDashStoreName');
@@ -242,20 +237,14 @@ $sellerInitials = mb_strtoupper(mb_substr($sellerUsername, 0, 1));
                     const cleanTitle = (aq.title || '').trim().toLowerCase();
                     if (cleanTitle) {
                         const studio = (aq.studio || aq.creator || aq.seller || '').toLowerCase();
-                        const isMine = studio.includes('naufal') ||
-                            studio === currentSeller.toLowerCase() ||
-                            studio === currentUserId.toLowerCase() ||
-                            studio === '';
+                        const ownerId = String(aq.seller_user_id || '');
+                        const isMine = (ownerId !== '' && ownerId === String(currentUserId)) ||
+                            studio === currentSeller.toLowerCase();
 
                         if (isMine) {
                             seenTitles.add(cleanTitle);
 
-                            let mappedStatus = 'Menunggu';
-                            if (aq.status === 'Published' || aq.status === 'Disetujui') {
-                                mappedStatus = 'Disetujui';
-                            } else if (aq.status === 'Ditolak') {
-                                mappedStatus = 'Ditolak';
-                            }
+                            let mappedStatus = IndoFXStorage.normalizeStatus(aq.status);
 
                             combinedAssets.push({
                                 id: aq.id || ('asset-' + Date.now()),
@@ -273,37 +262,25 @@ $sellerInitials = mb_strtoupper(mb_substr($sellerUsername, 0, 1));
                 });
             } catch (e) {}
 
-            // B. Pindai seluruh penyimpanan toko pengguna
-            Object.keys(localStorage).forEach(key => {
-                if (key.startsWith('indofx_seller_assets_')) {
-                    try {
-                        const parsed = JSON.parse(localStorage.getItem(key)) || [];
-                        if (Array.isArray(parsed)) {
-                            parsed.forEach(item => {
-                                const cleanTitle = (item.title || '').trim().toLowerCase();
-                                if (cleanTitle && !seenTitles.has(cleanTitle)) {
-                                    seenTitles.add(cleanTitle);
-                                    let mappedStatus = item.status || 'Menunggu';
-                                    if (mappedStatus === 'Pending' || mappedStatus === 'Pending Review') {
-                                        mappedStatus = 'Menunggu';
-                                    }
-
-                                    combinedAssets.push({
-                                        id: item.id || ('asset-' + Date.now()),
-                                        title: item.title,
-                                        category: item.category || 'VFX Partikel',
-                                        pipelines: Array.isArray(item.pipelines) ? item.pipelines : [item.pipeline || 'Built-in'],
-                                        price: item.price_num || parseFloat(String(item.price).replace(/[^0-9]/g, '')) || 0,
-                                        price_text: item.price_text || (typeof item.price === 'string' ? item.price : ('Rp' + Number(item.price || 0).toLocaleString('id-ID'))),
-                                        status: mappedStatus,
-                                        sales: item.sales || item.downloads || '0x Terjual',
-                                        created_at: item.date || item.created_at || '10 Nov 2026'
-                                    });
-                                }
-                            });
-                        }
-                    } catch (e) {}
+            // B. Ambil aset milik penjual ini saja (kunci user_id + fallback lama)
+            IndoFXStorage.readSellerAssets(currentUserId, [currentSeller, storeName]).forEach(item => {
+                const cleanTitle = (item.title || '').trim().toLowerCase();
+                if (!cleanTitle || seenTitles.has(cleanTitle)) {
+                    return;
                 }
+
+                seenTitles.add(cleanTitle);
+                combinedAssets.push({
+                    id: item.id || ('asset-' + Date.now()),
+                    title: item.title,
+                    category: item.category || 'VFX Partikel',
+                    pipelines: Array.isArray(item.pipelines) ? item.pipelines : [item.pipeline || 'Built-in'],
+                    price: item.price_num || parseFloat(String(item.price).replace(/[^0-9]/g, '')) || 0,
+                    price_text: item.price_text || (typeof item.price === 'string' ? item.price : ('Rp' + Number(item.price || 0).toLocaleString('id-ID'))),
+                    status: IndoFXStorage.normalizeStatus(item.status),
+                    sales: item.sales || item.downloads || '0x Terjual',
+                    created_at: item.date || item.created_at || '10 Nov 2026'
+                });
             });
 
             // C. 3 Aset dasar awal sebagai pelengkap
@@ -361,9 +338,10 @@ $sellerInitials = mb_strtoupper(mb_substr($sellerUsername, 0, 1));
                     `&pipeline=${encodeURIComponent(primaryPipe)}`;
 
                 let badgeHtml = '<span class="badge-status-approved">Disetujui</span>';
-                if (item.status === 'Menunggu' || item.status === 'Pending' || item.status === 'Pending Review') {
+                const normalizedStatus = IndoFXStorage.normalizeStatus(item.status);
+                if (normalizedStatus === 'Menunggu') {
                     badgeHtml = '<span class="badge-status-pending" style="background:#fef3c7; color:#92400e;">Menunggu</span>';
-                } else if (item.status === 'Ditolak') {
+                } else if (normalizedStatus === 'Ditolak') {
                     badgeHtml = '<span class="badge-status-rejected">Ditolak</span>';
                 }
 
@@ -385,7 +363,7 @@ $sellerInitials = mb_strtoupper(mb_substr($sellerUsername, 0, 1));
 
             // Perbarui Total Aset dan Terpublikasi secara Dinamis
             const totalAsetCount = combinedAssets.length;
-            const approvedCount = combinedAssets.filter(a => a.status === 'Disetujui' || a.status === 'Published').length;
+            const approvedCount = combinedAssets.filter(a => IndoFXStorage.normalizeStatus(a.status) === 'Published').length;
 
             document.getElementById('statTotalAsset').innerText = totalAsetCount;
             document.getElementById('statAssetSub').innerText = approvedCount + ' Terpublikasi';

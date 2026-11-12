@@ -232,8 +232,12 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Helper penyimpanan lokal (kunci berbasis user_id) -->
+    <script src="/assets/js/indofx-storage.js"></script>
+
     <!-- Script Form Pengajuan & Sinkronisasi Antrean Admin -->
     <script>
+        const sellerUserId = '<?= $userKey ?>';
         const sellerUsername = '<?= $userName ?>';
         let uploadedImageBase64 = '';
         let uploadedPackageName = '';
@@ -253,15 +257,9 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Ambil Nama Studio jika ada
-            const profileRaw = localStorage.getItem('indofx_seller_profile_' + sellerUsername);
-            let storeName = sellerUsername;
-            if (profileRaw) {
-                try {
-                    const prof = JSON.parse(profileRaw);
-                    if (prof.store_name) storeName = prof.store_name;
-                } catch (e) {}
-            }
+            // Ambil Nama Studio jika ada (kunci baru user_id, fallback kunci lama)
+            const profile = IndoFXStorage.readSellerProfile(sellerUserId, [sellerUsername]);
+            let storeName = profile.store_name || sellerUsername;
             document.getElementById('navDashStoreName').innerText = storeName.toUpperCase();
             const words = storeName.trim().split(/\s+/);
             let inits = '';
@@ -320,6 +318,7 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                 });
                 const assetId = 'asset-' + Date.now();
                 const fileName = uploadedPackageName || (title.toLowerCase().replace(/[^a-z0-9]/g, '_') + '.unitypackage');
+                const sellerStorageKey = IndoFXStorage.sellerAssetsKey(sellerUserId);
 
                 // 1. Simpan ke ruang aset toko penjual
                 const sellerAssetObj = {
@@ -340,16 +339,12 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                     image: uploadedImageBase64 || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80',
                     video_url: videoUrl,
                     seller: storeName,
-                    creator: storeName
+                    creator: storeName,
+                    seller_user_id: sellerUserId,
+                    seller_key: sellerStorageKey
                 };
 
-                const sellerStorageKey = 'indofx_seller_assets_' + storeName;
-                let sellerAssets = [];
-                try {
-                    sellerAssets = JSON.parse(localStorage.getItem(sellerStorageKey)) || [];
-                } catch (err) {
-                    sellerAssets = [];
-                }
+                let sellerAssets = IndoFXStorage.readSellerAssets(sellerUserId, [sellerUsername, storeName]);
                 sellerAssets.unshift(sellerAssetObj);
                 localStorage.setItem(sellerStorageKey, JSON.stringify(sellerAssets));
 
@@ -380,6 +375,7 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                     status: 'Pending Review',
                     seller_storage_key: sellerStorageKey,
                     seller_key: sellerStorageKey,
+                    seller_user_id: sellerUserId,
                     description: description,
                     how_to_use: howToUse,
                     video_url: videoUrl,

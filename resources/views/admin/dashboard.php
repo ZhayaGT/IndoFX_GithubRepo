@@ -263,6 +263,9 @@ $adminInitials = 'AP';
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Helper penyimpanan lokal (kunci berbasis user_id) -->
+    <script src="/assets/js/indofx-storage.js"></script>
+
     <!-- ENGINE DATA DINAMIS ADMIN INDOFX -->
     <script>
         // Data Basis Pengguna Awal
@@ -435,8 +438,9 @@ $adminInitials = 'AP';
                                     price_num: parseFloat(String(sa.price).replace(/[^0-9]/g, '')) || 0,
                                     created_at: sa.created_at || 'Hari ini',
                                     time: 'Baru saja',
-                                    status: sa.status === 'Disetujui' ? 'Published' : (sa.status || 'Pending Review'),
-                                    seller_storage_key: key
+                                    status: IndoFXStorage.normalizeStatus(sa.status),
+                                    seller_storage_key: key,
+                                    seller_user_id: sa.seller_user_id || key.replace('indofx_seller_assets_', '')
                                 });
                             }
                         });
@@ -448,7 +452,7 @@ $adminInitials = 'AP';
             localStorage.setItem('indofx_moderation_queue', JSON.stringify(allModerationAssets));
 
             // Hitung eksak aset pending
-            const pendingList = allModerationAssets.filter(a => a.status === 'Pending' || a.status === 'Pending Review');
+            const pendingList = allModerationAssets.filter(a => IndoFXStorage.normalizeStatus(a.status) === 'Menunggu');
             document.getElementById('statPendingModeration').innerText = pendingList.length + ' Aset';
             document.getElementById('sidebarModerationBadge').innerText = pendingList.length;
 
@@ -462,7 +466,7 @@ $adminInitials = 'AP';
                 publicCatalog = [];
             }
 
-            const publishedInQueue = allModerationAssets.filter(a => a.status === 'Published' || a.status === 'Disetujui');
+            const publishedInQueue = allModerationAssets.filter(a => IndoFXStorage.normalizeStatus(a.status) === 'Published');
 
             // Himpunan ID unik yang terpublikasi
             const publishedAssetIds = new Set();
@@ -552,8 +556,8 @@ $adminInitials = 'AP';
                 if (pipe.toLowerCase().includes('hdrp')) pipeClass = 'badge-pipe-hdrp';
                 if (pipe.toLowerCase().includes('built')) pipeClass = 'badge-pipe-builtin';
 
-                const isPublished = (item.status === 'Published' || item.status === 'Disetujui');
-                const isRejected = (item.status === 'Ditolak');
+                const isPublished = IndoFXStorage.normalizeStatus(item.status) === 'Published';
+                const isRejected = IndoFXStorage.normalizeStatus(item.status) === 'Ditolak';
 
                 let statusBadge = `<span class="badge-status-review">Pending Review</span>`;
                 if (isPublished) {
@@ -641,14 +645,34 @@ $adminInitials = 'AP';
                     publicCatalog = JSON.parse(localStorage.getItem('indofx_public_catalog')) || [];
                 } catch (e) {}
                 publicCatalog = publicCatalog.filter(c => String(c.id) !== String(targetAsset.id));
+                const rawPrice = (typeof targetAsset.price_num === 'number') ?
+                    targetAsset.price_num :
+                    (parseFloat(String(targetAsset.price).replace(/[^0-9]/g, '')) || 0);
+                const pipelinesArray = Array.isArray(targetAsset.pipelines) && targetAsset.pipelines.length > 0 ?
+                    targetAsset.pipelines : [targetAsset.pipeline || 'Built-in'];
+
                 publicCatalog.unshift({
                     id: targetAsset.id,
                     title: targetAsset.title,
-                    creator: targetAsset.studio,
-                    price: targetAsset.price_num || 0,
+                    creator: targetAsset.studio || targetAsset.creator || '',
+                    seller_user_id: targetAsset.seller_user_id || '',
+                    seller_key: targetAsset.seller_storage_key || '',
+                    price: rawPrice,
+                    price_text: rawPrice === 0 ? 'Gratis' : ('Rp' + rawPrice.toLocaleString('id-ID')),
                     category: targetAsset.category || 'VFX Partikel',
-                    pipelines: [targetAsset.pipeline || 'Built-in'],
-                    downloads: '0x Terjual'
+                    pipelines: pipelinesArray,
+                    unity_version: targetAsset.unity_ver || targetAsset.unity_version || '2022.3 LTS',
+                    format: targetAsset.file_info && targetAsset.file_info.includes('.zip') ? '.zip' : '.unitypackage',
+                    downloads: targetAsset.downloads || '0x Terjual',
+                    image: targetAsset.image || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80',
+                    description: targetAsset.description || '',
+                    how_to_use: targetAsset.how_to_use || '',
+                    video_url: targetAsset.video_url || '',
+                    published_at: new Date().toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric'
+                    })
                 });
                 localStorage.setItem('indofx_public_catalog', JSON.stringify(publicCatalog));
 

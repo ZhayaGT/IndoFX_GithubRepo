@@ -564,6 +564,9 @@ if ($initials === '') {
         </div>
     </footer>
 
+    <!-- Helper penyimpanan lokal (kunci berbasis user_id) -->
+    <script src="/assets/js/indofx-storage.js"></script>
+
     <script>
         const userKey = '<?= $userKey ?>';
         const directAssetId = '<?= htmlspecialchars((string)$directAssetId, ENT_QUOTES, 'UTF-8') ?>';
@@ -619,11 +622,14 @@ if ($initials === '') {
                     cleanPrice = parseFloat(paramPrice.replace(/[^0-9]/g, '')) || 0;
                 }
                 const pipes = paramPipeline ? [paramPipeline] : ['Built-in'];
+                const seller = IndoFXStorage.findSellerByAsset(directAssetId, paramTitle);
 
                 activeItems = [{
                     id: directAssetId || ('asset-' + Date.now()),
                     title: paramTitle,
-                    creator: paramCreator || detectCreatorByTitle(paramTitle) || 'Studio Kreator',
+                    creator: paramCreator || (seller ? seller.storeName : '') || 'Studio Kreator',
+                    seller_user_id: seller ? seller.userId : '',
+                    seller_key: seller ? seller.key : '',
                     price: cleanPrice,
                     art: 'castle',
                     pipelines: pipes
@@ -644,10 +650,14 @@ if ($initials === '') {
                             cleanPrice = parseFloat(found.price.replace(/[^0-9]/g, '')) || 0;
                         }
 
+                        const seller = IndoFXStorage.findSellerByAsset(found.id, found.title);
+
                         activeItems = [{
                             id: found.id,
                             title: found.title,
-                            creator: found.creator || found.seller || detectCreatorByTitle(found.title) || 'Studio Kreator',
+                            creator: found.creator || found.seller || (seller ? seller.storeName : '') || 'Studio Kreator',
+                            seller_user_id: found.seller_user_id || (seller ? seller.userId : ''),
+                            seller_key: found.seller_key || (seller ? seller.key : ''),
                             price: cleanPrice,
                             art: found.category === 'Shader' ? 'water' : 'castle',
                             pipelines: Array.isArray(found.pipelines) ? found.pipelines : [found.render_pipeline || 'Built-in']
@@ -675,24 +685,6 @@ if ($initials === '') {
             }
 
             renderOrderSummary();
-        }
-
-        function detectCreatorByTitle(title) {
-            let foundOwner = '';
-            Object.keys(localStorage).forEach(k => {
-                if (k.startsWith('indofx_seller_assets_')) {
-                    try {
-                        const items = JSON.parse(localStorage.getItem(k)) || [];
-                        const matched = items.find(it => it.title === title);
-                        if (matched) {
-                            const suffix = k.replace('indofx_seller_assets_', '');
-                            const prof = JSON.parse(localStorage.getItem('indofx_seller_profile_' + suffix) || '{}');
-                            foundOwner = prof.store_name || suffix;
-                        }
-                    } catch (e) {}
-                }
-            });
-            return foundOwner;
         }
 
         function renderOrderSummary() {
@@ -805,6 +797,7 @@ if ($initials === '') {
                     items: activeItems.map(i => ({
                         id: i.id,
                         title: i.title,
+                        creator: i.creator || '',
                         price: parseFloat(i.price) || 0
                     })),
                     subtotal: subtotal,
@@ -829,43 +822,33 @@ if ($initials === '') {
                         buyer_name: '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>'
                     };
 
+                    const seller = IndoFXStorage.findSellerByAsset(item.id, item.title);
+                    const sellerKey = item.seller_key || (seller ? seller.key : '');
+                    const sellerUserId = item.seller_user_id || (seller ? seller.userId : '');
+                    const sellerStoreName = item.creator || (seller ? seller.storeName : '');
+
                     let targetKeys = new Set();
-                    if (item.creator) {
-                        targetKeys.add('indofx_seller_sales_' + item.creator.toLowerCase().replace(/[^a-z0-9]/g, ''));
-                        targetKeys.add('indofx_seller_sales_' + item.creator.trim());
+                    if (sellerUserId) {
+                        targetKeys.add(IndoFXStorage.sellerSalesKey(sellerUserId));
+                    }
+                    if (sellerStoreName) {
+                        targetKeys.add('indofx_seller_sales_' + sellerStoreName.toLowerCase().replace(/[^a-z0-9]/g, ''));
+                        targetKeys.add('indofx_seller_sales_' + sellerStoreName.trim());
                     }
 
-                    Object.keys(localStorage).forEach(key => {
-                        if (key.startsWith('indofx_seller_assets_')) {
-                            try {
-                                let sAssets = JSON.parse(localStorage.getItem(key)) || [];
-                                const hasAsset = sAssets.some(sa => String(sa.id) === String(item.id) || sa.title === item.title);
-                                if (hasAsset) {
-                                    const sellerSuffix = key.replace('indofx_seller_assets_', '');
-                                    targetKeys.add('indofx_seller_sales_' + sellerSuffix);
-                                    targetKeys.add('indofx_seller_sales_' + sellerSuffix.toLowerCase().replace(/[^a-z0-9]/g, ''));
-
-                                    const rawProf = localStorage.getItem('indofx_seller_profile_' + sellerSuffix);
-                                    if (rawProf) {
-                                        const p = JSON.parse(rawProf);
-                                        if (p.store_name) {
-                                            targetKeys.add('indofx_seller_sales_' + p.store_name.toLowerCase().replace(/[^a-z0-9]/g, ''));
-                                            targetKeys.add('indofx_seller_sales_' + p.store_name.trim());
-                                        }
-                                    }
-
-                                    sAssets = sAssets.map(sa => {
-                                        if (String(sa.id) === String(item.id) || sa.title === item.title) {
-                                            const currentCount = parseInt(String(sa.downloads || '0').replace(/[^0-9]/g, ''), 10) || 0;
-                                            sa.downloads = (currentCount + 1) + 'x Terjual';
-                                        }
-                                        return sa;
-                                    });
-                                    localStorage.setItem(key, JSON.stringify(sAssets));
+                    if (sellerKey) {
+                        try {
+                            let sAssets = JSON.parse(localStorage.getItem(sellerKey)) || [];
+                            sAssets = sAssets.map(sa => {
+                                if (String(sa.id) === String(item.id) || sa.title === item.title) {
+                                    const currentCount = parseInt(String(sa.downloads || sa.sales || '0').replace(/[^0-9]/g, ''), 10) || 0;
+                                    sa.downloads = (currentCount + 1) + 'x Terjual';
                                 }
-                            } catch (e) {}
-                        }
-                    });
+                                return sa;
+                            });
+                            localStorage.setItem(sellerKey, JSON.stringify(sAssets));
+                        } catch (e) {}
+                    }
 
                     targetKeys.forEach(tKey => {
                         let sales = [];

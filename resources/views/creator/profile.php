@@ -412,10 +412,14 @@ if ($profileInitials === '') {
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Helper penyimpanan lokal (kunci berbasis user_id) -->
+    <script src="/assets/js/indofx-storage.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const userKey = '<?= $userKey ?>';
             const isOwnProfile = <?= $isOwnProfile ? 'true' : 'false' ?>;
+            const profileName = '<?= htmlspecialchars($profileName, ENT_QUOTES, 'UTF-8') ?>';
             const container = document.getElementById('assetsDisplayContainer');
             const socialLinks = document.getElementById('sellerSocialLinksContainer');
             const badgeContainer = document.getElementById('roleBadgeContainer');
@@ -425,11 +429,9 @@ if ($profileInitials === '') {
             // 1. Cek status akun penjual
             let sellerProfile = null;
             if (isOwnProfile && userKey) {
-                const rawSeller = localStorage.getItem('indofx_seller_profile_' + userKey);
-                if (rawSeller) {
-                    try {
-                        sellerProfile = JSON.parse(rawSeller);
-                    } catch (e) {}
+                const profile = IndoFXStorage.readSellerProfile(userKey, [profileName]);
+                if (profile && (profile.is_seller || profile.store_name)) {
+                    sellerProfile = profile;
                 }
             }
 
@@ -463,12 +465,7 @@ if ($profileInitials === '') {
                 `;
 
                 // Ambil daftar aset yang dijual oleh toko ini
-                let sellerAssets = [];
-                try {
-                    sellerAssets = JSON.parse(localStorage.getItem('indofx_seller_assets_' + userKey)) || [];
-                } catch (e) {
-                    sellerAssets = [];
-                }
+                const sellerAssets = IndoFXStorage.readSellerAssets(userKey, [storeName, profileName]);
 
                 if (sellerAssets.length === 0) {
                     container.innerHTML = `
@@ -529,11 +526,7 @@ if ($profileInitials === '') {
 
                 let ownedAssets = [];
                 if (userKey) {
-                    try {
-                        ownedAssets = JSON.parse(localStorage.getItem('indofx_library_' + userKey)) || [];
-                    } catch (e) {
-                        ownedAssets = [];
-                    }
+                    ownedAssets = IndoFXStorage.readLibrary(userKey, [profileName]);
                 }
 
                 const buyerCount = document.getElementById('buyerAssetCount');

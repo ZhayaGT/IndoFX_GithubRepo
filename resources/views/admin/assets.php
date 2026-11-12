@@ -103,7 +103,7 @@ $adminInitials = 'AP';
                 <div class="col-6 col-md-3">
                     <select class="form-select admin-select" id="filterModerationStatus">
                         <option value="all" selected>Semua Status Moderasi</option>
-                        <option value="Pending Review">Pending Review</option>
+                        <option value="Menunggu">Menunggu Peninjauan</option>
                         <option value="Published">Published</option>
                         <option value="Ditolak">Ditolak</option>
                     </select>
@@ -166,6 +166,9 @@ $adminInitials = 'AP';
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Helper penyimpanan lokal (kunci berbasis user_id) -->
+    <script src="/assets/js/indofx-storage.js"></script>
 
     <!-- ENGINE TABEL MODERASI ASET (MENGARAH KE SUBPAGE PENINJAUAN) -->
     <script>
@@ -248,8 +251,9 @@ $adminInitials = 'AP';
                                     price_num: parseFloat(String(sa.price).replace(/[^0-9]/g, '')) || 0,
                                     date: sa.created_at || sa.date || 'Hari ini',
                                     time: 'Baru saja',
-                                    status: sa.status === 'Disetujui' ? 'Published' : (sa.status || 'Pending Review'),
-                                    seller_key: key
+                                    status: IndoFXStorage.normalizeStatus(sa.status),
+                                    seller_key: key,
+                                    seller_user_id: sa.seller_user_id || key.replace('indofx_seller_assets_', '')
                                 });
                             }
                         });
@@ -260,7 +264,7 @@ $adminInitials = 'AP';
             localStorage.setItem('indofx_moderation_queue', JSON.stringify(moderationAssets));
 
             // Perbarui badge sidebar
-            const pendingCount = moderationAssets.filter(a => a.status === 'Pending' || a.status === 'Pending Review').length;
+            const pendingCount = moderationAssets.filter(a => IndoFXStorage.normalizeStatus(a.status) === 'Menunggu').length;
             document.getElementById('sidebarModerationBadge').innerText = pendingCount;
 
             renderModerationTable();
@@ -277,7 +281,7 @@ $adminInitials = 'AP';
                     item.title.toLowerCase().includes(keyword) ||
                     item.studio.toLowerCase().includes(keyword);
 
-                const itemStatusNormalized = (item.status === 'Disetujui' ? 'Published' : (item.status === 'Pending' ? 'Pending Review' : item.status));
+                const itemStatusNormalized = IndoFXStorage.normalizeStatus(item.status);
                 const matchStatus = statusFilter === 'all' || itemStatusNormalized === statusFilter;
                 const matchCategory = categoryFilter === 'all' || item.category === categoryFilter;
 
@@ -301,8 +305,8 @@ $adminInitials = 'AP';
                 if (pipe.toLowerCase().includes('hdrp')) pipeClass = 'badge-pipe-hdrp';
                 if (pipe.toLowerCase().includes('built')) pipeClass = 'badge-pipe-builtin';
 
-                const isPublished = (item.status === 'Published' || item.status === 'Disetujui');
-                const isRejected = (item.status === 'Ditolak');
+                const isPublished = IndoFXStorage.normalizeStatus(item.status) === 'Published';
+                const isRejected = IndoFXStorage.normalizeStatus(item.status) === 'Ditolak';
 
                 let statusBadge = `<span class="badge-status-review">Pending Review</span>`;
                 if (isPublished) {

@@ -185,6 +185,9 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Helper penyimpanan lokal (kunci berbasis user_id) -->
+    <script src="/assets/js/indofx-storage.js"></script>
+
     <!-- SCRIPT HIDRASI DATA DINAMIS & PENGHITUNG TERJUAL -->
     <script>
         const userKey = '<?= $userKey ?>';
@@ -194,13 +197,8 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
         let sellerSales = [];
 
         document.addEventListener('DOMContentLoaded', function() {
-            const profileRaw = localStorage.getItem('indofx_seller_profile_' + userKey);
-            if (profileRaw) {
-                try {
-                    const prof = JSON.parse(profileRaw);
-                    if (prof.store_name) storeName = prof.store_name;
-                } catch (e) {}
-            }
+            const profile = IndoFXStorage.readSellerProfile(userKey, [defaultUserName]);
+            if (profile.store_name) storeName = profile.store_name;
 
             document.getElementById('pageStoreTitle').innerText = storeName;
             document.getElementById('navDashStoreName').innerText = storeName.toUpperCase();
@@ -229,22 +227,15 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                     const cleanTitle = (aq.title || '').trim().toLowerCase();
                     if (cleanTitle) {
                         const studio = (aq.studio || aq.creator || aq.seller || '').toLowerCase();
-                        const isMine = studio.includes('naufal') ||
+                        const ownerId = String(aq.seller_user_id || '');
+                        const isMine = (ownerId !== '' && ownerId === String(userKey)) ||
                             studio === storeName.toLowerCase() ||
-                            studio === defaultUserName.toLowerCase() ||
-                            studio === '';
+                            studio === defaultUserName.toLowerCase();
 
                         if (isMine) {
                             seenTitles.add(cleanTitle);
 
-                            let mappedStatus = 'Pending';
-                            if (aq.status === 'Published' || aq.status === 'Disetujui') {
-                                mappedStatus = 'Disetujui';
-                            } else if (aq.status === 'Ditolak') {
-                                mappedStatus = 'Ditolak';
-                            } else {
-                                mappedStatus = 'Pending';
-                            }
+                            let mappedStatus = IndoFXStorage.normalizeStatus(aq.status);
 
                             combined.push({
                                 id: aq.id || ('asset-' + Date.now()),
@@ -263,36 +254,26 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                 });
             } catch (e) {}
 
-            // 2. Ambil dari penyimpanan toko penjual
-            Object.keys(localStorage).forEach(key => {
-                if (key.startsWith('indofx_seller_assets_')) {
-                    try {
-                        const parsed = JSON.parse(localStorage.getItem(key)) || [];
-                        if (Array.isArray(parsed)) {
-                            parsed.forEach(item => {
-                                const cleanTitle = (item.title || '').trim().toLowerCase();
-                                if (cleanTitle && !seenTitles.has(cleanTitle)) {
-                                    seenTitles.add(cleanTitle);
-                                    let mappedStatus = item.status || 'Pending';
-                                    if (mappedStatus === 'Menunggu') mappedStatus = 'Pending';
-
-                                    combined.push({
-                                        id: item.id || ('asset-' + Date.now()),
-                                        title: item.title,
-                                        category: item.category || 'VFX Partikel',
-                                        pipelines: Array.isArray(item.pipelines) ? item.pipelines : [item.pipeline || 'Built-in'],
-                                        price: item.price_num || parseFloat(String(item.price).replace(/[^0-9]/g, '')) || 0,
-                                        price_text: item.price_text || (typeof item.price === 'string' ? item.price : ('Rp' + Number(item.price || 0).toLocaleString('id-ID'))),
-                                        status: mappedStatus,
-                                        downloads: item.sales || item.downloads || '0x Terjual',
-                                        created_at: item.date || item.created_at || '6 Nov 2026',
-                                        reject_reason: item.reject_reason || ''
-                                    });
-                                }
-                            });
-                        }
-                    } catch (e) {}
+            // 2. Ambil aset milik penjual ini saja (kunci user_id + fallback lama)
+            IndoFXStorage.readSellerAssets(userKey, [defaultUserName, storeName]).forEach(item => {
+                const cleanTitle = (item.title || '').trim().toLowerCase();
+                if (!cleanTitle || seenTitles.has(cleanTitle)) {
+                    return;
                 }
+
+                seenTitles.add(cleanTitle);
+                combined.push({
+                    id: item.id || ('asset-' + Date.now()),
+                    title: item.title,
+                    category: item.category || 'VFX Partikel',
+                    pipelines: Array.isArray(item.pipelines) ? item.pipelines : [item.pipeline || 'Built-in'],
+                    price: item.price_num || parseFloat(String(item.price).replace(/[^0-9]/g, '')) || 0,
+                    price_text: item.price_text || (typeof item.price === 'string' ? item.price : ('Rp' + Number(item.price || 0).toLocaleString('id-ID'))),
+                    status: IndoFXStorage.normalizeStatus(item.status),
+                    downloads: item.sales || item.downloads || '0x Terjual',
+                    created_at: item.date || item.created_at || '6 Nov 2026',
+                    reject_reason: item.reject_reason || ''
+                });
             });
 
             // 3. Fallback 3 aset awal Figma
@@ -389,7 +370,8 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
 
             const filtered = allAssets.filter(item => {
                 const matchKeyword = !keyword || (item.title && item.title.toLowerCase().includes(keyword));
-                const matchStatus = statusFilter === 'all' || item.status === statusFilter;
+                const matchStatus = statusFilter === 'all' ||
+                    IndoFXStorage.normalizeStatus(item.status) === IndoFXStorage.normalizeStatus(statusFilter);
                 const matchCategory = categoryFilter === 'all' || item.category === categoryFilter;
                 return matchKeyword && matchStatus && matchCategory;
             });
@@ -434,7 +416,7 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
 
                 // Hitung Terjual / Unduhan Dinamis
                 let downloadOrSalesText = item.downloads || '0x Terjual';
-                if (item.status === 'Disetujui') {
+                if (IndoFXStorage.normalizeStatus(item.status) === 'Published') {
                     if (isGratis) {
                         const rawCount = parseInt(String(item.downloads || '0').replace(/[^0-9]/g, ''), 10) || 0;
                         downloadOrSalesText = `${Math.max(rawCount, 1)}x Unduhan`;
@@ -459,17 +441,17 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                     `&price=${encodeURIComponent(priceNum)}` +
                     `&pipeline=${encodeURIComponent(primaryPipe)}`;
 
-                let statusBadge = `<span class="badge-status-pending">Pending</span>`;
+                let statusBadge = `<span class="badge-status-pending">Menunggu</span>`;
                 let actionBtn = ``;
 
-                if (item.status === 'Disetujui') {
+                if (IndoFXStorage.normalizeStatus(item.status) === 'Published') {
                     statusBadge = `<span class="badge-status-approved">Disetujui</span>`;
                     actionBtn = `
                         <a href="/dashboard/add-asset?edit_id=${encodeURIComponent(item.id)}" class="action-link-edit">Edit</a>
                         <span class="action-divider">|</span>
                         <a href="${detailUrl}" class="action-link-view">Lihat</a>
                     `;
-                } else if (item.status === 'Ditolak') {
+                } else if (IndoFXStorage.normalizeStatus(item.status) === 'Ditolak') {
                     statusBadge = `
                         <div class="d-inline-flex align-items-center gap-1">
                             <span class="badge-status-rejected">Ditolak</span>

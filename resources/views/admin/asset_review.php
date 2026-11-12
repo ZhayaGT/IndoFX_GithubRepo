@@ -271,6 +271,9 @@ $adminInitials = 'AP';
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Helper penyimpanan lokal (kunci berbasis user_id) -->
+    <script src="/assets/js/indofx-storage.js"></script>
+
     <!-- ENGINE PENINJAUAN ASET: 100% DINAMIS MENGGUNAKAN TEKS ASLI PENJUAL -->
     <script>
         let currentAsset = null;
@@ -322,7 +325,7 @@ $adminInitials = 'AP';
 
             // Cross-check jika description / how_to_use tersimpan di storage toko penjual
             if (!currentAsset.description || !currentAsset.how_to_use) {
-                const sKey = currentAsset.seller_storage_key || ('indofx_seller_assets_' + (currentAsset.studio || currentAsset.creator || 'naufalhaidarazmi'));
+                const sKey = currentAsset.seller_storage_key || IndoFXStorage.sellerAssetsKey(currentAsset.seller_user_id || currentAsset.studio || currentAsset.creator || '');
                 try {
                     const sAssets = JSON.parse(localStorage.getItem(sKey)) || [];
                     const foundInSeller = sAssets.find(s => String(s.id) === String(currentAsset.id) || s.title === currentAsset.title);
@@ -373,8 +376,8 @@ $adminInitials = 'AP';
             pipeBadge.className = 'badge-pipe-admin ' + (pipe.toLowerCase().includes('hdrp') ? 'badge-pipe-hdrp' : (pipe.toLowerCase().includes('built') ? 'badge-pipe-builtin' : 'badge-pipe-urp'));
 
             // Status Badge
-            const isPublished = (currentAsset.status === 'Published' || currentAsset.status === 'Disetujui');
-            const isRejected = (currentAsset.status === 'Ditolak');
+            const isPublished = IndoFXStorage.normalizeStatus(currentAsset.status) === 'Published';
+            const isRejected = IndoFXStorage.normalizeStatus(currentAsset.status) === 'Ditolak';
             let statusBadgeHtml = `<span class="badge-status-review">Pending Review</span>`;
             if (isPublished) statusBadgeHtml = `<span class="badge-status-published">Published</span>`;
             if (isRejected) statusBadgeHtml = `<span class="badge-status-blocked">Ditolak</span>`;
@@ -398,7 +401,7 @@ $adminInitials = 'AP';
             }
 
             // Update Badge Sidebar
-            const pCount = allQueue.filter(q => q.status === 'Pending' || q.status === 'Pending Review').length;
+            const pCount = allQueue.filter(q => IndoFXStorage.normalizeStatus(q.status) === 'Menunggu').length;
             document.getElementById('sidebarModerationBadge').innerText = pCount;
         }
 
@@ -416,8 +419,10 @@ $adminInitials = 'AP';
             localStorage.setItem('indofx_moderation_queue', JSON.stringify(allQueue));
 
             // Update Status di Ruang Penjual
-            const creatorUsername = currentAsset.studio || currentAsset.creator || currentAsset.seller || 'naufalhaidarazmi';
-            const sellerStorageKey = currentAsset.seller_storage_key || ('indofx_seller_assets_' + creatorUsername);
+            const creatorUsername = currentAsset.studio || currentAsset.creator || currentAsset.seller || '';
+            const sellerUserId = currentAsset.seller_user_id || '';
+            const sellerStorageKey = currentAsset.seller_storage_key ||
+                IndoFXStorage.sellerAssetsKey(sellerUserId || creatorUsername);
             try {
                 let sellerAssets = JSON.parse(localStorage.getItem(sellerStorageKey)) || [];
                 sellerAssets = sellerAssets.map(sa => {
@@ -453,6 +458,8 @@ $adminInitials = 'AP';
                 id: currentAsset.id,
                 title: currentAsset.title,
                 creator: creatorUsername,
+                seller_user_id: sellerUserId,
+                seller_key: sellerStorageKey,
                 price: rawPrice,
                 price_text: rawPrice === 0 ? 'Gratis' : ('Rp' + rawPrice.toLocaleString('id-ID')),
                 category: currentAsset.category || 'VFX Partikel',
@@ -501,8 +508,9 @@ $adminInitials = 'AP';
             });
             localStorage.setItem('indofx_moderation_queue', JSON.stringify(allQueue));
 
-            const creatorUsername = currentAsset.studio || currentAsset.creator || currentAsset.seller || 'naufalhaidarazmi';
-            const sellerStorageKey = currentAsset.seller_storage_key || ('indofx_seller_assets_' + creatorUsername);
+            const creatorUsername = currentAsset.studio || currentAsset.creator || currentAsset.seller || '';
+            const sellerStorageKey = currentAsset.seller_storage_key ||
+                IndoFXStorage.sellerAssetsKey(currentAsset.seller_user_id || creatorUsername);
             try {
                 let sellerAssets = JSON.parse(localStorage.getItem(sellerStorageKey)) || [];
                 sellerAssets = sellerAssets.map(sa => {

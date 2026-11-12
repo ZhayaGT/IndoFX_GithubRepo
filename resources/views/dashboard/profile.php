@@ -185,6 +185,9 @@ $userEmail  = (string) ($_SESSION['email'] ?? ($userName . '@gmail.com'));
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Helper penyimpanan lokal (kunci berbasis user_id) -->
+    <script src="/assets/js/indofx-storage.js"></script>
+
     <script>
         const userKey = '<?= $userKey ?>';
         const defaultName = '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>';
@@ -202,12 +205,9 @@ $userEmail  = (string) ($_SESSION['email'] ?? ($userName . '@gmail.com'));
                 dana_account_name: defaultName
             };
 
-            const savedRaw = localStorage.getItem('indofx_seller_profile_' + userKey);
-            if (savedRaw) {
-                try {
-                    const parsed = JSON.parse(savedRaw);
-                    storeData = Object.assign(storeData, parsed);
-                } catch (e) {}
+            const saved = IndoFXStorage.readSellerProfile(userKey, [defaultName]);
+            if (saved && Object.keys(saved).length > 0) {
+                storeData = Object.assign(storeData, saved);
             }
 
             // 2. Isi formulir
@@ -264,8 +264,10 @@ $userEmail  = (string) ($_SESSION['email'] ?? ($userName . '@gmail.com'));
                 updated_at: new Date().toISOString()
             };
 
-            // Simpan ke kunci profil toko penjual aktif
-            localStorage.setItem('indofx_seller_profile_' + userKey, JSON.stringify(profilePayload));
+            // Simpan ke kunci profil toko penjual aktif (user_id)
+            profilePayload.user_id = userKey;
+            localStorage.setItem(IndoFXStorage.sellerProfileKey(userKey), JSON.stringify(profilePayload));
+            localStorage.setItem('indofx_seller_profile', JSON.stringify(profilePayload));
 
             // Perbarui header
             updateHeaderNav(profilePayload.store_name);
