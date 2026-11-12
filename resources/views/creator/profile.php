@@ -420,6 +420,8 @@ if ($profileInitials === '') {
             const userKey = '<?= $userKey ?>';
             const isOwnProfile = <?= $isOwnProfile ? 'true' : 'false' ?>;
             const profileName = '<?= htmlspecialchars($profileName, ENT_QUOTES, 'UTF-8') ?>';
+            const creatorParam = '<?= htmlspecialchars((string) ($creatorParam ?? ''), ENT_QUOTES, 'UTF-8') ?>';
+            const isPublicProfile = !isOwnProfile && creatorParam.trim() !== '';
             const container = document.getElementById('assetsDisplayContainer');
             const socialLinks = document.getElementById('sellerSocialLinksContainer');
             const badgeContainer = document.getElementById('roleBadgeContainer');
@@ -433,6 +435,11 @@ if ($profileInitials === '') {
                 if (profile && (profile.is_seller || profile.store_name)) {
                     sellerProfile = profile;
                 }
+            } else if (isPublicProfile) {
+                sellerProfile = IndoFXStorage.findSellerProfileByName(creatorParam) || {
+                    store_name: creatorParam,
+                    is_seller: true
+                };
             }
 
             // KONDISI 1: JIKA PENGGUNA ADALAH PENJUAL (TAMPILAN FIGMA)
@@ -464,8 +471,11 @@ if ($profileInitials === '') {
                     </span>
                 `;
 
-                // Ambil daftar aset yang dijual oleh toko ini
-                const sellerAssets = IndoFXStorage.readSellerAssets(userKey, [storeName, profileName]);
+                // Ambil daftar aset yang dijual oleh toko ini.
+                // Profil publik hanya menampilkan aset yang sudah disetujui admin.
+                const sellerAssets = isPublicProfile ?
+                    IndoFXStorage.findPublicAssetsByCreator(storeName) :
+                    IndoFXStorage.readSellerAssets(userKey, [storeName, profileName]);
 
                 if (sellerAssets.length === 0) {
                     container.innerHTML = `
@@ -474,7 +484,7 @@ if ($profileInitials === '') {
                                 <i class="bi bi-shop fs-1 text-secondary mb-2"></i>
                                 <h5 class="fw-bold text-dark mb-1">Belum Ada Aset dari ${storeName}</h5>
                                 <p class="text-muted small mb-3">Toko ini belum merilis aset visual ke marketplace.</p>
-                                <div><a href="/dashboard/add-asset" class="btn btn-hero-orange px-4 py-2">+ Unggah Aset Baru</a></div>
+                                ${isOwnProfile ? '<div><a href="/dashboard/add-asset" class="btn btn-hero-orange px-4 py-2">+ Unggah Aset Baru</a></div>' : ''}
                             </div>
                         </div>
                     `;
@@ -549,7 +559,11 @@ if ($profileInitials === '') {
                 container.innerHTML = ownedAssets.map(asset => {
                     const title = asset.title || 'Game Asset Pack';
                     const studio = asset.creator || 'Studio Kreator';
-                    const detailUrl = `/asset/detail?id=${encodeURIComponent(asset.id || '1')}&title=${encodeURIComponent(title)}`;
+                    const detailUrl = `/asset/detail?id=${encodeURIComponent(asset.id || '1')}` +
+                        `&title=${encodeURIComponent(title)}` +
+                        `&creator=${encodeURIComponent(studio)}` +
+                        `&price=${encodeURIComponent(asset.price || 0)}` +
+                        `&pipeline=${encodeURIComponent(Array.isArray(asset.pipelines) ? (asset.pipelines[0] || '') : (asset.pipeline || ''))}`;
                     const artId = (asset.art === 'forest' || asset.art === 'forest-mist-art') ? 'forest-mist-art' : 'castle-asset-thumb';
 
                     return `

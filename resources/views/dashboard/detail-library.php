@@ -175,11 +175,12 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
             overflow: hidden;
             border: 1.5px solid var(--indofx-border);
             background-color: #2b2129;
-            height: 420px;
+            height: clamp(220px, 42vw, 420px);
         }
 
         .thumb-gallery-row {
             display: flex;
+            flex-wrap: wrap;
             gap: 12px;
             margin-bottom: 28px;
         }
@@ -610,7 +611,7 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
                         <h2 class="asset-detail-title"><?= htmlspecialchars($assetTitle) ?></h2>
 
                         <div class="detail-creator-line">
-                            Oleh <a href="/creator/profile"><?= htmlspecialchars($assetCreator) ?></a>
+                            Oleh <a href="/creator/profile?name=<?= htmlspecialchars(urlencode($assetCreator), ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($assetCreator) ?></a>
                         </div>
 
                         <div class="specs-table-box">

@@ -214,6 +214,49 @@
         return merged;
     }
 
+    function readPublicCatalog() {
+        var catalog = readJSON('indofx_public_catalog', []);
+        return Array.isArray(catalog) ? catalog : [];
+    }
+
+    /**
+     * Cari profil penjual berdasarkan nama toko. Dipakai halaman profil
+     * kreator publik yang hanya mengetahui nama dari URL.
+     */
+    function findSellerProfileByName(name) {
+        var target = String(name || '').trim().toLowerCase();
+        if (!target) {
+            return null;
+        }
+
+        var profileKeys = Object.keys(localStorage).filter(function (key) {
+            return key.indexOf(PROFILE_PREFIX) === 0;
+        });
+
+        for (var i = 0; i < profileKeys.length; i++) {
+            var profile = readJSON(profileKeys[i], null);
+            if (profile && String(profile.store_name || '').trim().toLowerCase() === target) {
+                return profile;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Ambil aset publik milik satu kreator berdasarkan nama toko.
+     */
+    function findPublicAssetsByCreator(name) {
+        var target = String(name || '').trim().toLowerCase();
+        if (!target) {
+            return [];
+        }
+
+        return readPublicCatalog().filter(function (item) {
+            return String(item.creator || item.seller || '').trim().toLowerCase() === target;
+        });
+    }
+
     /**
      * Cari penjual pemilik sebuah aset berdasarkan id atau judul.
      *
@@ -271,6 +314,9 @@
         readSellerProfile: readSellerProfile,
         readSellerSales: readSellerSales,
         readLibrary: readLibrary,
+        readPublicCatalog: readPublicCatalog,
+        findSellerProfileByName: findSellerProfileByName,
+        findPublicAssetsByCreator: findPublicAssetsByCreator,
         findSellerByAsset: findSellerByAsset
     };
 })(window);

@@ -208,12 +208,13 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
             overflow: hidden;
             border: 1.5px solid var(--indofx-border);
             background-color: #2b2129;
-            height: 420px;
+            height: clamp(220px, 42vw, 420px);
             width: 100%;
         }
 
         .thumb-gallery-row {
             display: flex;
+            flex-wrap: wrap;
             gap: 12px;
             margin-bottom: 28px;
         }
@@ -826,7 +827,7 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
 
                         <!-- Pembuat Aset -->
                         <div class="detail-creator-line">
-                            Oleh <a href="/creator/profile" id="displayCreatorName"><?= htmlspecialchars($assetCreator) ?></a>
+                            Oleh <a href="/creator/profile?name=<?= htmlspecialchars(urlencode($assetCreator), ENT_QUOTES, 'UTF-8') ?>" id="displayCreatorName"><?= htmlspecialchars($assetCreator) ?></a>
                         </div>
 
                         <!-- Label & Angka Harga -->
