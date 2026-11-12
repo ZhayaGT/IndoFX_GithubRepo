@@ -65,7 +65,7 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                 <a href="/dashboard/assets" class="btn btn-outline-secondary btn-sm px-3 fw-bold">Kembali ke Semua Aset Saya</a>
             </div>
 
-            <form id="formAddAsset">
+            <form id="formAddAsset" novalidate>
 
                 <!-- CARD 1: INFORMASI ASET -->
                 <div class="form-section-card p-4 mb-4">
@@ -145,9 +145,13 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
 
                     <div id="priceInputFieldWrapper">
                         <label for="price" class="form-label form-field-label">Harga Jual (Rupiah) *</label>
-                        <div class="input-group">
+                        <div class="input-group" id="priceInputGroup">
                             <span class="input-group-text form-addon-rp">Rp</span>
-                            <input type="number" class="form-control form-field-input" id="price" value="150000" placeholder="150000" min="0" step="5000">
+                            <input type="number" class="form-control form-field-input" id="price" value="150000" placeholder="150000" min="5000" step="1000" required>
+                        </div>
+                        <small class="text-muted mt-1 d-block" id="priceMinHint">Minimal harga jual untuk aset berbayar adalah Rp5.000.</small>
+                        <div id="priceWarningAlert" class="d-none mt-2 px-3 py-2 rounded-2 small fw-semibold" style="background-color: #fef2f2; border: 1px solid #fecaca; color: #b91c1c;">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> Peringatan: Harga aset berbayar tidak boleh kurang dari Rp5.000.
                         </div>
                     </div>
                 </div>
@@ -238,18 +242,52 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
         let uploadedImageBase64 = '';
         let uploadedPackageName = '';
 
+        function validatePriceWarning() {
+            const isFree = document.getElementById('price_free').checked;
+            const priceInput = document.getElementById('price');
+            const warningEl = document.getElementById('priceWarningAlert');
+            const hintEl = document.getElementById('priceMinHint');
+
+            if (isFree) {
+                warningEl.classList.add('d-none');
+                hintEl.classList.remove('d-none');
+                priceInput.style.borderColor = '';
+                return true;
+            }
+
+            const val = parseFloat(priceInput.value);
+            if (isNaN(val) || val < 5000) {
+                warningEl.classList.remove('d-none');
+                hintEl.classList.add('d-none');
+                priceInput.style.borderColor = '#dc2626';
+                return false;
+            } else {
+                warningEl.classList.add('d-none');
+                hintEl.classList.remove('d-none');
+                priceInput.style.borderColor = '';
+                return true;
+            }
+        }
+
         function togglePriceInput(isPaid) {
             const priceInput = document.getElementById('price');
             const wrapper = document.getElementById('priceInputFieldWrapper');
             if (isPaid) {
                 wrapper.classList.remove('opacity-50');
                 priceInput.removeAttribute('disabled');
-                if (priceInput.value === '0') priceInput.value = '150000';
+                priceInput.setAttribute('min', '5000');
+                priceInput.setAttribute('required', 'true');
+                if ((parseFloat(priceInput.value) || 0) < 5000) {
+                    priceInput.value = '150000';
+                }
             } else {
                 wrapper.classList.add('opacity-50');
+                priceInput.setAttribute('min', '0');
+                priceInput.removeAttribute('required');
                 priceInput.value = '0';
                 priceInput.setAttribute('disabled', 'true');
             }
+            validatePriceWarning();
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -267,6 +305,11 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
             let inits = '';
             words.slice(0, 2).forEach(w => inits += w.charAt(0).toUpperCase());
             document.getElementById('navDashAvatar').innerText = inits || 'NH';
+
+            // Validasi Real-Time Saat Harga Diketik
+            const priceInput = document.getElementById('price');
+            priceInput.addEventListener('input', validatePriceWarning);
+            priceInput.addEventListener('blur', validatePriceWarning);
 
             // Nama File Indikator Gambar
             const imgInput = document.getElementById('imageFileInput');
@@ -295,8 +338,52 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
             document.getElementById('formAddAsset').addEventListener('submit', function(e) {
                 e.preventDefault();
 
+                const titleInput = document.getElementById('asset_title');
+                const categoryInput = document.getElementById('category_id');
+                const descInput = document.getElementById('description');
+                const unityInput = document.getElementById('unity_version');
+                const howToUseInput = document.getElementById('how_to_use');
+
+                if (!titleInput.value.trim()) {
+                    alert('Judul Aset wajib diisi.');
+                    titleInput.focus();
+                    return;
+                }
+                if (!categoryInput.value) {
+                    alert('Silakan pilih Kategori Aset.');
+                    categoryInput.focus();
+                    return;
+                }
+                if (!descInput.value.trim()) {
+                    alert('Deskripsi Aset wajib diisi.');
+                    descInput.focus();
+                    return;
+                }
+                if (!unityInput.value) {
+                    alert('Silakan pilih Versi Unity Minimum.');
+                    unityInput.focus();
+                    return;
+                }
+
                 const isFree = document.getElementById('price_free').checked;
-                const rawPrice = isFree ? 0 : (parseFloat(document.getElementById('price').value) || 0);
+                const rawPrice = isFree ? 0 : (parseFloat(priceInput.value) || 0);
+
+                if (!validatePriceWarning()) {
+                    priceInput.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                    priceInput.focus();
+                    alert('Peringatan: Harga jual aset berbayar minimal Rp5.000.');
+                    return;
+                }
+
+                if (!howToUseInput.value.trim()) {
+                    alert('Panduan Penggunaan Aset wajib diisi.');
+                    howToUseInput.focus();
+                    return;
+                }
+
                 const priceFormatted = isFree ? 'Gratis' : ('Rp' + rawPrice.toLocaleString('id-ID'));
 
                 const selectedPipes = [];
@@ -305,11 +392,11 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                 });
                 if (selectedPipes.length === 0) selectedPipes.push('URP');
 
-                const title = document.getElementById('asset_title').value.trim();
-                const category = document.getElementById('category_id').value;
-                const description = document.getElementById('description').value.trim();
-                const howToUse = document.getElementById('how_to_use').value.trim();
-                const unityVer = document.getElementById('unity_version').value;
+                const title = titleInput.value.trim();
+                const category = categoryInput.value;
+                const description = descInput.value.trim();
+                const howToUse = howToUseInput.value.trim();
+                const unityVer = unityInput.value;
                 const videoUrl = document.getElementById('preview_video_url').value.trim();
 
                 const now = new Date();
