@@ -392,25 +392,34 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
                     sellerRequests = [];
                 }
 
-                const sampleFileName = (fileInput && fileInput.files.length > 0) ?
-                    fileInput.files[0].name.replace(/\.[^/.]+$/, "") :
-                    'Sample Asset Project';
+                const hasFile = fileInput && fileInput.files.length > 0;
+                const rawFileName = hasFile ? fileInput.files[0].name : 'Sample_Asset_Project.unitypackage';
+                const fileSizeMb = hasFile ? ((fileInput.files[0].size / (1024 * 1024)).toFixed(1).replace('.', ',') + ' MB') : '12,0 MB';
+                const formattedDate = new Date().toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                });
 
                 sellerRequests.unshift({
                     id: 'req-' + Date.now(),
+                    user_id: targetKey,
+                    name: sellerName,
+                    full_name: sellerName,
                     store_name: sellerName,
                     email: sellerEmail,
                     address: sellerAddress,
                     reason: sellerReason,
                     portfolio: portfolioUrl || '-',
-                    sample_file: sampleFileName,
+                    attachment: rawFileName,
+                    sample_file: rawFileName,
+                    attachment_size: fileSizeMb,
+                    asset_desc: assetDesc,
                     description: assetDesc,
                     status: 'Menunggu',
-                    created_at: new Date().toLocaleDateString('id-ID', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric'
-                    })
+                    submission_date: formattedDate,
+                    join_date: formattedDate,
+                    created_at: formattedDate
                 });
                 localStorage.setItem('indofx_seller_requests', JSON.stringify(sellerRequests));
 
