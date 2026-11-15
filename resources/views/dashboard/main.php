@@ -356,7 +356,7 @@ $sellerInitials = mb_strtoupper(mb_substr($sellerUsername, 0, 1));
                         <td>${badgeHtml}</td>
                         <td class="text-muted small">${esc(item.created_at)}</td>
                         <td class="text-end pe-4 text-nowrap">
-                            <a href="/dashboard/assets" class="action-link me-2">Edit</a>
+                            <a href="/dashboard/add-asset?edit_id=${encodeURIComponent(item.id)}" class="action-link me-2">Edit</a>
                             <span class="text-muted mx-1">|</span>
                             <a href="${detailUrl}" class="action-link">Lihat</a>
                         </td>

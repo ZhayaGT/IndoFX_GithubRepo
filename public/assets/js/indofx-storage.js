@@ -304,8 +304,62 @@
         return fallback;
     }
 
+    /**
+     * Hitung aset yang masih menunggu peninjauan admin.
+     *
+     * Sumber data: antrean moderasi + aset penjual yang belum masuk antrean.
+     * Aset dinilai unik berdasarkan id atau judul agar tidak dihitung ganda.
+     */
+    function countPendingModeration() {
+        var seen = {};
+        var pending = 0;
+
+        function register(item) {
+            if (!item || typeof item !== 'object') {
+                return;
+            }
+            var identity = String(item.id || item.title || '').trim();
+            if (!identity || seen[identity]) {
+                return;
+            }
+            seen[identity] = true;
+
+            if (normalizeStatus(item.status) === 'Menunggu') {
+                pending++;
+            }
+        }
+
+        readJSON('indofx_moderation_queue', []).forEach(register);
+
+        Object.keys(localStorage).forEach(function (key) {
+            if (key.indexOf(ASSET_PREFIX) !== 0) {
+                return;
+            }
+            readJSON(key, []).forEach(register);
+        });
+
+        return pending;
+    }
+
+    /**
+     * Hitung pengajuan penjual yang masih berstatus menunggu.
+     */
+    function countPendingSellerRequests() {
+        var requests = readJSON('indofx_seller_requests', []);
+        if (!Array.isArray(requests)) {
+            return 0;
+        }
+
+        return requests.filter(function (request) {
+            var status = String((request && request.status) || '').trim().toLowerCase();
+            return status === 'menunggu' || status === 'pending' || status === 'pending review';
+        }).length;
+    }
+
     window.IndoFXStorage = {
         normalizeStatus: normalizeStatus,
+        countPendingModeration: countPendingModeration,
+        countPendingSellerRequests: countPendingSellerRequests,
         sellerAssetsKey: sellerAssetsKey,
         sellerProfileKey: sellerProfileKey,
         sellerSalesKey: sellerSalesKey,

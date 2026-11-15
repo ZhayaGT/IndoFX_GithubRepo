@@ -605,6 +605,14 @@ try {
                 const statusBadge = u.status === 'Aktif' ?
                     '<span class="badge-status-active">Aktif</span>' :
                     '<span class="badge-status-blocked">Diblokir</span>';
+                const isAdminAccount = String(u.role || '').trim().toLowerCase() === 'admin';
+                const editButton = isAdminAccount ?
+                    `<button type="button" class="btn-edit-user is-disabled" disabled aria-disabled="true" title="Akun administrator tidak dapat diedit">
+                        <i class="bi bi-pencil-square"></i> Edit
+                    </button>` :
+                    `<button type="button" class="btn-edit-user" data-edit-user-id="${esc(u.id)}">
+                        <i class="bi bi-pencil-square"></i> Edit
+                    </button>`;
 
                 return `
                     <tr>
@@ -628,9 +636,7 @@ try {
                         <td class="text-muted">${esc(u.join_date)}</td>
                         <td class="fw-bold text-dark">${esc(u.stats || '-')}</td>
                         <td class="text-end pe-4">
-                            <button type="button" class="btn-edit-user" data-edit-user-id="${esc(u.id)}">
-                                <i class="bi bi-pencil-square"></i> Edit
-                            </button>
+                            ${editButton}
                         </td>
                     </tr>
                 `;
@@ -676,6 +682,11 @@ try {
         function openEditUserModal(userId) {
             const user = users.find(u => String(u.id) === String(userId));
             if (!user) return;
+
+            // Akun administrator tidak boleh diubah dari halaman ini.
+            if (String(user.role || '').trim().toLowerCase() === 'admin') {
+                return;
+            }
 
             document.getElementById('editUserId').value = user.id;
             document.getElementById('editUserName').value = user.name;

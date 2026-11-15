@@ -129,11 +129,12 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                         </select>
                     </div>
                     <div class="col-2 col-sm-1 col-md-1 text-end">
-                        <button class="btn btn-filter-submit w-100" type="button" id="btnApplyFilter">
+                        <button class="btn btn-filter-submit w-100" type="button" id="btnApplyFilter" aria-label="Terapkan filter">
                             <i class="bi bi-search"></i>
                         </button>
                     </div>
                 </div>
+                <div class="text-muted small mt-2 d-none" id="filterResultInfo" role="status" aria-live="polite"></div>
             </div>
 
             <!-- Tabel Daftar Aset Dinamis -->
@@ -213,11 +214,34 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
 
             loadAssets();
 
-            document.getElementById('filterKeyword').addEventListener('input', renderTable);
+            // Debounce agar tabel tidak dirender pada setiap ketikan
+            let keywordTimer = null;
+            document.getElementById('filterKeyword').addEventListener('input', function() {
+                clearTimeout(keywordTimer);
+                keywordTimer = setTimeout(renderTable, 250);
+            });
+
             document.getElementById('filterStatus').addEventListener('change', renderTable);
             document.getElementById('filterCategory').addEventListener('change', renderTable);
-            document.getElementById('btnApplyFilter').addEventListener('click', renderTable);
+            document.getElementById('btnApplyFilter').addEventListener('click', runFilterWithFeedback);
         });
+
+        // Tombol cari: tampilkan spinner sebentar agar ada umpan balik visual
+        function runFilterWithFeedback() {
+            const btn = document.getElementById('btnApplyFilter');
+            if (!btn || btn.disabled) return;
+
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+
+            renderTable();
+
+            setTimeout(function() {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }, 300);
+        }
 
         function loadAssets() {
             let combined = [];
@@ -378,6 +402,13 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                 const matchCategory = categoryFilter === 'all' || item.category === categoryFilter;
                 return matchKeyword && matchStatus && matchCategory;
             });
+
+            // Umpan balik jumlah hasil filter
+            const resultInfo = document.getElementById('filterResultInfo');
+            if (resultInfo) {
+                resultInfo.classList.remove('d-none');
+                resultInfo.innerText = `Menampilkan ${filtered.length} dari ${allAssets.length} aset`;
+            }
 
             if (filtered.length === 0) {
                 tbody.innerHTML = `

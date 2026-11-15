@@ -203,6 +203,46 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
             flex-grow: 1;
         }
 
+        /* Urutan mobile: pratinjau -> kartu aset -> tab */
+        .detail-layout {
+            display: grid;
+            gap: 24px;
+            align-items: start;
+            grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+            grid-template-areas:
+                "preview side"
+                "tabs    side";
+        }
+
+        .detail-preview {
+            grid-area: preview;
+            min-width: 0;
+        }
+
+        .detail-side {
+            grid-area: side;
+            min-width: 0;
+        }
+
+        .detail-tabs {
+            grid-area: tabs;
+            min-width: 0;
+        }
+
+        @media (max-width: 991.98px) {
+            .detail-layout {
+                grid-template-columns: 1fr;
+                grid-template-areas:
+                    "preview"
+                    "side"
+                    "tabs";
+            }
+
+            .detail-side {
+                position: static;
+            }
+        }
+
         .main-preview-card {
             border-radius: 8px;
             overflow: hidden;
@@ -673,10 +713,10 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
     <!-- Konten Detail Produk -->
     <main class="content-detail-wrapper">
         <div class="container-figma">
-            <div class="row g-4 align-items-start">
+            <div class="detail-layout">
 
-                <!-- Kolom Kiri: Galeri & Tab Deskripsi -->
-                <div class="col-12 col-lg-8">
+                <!-- Blok 1: Galeri Pratinjau -->
+                <div class="detail-preview">
                     <div id="assetDetailCarousel" class="carousel slide main-preview-card mb-3" data-bs-ride="carousel">
                         <div class="carousel-inner h-100">
                             <div class="carousel-item active h-100">
@@ -710,7 +750,74 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                             </svg>
                         </div>
                     </div>
+                </div>
 
+                <!-- Blok 2: Card Detail & Pembelian -->
+                <aside class="detail-side">
+                    <div class="asset-purchase-card">
+                        <!-- Kategori -->
+                        <span class="asset-category-tag d-block" id="displayCategoryBadge"><?= htmlspecialchars($assetCategory) ?></span>
+
+                        <!-- Judul Aset -->
+                        <h2 class="asset-detail-title" id="displayAssetTitle"><?= htmlspecialchars($assetTitle) ?></h2>
+
+                        <!-- Pembuat Aset -->
+                        <div class="detail-creator-line">
+                            Oleh <a href="/creator/profile?name=<?= htmlspecialchars(urlencode($assetCreator), ENT_QUOTES, 'UTF-8') ?>" id="displayCreatorName"><?= htmlspecialchars($assetCreator) ?></a>
+                        </div>
+
+                        <!-- Label & Angka Harga -->
+                        <div class="price-label-text">Harga Aset</div>
+                        <div class="price-amount-text" id="displayAssetPrice">
+                            <?php if ($isGratis): ?>
+                                Gratis
+                            <?php else: ?>
+                                Rp<?= number_format((float)$numericPrice, 0, ',', '.') ?>
+                            <?php endif; ?>
+                        </div>
+
+                        <!-- Spesifikasi Teknis Tabel -->
+                        <div class="specs-table-box">
+                            <div class="spec-item-row">
+                                <span class="label-col">Versi Unity</span>
+                                <span class="val-col" id="displayUnityVer"><?= htmlspecialchars($assetUnity) ?></span>
+                            </div>
+                            <div class="spec-item-row">
+                                <span class="label-col">Render Pipeline</span>
+                                <span class="val-col" id="displayPipeline"><?= htmlspecialchars($assetPipeline) ?></span>
+                            </div>
+                            <div class="spec-item-row">
+                                <span class="label-col">Format File</span>
+                                <span class="val-col" id="displayFormatFile"><?= htmlspecialchars($assetFormat) ?></span>
+                            </div>
+                        </div>
+
+                        <!-- Tombol Aksi -->
+                        <div id="actionButtonWrapper" class="d-grid gap-2">
+                            <?php if ($isGratis): ?>
+                                <?php if ($isLoggedIn): ?>
+                                    <button type="button" id="btnClaimLibrary" class="btn-figma-free-library" onclick="claimAsset()">
+                                        Tambahkan ke Library
+                                    </button>
+                                <?php else: ?>
+                                    <a href="/login" class="btn-figma-guest-login">
+                                        <span><span class="link-masuk">Masuk</span> untuk menambahkan ke Library</span>
+                                    </a>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <a href="<?= $isLoggedIn ? htmlspecialchars($checkoutUrl, ENT_QUOTES, 'UTF-8') : '/login' ?>" class="btn-figma-buy-orange" id="btnBuyPrimary">
+                                    Beli
+                                </a>
+                                <button type="button" class="btn-figma-add-cart-outline" onclick="addToCart()">
+                                    Tambahkan ke Keranjang
+                                </button>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Blok 3: Tab Deskripsi / Changelog / Ulasan -->
+                <div class="detail-tabs">
                     <!-- Tab Navigasi -->
                     <div class="detail-nav-tabs">
                         <a href="javascript:void(0)" class="tab-link active" onclick="switchDetailTab(event, 'tab-deskripsi')">Deskripsi</a>
@@ -816,70 +923,8 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                     </div>
                 </div>
 
-                <!-- Kolom Kanan: Card Detail & Pembelian -->
-                <div class="col-12 col-lg-4">
-                    <div class="asset-purchase-card">
-                        <!-- Kategori -->
-                        <span class="asset-category-tag d-block" id="displayCategoryBadge"><?= htmlspecialchars($assetCategory) ?></span>
-
-                        <!-- Judul Aset -->
-                        <h2 class="asset-detail-title" id="displayAssetTitle"><?= htmlspecialchars($assetTitle) ?></h2>
-
-                        <!-- Pembuat Aset -->
-                        <div class="detail-creator-line">
-                            Oleh <a href="/creator/profile?name=<?= htmlspecialchars(urlencode($assetCreator), ENT_QUOTES, 'UTF-8') ?>" id="displayCreatorName"><?= htmlspecialchars($assetCreator) ?></a>
-                        </div>
-
-                        <!-- Label & Angka Harga -->
-                        <div class="price-label-text">Harga Aset</div>
-                        <div class="price-amount-text" id="displayAssetPrice">
-                            <?php if ($isGratis): ?>
-                                Gratis
-                            <?php else: ?>
-                                Rp<?= number_format((float)$numericPrice, 0, ',', '.') ?>
-                            <?php endif; ?>
-                        </div>
-
-                        <!-- Spesifikasi Teknis Tabel -->
-                        <div class="specs-table-box">
-                            <div class="spec-item-row">
-                                <span class="label-col">Versi Unity</span>
-                                <span class="val-col" id="displayUnityVer"><?= htmlspecialchars($assetUnity) ?></span>
-                            </div>
-                            <div class="spec-item-row">
-                                <span class="label-col">Render Pipeline</span>
-                                <span class="val-col" id="displayPipeline"><?= htmlspecialchars($assetPipeline) ?></span>
-                            </div>
-                            <div class="spec-item-row">
-                                <span class="label-col">Format File</span>
-                                <span class="val-col" id="displayFormatFile"><?= htmlspecialchars($assetFormat) ?></span>
-                            </div>
-                        </div>
-
-                        <!-- Tombol Aksi -->
-                        <div id="actionButtonWrapper" class="d-grid gap-2">
-                            <?php if ($isGratis): ?>
-                                <?php if ($isLoggedIn): ?>
-                                    <button type="button" id="btnClaimLibrary" class="btn-figma-free-library" onclick="claimAsset()">
-                                        Tambahkan ke Library
-                                    </button>
-                                <?php else: ?>
-                                    <a href="/login" class="btn-figma-guest-login">
-                                        <span><span class="link-masuk">Masuk</span> untuk menambahkan ke Library</span>
-                                    </a>
-                                <?php endif; ?>
-                            <?php else: ?>
-                                <a href="<?= $isLoggedIn ? htmlspecialchars($checkoutUrl, ENT_QUOTES, 'UTF-8') : '/login' ?>" class="btn-figma-buy-orange" id="btnBuyPrimary">
-                                    Beli
-                                </a>
-                                <button type="button" class="btn-figma-add-cart-outline" onclick="addToCart()">
-                                    Tambahkan ke Keranjang
-                                </button>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
-
+                <!-- Blok 2: Card Detail & Pembelian -->
+                
             </div>
         </div>
     </main>

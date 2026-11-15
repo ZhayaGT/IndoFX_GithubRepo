@@ -170,6 +170,42 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
             background-color: var(--indofx-cream-bg, #FAF0E6);
         }
 
+        /* Urutan mobile: pratinjau -> kartu unduh -> tab */
+        .detail-layout {
+            display: grid;
+            gap: 24px;
+            align-items: start;
+            grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+            grid-template-areas:
+                "preview side"
+                "tabs    side";
+        }
+
+        .detail-preview {
+            grid-area: preview;
+            min-width: 0;
+        }
+
+        .detail-side {
+            grid-area: side;
+            min-width: 0;
+        }
+
+        .detail-tabs {
+            grid-area: tabs;
+            min-width: 0;
+        }
+
+        @media (max-width: 991.98px) {
+            .detail-layout {
+                grid-template-columns: 1fr;
+                grid-template-areas:
+                    "preview"
+                    "side"
+                    "tabs";
+            }
+        }
+
         .main-preview-card {
             border-radius: 8px;
             overflow: hidden;
@@ -479,10 +515,10 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
     <!-- Konten Detail Unduh -->
     <main class="content-detail-wrapper py-4 flex-grow-1">
         <div class="container-figma">
-            <div class="row g-4 align-items-start">
+            <div class="detail-layout">
 
-                <!-- Kolom Kiri: Galeri & Tab Deskripsi -->
-                <div class="col-12 col-lg-8">
+                <!-- Blok 1: Galeri Pratinjau -->
+                <div class="detail-preview">
                     <div id="assetDetailCarousel" class="carousel slide main-preview-card mb-3" data-bs-ride="carousel">
                         <div class="carousel-inner h-100">
                             <div class="carousel-item active h-100">
@@ -515,7 +551,42 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
                             </svg>
                         </div>
                     </div>
+                </div>
 
+                <!-- Blok 2: Card Download -->
+                <aside class="detail-side">
+                    <div class="asset-library-card">
+                        <span class="asset-category-tag d-block"><?= htmlspecialchars($assetCategory) ?></span>
+                        <h2 class="asset-detail-title"><?= htmlspecialchars($assetTitle) ?></h2>
+
+                        <div class="detail-creator-line">
+                            Oleh <a href="/creator/profile?name=<?= htmlspecialchars(urlencode($assetCreator), ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($assetCreator) ?></a>
+                        </div>
+
+                        <div class="specs-table-box">
+                            <div class="spec-item-row">
+                                <span class="label-col">Versi Unity</span>
+                                <span class="val-col"><?= htmlspecialchars($assetUnity) ?></span>
+                            </div>
+                            <div class="spec-item-row">
+                                <span class="label-col">Render Pipeline</span>
+                                <span class="val-col"><?= htmlspecialchars($assetPipeline) ?></span>
+                            </div>
+                            <div class="spec-item-row">
+                                <span class="label-col">Format File</span>
+                                <span class="val-col"><?= htmlspecialchars($assetFormat) ?></span>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn-download-orange" onclick="downloadFile()">
+                            <i class="bi bi-download"></i>
+                            <span>Unduh</span>
+                        </button>
+                    </div>
+                </aside>
+
+                <!-- Blok 3: Tab Deskripsi / Changelog / Ulasan -->
+                <div class="detail-tabs">
                     <div class="detail-nav-tabs">
                         <a href="javascript:void(0)" class="tab-link" onclick="switchDetailTab(event, 'tab-deskripsi')">Deskripsi</a>
                         <a href="javascript:void(0)" class="tab-link" onclick="switchDetailTab(event, 'tab-changelog')">Changelog</a>
@@ -604,38 +675,8 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
                     </div>
                 </div>
 
-                <!-- Kolom Kanan: Card Download -->
-                <div class="col-12 col-lg-4">
-                    <div class="asset-library-card">
-                        <span class="asset-category-tag d-block"><?= htmlspecialchars($assetCategory) ?></span>
-                        <h2 class="asset-detail-title"><?= htmlspecialchars($assetTitle) ?></h2>
-
-                        <div class="detail-creator-line">
-                            Oleh <a href="/creator/profile?name=<?= htmlspecialchars(urlencode($assetCreator), ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($assetCreator) ?></a>
-                        </div>
-
-                        <div class="specs-table-box">
-                            <div class="spec-item-row">
-                                <span class="label-col">Versi Unity</span>
-                                <span class="val-col"><?= htmlspecialchars($assetUnity) ?></span>
-                            </div>
-                            <div class="spec-item-row">
-                                <span class="label-col">Render Pipeline</span>
-                                <span class="val-col"><?= htmlspecialchars($assetPipeline) ?></span>
-                            </div>
-                            <div class="spec-item-row">
-                                <span class="label-col">Format File</span>
-                                <span class="val-col"><?= htmlspecialchars($assetFormat) ?></span>
-                            </div>
-                        </div>
-
-                        <button type="button" class="btn-download-orange" onclick="downloadFile()">
-                            <i class="bi bi-download"></i>
-                            <span>Unduh</span>
-                        </button>
-                    </div>
-                </div>
-
+                <!-- Blok 2: Card Download -->
+                
             </div>
         </div>
     </main>

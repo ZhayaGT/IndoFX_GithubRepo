@@ -628,6 +628,15 @@ body.admin-body {
   color: var(--admin-orange);
 }
 
+.btn-edit-user.is-disabled,
+.btn-edit-user.is-disabled:hover {
+  background-color: #f4f1ee;
+  border-color: #d9d2cc;
+  color: #a49b94;
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
 /* Aksi Pengajuan Penjual */
 .btn-action-view {
   background-color: #ffffff;
@@ -850,11 +859,14 @@ body.admin-body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  text-decoration: none;
   transition: background-color 0.15s ease;
 }
 
 .btn-modal-submit:hover {
   background-color: var(--admin-orange-hover);
+  color: #ffffff;
+  text-decoration: none;
 }
 
 /* Modal Konfirmasi Peringatan Hapus */

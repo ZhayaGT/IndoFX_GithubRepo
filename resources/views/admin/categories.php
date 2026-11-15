@@ -73,7 +73,7 @@ $adminInitials = 'AP';
                 </a>
                 <a href="/admin/assets" class="admin-sidebar-link">
                     <span><i class="bi bi-card-checklist me-2"></i>Moderasi Aset</span>
-                    <span class="admin-sidebar-badge">2</span>
+                    <span class="admin-sidebar-badge" id="sidebarModerationBadge">0</span>
                 </a>
                 <a href="/admin/categories" class="admin-sidebar-link active">
                     <span><i class="bi bi-tags me-2"></i>Kelola Kategori</span>
@@ -83,7 +83,7 @@ $adminInitials = 'AP';
                 </a>
                 <a href="/admin/seller-requests" class="admin-sidebar-link">
                     <span><i class="bi bi-person-badge me-2"></i>Pengajuan Penjual</span>
-                    <span class="admin-sidebar-badge">2</span>
+                    <span class="admin-sidebar-badge" id="sidebarSellerBadge">0</span>
                 </a>
                 <a href="/admin/transactions" class="admin-sidebar-link">
                     <span><i class="bi bi-currency-dollar me-2"></i>Monitor Transaksi</span>
@@ -296,6 +296,9 @@ $adminInitials = 'AP';
     <!-- Helper escape output HTML -->
     <script src="/assets/js/indofx-utils.js"></script>
 
+    <!-- Helper penyimpanan lokal (kunci berbasis user_id) -->
+    <script src="/assets/js/indofx-storage.js"></script>
+
     <script>
         // Data Awal Kategori Sesuai Figma image_1ee300
         const defaultCategories = [{
@@ -487,12 +490,26 @@ $adminInitials = 'AP';
             modalDeleteInstance.hide();
         }
 
+        // Badge sidebar mengikuti antrean moderasi & pengajuan penjual
+        function updateSidebarBadges() {
+            const moderationBadge = document.getElementById('sidebarModerationBadge');
+            const sellerBadge = document.getElementById('sidebarSellerBadge');
+
+            if (moderationBadge && window.IndoFXStorage) {
+                moderationBadge.innerText = IndoFXStorage.countPendingModeration();
+            }
+            if (sellerBadge && window.IndoFXStorage) {
+                sellerBadge.innerText = IndoFXStorage.countPendingSellerRequests();
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             modalAddInstance = new bootstrap.Modal(document.getElementById('modalAddCategory'));
             modalEditInstance = new bootstrap.Modal(document.getElementById('modalEditCategory'));
             modalDeleteInstance = new bootstrap.Modal(document.getElementById('modalDeleteCategory'));
 
             loadCategories();
+            updateSidebarBadges();
 
             // Delegasi tombol Edit/Hapus kategori
             document.addEventListener('click', function(event) {

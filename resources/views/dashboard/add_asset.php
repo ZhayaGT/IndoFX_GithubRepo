@@ -164,6 +164,9 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                         <label class="form-label form-field-label">Gambar Pratinjau Utama (16:9) *</label>
                         <div class="dropzone-box text-center p-4" onclick="document.getElementById('imageFileInput').click()" style="cursor: pointer;">
                             <input type="file" id="imageFileInput" class="d-none" accept="image/png, image/jpeg">
+                            <div id="imagePreviewWrap" class="d-none mb-2">
+                                <img id="imagePreviewThumb" alt="Pratinjau gambar aset" style="max-height: 120px; max-width: 100%; border-radius: 6px; object-fit: cover;">
+                            </div>
                             <div class="dropzone-icon mb-2">
                                 <i class="bi bi-card-image fs-3 text-secondary"></i>
                             </div>
@@ -251,6 +254,15 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
         let uploadedImageBase64 = '';
         let uploadedPackageName = '';
 
+        // Tampilkan pratinjau gambar (dipakai saat edit maupun saat pilih file baru)
+        function showImagePreview(src) {
+            const wrap = document.getElementById('imagePreviewWrap');
+            const thumb = document.getElementById('imagePreviewThumb');
+            if (!wrap || !thumb || !src) return;
+            thumb.src = src;
+            wrap.classList.remove('d-none');
+        }
+
         function togglePriceInput(isPaid) {
             const priceInput = document.getElementById('price');
             const wrapper = document.getElementById('priceInputFieldWrapper');
@@ -281,9 +293,34 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                 editingAsset = myAssets.find(a => String(a.id) === String(editAssetId)) || null;
             }
 
+            if (editAssetId && !editingAsset) {
+                // ID aset tidak ditemukan: cegah pengguna mengirim form kosong.
+                const titleEl = document.getElementById('pageFormTitle');
+                if (titleEl) titleEl.innerText = 'Edit Aset';
+                document.title = 'Edit Aset - IndoFX';
+
+                const noticeEl = document.getElementById('editApprovalNotice');
+                if (noticeEl) {
+                    noticeEl.classList.remove('d-none');
+                    noticeEl.classList.remove('alert-warning');
+                    noticeEl.classList.add('alert-danger');
+                    noticeEl.innerText = 'Aset yang ingin diedit tidak ditemukan. Kembali ke daftar aset lalu pilih Edit kembali.';
+                }
+
+                const submitBtn = document.getElementById('btnSubmitAsset');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i> Aset Tidak Ditemukan';
+                }
+
+                return;
+            }
+
             if (editingAsset) {
                 const titleEl = document.getElementById('pageFormTitle');
                 if (titleEl) titleEl.innerText = 'Edit Aset';
+                document.title = 'Edit Aset - IndoFX';
+
                 const noticeEl = document.getElementById('editApprovalNotice');
                 if (noticeEl) noticeEl.classList.remove('d-none');
                 const submitBtn = document.getElementById('btnSubmitAsset');
@@ -321,6 +358,10 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                 const imageLabel = document.getElementById('imageNameLabel');
                 if (imageLabel) imageLabel.innerText = editingAsset.image ? 'Gambar pratinjau sebelumnya dipertahankan' : 'Belum ada gambar pratinjau';
 
+                if (editingAsset.image) {
+                    showImagePreview(editingAsset.image);
+                }
+
                 const packageLabel = document.getElementById('packageNameLabel');
                 if (packageLabel && editingAsset.file_info) {
                     packageLabel.innerText = String(editingAsset.file_info).replace(/^File:\s*/i, '');
@@ -336,6 +377,7 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         uploadedImageBase64 = e.target.result;
+                        showImagePreview(uploadedImageBase64);
                     };
                     reader.readAsDataURL(file);
                 }

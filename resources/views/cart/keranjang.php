@@ -89,22 +89,24 @@ if ($initials === '') {
             cursor: pointer;
         }
 
+        /* Disamakan dengan .navbar-avatar-menu di style.css */
         .profile-custom-menu {
             position: absolute;
             top: calc(100% + 12px);
             right: 0;
             background-color: #ffffff;
-            border: 1px solid #e0d0c5;
-            border-radius: 8px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-            min-width: 200px;
+            border: 1px solid #e2e2e2;
+            border-radius: 10px;
+            box-shadow: 0 10px 26px rgba(0, 0, 0, 0.12);
+            min-width: 210px;
+            max-width: calc(100vw - 32px);
             z-index: 1050;
-            display: none;
             padding: 6px 0;
+            overflow: hidden;
         }
 
-        .profile-custom-menu.show {
-            display: block;
+        .profile-custom-menu[hidden] {
+            display: none !important;
         }
 
         .profile-custom-item {
@@ -112,7 +114,7 @@ if ($initials === '') {
             padding: 9px 18px;
             color: #2b2129;
             text-decoration: none;
-            font-size: 0.9rem;
+            font-size: 0.86rem;
             transition: background-color 0.15s ease;
         }
 
@@ -396,6 +398,66 @@ if ($initials === '') {
             font-size: 0.82rem;
             color: #1A1A1A;
         }
+
+        /* ========================================================
+           RESPONSIF KERANJANG
+           ======================================================== */
+        @media (max-width: 768px) {
+            .cart-item-card {
+                flex-wrap: wrap;
+                align-items: flex-start;
+                padding: 12px;
+                gap: 12px;
+            }
+
+            .cart-item-thumb {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 175 / 98;
+            }
+
+            .cart-item-content {
+                flex: 1 1 100%;
+                min-width: 0;
+            }
+
+            .cart-item-card > .d-flex:last-child {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .cart-page-title {
+                font-size: 1.45rem;
+            }
+
+            #cartFooterArea {
+                justify-content: stretch !important;
+            }
+
+            .btn-cart-checkout {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .btn-profile-trigger .profile-user-name {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .cart-asset-title {
+                font-size: 1rem;
+            }
+
+            .cart-status-line {
+                font-size: 0.7rem;
+            }
+
+            .btn-cart-delete {
+                padding: 6px 12px;
+            }
+        }
     </style>
 </head>
 
@@ -452,17 +514,21 @@ if ($initials === '') {
                 </a>
 
                 <div class="profile-dropdown-wrapper">
-                    <button type="button" class="btn-profile-trigger" id="profileDropdownBtn" aria-expanded="false">
+                    <button type="button" class="btn-profile-trigger" id="profileDropdownBtn"
+                        aria-haspopup="true" aria-expanded="false" aria-controls="profileDropdownMenu">
                         <span class="avatar-circle-header"><?= htmlspecialchars($initials, ENT_QUOTES, 'UTF-8') ?></span>
-                        <span class="fw-bold fs-6"><?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?></span>
+                        <span class="fw-bold fs-6 profile-user-name"><?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?></span>
                     </button>
 
-                    <div class="profile-custom-menu" id="profileDropdownMenu">
+                    <div class="profile-custom-menu" id="profileDropdownMenu" hidden>
                         <a href="/creator/profile?me=1" class="profile-custom-item fw-bold">
                             <?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>
                         </a>
-                        <a href="/dashboard/ubah-profil" class="profile-custom-item">
+                        <a href="/dashboard/ubahprofile" class="profile-custom-item">
                             Edit Profile
+                        </a>
+                        <a href="/library" class="profile-custom-item">
+                            Library Saya
                         </a>
                         <a href="/invoice" class="profile-custom-item">
                             Histori Pembelian
@@ -681,14 +747,31 @@ if ($initials === '') {
             const dropdownMenu = document.getElementById('profileDropdownMenu');
 
             if (dropdownBtn && dropdownMenu) {
+                function closeDropdown() {
+                    dropdownMenu.setAttribute('hidden', '');
+                    dropdownBtn.setAttribute('aria-expanded', 'false');
+                }
+
                 dropdownBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
-                    dropdownMenu.classList.toggle('show');
+                    const isHidden = dropdownMenu.hasAttribute('hidden');
+                    if (isHidden) {
+                        dropdownMenu.removeAttribute('hidden');
+                        dropdownBtn.setAttribute('aria-expanded', 'true');
+                    } else {
+                        closeDropdown();
+                    }
                 });
 
                 document.addEventListener('click', function(e) {
                     if (!dropdownMenu.contains(e.target) && !dropdownBtn.contains(e.target)) {
-                        dropdownMenu.classList.remove('show');
+                        closeDropdown();
+                    }
+                });
+
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        closeDropdown();
                     }
                 });
             }
