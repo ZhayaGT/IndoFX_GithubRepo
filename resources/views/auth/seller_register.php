@@ -209,94 +209,144 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
                 margin-bottom: 18px;
             }
         }
+
+        /* Wrapper agar tombol kembali sejajar dengan tepi card */
+        .seller-register-shell {
+            width: 100%;
+            max-width: 580px;
+        }
+
+        /* Tombol kembali di atas form */
+        .seller-back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 38px;
+            margin-bottom: 14px;
+            padding: 7px 14px;
+            font-size: 0.84rem;
+            font-weight: 700;
+            color: #4A3B32;
+            background-color: #ffffff;
+            border: 1.5px solid #4A3B32;
+            border-radius: 8px;
+            text-decoration: none;
+            transition:
+                color 0.15s ease,
+                border-color 0.15s ease,
+                background-color 0.15s ease;
+        }
+
+        .seller-back-link:hover {
+            color: #ED6B1D;
+            border-color: #ED6B1D;
+            background-color: #FDF2E9;
+        }
+
+        .seller-back-link:focus-visible {
+            outline: 3px solid rgba(237, 107, 29, 0.35);
+            outline-offset: 2px;
+        }
+
+        @media (max-width: 576px) {
+            .seller-back-link {
+                margin-bottom: 12px;
+            }
+        }
     </style>
 </head>
 
 <body>
 
-    <div class="seller-register-card">
-        <h2 class="seller-register-title">Daftar Jadi Penjual</h2>
-        <p class="seller-register-sub">Upload hasil karyamu agar dikenal semua orang.</p>
+    <div class="seller-register-shell">
+        <a href="/" class="seller-back-link">
+            <i class="bi bi-arrow-left" aria-hidden="true"></i> Kembali ke Beranda
+        </a>
 
-        <form id="formRegisterSeller">
-            <!-- 1. Nama Lengkap -->
-            <div class="mb-3">
-                <label class="form-label-custom">Nama Lengkap</label>
-                <input type="text" id="regName" class="form-control form-control-custom"
-                    value="<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>"
-                    placeholder="Arga Studio" required>
-            </div>
+        <div class="seller-register-card">
+            <h2 class="seller-register-title">Daftar Jadi Penjual</h2>
+            <p class="seller-register-sub">Upload hasil karyamu agar dikenal semua orang.</p>
 
-            <!-- 2. Alamat Email -->
-            <div class="mb-3">
-                <label class="form-label-custom">Alamat Email</label>
-                <input type="email" id="regEmail" class="form-control form-control-custom"
-                    value="<?= htmlspecialchars($userEmail, ENT_QUOTES, 'UTF-8') ?>"
-                    placeholder="argastudio@mail.com" required <?= $isLoggedIn && !empty($userEmail) ? 'readonly style="background-color: #faf5f0;"' : '' ?>>
-            </div>
-
-            <!-- 3. Alamat Domisili -->
-            <div class="mb-3">
-                <label class="form-label-custom">Alamat Domisili</label>
-                <textarea id="regAddress" class="form-control form-control-custom" rows="3"
-                    placeholder="" required></textarea>
-            </div>
-
-            <!-- 4. Alasan -->
-            <div class="mb-3">
-                <label class="form-label-custom">Alasan</label>
-                <textarea id="regReason" class="form-control form-control-custom" rows="2"
-                    placeholder="" required></textarea>
-            </div>
-
-            <!-- 5. Contoh Aset -->
-            <div class="mb-3">
-                <label class="form-label-custom">Contoh Aset</label>
-                <input type="file" id="regAssetFile" class="form-control form-control-custom" accept=".unitypackage,.zip,.rar,.fbx" required>
-            </div>
-
-            <!-- 6. Deskripsi Aset -->
-            <div class="mb-3">
-                <label class="form-label-custom">Deskripsi Aset</label>
-                <textarea id="regAssetDesc" class="form-control form-control-custom" rows="3"
-                    placeholder="" required></textarea>
-            </div>
-
-            <!-- 7. URL Portofolio (Opsional) -->
-            <div class="mb-3">
-                <label class="form-label-custom">URL Portofolio (Opsional)</label>
-                <input type="url" id="regPortfolio" class="form-control form-control-custom"
-                    placeholder="">
-            </div>
-
-            <!-- 8. Password: Buat Kata Sandi & Ulangi Kata Sandi -->
-            <div class="row g-2 mb-3">
-                <div class="col-6">
-                    <label class="form-label-custom">Buat Kata Sandi</label>
-                    <input type="password" id="regPassword" class="form-control form-control-custom" placeholder="" <?= !$isLoggedIn ? 'required' : '' ?>>
+            <form id="formRegisterSeller">
+                <!-- 1. Nama Lengkap -->
+                <div class="mb-3">
+                    <label class="form-label-custom">Nama Lengkap</label>
+                    <input type="text" id="regName" class="form-control form-control-custom"
+                        value="<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>"
+                        placeholder="Arga Studio" required>
                 </div>
-                <div class="col-6">
-                    <label class="form-label-custom">Ulangi Kata Sandi</label>
-                    <input type="password" id="regPasswordConfirm" class="form-control form-control-custom" placeholder="" <?= !$isLoggedIn ? 'required' : '' ?>>
+
+                <!-- 2. Alamat Email -->
+                <div class="mb-3">
+                    <label class="form-label-custom">Alamat Email</label>
+                    <input type="email" id="regEmail" class="form-control form-control-custom"
+                        value="<?= htmlspecialchars($userEmail, ENT_QUOTES, 'UTF-8') ?>"
+                        placeholder="argastudio@mail.com" required <?= $isLoggedIn && !empty($userEmail) ? 'readonly style="background-color: #faf5f0;"' : '' ?>>
                 </div>
-            </div>
 
-            <!-- 9. Checkbox Syarat & Ketentuan -->
-            <div class="mb-4 form-check-terms">
-                <input class="form-check-input" type="checkbox" id="checkTerms" required>
-                <label class="form-check-label" for="checkTerms">
-                    Saya telah menyetujui <span class="link-terms" onclick="openTermsModal()">Syarat dan Ketentuan</span>
-                </label>
-            </div>
+                <!-- 3. Alamat Domisili -->
+                <div class="mb-3">
+                    <label class="form-label-custom">Alamat Domisili</label>
+                    <textarea id="regAddress" class="form-control form-control-custom" rows="3"
+                        placeholder="" required></textarea>
+                </div>
 
-            <!-- 10. Tombol Daftar Oranye -->
-            <button type="submit" class="btn-register-submit mb-3">Daftar</button>
+                <!-- 4. Alasan -->
+                <div class="mb-3">
+                    <label class="form-label-custom">Alasan</label>
+                    <textarea id="regReason" class="form-control form-control-custom" rows="2"
+                        placeholder="" required></textarea>
+                </div>
 
-            <!-- 11. Tautan Login -->
-            <div>
-                <small class="text-muted">Sudah punya akun? <a href="/login" class="text-primary text-decoration-none fw-bold">Login</a></small>
-            </div>
-        </form>
+                <!-- 5. Contoh Aset -->
+                <div class="mb-3">
+                    <label class="form-label-custom">Contoh Aset</label>
+                    <input type="file" id="regAssetFile" class="form-control form-control-custom" accept=".unitypackage,.zip,.rar,.fbx" required>
+                </div>
+
+                <!-- 6. Deskripsi Aset -->
+                <div class="mb-3">
+                    <label class="form-label-custom">Deskripsi Aset</label>
+                    <textarea id="regAssetDesc" class="form-control form-control-custom" rows="3"
+                        placeholder="" required></textarea>
+                </div>
+
+                <!-- 7. URL Portofolio (Opsional) -->
+                <div class="mb-3">
+                    <label class="form-label-custom">URL Portofolio (Opsional)</label>
+                    <input type="url" id="regPortfolio" class="form-control form-control-custom"
+                        placeholder="">
+                </div>
+
+                <!-- 8. Password: Buat Kata Sandi & Ulangi Kata Sandi -->
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label-custom">Buat Kata Sandi</label>
+                        <input type="password" id="regPassword" class="form-control form-control-custom" placeholder="" <?= !$isLoggedIn ? 'required' : '' ?>>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label-custom">Ulangi Kata Sandi</label>
+                        <input type="password" id="regPasswordConfirm" class="form-control form-control-custom" placeholder="" <?= !$isLoggedIn ? 'required' : '' ?>>
+                    </div>
+                </div>
+
+                <!-- 9. Checkbox Syarat & Ketentuan -->
+                <div class="mb-4 form-check-terms">
+                    <input class="form-check-input" type="checkbox" id="checkTerms" required>
+                    <label class="form-check-label" for="checkTerms">
+                        Saya telah menyetujui <span class="link-terms" onclick="openTermsModal()">Syarat dan Ketentuan</span>
+                    </label>
+                </div>
+
+                <!-- 10. Tombol Daftar Oranye -->
+                <button type="submit" class="btn-register-submit mb-3">Daftar</button>
+
+                <!-- 11. Tautan Login -->
+                <div>
+                    <small class="text-muted">Sudah punya akun? <a href="/login" class="text-primary text-decoration-none fw-bold">Login</a></small>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- MODAL POPUP: SYARAT DAN KETENTUAN (SESUAI GAMBAR) -->
