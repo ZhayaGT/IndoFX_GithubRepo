@@ -20,7 +20,7 @@
 /* Layout Container (Sidebar + Content) */
 .dashboard-layout-container {
   display: flex;
-  min-height: calc(100vh - 56px - 220px);
+  flex: 1 0 auto;
 }
 
 /* SIDEBAR KIRI */
@@ -365,7 +365,7 @@
 
 .form-page-wrapper {
   background-color: var(--ifx-cream-bg, #fdece2);
-  min-height: calc(100vh - 56px - 220px);
+  flex: 1 0 auto;
 }
 
 .container-form {

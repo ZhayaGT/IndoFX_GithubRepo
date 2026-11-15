@@ -26,6 +26,10 @@ body {
   overflow-x: clip;
 }
 
+html {
+  min-height: 100%;
+}
+
 body {
   font-family:
     "Inter",
@@ -34,6 +38,9 @@ body {
     sans-serif;
   color: var(--indofx-dark);
   background-color: var(--indofx-cream-bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .container-figma {
@@ -908,6 +915,21 @@ body {
   padding: 65px 15px;
   margin: 0;
   letter-spacing: -0.3px;
+}
+
+/* Area konten tumbuh mengisi sisa tinggi layar agar footer menempel di dasar */
+body > main,
+body > .content-body-wrapper,
+body > .content-detail-wrapper,
+body > .dashboard-layout-container,
+body > .admin-layout-container,
+body > .auth-wrapper {
+  flex: 1 0 auto;
+}
+
+.footer-main,
+.footer-white-solid {
+  margin-top: auto;
 }
 
 /* ========================================================

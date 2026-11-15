@@ -4,7 +4,7 @@
 
 .auth-wrapper {
   background-color: var(--ifx-cream-bg, #fdece2);
-  min-height: calc(100vh - 56px - 220px); /* Pas di antara Navbar dan Footer */
+  flex: 1 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
