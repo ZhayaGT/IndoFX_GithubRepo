@@ -23,14 +23,37 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
     <link rel="stylesheet" href="/assets/css/style.css">
 
     <style>
+        .navbar-orange {
+            background-color: #ED6B1D !important;
+            padding: 12px 0 !important;
+        }
+        .navbar-orange .container-figma {
+            display: flex !important;
+            justify-content: flex-start !important;
+            align-items: center !important;
+            width: 100% !important;
+        }
+        .navbar-orange .navbar-brand {
+            margin: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+        }        
+
         body {
             background-color: var(--indofx-cream-bg, #FAF0E6);
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .seller-register-main {
+            flex: 1 0 auto;
+            width: 100%;
+            display: flex;
             align-items: center;
             justify-content: center;
             padding: 40px 15px;
-            font-family: 'Inter', sans-serif;
         }
 
         .seller-register-card {
@@ -190,7 +213,7 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
         }
 
         @media (max-width: 576px) {
-            body {
+            .seller-register-main {
                 padding: 20px 12px;
                 align-items: flex-start;
             }
@@ -257,97 +280,102 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
 </head>
 
 <body>
-
-    <div class="seller-register-shell">
-        <a href="/" class="seller-back-link">
-            <i class="bi bi-arrow-left" aria-hidden="true"></i> Kembali ke Beranda
-        </a>
-
-        <div class="seller-register-card">
-            <h2 class="seller-register-title">Daftar Jadi Penjual</h2>
-            <p class="seller-register-sub">Upload hasil karyamu agar dikenal semua orang.</p>
-
-            <form id="formRegisterSeller">
-                <!-- 1. Nama Lengkap -->
-                <div class="mb-3">
-                    <label class="form-label-custom">Nama Lengkap</label>
-                    <input type="text" id="regName" class="form-control form-control-custom"
-                        value="<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>"
-                        placeholder="Arga Studio" required>
-                </div>
-
-                <!-- 2. Alamat Email -->
-                <div class="mb-3">
-                    <label class="form-label-custom">Alamat Email</label>
-                    <input type="email" id="regEmail" class="form-control form-control-custom"
-                        value="<?= htmlspecialchars($userEmail, ENT_QUOTES, 'UTF-8') ?>"
-                        placeholder="argastudio@mail.com" required <?= $isLoggedIn && !empty($userEmail) ? 'readonly style="background-color: #faf5f0;"' : '' ?>>
-                </div>
-
-                <!-- 3. Alamat Domisili -->
-                <div class="mb-3">
-                    <label class="form-label-custom">Alamat Domisili</label>
-                    <textarea id="regAddress" class="form-control form-control-custom" rows="3"
-                        placeholder="" required></textarea>
-                </div>
-
-                <!-- 4. Alasan -->
-                <div class="mb-3">
-                    <label class="form-label-custom">Alasan</label>
-                    <textarea id="regReason" class="form-control form-control-custom" rows="2"
-                        placeholder="" required></textarea>
-                </div>
-
-                <!-- 5. Contoh Aset -->
-                <div class="mb-3">
-                    <label class="form-label-custom">Contoh Aset</label>
-                    <input type="file" id="regAssetFile" class="form-control form-control-custom" accept=".unitypackage,.zip,.rar,.fbx" required>
-                </div>
-
-                <!-- 6. Deskripsi Aset -->
-                <div class="mb-3">
-                    <label class="form-label-custom">Deskripsi Aset</label>
-                    <textarea id="regAssetDesc" class="form-control form-control-custom" rows="3"
-                        placeholder="" required></textarea>
-                </div>
-
-                <!-- 7. URL Portofolio (Opsional) -->
-                <div class="mb-3">
-                    <label class="form-label-custom">URL Portofolio (Opsional)</label>
-                    <input type="url" id="regPortfolio" class="form-control form-control-custom"
-                        placeholder="">
-                </div>
-
-                <!-- 8. Password: Buat Kata Sandi & Ulangi Kata Sandi -->
-                <div class="row g-2 mb-3">
-                    <div class="col-6">
-                        <label class="form-label-custom">Buat Kata Sandi</label>
-                        <input type="password" id="regPassword" class="form-control form-control-custom" placeholder="" <?= !$isLoggedIn ? 'required' : '' ?>>
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label-custom">Ulangi Kata Sandi</label>
-                        <input type="password" id="regPasswordConfirm" class="form-control form-control-custom" placeholder="" <?= !$isLoggedIn ? 'required' : '' ?>>
-                    </div>
-                </div>
-
-                <!-- 9. Checkbox Syarat & Ketentuan -->
-                <div class="mb-4 form-check-terms">
-                    <input class="form-check-input" type="checkbox" id="checkTerms" required>
-                    <label class="form-check-label" for="checkTerms">
-                        Saya telah menyetujui <span class="link-terms" onclick="openTermsModal()">Syarat dan Ketentuan</span>
-                    </label>
-                </div>
-
-                <!-- 10. Tombol Daftar Oranye -->
-                <button type="submit" class="btn-register-submit mb-3">Daftar</button>
-
-                <!-- 11. Tautan Login -->
-                <div>
-                    <small class="text-muted">Sudah punya akun? <a href="/login" class="text-primary text-decoration-none fw-bold">Login</a></small>
-                </div>
-            </form>
+    <nav class="navbar navbar-orange sticky-top">
+        <div class="container-figma">
+            <a class="navbar-brand gap-2 text-decoration-none" href="/">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L20.66 7V17L12 22L3.34 17V7L12 2Z" fill="#ED6B1D" stroke="#1A1A1A" stroke-width="1.8" stroke-linejoin="round" />
+                    <path d="M12 2L20.66 7L12 12L3.34 7L12 2Z" fill="#FDBA74" stroke="#1A1A1A" stroke-width="1.5" stroke-linejoin="round" />
+                    <path d="M12 12V22" stroke="#1A1A1A" stroke-width="1.5" />
+                    <path d="M12 12L20.66 7" stroke="#1A1A1A" stroke-width="1.5" />
+                    <path d="M12 12L3.34 7" stroke="#1A1A1A" stroke-width="1.5" />
+                    <path d="M12 4.5L16.5 7L12 9.5L7.5 7L12 4.5Z" fill="#FED7AA" stroke="#1A1A1A" stroke-width="1" stroke-linejoin="round" /> 
+                </svg>
+                <span class="brand-text text-white fw-bold">IndoFX</span>
+            </a>
         </div>
-    </div>
+    </nav>
+
+    <main class="seller-register-main">
+        <div class="seller-register-shell">
+            <a href="/" class="seller-back-link">
+                <i class="bi bi-arrow-left" aria-hidden="true"></i> Kembali ke Beranda
+            </a>
+
+            <div class="seller-register-card">
+                <h2 class="seller-register-title">Daftar Jadi Penjual</h2>
+                <p class="seller-register-sub">Upload hasil karyamu agar dikenal semua orang.</p>
+
+                <form id="formRegisterSeller">
+                    <!-- 1. Nama Lengkap -->
+                    <div class="mb-3">
+                        <label class="form-label-custom">Nama Lengkap</label>
+                        <input type="text" id="regName" class="form-control form-control-custom"
+                            value="<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>"
+                            placeholder="Arga Studio" required>
+                    </div>
+
+                    <!-- 2. Alamat Email -->
+                    <div class="mb-3">
+                        <label class="form-label-custom">Alamat Email</label>
+                        <input type="email" id="regEmail" class="form-control form-control-custom"
+                            value="<?= htmlspecialchars($userEmail, ENT_QUOTES, 'UTF-8') ?>"
+                            placeholder="argastudio@mail.com" required <?= $isLoggedIn && !empty($userEmail) ? 'readonly style="background-color: #faf5f0;"' : '' ?>>
+                    </div>
+
+                    <!-- 3. Alamat Domisili -->
+                    <div class="mb-3">
+                        <label class="form-label-custom">Alamat Domisili</label>
+                        <textarea id="regAddress" class="form-control form-control-custom" rows="3"
+                            placeholder="" required></textarea>
+                    </div>
+
+                    <!-- 4. Alasan -->
+                    <div class="mb-3">
+                        <label class="form-label-custom">Alasan</label>
+                        <textarea id="regReason" class="form-control form-control-custom" rows="2"
+                            placeholder="" required></textarea>
+                    </div>
+
+                    <!-- 5. Contoh Aset -->
+                    <div class="mb-3">
+                        <label class="form-label-custom">Contoh Aset</label>
+                        <input type="file" id="regAssetFile" class="form-control form-control-custom" accept=".unitypackage,.zip,.rar,.fbx" required>
+                    </div>
+
+                    <!-- 6. Deskripsi Aset -->
+                    <div class="mb-3">
+                        <label class="form-label-custom">Deskripsi Aset</label>
+                        <textarea id="regAssetDesc" class="form-control form-control-custom" rows="3"
+                            placeholder="" required></textarea>
+                    </div>
+
+                    <!-- 7. URL Portofolio (Opsional) -->
+                    <div class="mb-3">
+                        <label class="form-label-custom">URL Portofolio (Opsional)</label>
+                        <input type="url" id="regPortfolio" class="form-control form-control-custom"
+                            placeholder="">
+                    </div>
+
+                    <!-- 8. Checkbox Syarat & Ketentuan -->
+                    <div class="mb-4 form-check-terms">
+                        <input class="form-check-input" type="checkbox" id="checkTerms" required>
+                        <label class="form-check-label" for="checkTerms">
+                            Saya telah menyetujui <span class="link-terms" onclick="openTermsModal()">Syarat dan Ketentuan</span>
+                        </label>
+                    </div>
+
+                    <!-- 9. Tombol Daftar Oranye -->
+                    <button type="submit" class="btn-register-submit mb-3">Daftar</button>
+
+                    <!-- 10. Tautan Login -->
+                    <div>
+                        <small class="text-muted">Sudah punya akun? <a href="/login" class="text-primary text-decoration-none fw-bold">Login</a></small>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
 
     <!-- MODAL POPUP: SYARAT DAN KETENTUAN (SESUAI GAMBAR) -->
     <div class="modal fade" id="modalTerms" tabindex="-1" aria-hidden="true">
@@ -394,6 +422,27 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
         </div>
     </div>
 
+    <footer class="footer-main">
+        <div class="container-figma">
+            <div class="footer-center-content">
+                <h5 class="footer-brand-title-center">IndoFX</h5>
+                <p class="footer-brand-desc-center">
+                    Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
+                </p>
+                <!-- Baris Kontak dan Email sesuai desain baru -->
+                <div style="font-size: 0.85rem; color: #1a1a1a; margin-top: 10px;">
+                    <strong style="font-weight: 800;">Kontak dan Email:</strong>
+                    <span style="margin: 0 16px;">08123456xxxx</span>
+                    <span>helpdesk@indofx.com</span>
+                </div>
+            </div>
+            <div class="footer-bottom-bar">
+                <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
+                <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
+            </div>
+        </div>
+    </footer>
+
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -417,14 +466,6 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
                 const termsChecked = document.getElementById('checkTerms').checked;
                 if (!termsChecked) {
                     alert('Harap setujui Syarat dan Ketentuan terlebih dahulu untuk mendaftar sebagai Penjual.');
-                    return;
-                }
-
-                // Validasi Password jika diisi
-                const pass = document.getElementById('regPassword') ? document.getElementById('regPassword').value : '';
-                const passConfirm = document.getElementById('regPasswordConfirm') ? document.getElementById('regPasswordConfirm').value : '';
-                if (pass && passConfirm && pass !== passConfirm) {
-                    alert('Konfirmasi Kata Sandi tidak cocok!');
                     return;
                 }
 
