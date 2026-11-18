@@ -30,321 +30,12 @@ if ($initials === '') {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- CSS terpusat murni tanpa tag style tambahan -->
     <link rel="stylesheet" href="/assets/css/style.css">
-
-    <style>
-        :root {
-            --indofx-cream-bg: #FAF0E6;
-            --indofx-text-main: #3C2A21;
-            --indofx-border: #4A3B32;
-            --indofx-orange: #ED6B1D;
-        }
-
-        body {
-            background-color: var(--indofx-cream-bg, #FAF0E6);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            font-family: 'Inter', sans-serif;
-            color: var(--indofx-text-main);
-        }
-
-        .library-title {
-            font-size: 1.85rem;
-            font-weight: 800;
-            color: var(--indofx-text-main);
-        }
-
-        .library-sub {
-            font-size: 0.88rem;
-            color: #7A685D;
-        }
-
-        .filter-nav-tabs .filter-tab-btn {
-            background: none;
-            border: none;
-            font-size: 0.92rem;
-            font-weight: 600;
-            color: #7A685D;
-            padding: 4px 10px;
-            cursor: pointer;
-            transition: color 0.15s ease;
-        }
-
-        .filter-nav-tabs .filter-tab-btn.active {
-            color: var(--indofx-text-main);
-            font-weight: 800;
-        }
-
-        /* Kartu Aset Library Interaktif */
-        .library-item-card {
-            background-color: #ffffff;
-            border: 1.5px solid var(--indofx-border);
-            border-radius: 8px;
-            padding: 12px 18px 12px 14px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            box-shadow: 0 4px 12px rgba(60, 42, 33, 0.04);
-            margin-bottom: 14px;
-            cursor: pointer;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-        }
-
-        .library-item-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(60, 42, 33, 0.08);
-        }
-
-        .library-item-thumb {
-            width: 175px;
-            height: 98px;
-            flex-shrink: 0;
-            border-radius: 6px;
-            overflow: hidden;
-            background-color: #241E24;
-        }
-
-        .library-item-thumb svg {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        .library-item-content {
-            flex-grow: 1;
-        }
-
-        .status-badge-blue {
-            background-color: #2563eb;
-            color: #ffffff;
-            font-size: 0.7rem;
-            font-weight: 800;
-            padding: 2px 8px;
-            border-radius: 4px;
-            letter-spacing: 0.5px;
-        }
-
-        .library-asset-heading {
-            font-size: 1.15rem;
-            font-weight: 800;
-            color: var(--indofx-text-main);
-            margin: 0;
-            transition: color 0.15s ease;
-        }
-
-        .library-item-card:hover .library-asset-heading {
-            color: var(--indofx-orange);
-        }
-
-        .badge-tag-custom {
-            display: inline-block;
-            font-size: 0.62rem;
-            font-weight: 800;
-            padding: 2px 7px;
-            border-radius: 4px;
-            color: #ffffff;
-            line-height: 1.2;
-        }
-
-        .badge-hdrp {
-            background-color: #4f378b;
-        }
-
-        .badge-urp {
-            background-color: #a3161c;
-        }
-
-        .badge-builtin {
-            background-color: #0088ff;
-        }
-
-        /* Tombol Aksi */
-        .btn-action-delete {
-            background-color: #dc2626;
-            color: #ffffff !important;
-            font-size: 0.82rem;
-            font-weight: 700;
-            padding: 7px 18px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            transition: opacity 0.15s ease;
-        }
-
-        .btn-action-delete:hover {
-            opacity: 0.88;
-        }
-
-        .btn-action-review {
-            background-color: #0284c7;
-            color: #ffffff !important;
-            font-size: 0.82rem;
-            font-weight: 700;
-            padding: 7px 18px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            transition: opacity 0.15s ease;
-        }
-
-        .btn-action-review:hover {
-            opacity: 0.88;
-        }
-
-        /* Tombol Sudah Diulas */
-        .btn-already-reviewed {
-            background-color: #ffffff;
-            color: #b5a498 !important;
-            border: 1.5px solid #d8c8bd !important;
-            font-size: 0.85rem;
-            font-weight: 700;
-            padding: 7px 20px;
-            border-radius: 6px;
-            cursor: default;
-            user-select: none;
-        }
-
-        .empty-library-card {
-            border: 1.5px dashed var(--indofx-border);
-            border-radius: 8px;
-            min-height: 340px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 40px 20px;
-        }
-
-        /* ========================================================
-           MODAL ULASAN DENGAN BINTANG ORANYE
-           ======================================================== */
-        .modal-review-figma .modal-content {
-            border: 1px solid #e0d0c5;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            background-color: #ffffff;
-            padding: 8px 12px;
-        }
-
-        .modal-review-figma .modal-header {
-            border-bottom: 1px solid #ebdcd1;
-            padding: 16px 20px;
-        }
-
-        .modal-review-figma .modal-title {
-            font-size: 1.4rem;
-            font-weight: 800;
-            color: #1A1A1A;
-            letter-spacing: -0.3px;
-        }
-
-        .modal-review-figma .modal-body {
-            padding: 24px 20px 16px 20px;
-        }
-
-        .modal-review-figma .form-label-figma {
-            font-size: 0.95rem;
-            font-weight: 800;
-            color: #1A1A1A;
-            margin-bottom: 8px;
-        }
-
-        /* Bintang Oranye */
-        .interactive-stars-box {
-            display: flex;
-            gap: 16px;
-            font-size: 2.1rem;
-            color: var(--indofx-orange, #ED6B1D) !important;
-            cursor: pointer;
-            line-height: 1;
-            margin-bottom: 22px;
-        }
-
-        .interactive-stars-box i {
-            color: var(--indofx-orange, #ED6B1D) !important;
-            transition: transform 0.1s ease;
-        }
-
-        .interactive-stars-box i:hover {
-            transform: scale(1.15);
-        }
-
-        .input-review-figma {
-            border: 1.5px solid #d8c8bd;
-            border-radius: 6px;
-            padding: 10px 14px;
-            font-size: 0.9rem;
-            color: #1A1A1A;
-            background-color: #ffffff;
-            transition: border-color 0.15s ease;
-        }
-
-        .input-review-figma:focus {
-            border-color: #ED6B1D;
-            box-shadow: none;
-            outline: none;
-        }
-
-        .input-review-figma::placeholder {
-            color: #736b66;
-            opacity: 0.85;
-        }
-
-        .modal-review-figma .modal-footer {
-            border-top: none;
-            padding: 8px 20px 20px 20px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-        }
-
-        .btn-modal-cancel {
-            background-color: #ffffff;
-            color: #1A1A1A;
-            border: 1.5px solid #d8c8bd;
-            font-weight: 700;
-            font-size: 0.92rem;
-            padding: 10px 28px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-
-        .btn-modal-cancel:hover {
-            background-color: #f7f1ec;
-        }
-
-        .btn-modal-upload {
-            background-color: #ED6B1D;
-            color: #ffffff !important;
-            border: none;
-            font-weight: 700;
-            font-size: 0.92rem;
-            padding: 10px 24px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.15s ease;
-        }
-
-        .btn-modal-upload:hover {
-            background-color: #d85a0e;
-        }
-
-        .review-success-message {
-            font-size: 1.45rem;
-            font-weight: 800;
-            color: #1A1A1A;
-            text-align: center;
-            padding: 65px 15px;
-            margin: 0;
-            letter-spacing: -0.3px;
-        }
-    </style>
 </head>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
 
     <!-- SVG Thumbnails -->
     <svg class="d-none">
@@ -377,7 +68,7 @@ if ($initials === '') {
     <nav class="navbar navbar-orange sticky-top">
         <div class="container-figma d-flex justify-content-between align-items-center w-100">
             <a class="navbar-brand m-0 d-flex align-items-center gap-2 text-decoration-none" href="/">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 2L20.66 7V17L12 22L3.34 17V7L12 2Z" fill="#ED6B1D" stroke="#1A1A1A" stroke-width="1.8" stroke-linejoin="round" />
                     <path d="M12 2L20.66 7L12 12L3.34 7L12 2Z" fill="#FDBA74" stroke="#1A1A1A" stroke-width="1.5" stroke-linejoin="round" />
                     <path d="M12 12V22" stroke="#1A1A1A" stroke-width="1.5" />
@@ -402,7 +93,7 @@ if ($initials === '') {
     <!-- Konten Utama Library -->
     <main class="flex-grow-1 py-5">
         <div class="container-figma">
-            <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
+            <div class="d-flex justify-content-between align-items-sm-end align-items-start mb-4 flex-wrap gap-2">
                 <div>
                     <h1 class="library-title mb-1">Library Saya</h1>
                     <p class="library-sub mb-0">Semua aset visual Unity yang telah Anda peroleh</p>
@@ -415,9 +106,63 @@ if ($initials === '') {
                 </div>
             </div>
 
-            <div id="libraryContainer"></div>
+            <?php
+            $libraryItems = is_array($libraryItems ?? null) ? $libraryItems : [];
+            $libraryId = static function (array $item): string {
+                return (string)($item['public_id'] ?? $item['asset_public_id'] ?? $item['asset_id'] ?? $item['id'] ?? '');
+            };
+            ?>
+            <div id="libraryContainer">
+                <?php if ($libraryItems === []): ?>
+                    <div class="empty-library-card"><i class="bi bi-box-seam fs-1 text-secondary mb-2"></i><h5 class="fw-bold mb-1" style="color: var(--indofx-dark, #2b2623);">Belum ada aset di Library Anda</h5><p class="text-muted small mb-3">Temukan dan tambahkan aset visual pilihan Anda melalui katalog.</p><a href="/catalog/explore" class="btn btn-hero-orange">Jelajahi Katalog</a></div>
+                <?php else: foreach ($libraryItems as $item):
+                    $itemId = $libraryId($item);
+                    $pipelines = $item['render_pipeline'] ?? $item['pipelines'] ?? [];
+                    $pipelines = is_array($pipelines) ? $pipelines : [$pipelines];
+                    $paid = (float)($item['price'] ?? 0) > 0;
+                    $detailUrl = '/library/detail?' . http_build_query(['id' => $itemId]);
+                ?>
+                    <div class="library-item-card" data-library-card data-library-type="<?= $paid ? 'berbayar' : 'gratis' ?>" data-library-url="<?= htmlspecialchars($detailUrl, ENT_QUOTES, 'UTF-8') ?>">
+                        <div class="library-item-thumb"><img src="<?= htmlspecialchars((string)($item['image_url'] ?? $item['image'] ?? '/assets/img/placeholder.png'), ENT_QUOTES, 'UTF-8') ?>" class="w-100 h-100" style="object-fit:cover" alt=""></div>
+                        <div class="library-item-content">
+                            <div class="d-flex align-items-center gap-2 mb-1"><span class="status-badge-blue">DIMILIKI</span><span class="text-muted small">Perolehan: <?= htmlspecialchars((string)($item['acquired_at'] ?? $item['date'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></span></div>
+                            <div class="d-flex align-items-center gap-2 mb-1 flex-wrap"><h5 class="library-asset-heading"><?= htmlspecialchars((string)($item['title'] ?? 'Aset IndoFX'), ENT_QUOTES, 'UTF-8') ?></h5><div><?php foreach ($pipelines as $pipeline): ?><span class="badge-tag-custom badge-urp me-1"><?= htmlspecialchars((string)$pipeline, ENT_QUOTES, 'UTF-8') ?></span><?php endforeach; ?></div></div>
+                            <p class="text-muted small m-0">Oleh <?= htmlspecialchars((string)($item['seller_name'] ?? $item['creator'] ?? 'Studio Kreator'), ENT_QUOTES, 'UTF-8') ?></p>
+                        </div>
+                        <div class="library-actions-wrap"><button type="button" class="btn-action-review" data-library-action="review" data-library-id="<?= htmlspecialchars($itemId, ENT_QUOTES, 'UTF-8') ?>" data-library-title="<?= htmlspecialchars((string)($item['title'] ?? 'Aset IndoFX'), ENT_QUOTES, 'UTF-8') ?>">Beri Ulasan</button></div>
+                    </div>
+                <?php endforeach; endif; ?>
+            </div>
         </div>
     </main>
+
+    <!-- Footer Resmi IndoFX Membentang Penuh di Dasar Halaman -->
+    <?php
+    $footerPartial = BASE_PATH . '/resources/views/partials/footer.php';
+    if (file_exists($footerPartial)) {
+        require $footerPartial;
+    } else {
+    ?>
+        <footer class="footer-main mt-auto">
+            <div class="container-figma">
+                <div class="footer-center-content">
+                    <h5 class="footer-brand-title-center">IndoFX</h5>
+                    <p class="footer-brand-desc-center">
+                        Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
+                    </p>
+                    <div class="footer-contact-row">
+                        <strong>Kontak dan Email:</strong>
+                        <span class="ms-3 me-3">08123456xxxx</span>
+                        <span>helpdesk@indofx.com</span>
+                    </div>
+                </div>
+                <div class="footer-bottom-bar">
+                    <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
+                    <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
+                </div>
+            </div>
+        </footer>
+    <?php } ?>
 
     <!-- Modal Ulasan Persis Figma -->
     <div class="modal fade modal-review-figma" id="reviewModal" tabindex="-1" aria-hidden="true">
@@ -448,7 +193,7 @@ if ($initials === '') {
                         <!-- Judul Ulasan -->
                         <div class="mb-3">
                             <label class="form-label-figma">Judul Ulasan</label>
-                            <input type="text" class="form-control input-review-figma" id="reviewTitleInput" placeholder="Lorem ipsum dolor sit amet consectetur.">
+                            <input type="text" class="form-control input-review-figma" id="reviewTitleInput" placeholder="Contoh: Mudah dipelajari untuk prototipe">
                         </div>
 
                         <!-- Feedback -->
@@ -479,225 +224,50 @@ if ($initials === '') {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/indofx-utils.js"></script>
     <script src="/assets/js/navbar-auth.js"></script>
     <script>
-        const userKey = '<?= $userKey ?>';
-        const userName = '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>';
-        const storageKey = 'indofx_library_' + userKey;
-        const reviewedStorageKey = 'indofx_reviewed_assets_' + userKey;
-
+        const libraryItems = <?= json_encode($libraryItems ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
         let currentFilter = 'semua';
         let currentSelectedRating = 5;
-
-        function getLibraryData() {
-            try {
-                return JSON.parse(localStorage.getItem(storageKey)) || [];
-            } catch (e) {
-                return [];
-            }
-        }
-
-        function getReviewedAssets() {
-            try {
-                return JSON.parse(localStorage.getItem(reviewedStorageKey)) || [];
-            } catch (e) {
-                return [];
-            }
-        }
-
-        function openAssetDetail(asset) {
-            const params = new URLSearchParams({
-                id: asset.id || '1',
-                title: asset.title || 'Aset IndoFX',
-                creator: asset.creator || 'Arga Studio',
-                category: asset.category || (asset.type === 'Gratis' ? 'PARTIKEL' : 'SHADER'),
-                pipeline: Array.isArray(asset.pipelines) ? asset.pipelines.join(', ') : (asset.pipeline || 'URP, HDRP'),
-                art: asset.art || 'castle'
-            });
-            window.location.href = '/library/detail?' + params.toString();
-        }
-
-        function renderLibrary() {
-            const container = document.getElementById('libraryContainer');
-            const items = getLibraryData();
-            const reviewedList = getReviewedAssets();
-
-            let filtered = items;
-            if (currentFilter === 'berbayar') {
-                filtered = items.filter(i => (i.type || 'Berbayar').toLowerCase() !== 'gratis');
-            } else if (currentFilter === 'gratis') {
-                filtered = items.filter(i => (i.type || '').toLowerCase() === 'gratis');
-            }
-
-            if (filtered.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-library-card">
-                        <i class="bi bi-box-seam fs-1 text-secondary mb-2"></i>
-                        <h5 class="fw-bold mb-1" style="color: var(--indofx-text-main);">Belum ada aset di Library Anda</h5>
-                        <p class="text-muted small mb-3">Temukan dan tambahkan aset visual pilihan Anda melalui katalog.</p>
-                        <a href="/catalog/explore" class="btn btn-hero-orange">Jelajahi Katalog</a>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = filtered.map(item => {
-                const artId = item.art ? ('lib-art-' + item.art) : 'lib-art-castle';
-                const pipelines = Array.isArray(item.pipelines) ? item.pipelines : ['HDRP'];
-
-                const badgesHtml = pipelines.map(p => {
-                    let cls = 'badge-urp';
-                    if (p.toLowerCase().includes('hdrp')) cls = 'badge-hdrp';
-                    if (p.toLowerCase().includes('built')) cls = 'badge-builtin';
-                    return `<span class="badge-tag-custom ${cls}">${p}</span>`;
-                }).join(' ');
-
-                const itemJson = JSON.stringify(item).replace(/"/g, '&quot;');
-                const alreadyReviewed = reviewedList.includes(String(item.id));
-
-                const actionButtonHtml = alreadyReviewed ? `
-                    <button type="button" class="btn-already-reviewed" disabled onclick="event.stopPropagation()">
-                        Sudah Diulas
-                    </button>
-                ` : `
-                    <button type="button" class="btn-action-delete" onclick="event.stopPropagation(); removeLibraryItem('${item.id}')">
-                        Hapus
-                    </button>
-                    <button type="button" class="btn-action-review" onclick="event.stopPropagation(); openReviewModal('${item.id}', '${item.title.replace(/'/g, "\\'")}')">
-                        Beri Ulasan
-                    </button>
-                `;
-
-                return `
-                    <div class="library-item-card" onclick="openAssetDetail(${itemJson})" title="Klik untuk membuka detail dan unduh aset">
-                        <div class="library-item-thumb">
-                            <svg viewBox="0 0 175 98"><use href="#${artId}" /></svg>
-                        </div>
-                        <div class="library-item-content">
-                            <div class="d-flex align-items-center gap-2 mb-1">
-                                <span class="status-badge-blue">DIBELI</span>
-                                <span class="text-muted small">Perolehan: ${item.date || '02 Nov 2026'}</span>
-                            </div>
-                            <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
-                                <h5 class="library-asset-heading">${item.title}</h5>
-                                <div>${badgesHtml}</div>
-                            </div>
-                            <p class="text-muted small m-0">Oleh ${item.creator || 'Arga Studio'}</p>
-                        </div>
-                        <div class="d-flex align-items-center gap-2">
-                            ${actionButtonHtml}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
+        const reviewedAssets = new Set();
 
         function setFilter(filterType, el) {
             currentFilter = filterType;
             document.querySelectorAll('.filter-tab-btn').forEach(btn => btn.classList.remove('active'));
             el.classList.add('active');
-            renderLibrary();
+            document.querySelectorAll('[data-library-card]').forEach(card => card.hidden = filterType !== 'semua' && card.dataset.libraryType !== filterType);
         }
 
-        function removeLibraryItem(assetId) {
-            if (!confirm('Hapus aset ini dari Library Anda?')) return;
-            let items = getLibraryData();
-            items = items.filter(i => String(i.id) !== String(assetId));
-            localStorage.setItem(storageKey, JSON.stringify(items));
-            renderLibrary();
-        }
+        document.addEventListener('click', function(event) {
+            const card = event.target.closest('[data-library-card]');
+            if (card && !event.target.closest('[data-library-action]')) window.location.href = card.dataset.libraryUrl;
+            const review = event.target.closest('[data-library-action="review"]');
+            if (review) openReviewModal(review.dataset.libraryId, review.dataset.libraryTitle);
+        });
 
-        /* Update Bintang Oranye Interaktif */
-        function updateStarUI(rating) {
-            const stars = document.querySelectorAll('#starRatingGroup i');
-            stars.forEach((star, index) => {
-                if (index < rating) {
-                    star.className = 'bi bi-star-fill';
-                } else {
-                    star.className = 'bi bi-star';
-                }
-            });
-        }
-
-        function selectStar(rating) {
-            currentSelectedRating = rating;
-            updateStarUI(rating);
-        }
-
-        function hoverStar(rating) {
-            updateStarUI(rating);
-        }
-
-        function resetStarHover() {
-            updateStarUI(currentSelectedRating);
-        }
-
+        function updateStarUI(rating) { document.querySelectorAll('#starRatingGroup i').forEach((star, index) => star.className = index < rating ? 'bi bi-star-fill' : 'bi bi-star'); }
+        function selectStar(rating) { currentSelectedRating = rating; updateStarUI(rating); }
+        function hoverStar(rating) { updateStarUI(rating); }
+        function resetStarHover() { updateStarUI(currentSelectedRating); }
         function openReviewModal(assetId, assetTitle) {
-            const reviewedList = getReviewedAssets();
-            if (reviewedList.includes(String(assetId))) {
-                alert('Anda sudah pernah memberikan ulasan untuk aset ini.');
-                return;
-            }
-
+            if (reviewedAssets.has(String(assetId))) return;
             document.getElementById('reviewAssetId').value = assetId;
             document.getElementById('reviewTitleInput').value = '';
             document.getElementById('reviewCommentInput').value = '';
-
-            document.getElementById('reviewFormView').classList.remove('d-none');
-            document.getElementById('reviewSuccessView').classList.add('d-none');
-
-            // Default bintang 5 terisi oranye
             selectStar(5);
-
-            const modal = new bootstrap.Modal(document.getElementById('reviewModal'));
-            modal.show();
+            new bootstrap.Modal(document.getElementById('reviewModal')).show();
         }
-
-        function submitUserReview() {
+        async function submitUserReview() {
             const assetId = document.getElementById('reviewAssetId').value;
-            const title = document.getElementById('reviewTitleInput').value.trim();
             const comment = document.getElementById('reviewCommentInput').value.trim();
-
-            if (!comment) {
-                alert('Silakan tuliskan feedback pengalaman Anda.');
-                return;
-            }
-
-            const revStorageKey = 'indofx_public_reviews_' + assetId;
-            let reviews = [];
-            try {
-                reviews = JSON.parse(localStorage.getItem(revStorageKey)) || [];
-            } catch (e) {
-                reviews = [];
-            }
-
-            const now = new Date();
-            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-            const dateStr = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
-
-            reviews.unshift({
-                user_name: userName,
-                rating: currentSelectedRating,
-                title: title,
-                comment: comment,
-                date: dateStr
-            });
-
-            localStorage.setItem(revStorageKey, JSON.stringify(reviews));
-
-            let reviewedList = getReviewedAssets();
-            if (!reviewedList.includes(String(assetId))) {
-                reviewedList.push(String(assetId));
-                localStorage.setItem(reviewedStorageKey, JSON.stringify(reviewedList));
-            }
-
+            if (!comment) return alert('Silakan tuliskan feedback pengalaman Anda.');
+            const response = await fetch('/api/reviews/add', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({asset_id: assetId, rating: currentSelectedRating, title: document.getElementById('reviewTitleInput').value.trim(), comment}) });
+            if (!response.ok) return alert('Ulasan gagal disimpan.');
+            reviewedAssets.add(String(assetId));
             document.getElementById('reviewFormView').classList.add('d-none');
             document.getElementById('reviewSuccessView').classList.remove('d-none');
-
-            renderLibrary();
         }
-
-        document.addEventListener('DOMContentLoaded', renderLibrary);
     </script>
 </body>
 

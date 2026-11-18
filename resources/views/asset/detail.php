@@ -277,29 +277,16 @@ $isLoggedIn = isset($_SESSION['user_id']);
                             </div>
                         </div>
 
-                        <!-- Tombol Aksi: Terdeteksi Otomatis Guest vs Login -->
                         <div id="actionButtonWrapper" class="d-grid gap-2">
-                            <?php if ($isGratis): ?>
-                                <?php if ($isLoggedIn): ?>
-                                    <button type="button" id="btnClaimLibrary" class="btn btn-cart-secondary">
-                                        Tambahkan ke Library
-                                    </button>
-                                <?php else: ?>
-                                    <a href="/login" class="btn btn-cart-secondary text-decoration-none">
-                                        <span><span class="link-masuk fw-bold">Masuk</span> untuk menambahkan ke Library</span>
-                                    </a>
-                                <?php endif; ?>
+                            <?php if (!$isLoggedIn): ?>
+                                <a href="/login" class="btn btn-cart-secondary text-decoration-none">Masuk untuk melanjutkan</a>
                             <?php else: ?>
-                                <!-- URL Checkout disesuaikan untuk UUID public_id -->
-                                <?php
-                                $checkoutUrl = '/checkout?' . http_build_query(['asset_id' => $asset['public_id'] ?? '']);
-                                ?>
-                                <a href="<?= $isLoggedIn ? htmlspecialchars($checkoutUrl, ENT_QUOTES, 'UTF-8') : '/login' ?>" class="btn btn-buy-primary" id="btnBuyPrimary">
-                                    Beli
-                                </a>
-                                <button type="button" class="btn btn-cart-secondary">
-                                    Tambahkan ke Keranjang
-                                </button>
+                                <?php $assetPublicId = (string)($asset['public_id'] ?? $asset['id'] ?? ''); ?>
+                                <?php if (!$isGratis): ?><a href="/checkout?asset_id=<?= rawurlencode($assetPublicId) ?>" class="btn btn-buy-primary">Beli</a><?php endif; ?>
+                                <form method="post" action="/cart/add">
+                                    <input type="hidden" name="asset_id" value="<?= htmlspecialchars($assetPublicId, ENT_QUOTES, 'UTF-8') ?>">
+                                    <button type="submit" class="btn btn-cart-secondary w-100">Tambahkan ke Keranjang</button>
+                                </form>
                             <?php endif; ?>
                         </div>
                     </div>

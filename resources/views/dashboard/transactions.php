@@ -1,7 +1,11 @@
 <?php
-$isLoggedIn = isset($_SESSION['user_id']);
-$userKey    = (string) ($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user');
-$userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna');
+if (!isset($_SESSION['user_id'])) {
+    header('Location: /login');
+    exit;
+}
+
+$userKey = (string) ($_SESSION['user_id'] ?? '');
+$userName = (string) ($storeName ?? $_SESSION['store_name'] ?? $_SESSION['name'] ?? 'Toko Saya');
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -201,137 +205,30 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <script src="/assets/js/indofx-utils.js"></script>
     <script>
-        const userKey = '<?= $userKey ?>';
-        let storeName = 'Arga Studio';
-        let allTransactions = [];
-
+        const allTransactions = <?= json_encode($transactions ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+        const storeName = <?= json_encode((string) ($storeName ?? $userName), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
         document.addEventListener('DOMContentLoaded', function() {
-            // 1. Identifikasi Profil Penjual
-            const profileRaw = localStorage.getItem('indofx_seller_profile_' + userKey);
-            if (profileRaw) {
-                try {
-                    const prof = JSON.parse(profileRaw);
-                    if (prof.store_name) storeName = prof.store_name;
-                } catch (e) {}
-            }
-
-            document.getElementById('navDashStoreName').innerText = storeName.toUpperCase();
-            const words = storeName.trim().split(/\s+/);
-            let inits = '';
-            words.slice(0, 2).forEach(w => inits += w.charAt(0).toUpperCase());
-            document.getElementById('navDashAvatar').innerText = inits || 'AS';
-
-            // 2. Ambil Transaksi Penjual
-            loadTransactions();
-
-            // 3. Listener Filter
-            document.getElementById('filterKeyword').addEventListener('input', renderTransactions);
-            document.getElementById('filterDate').addEventListener('change', renderTransactions);
-            document.getElementById('filterPayment').addEventListener('change', renderTransactions);
+            document.getElementById('navDashStoreName').textContent = storeName.toUpperCase();
+            document.getElementById('navDashAvatar').textContent = storeName.trim().split(/\s+/).slice(0, 2).map(word => word.charAt(0).toUpperCase()).join('') || 'AS';
+            updateSummaryCards(allTransactions);
+            renderTransactions();
+            ['filterKeyword', 'filterDate', 'filterPayment'].forEach(id => document.getElementById(id).addEventListener('input', renderTransactions));
             document.getElementById('btnApplyFilter').addEventListener('click', renderTransactions);
         });
 
-        function loadTransactions() {
-            // Kunci spesifik penjual: indofx_seller_sales_[userKey] atau nama toko yang dinormalisasi
-            const cleanKey = storeName.toLowerCase().replace(/[^a-z0-9]/g, '');
-            const rawSales = localStorage.getItem('indofx_seller_sales_' + userKey) ||
-                localStorage.getItem('indofx_seller_sales_' + cleanKey) ||
-                localStorage.getItem('indofx_seller_sales_' + storeName);
-
-            if (rawSales) {
-                try {
-                    allTransactions = JSON.parse(rawSales);
-                } catch (e) {
-                    allTransactions = [];
-                }
-            } else {
-                // Jika penjual belum memiliki transaksi penjualan dari pembeli
-                allTransactions = [];
-            }
-
-            updateSummaryCards(allTransactions);
-            renderTransactions();
-        }
-
         function updateSummaryCards(data) {
-            const totalOrders = data.length;
-            let totalIncome = 0;
-
-            data.forEach(item => {
-                const price = parseFloat(item.price) || 0;
-                totalIncome += price;
-            });
-
-            const avgIncome = totalOrders > 0 ? Math.round(totalIncome / totalOrders) : 0;
-
-            document.getElementById('statTotalIncome').innerText = 'Rp ' + totalIncome.toLocaleString('id-ID');
-            document.getElementById('statTotalOrders').innerText = totalOrders + ' Transaksi';
-            document.getElementById('statAvgIncome').innerText = 'Rp ' + avgIncome.toLocaleString('id-ID');
+            const income = data.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+            document.getElementById('statTotalIncome').textContent = 'Rp ' + income.toLocaleString('id-ID');
+            document.getElementById('statTotalOrders').textContent = data.length + ' Transaksi';
+            document.getElementById('statAvgIncome').textContent = 'Rp ' + (data.length ? Math.round(income / data.length) : 0).toLocaleString('id-ID');
         }
 
         function renderTransactions() {
-            const tbody = document.getElementById('transactionsTableBody');
             const keyword = document.getElementById('filterKeyword').value.toLowerCase().trim();
-            const selectedDate = document.getElementById('filterDate').value; // Format YYYY-MM-DD
-            const paymentFilter = document.getElementById('filterPayment').value;
-
-            const filtered = allTransactions.filter(item => {
-                const matchKeyword = !keyword ||
-                    (item.invoice_no && item.invoice_no.toLowerCase().includes(keyword)) ||
-                    (item.asset_title && item.asset_title.toLowerCase().includes(keyword));
-
-                let matchDate = true;
-                if (selectedDate && item.date_raw) {
-                    matchDate = item.date_raw.startsWith(selectedDate);
-                }
-
-                let matchPayment = true;
-                if (paymentFilter !== 'all') {
-                    const payStr = (item.payment_method || '').toLowerCase();
-                    if (paymentFilter === 'qris') matchPayment = payStr.includes('qris') || payStr.includes('gopay') || payStr.includes('shopee') || payStr.includes('ewallet');
-                    if (paymentFilter === 'card') matchPayment = payStr.includes('kartu') || payStr.includes('card') || payStr.includes('visa');
-                    if (paymentFilter === 'bank') matchPayment = payStr.includes('bank') || payStr.includes('virtual') || payStr.includes('bill') || payStr.includes('bca') || payStr.includes('mandiri');
-                }
-
-                return matchKeyword && matchDate && matchPayment;
-            });
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="text-center py-5 text-muted">
-                            <i class="bi bi-receipt fs-2 d-block mb-2 text-secondary"></i>
-                            <h6 class="fw-bold mb-1">Belum Ada Transaksi Penjualan</h6>
-                            <p class="small text-muted mb-0">Transaksi pembelian aset berbayar Anda oleh pengguna lain akan otomatis muncul di sini.</p>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            tbody.innerHTML = filtered.map(item => {
-                const price = parseFloat(item.price) || 0;
-                return `
-                    <tr>
-                        <td>
-                            <a href="javascript:void(0)" class="action-link fw-semibold">${item.invoice_no}</a>
-                        </td>
-                        <td class="fw-bold text-dark item-asset-title">${item.asset_title}</td>
-                        <td class="text-secondary small">${item.payment_method || 'QRIS/GoPay'}</td>
-                        <td class="text-muted small">${item.date || 'Hari ini'}</td>
-                        <td>
-                            <span class="badge-status-approved">Settlement</span>
-                        </td>
-                        <td class="fw-bold text-success-income">Rp${price.toLocaleString('id-ID')}</td>
-                        <td class="text-center">
-                            <a href="javascript:window.print()" class="text-dark print-btn-icon" title="Cetak Bukti Transaksi">
-                                <i class="bi bi-printer fs-5"></i>
-                            </a>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+            const filtered = allTransactions.filter(item => !keyword || String(item.invoice_number || '').toLowerCase().includes(keyword) || String(item.asset_title || '').toLowerCase().includes(keyword));
+            document.getElementById('transactionsTableBody').innerHTML = filtered.length ? filtered.map(item => `<tr><td><span class="action-link fw-semibold">${esc(item.invoice_number || '')}</span></td><td class="fw-bold text-dark item-asset-title">${esc(item.asset_title || '')}</td><td class="text-secondary small">${esc(item.payment_type || '')}</td><td class="text-muted small">${esc(item.created_at || '')}</td><td><span class="badge-status-${item.status === 'settlement' ? 'approved' : 'pending'}">${esc(item.status || '')}</span></td><td class="fw-bold text-success-income">Rp${Number(item.amount || 0).toLocaleString('id-ID')}</td><td class="text-center"><a href="javascript:window.print()" class="text-dark print-btn-icon" title="Cetak Bukti Transaksi"><i class="bi bi-printer fs-5"></i></a></td></tr>`).join('') : '<tr><td colspan="7" class="text-center py-5 text-muted">Belum Ada Transaksi Penjualan</td></tr>';
         }
     </script>
 </body>

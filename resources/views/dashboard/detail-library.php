@@ -4,131 +4,22 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-// 1. Database Katalog IndoFX
-$catalogDB = [
-    '1' => [
-        'title' => 'Volumetric Rain & Storm URP',
-        'creator' => 'Arga Studio',
-        'category' => 'VFX PARTIKEL',
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'URP, HDRP, Built-In',
-        'format' => '.unitypackage',
-        'art' => 'castle'
-    ],
-    '2' => [
-        'title' => 'Stylized Toon Water Shader',
-        'creator' => 'Nusantara Digital',
-        'category' => 'SHADER',
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'URP, Built-In',
-        'format' => '.unitypackage',
-        'art' => 'water'
-    ],
-    '3' => [
-        'title' => 'Explosion VFX Pack Vol. 1',
-        'creator' => 'Bayu Pratama',
-        'category' => 'VFX PARTIKEL',
-        'unity_version' => '2022.3 LTS',
-        'pipeline' => 'HDRP',
-        'format' => '.unitypackage',
-        'art' => 'fire'
-    ],
-    '4' => [
-        'title' => 'Lowpoly Indonesian Village Pack',
-        'creator' => 'Citra CG',
-        'category' => 'MODEL 3D',
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'URP, HDRP, Built-In',
-        'format' => '.fbx, .blend, .unitypackage',
-        'art' => 'castle'
-    ],
-    '5' => [
-        'title' => 'Stylized Fire Starter Kit',
-        'creator' => 'VFX Kampoeng',
-        'category' => 'VFX PARTIKEL',
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'URP',
-        'format' => '.unitypackage',
-        'art' => 'fire'
-    ],
-    '6' => [
-        'title' => 'Indonesian Road Texture Pack',
-        'creator' => 'Bumi Tekstur',
-        'category' => 'TEKSTUR',
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'Built-In, URP',
-        'format' => '.png, .tga, .mat',
-        'art' => 'castle'
-    ],
-    '7' => [
-        'title' => 'Simple UI SFX & VFX Overlay',
-        'creator' => 'Andi Dev',
-        'category' => 'VFX PARTIKEL',
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'URP, HDRP',
-        'format' => '.unitypackage',
-        'art' => 'water'
-    ],
-    '8' => [
-        'title' => 'Basic Hologram Shader Helper',
-        'creator' => 'Arga Studio',
-        'category' => 'VFX PARTIKEL',
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'URP, HDRP',
-        'format' => '.unitypackage',
-        'art' => 'castle'
-    ],
-    'free-forest-mist' => [
-        'title' => 'Forest Mist & Fog Volume',
-        'creator' => 'Rimba Digital',
-        'category' => 'PARTICLE',
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'Built-In',
-        'format' => '.unitypackage',
-        'art' => 'forest'
-    ],
-    'free-desert-dune' => [
-        'title' => 'Desert Dune Terrain Pack',
-        'creator' => 'Pasir Labs',
-        'category' => 'MODEL',
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'URP',
-        'format' => '.unitypackage',
-        'art' => 'castle'
-    ],
-    'neon-city' => [
-        'title' => 'Neon City Wet Surface Shader',
-        'creator' => 'Studio Neon',
-        'category' => 'SHADER',
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'HDRP',
-        'format' => '.unitypackage',
-        'art' => 'water'
-    ],
-    'ocean-depth' => [
-        'title' => 'Ocean Depth Water Shader',
-        'creator' => 'Biru Nusantara',
-        'category' => 'SHADER',
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'HDRP',
-        'format' => '.unitypackage',
-        'art' => 'water'
-    ]
-];
-
-$reqId = $_GET['id'] ?? '1';
-$matched = $catalogDB[$reqId] ?? null;
-
-$assetId       = $reqId;
-$assetTitle    = $_GET['title'] ?? ($matched['title'] ?? 'Volumetric Rain & Storm URP');
-$assetCreator  = $_GET['creator'] ?? ($matched['creator'] ?? 'Arga Studio');
-$assetCategory = $_GET['category'] ?? ($matched['category'] ?? 'SHADER');
-$assetUnity    = $matched['unity_version'] ?? '2021.3+ / 2022.3 LTS';
-$assetPipeline = $_GET['pipeline'] ?? ($matched['pipeline'] ?? 'HDRP');
-$assetFormat   = $matched['format'] ?? '.unitypackage';
-$assetArt      = $matched['art'] ?? 'water';
-
-$userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user');
+// The controller passes this row only after checking the current user's entitlement.
+$libraryAsset = is_array($libraryAsset ?? null) ? $libraryAsset : (is_array($asset ?? null) ? $asset : []);
+$assetId = (string)($libraryAsset['public_id'] ?? $libraryAsset['asset_public_id'] ?? $libraryAsset['asset_id'] ?? $libraryAsset['id'] ?? '');
+if ($assetId === '') {
+    http_response_code(404);
+    exit('Aset library tidak ditemukan.');
+}
+$assetTitle = (string)($libraryAsset['title'] ?? 'Aset IndoFX');
+$assetCreator = (string)($libraryAsset['seller_name'] ?? $libraryAsset['creator'] ?? 'Studio Kreator');
+$assetCategory = (string)($libraryAsset['category_name'] ?? $libraryAsset['category'] ?? 'ASET');
+$assetUnity = (string)($libraryAsset['unity_version'] ?? 'Semua Versi');
+$pipelineData = $libraryAsset['render_pipeline'] ?? $libraryAsset['pipelines'] ?? 'Any';
+$assetPipeline = is_array($pipelineData) ? implode(', ', $pipelineData) : (string)$pipelineData;
+$assetFormat = (string)($libraryAsset['file_format'] ?? '.unitypackage');
+$assetArt = (string)($libraryAsset['art'] ?? 'castle');
+$userKey = (string)($_SESSION['user_id'] ?? '');
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -170,16 +61,53 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
             background-color: var(--indofx-cream-bg, #FAF0E6);
         }
 
+        /* Urutan mobile: pratinjau -> kartu unduh -> tab */
+        .detail-layout {
+            display: grid;
+            gap: 24px;
+            align-items: start;
+            grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+            grid-template-areas:
+                "preview side"
+                "tabs    side";
+        }
+
+        .detail-preview {
+            grid-area: preview;
+            min-width: 0;
+        }
+
+        .detail-side {
+            grid-area: side;
+            min-width: 0;
+        }
+
+        .detail-tabs {
+            grid-area: tabs;
+            min-width: 0;
+        }
+
+        @media (max-width: 991.98px) {
+            .detail-layout {
+                grid-template-columns: 1fr;
+                grid-template-areas:
+                    "preview"
+                    "side"
+                    "tabs";
+            }
+        }
+
         .main-preview-card {
             border-radius: 8px;
             overflow: hidden;
             border: 1.5px solid var(--indofx-border);
             background-color: #2b2129;
-            height: 420px;
+            height: clamp(220px, 42vw, 420px);
         }
 
         .thumb-gallery-row {
             display: flex;
+            flex-wrap: wrap;
             gap: 12px;
             margin-bottom: 28px;
         }
@@ -478,10 +406,10 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
     <!-- Konten Detail Unduh -->
     <main class="content-detail-wrapper py-4 flex-grow-1">
         <div class="container-figma">
-            <div class="row g-4 align-items-start">
+            <div class="detail-layout">
 
-                <!-- Kolom Kiri: Galeri & Tab Deskripsi -->
-                <div class="col-12 col-lg-8">
+                <!-- Blok 1: Galeri Pratinjau -->
+                <div class="detail-preview">
                     <div id="assetDetailCarousel" class="carousel slide main-preview-card mb-3" data-bs-ride="carousel">
                         <div class="carousel-inner h-100">
                             <div class="carousel-item active h-100">
@@ -514,7 +442,42 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
                             </svg>
                         </div>
                     </div>
+                </div>
 
+                <!-- Blok 2: Card Download -->
+                <aside class="detail-side">
+                    <div class="asset-library-card">
+                        <span class="asset-category-tag d-block"><?= htmlspecialchars($assetCategory) ?></span>
+                        <h2 class="asset-detail-title"><?= htmlspecialchars($assetTitle) ?></h2>
+
+                        <div class="detail-creator-line">
+                            Oleh <a href="/creator/profile?name=<?= htmlspecialchars(urlencode($assetCreator), ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($assetCreator) ?></a>
+                        </div>
+
+                        <div class="specs-table-box">
+                            <div class="spec-item-row">
+                                <span class="label-col">Versi Unity</span>
+                                <span class="val-col"><?= htmlspecialchars($assetUnity) ?></span>
+                            </div>
+                            <div class="spec-item-row">
+                                <span class="label-col">Render Pipeline</span>
+                                <span class="val-col"><?= htmlspecialchars($assetPipeline) ?></span>
+                            </div>
+                            <div class="spec-item-row">
+                                <span class="label-col">Format File</span>
+                                <span class="val-col"><?= htmlspecialchars($assetFormat) ?></span>
+                            </div>
+                        </div>
+
+                        <a class="btn-download-orange text-decoration-none text-center" href="/download?id=<?= rawurlencode($assetId) ?>">
+                            <i class="bi bi-download"></i>
+                            <span>Unduh</span>
+                        </a>
+                    </div>
+                </aside>
+
+                <!-- Blok 3: Tab Deskripsi / Changelog / Ulasan -->
+                <div class="detail-tabs">
                     <div class="detail-nav-tabs">
                         <a href="javascript:void(0)" class="tab-link" onclick="switchDetailTab(event, 'tab-deskripsi')">Deskripsi</a>
                         <a href="javascript:void(0)" class="tab-link" onclick="switchDetailTab(event, 'tab-changelog')">Changelog</a>
@@ -603,52 +566,24 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
                     </div>
                 </div>
 
-                <!-- Kolom Kanan: Card Download -->
-                <div class="col-12 col-lg-4">
-                    <div class="asset-library-card">
-                        <span class="asset-category-tag d-block"><?= htmlspecialchars($assetCategory) ?></span>
-                        <h2 class="asset-detail-title"><?= htmlspecialchars($assetTitle) ?></h2>
-
-                        <div class="detail-creator-line">
-                            Oleh <a href="/creator/profile"><?= htmlspecialchars($assetCreator) ?></a>
-                        </div>
-
-                        <div class="specs-table-box">
-                            <div class="spec-item-row">
-                                <span class="label-col">Versi Unity</span>
-                                <span class="val-col"><?= htmlspecialchars($assetUnity) ?></span>
-                            </div>
-                            <div class="spec-item-row">
-                                <span class="label-col">Render Pipeline</span>
-                                <span class="val-col"><?= htmlspecialchars($assetPipeline) ?></span>
-                            </div>
-                            <div class="spec-item-row">
-                                <span class="label-col">Format File</span>
-                                <span class="val-col"><?= htmlspecialchars($assetFormat) ?></span>
-                            </div>
-                        </div>
-
-                        <button type="button" class="btn-download-orange" onclick="downloadFile()">
-                            <i class="bi bi-download"></i>
-                            <span>Unduh</span>
-                        </button>
-                    </div>
-                </div>
-
+                <!-- Blok 2: Card Download -->
             </div>
         </div>
     </main>
-    <footer class="footer-main" id="tentang">
+    <footer class="footer-main">
         <div class="container-figma">
-            <!-- Bagian Tengah: Judul & Deskripsi -->
             <div class="footer-center-content">
                 <h5 class="footer-brand-title-center">IndoFX</h5>
                 <p class="footer-brand-desc-center">
                     Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
                 </p>
+                <!-- Baris Kontak dan Email sesuai desain baru -->
+                <div style="font-size: 0.85rem; color: #1a1a1a; margin-top: 10px;">
+                    <strong style="font-weight: 800;">Kontak dan Email:</strong>
+                    <span style="margin: 0 16px;">08123456xxxx</span>
+                    <span>helpdesk@indofx.com</span>
+                </div>
             </div>
-
-            <!-- Bagian Bawah: Copyright Kiri & Slogan Kanan -->
             <div class="footer-bottom-bar">
                 <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
                 <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
@@ -657,156 +592,30 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Helper escape output HTML -->
+    <script src="/assets/js/indofx-utils.js"></script>
     <script src="/assets/js/navbar-auth.js"></script>
     <script>
-        const userKey = '<?= $userKey ?>';
-        const currentAssetId = '<?= htmlspecialchars((string)$assetId, ENT_QUOTES, 'UTF-8') ?>';
-        const assetTitle = '<?= htmlspecialchars($assetTitle, ENT_QUOTES, 'UTF-8') ?>';
-        const assetFormat = '<?= htmlspecialchars($assetFormat, ENT_QUOTES, 'UTF-8') ?>';
-
+        const currentAssetId = <?= json_encode((string)$assetId, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
         function switchDetailTab(evt, tabId) {
             document.querySelectorAll('.detail-nav-tabs .tab-link').forEach(link => link.classList.remove('active'));
             document.querySelectorAll('.tab-pane-detail').forEach(pane => pane.classList.add('d-none'));
-
-            if (evt && evt.currentTarget) {
-                evt.currentTarget.classList.add('active');
-            }
-            const target = document.getElementById(tabId);
-            if (target) target.classList.remove('d-none');
+            if (evt && evt.currentTarget) evt.currentTarget.classList.add('active');
+            document.getElementById(tabId)?.classList.remove('d-none');
         }
-
-        function downloadFile() {
-            const fileName = assetTitle.toLowerCase().replace(/[^a-z0-9]/g, '_') + (assetFormat.startsWith('.') ? assetFormat : ('.' + assetFormat));
-            const dummyPackage = `=== INDOFX ASSET FILE ===\nNama Aset: ${assetTitle}\nID: ${currentAssetId}\nFormat: ${assetFormat}\nLisensi: Full Commercial Project License\nDiunduh oleh: ${userKey}\nTanggal: ${new Date().toLocaleString()}\n`;
-
-            const blob = new Blob([dummyPackage], {
-                type: 'application/octet-stream'
-            });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        // ========================================================
-        // KALKULASI RATA-RATA & DIAGRAM BINTANG 100% DINAMIS
-        // ========================================================
-        function loadReviews() {
+        async function loadReviews() {
             const listContainer = document.getElementById('reviewsListContainer');
             if (!listContainer) return;
-
-            let reviews = [];
-            try {
-                reviews = JSON.parse(localStorage.getItem('indofx_public_reviews_' + currentAssetId)) || [];
-            } catch (e) {
-                reviews = [];
-            }
-
-            const countBadge = document.getElementById('reviewsCountBadge');
-            const summaryBox = document.getElementById('ratingSummaryWrapper');
-            const summaryText = document.getElementById('totalReviewsSummaryText');
-            const total = reviews.length;
-
-            if (countBadge) countBadge.innerText = total + ' ulasan';
-
-            if (total === 0) {
-                if (summaryBox) summaryBox.style.display = 'none';
-                listContainer.innerHTML = `
-                    <div class="text-center py-4 text-muted">
-                        <i class="bi bi-chat-square-text fs-2 d-block mb-1"></i>
-                        <p class="mb-0 fw-semibold">Belum ada ulasan untuk aset ini.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            if (summaryBox) summaryBox.style.display = 'block';
-
-            // 1. Hitung total skor bintang dan frekuensi masing-masing bintang (1 - 5)
-            let sumRating = 0;
-            const starCounts = {
-                5: 0,
-                4: 0,
-                3: 0,
-                2: 0,
-                1: 0
-            };
-
-            reviews.forEach(r => {
-                const star = Math.min(5, Math.max(1, parseInt(r.rating, 10) || 5));
-                starCounts[star] = (starCounts[star] || 0) + 1;
-                sumRating += star;
-            });
-
-            // 2. Hitung Rata-Rata Sebenarnya
-            const avgRatingFloat = sumRating / total;
-            const avgScoreFormatted = avgRatingFloat.toFixed(1).replace('.', ',');
-
-            // Pasang angka rata-rata ke elemen skor besar
-            const bigScoreEl = document.getElementById('ratingBigScore');
-            if (bigScoreEl) bigScoreEl.innerText = avgScoreFormatted;
-            if (summaryText) summaryText.innerText = `Dari ${total} ulasan`;
-
-            // 3. Render Deretan Bintang di Bawah Nilai Rata-rata
-            const starsSummaryContainer = document.getElementById('ratingSummaryStars');
-            if (starsSummaryContainer) {
-                let starsSummaryHtml = '';
-                const roundedStar = Math.round(avgRatingFloat);
-                for (let s = 1; s <= 5; s++) {
-                    if (s <= roundedStar) {
-                        starsSummaryHtml += '<i class="bi bi-star-fill me-1"></i>';
-                    } else {
-                        starsSummaryHtml += '<i class="bi bi-star me-1" style="color: #eeddd2;"></i>';
-                    }
-                }
-                starsSummaryContainer.innerHTML = starsSummaryHtml;
-            }
-
-            // 4. Perbarui Nilai Angka dan Lebar Bar (Persentase) untuk 5 Bintang sampai 1 Bintang
-            for (let s = 1; s <= 5; s++) {
-                const count = starCounts[s] || 0;
-                const percentage = Math.round((count / total) * 100);
-
-                const fillEl = document.getElementById('ratingBarFill_' + s);
-                const numEl = document.getElementById('ratingBarNum_' + s);
-
-                if (fillEl) fillEl.style.width = percentage + '%';
-                if (numEl) numEl.innerText = count;
-            }
-
-            // 5. Render Daftar Ulasan Pembeli
-            listContainer.innerHTML = reviews.map(r => {
-                const rating = Math.min(5, Math.max(1, parseInt(r.rating, 10) || 5));
-                let starIcons = '';
-                for (let s = 1; s <= 5; s++) {
-                    starIcons += s <= rating ?
-                        '<i class="bi bi-star-fill text-warning me-1"></i>' :
-                        '<i class="bi bi-star text-muted me-1"></i>';
-                }
-
-                return `
-                    <div class="review-item-block">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <div class="d-flex align-items-center gap-2">
-                                <strong style="color: var(--indofx-text-main);">${r.user_name}</strong>
-                                <span class="badge-owner">Pemilik aset</span>
-                            </div>
-                            <span class="text-muted small">${r.date}</span>
-                        </div>
-                        <div class="mb-1" style="font-size: 0.85rem;">${starIcons}</div>
-                        ${r.title ? `<h6 class="fw-bold mb-1" style="color: var(--indofx-text-main); font-size: 0.95rem;">${r.title}</h6>` : ''}
-                        <p class="mb-0 text-secondary" style="font-size: 0.88rem; line-height: 1.6;">${r.comment}</p>
-                    </div>
-                `;
-            }).join('');
+            const response = await fetch('/api/reviews?asset_id=' + encodeURIComponent(currentAssetId), {headers: {'Accept': 'application/json'}});
+            const payload = response.ok ? await response.json() : {data: []};
+            const reviews = Array.isArray(payload.data) ? payload.data : [];
+            document.getElementById('reviewsCountBadge').innerText = reviews.length + ' ulasan';
+            listContainer.innerHTML = reviews.length ? reviews.map(review => '<div class="review-item-block"><strong>' + esc(review.user_name || 'Anonim') + '</strong><div class="mb-1">' + '★'.repeat(Math.max(0, Math.min(5, Number(review.rating) || 0))) + '</div><p class="mb-0 text-secondary">' + esc(review.comment || review.body || '') + '</p></div>').join('') : '<div class="text-center py-4 text-muted"><p class="mb-0 fw-semibold">Belum ada ulasan untuk aset ini.</p></div>';
         }
-
         document.addEventListener('DOMContentLoaded', loadReviews);
     </script>
+
 </body>
 
 </html>

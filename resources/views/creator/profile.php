@@ -388,14 +388,19 @@ if ($profileInitials === '') {
         </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="footer-main" id="tentang">
+    <footer class="footer-main">
         <div class="container-figma">
             <div class="footer-center-content">
                 <h5 class="footer-brand-title-center">IndoFX</h5>
                 <p class="footer-brand-desc-center">
                     Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
                 </p>
+                <!-- Baris Kontak dan Email sesuai desain baru -->
+                <div style="font-size: 0.85rem; color: #1a1a1a; margin-top: 10px;">
+                    <strong style="font-weight: 800;">Kontak dan Email:</strong>
+                    <span style="margin: 0 16px;">08123456xxxx</span>
+                    <span>helpdesk@indofx.com</span>
+                </div>
             </div>
             <div class="footer-bottom-bar">
                 <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
@@ -407,178 +412,22 @@ if ($profileInitials === '') {
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Helper escape output HTML -->
+    <script src="/assets/js/indofx-utils.js"></script>
+
     <script>
+        const sellerProfile = <?= json_encode($profile ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+        const sellerAssets = <?= json_encode($assets ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
         document.addEventListener('DOMContentLoaded', function() {
-            const userKey = '<?= $userKey ?>';
-            const isOwnProfile = <?= $isOwnProfile ? 'true' : 'false' ?>;
+            const storeName = <?= json_encode((string) ($profileName ?? ''), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+            const displayName = sellerProfile.store_name || storeName;
+            document.getElementById('creatorNameText').textContent = displayName;
+            document.getElementById('sectionStoreName').textContent = displayName;
+            document.getElementById('creatorBioText').textContent = sellerProfile.bio || <?= json_encode((string) $profileBio, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+            const links = { linkArtStation: sellerProfile.portfolio_url, linkGithub: sellerProfile.website_url, linkEmail: sellerProfile.email ? 'mailto:' + sellerProfile.email : '' };
+            Object.keys(links).forEach(id => { const link = document.getElementById(id); if (link && links[id]) link.href = links[id]; });
             const container = document.getElementById('assetsDisplayContainer');
-            const socialLinks = document.getElementById('sellerSocialLinksContainer');
-            const badgeContainer = document.getElementById('roleBadgeContainer');
-            const titleHeading = document.getElementById('sectionCatalogTitle');
-            const storeNameSpan = document.getElementById('sectionStoreName');
-
-            // 1. Cek status akun penjual
-            let sellerProfile = null;
-            if (isOwnProfile && userKey) {
-                const rawSeller = localStorage.getItem('indofx_seller_profile_' + userKey);
-                if (rawSeller) {
-                    try {
-                        sellerProfile = JSON.parse(rawSeller);
-                    } catch (e) {}
-                }
-            }
-
-            // KONDISI 1: JIKA PENGGUNA ADALAH PENJUAL (TAMPILAN FIGMA)
-            if (sellerProfile && (sellerProfile.is_seller || sellerProfile.store_name)) {
-                const storeName = sellerProfile.store_name || '<?= htmlspecialchars($profileName, ENT_QUOTES, 'UTF-8') ?>';
-                document.getElementById('creatorNameText').innerText = storeName;
-                storeNameSpan.innerText = storeName;
-                document.getElementById('creatorBioText').innerText = sellerProfile.bio || 'Pengembang independen khusus aset shader, efek visual partikel (VFX) dan material prosedural berkualitas tinggi untuk proyek game Unity lokal.';
-
-                // Inisial Toko
-                const words = storeName.trim().split(/\s+/);
-                let inits = '';
-                words.slice(0, 2).forEach(w => inits += w.charAt(0).toUpperCase());
-                document.getElementById('creatorAvatarText').innerText = inits || 'AS';
-
-                // Tautan Portofolio, Github, Email
-                socialLinks.style.display = 'flex';
-                const linkArtStation = document.getElementById('linkArtStation');
-                const linkGithub = document.getElementById('linkGithub');
-                const linkEmail = document.getElementById('linkEmail');
-
-                if (linkArtStation) linkArtStation.href = sellerProfile.portfolio_url || '#';
-                if (linkGithub) linkGithub.href = sellerProfile.website_url || '#';
-                if (linkEmail) linkEmail.href = 'mailto:' + (sellerProfile.contact_email || 'contact@argastudio.com');
-
-                badgeContainer.innerHTML = `
-                    <span class="badge-verified-figma">
-                        <i class="bi bi-patch-check-fill"></i> Penjual Terverifikasi
-                    </span>
-                `;
-
-                // Ambil daftar aset yang dijual oleh toko ini
-                let sellerAssets = [];
-                try {
-                    sellerAssets = JSON.parse(localStorage.getItem('indofx_seller_assets_' + userKey)) || [];
-                } catch (e) {
-                    sellerAssets = [];
-                }
-
-                if (sellerAssets.length === 0) {
-                    container.innerHTML = `
-                        <div class="col-12">
-                            <div class="card border rounded-3 text-center p-5 bg-white shadow-sm" style="border-color: #ebdcd1 !important;">
-                                <i class="bi bi-shop fs-1 text-secondary mb-2"></i>
-                                <h5 class="fw-bold text-dark mb-1">Belum Ada Aset dari ${storeName}</h5>
-                                <p class="text-muted small mb-3">Toko ini belum merilis aset visual ke marketplace.</p>
-                                <div><a href="/dashboard/add-asset" class="btn btn-hero-orange px-4 py-2">+ Unggah Aset Baru</a></div>
-                            </div>
-                        </div>
-                    `;
-                    return;
-                }
-
-                // Render Kartu Aset Sesuai Figma (Thumbnail, Studio, Judul, Badge Pipeline)
-                container.innerHTML = sellerAssets.map(asset => {
-                    const title = asset.title || 'Aset Game';
-                    const category = asset.category || 'VFX Partikel';
-                    const pipes = Array.isArray(asset.pipelines) ? asset.pipelines : (asset.pipeline ? [asset.pipeline] : ['Built-in', 'URP']);
-
-                    const pipesHtml = pipes.map(p => {
-                        const pLow = String(p).toLowerCase();
-                        let cls = 'pipe-urp';
-                        if (pLow.includes('hdrp')) cls = 'pipe-hdrp';
-                        if (pLow.includes('built')) cls = 'pipe-builtin';
-                        return `<span class="pipe-badge ${cls} me-1">${p}</span>`;
-                    }).join('');
-
-                    const detailUrl = `/asset/detail?id=${encodeURIComponent(asset.id || '')}&title=${encodeURIComponent(title)}&creator=${encodeURIComponent(storeName)}&price=${encodeURIComponent(asset.price || 0)}`;
-                    const artId = (asset.art === 'forest' || asset.art === 'forest-mist-art') ? 'forest-mist-art' : 'castle-asset-thumb';
-
-                    return `
-                        <div class="col-12 col-sm-6 col-md-3">
-                            <div class="card-asset-figma">
-                                <a href="${detailUrl}" class="card-asset-thumb d-block">
-                                    <svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice"><use href="#${artId}" /></svg>
-                                </a>
-                                <div class="card-asset-body">
-                                    <div>
-                                        <span class="card-asset-studio">${storeName}</span>
-                                        <a href="${detailUrl}" class="card-asset-title text-truncate" title="${title}">${title}</a>
-                                        <div class="d-flex flex-wrap gap-1 mt-1">
-                                            ${pipesHtml}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-
-            } else {
-                // KONDISI 2: JIKA PENGGUNA ADALAH PEMBELI BIASA
-                socialLinks.style.display = 'none';
-                badgeContainer.innerHTML = `<span class="badge bg-light text-secondary border px-2 py-1" style="font-size: 0.72rem;">Member Pembeli</span>`;
-                titleHeading.innerHTML = `Aset Dimiliki (<span id="buyerAssetCount">0</span>)`;
-
-                let ownedAssets = [];
-                if (userKey) {
-                    try {
-                        ownedAssets = JSON.parse(localStorage.getItem('indofx_library_' + userKey)) || [];
-                    } catch (e) {
-                        ownedAssets = [];
-                    }
-                }
-
-                const buyerCount = document.getElementById('buyerAssetCount');
-                if (buyerCount) buyerCount.innerText = ownedAssets.length;
-
-                if (ownedAssets.length === 0) {
-                    container.innerHTML = `
-                        <div class="col-12">
-                            <div class="card border rounded-3 text-center p-5 bg-white shadow-sm" style="border-color: #ebdcd1 !important;">
-                                <i class="bi bi-box-seam text-secondary fs-1 mb-2"></i>
-                                <h5 class="fw-bold text-dark mb-1">Belum Ada Aset Dimiliki</h5>
-                                <p class="text-muted small mb-3">Aset yang Anda beli atau klaim gratis akan tersimpan di Library Anda.</p>
-                                <div><a href="/catalog/explore" class="btn btn-hero-orange px-4 py-2">Jelajahi Katalog</a></div>
-                            </div>
-                        </div>
-                    `;
-                    return;
-                }
-
-                container.innerHTML = ownedAssets.map(asset => {
-                    const title = asset.title || 'Game Asset Pack';
-                    const studio = asset.creator || 'Studio Kreator';
-                    const detailUrl = `/asset/detail?id=${encodeURIComponent(asset.id || '1')}&title=${encodeURIComponent(title)}`;
-                    const artId = (asset.art === 'forest' || asset.art === 'forest-mist-art') ? 'forest-mist-art' : 'castle-asset-thumb';
-
-                    return `
-                        <div class="col-12 col-sm-6 col-md-3">
-                            <div class="card-asset-figma">
-                                <a href="${detailUrl}" class="card-asset-thumb d-block">
-                                    <svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice"><use href="#${artId}" /></svg>
-                                </a>
-                                <div class="card-asset-body">
-                                    <div>
-                                        <span class="card-asset-studio">${studio}</span>
-                                        <a href="${detailUrl}" class="card-asset-title text-truncate" title="${title}">${title}</a>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center pt-2 border-top mt-2">
-                                        <span class="small fw-bold text-success">
-                                            <i class="bi bi-check-circle-fill me-1"></i>Dimiliki
-                                        </span>
-                                        <a href="/library" class="text-decoration-none text-muted small fw-bold">
-                                            Unduh <i class="bi bi-download ms-1"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
+            container.innerHTML = sellerAssets.length ? sellerAssets.map(asset => `<div class="col-12 col-sm-6 col-md-3"><div class="card-asset-figma"><a href="/asset/detail?id=${encodeURIComponent(asset.public_id || '')}" class="card-asset-thumb d-block"><svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice"><use href="#castle-asset-thumb" /></svg></a><div class="card-asset-body"><span class="card-asset-studio">${esc(displayName)}</span><a href="/asset/detail?id=${encodeURIComponent(asset.public_id || '')}" class="card-asset-title text-truncate">${esc(asset.title || '')}</a></div></div></div>`).join('') : '<div class="col-12"><div class="card border rounded-3 text-center p-5 bg-white"><h5 class="fw-bold text-dark mb-1">Belum Ada Aset</h5><p class="text-muted small mb-0">Toko ini belum merilis aset visual ke marketplace.</p></div></div>';
         });
     </script>
 </body>

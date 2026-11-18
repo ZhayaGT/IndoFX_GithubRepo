@@ -7,7 +7,6 @@ if (!isset($_SESSION['user_id'])) {
 $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna');
 $userKey  = (string) ($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user');
 $userEmail = (string) ($_SESSION['email'] ?? ($userName . '@gmail.com'));
-$directAssetId = $_GET['asset_id'] ?? $_GET['id'] ?? null;
 
 $initials = '';
 $words = preg_split('/\s+/', trim($userName)) ?: [];
@@ -27,15 +26,15 @@ if ($initials === '') {
     <title>Selesaikan Pembayaran - IndoFX</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
 
     <style>
         body {
-            background-color: var(--ifx-cream-bg, #FDECE2);
+            background-color: var(--ifx-cream-bg, #FAF0E6);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -202,61 +201,54 @@ if ($initials === '') {
             background-color: #0b72b9;
         }
 
-        .payment-method-box {
+        /* CARD METODE PEMBAYARAN KHUSUS QRIS PERSIS FIGMA image_df847a */
+        .qris-payment-card {
             background-color: #ffffff;
             border: 1.5px solid #2B2129;
             border-radius: 8px;
-            padding: 18px 20px;
-            box-shadow: 0 4px 12px rgba(43, 33, 41, 0.04);
-        }
-
-        .payment-row {
+            padding: 14px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 14px;
-            border: 1px solid #e2d7cf;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            background-color: #ffffff;
-            cursor: pointer;
-            transition: all 0.15s ease;
+            box-shadow: 0 4px 12px rgba(43, 33, 41, 0.04);
+            margin-bottom: 24px;
         }
 
-        .payment-row:last-child {
-            margin-bottom: 0;
+        .qris-label-text {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1A1A1A;
+            margin: 0;
         }
 
-        .payment-row:hover,
-        .payment-row.selected {
-            border-color: #ED6B1D;
-            background-color: #fff9f6;
-        }
-
-        .payment-label {
-            font-size: 0.88rem;
-            font-weight: 600;
-            color: #1a1a1a;
-            margin-bottom: 0;
-        }
-
-        .payment-logos {
-            display: flex;
+        /* BADGE LOGO QRIS SESUAI GAMBAR ACUAN image_df6923 */
+        .qris-official-badge {
+            background-color: #FAF2E8;
+            border: 1.5px solid #D5C7BB;
+            border-radius: 10px;
+            padding: 6px 14px;
+            display: inline-flex;
             align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
+            gap: 12px;
+            user-select: none;
         }
 
-        .logo-badge {
-            font-size: 0.72rem;
-            font-weight: 800;
-            padding: 2px 8px;
-            border-radius: 4px;
-            border: 1px solid #d0c0b6;
-            background-color: #ffffff;
-            color: #2b2129;
+        .qris-badge-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.25;
+            text-align: left;
         }
 
+        .qris-badge-text span {
+            color: #1A1A1A !important;
+            font-size: 11px !important;
+            font-weight: 600 !important;
+            letter-spacing: -0.1px;
+            font-family: 'Inter', -apple-system, sans-serif !important;
+        }
+
+        /* Detail Pembayaran Kanan */
         .detail-payment-card {
             background-color: #ffffff;
             border: 1.5px solid #2B2129;
@@ -338,6 +330,48 @@ if ($initials === '') {
             margin-top: 14px;
             margin-bottom: 0;
         }
+
+        /* FOOTER PUTIH SOLID PENUH PERSIS GAMBAR image_df71bc */
+        .footer-white-solid {
+            background-color: #ffffff !important;
+            border-top: 1px solid #ebdcd1;
+            padding: 48px 0 24px 0;
+            width: 100%;
+            margin-top: auto;
+        }
+
+        .footer-white-brand {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #1A1A1A;
+            margin-bottom: 6px;
+        }
+
+        .footer-white-desc {
+            font-size: 0.85rem;
+            color: #3C2A21;
+            margin-bottom: 8px;
+        }
+
+        .footer-white-contact {
+            font-size: 0.85rem;
+            color: #1A1A1A;
+            margin-bottom: 46px;
+        }
+
+        .footer-white-contact strong {
+            font-weight: 800;
+        }
+
+        .footer-white-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #1A1A1A;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
     </style>
 </head>
 
@@ -372,6 +406,7 @@ if ($initials === '') {
         </defs>
     </svg>
 
+    <!-- Header Navbar Oranye -->
     <nav class="navbar navbar-checkout sticky-top">
         <div class="container-figma d-flex justify-content-between align-items-center w-100">
             <a class="navbar-brand m-0 d-flex align-items-center gap-2 text-decoration-none" href="/">
@@ -425,101 +460,76 @@ if ($initials === '') {
 
             <div class="row g-4 align-items-start">
                 <div class="col-12 col-lg-8">
+                    <?php
+                    $checkoutItems = is_array($checkoutItems ?? null) ? $checkoutItems : [];
+                    $checkoutId = static function (array $item): string {
+                        return (string)($item['public_id'] ?? $item['asset_public_id'] ?? $item['asset_id'] ?? $item['id'] ?? '');
+                    };
+                    $checkoutSubtotal = 0.0;
+                    foreach ($checkoutItems as $item) $checkoutSubtotal += (float)($item['price'] ?? 0);
+                    $checkoutFee = (float)($checkoutFee ?? 0);
+                    $checkoutTotal = $checkoutSubtotal + $checkoutFee;
+                    ?>
                     <div class="section-subtitle">Ringkasan Pesanan</div>
-                    <div class="order-summary-box" id="orderSummaryContainer"></div>
+                    <div class="order-summary-box">
+                        <?php if ($checkoutItems === []): ?>
+                            <div class="p-4 text-muted">Tidak ada aset untuk diproses. <a href="/cart">Kembali ke keranjang</a></div>
+                        <?php else: ?>
+                            <?php foreach ($checkoutItems as $item):
+                                $itemId = $checkoutId($item);
+                                $pipelines = $item['render_pipeline'] ?? $item['pipelines'] ?? [];
+                                $pipelines = is_array($pipelines) ? $pipelines : [$pipelines];
+                            ?>
+                                <div class="order-summary-item d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="item-thumb-box"><img src="<?= htmlspecialchars((string)($item['image_url'] ?? $item['image'] ?? '/assets/img/placeholder.png'), ENT_QUOTES, 'UTF-8') ?>" class="w-100 h-100" style="object-fit:cover" alt=""></div>
+                                        <div><div class="d-flex align-items-center gap-2 flex-wrap"><span class="item-name"><?= htmlspecialchars((string)($item['title'] ?? 'Aset IndoFX'), ENT_QUOTES, 'UTF-8') ?></span>
+                                            <?php foreach ($pipelines as $pipeline): ?><span class="badge-pipeline-tag tag-urp"><?= htmlspecialchars((string)$pipeline, ENT_QUOTES, 'UTF-8') ?></span><?php endforeach; ?></div>
+                                            <p class="item-author">Oleh <?= htmlspecialchars((string)($item['seller_name'] ?? $item['creator'] ?? 'Studio Kreator'), ENT_QUOTES, 'UTF-8') ?></p>
+                                        </div>
+                                    </div>
+                                    <div class="item-price">Rp<?= number_format((float)($item['price'] ?? 0), 0, ',', '.') ?></div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
 
                     <div class="section-subtitle">Pilih Metode Pembayaran</div>
-                    <div class="payment-method-box">
-                        <label class="payment-row selected" onclick="choosePayment(this)">
-                            <div class="d-flex align-items-center gap-2">
-                                <input type="radio" name="payment_method" value="ewallet" class="form-check-input m-0" checked>
-                                <span class="payment-label">E-wallet</span>
-                            </div>
-                            <div class="payment-logos">
-                                <span class="logo-badge" style="color: #00a5cf;">gopay</span>
-                                <span class="logo-badge" style="color: #e53e3e;">QRIS</span>
-                                <span class="logo-badge" style="color: #ee4d2d;">ShopeePay</span>
-                                <span class="logo-badge" style="color: #118eea;">DANA</span>
-                                <span class="logo-badge" style="color: #4285f4;">GPay</span>
-                            </div>
-                        </label>
-
-                        <label class="payment-row" onclick="choosePayment(this)">
-                            <div class="d-flex align-items-center gap-2">
-                                <input type="radio" name="payment_method" value="card" class="form-check-input m-0">
-                                <span class="payment-label">Bayar dengan kartu</span>
-                            </div>
-                            <div class="payment-logos">
-                                <span class="logo-badge" style="color: #1a1f71;">VISA</span>
-                                <span class="logo-badge" style="color: #eb001b;">Mastercard</span>
-                                <span class="logo-badge" style="color: #0079be;">JCB</span>
-                                <span class="logo-badge" style="color: #002663;">AMEX</span>
-                            </div>
-                        </label>
-
-                        <label class="payment-row" onclick="choosePayment(this)">
-                            <div class="d-flex align-items-center gap-2">
-                                <input type="radio" name="payment_method" value="bank" class="form-check-input m-0">
-                                <span class="payment-label">Transfer Bank</span>
-                            </div>
-                            <div class="payment-logos">
-                                <span class="logo-badge" style="color: #005eac;">BCA</span>
-                                <span class="logo-badge" style="color: #f15a24;">BNI</span>
-                                <span class="logo-badge" style="color: #00529c;">BRIVA</span>
-                                <span class="logo-badge" style="color: #003d79;">Mandiri</span>
-                                <span class="logo-badge" style="color: #008139;">Permata</span>
-                                <span class="logo-badge" style="color: #7b2182;">CIMB</span>
-                                <span class="logo-badge" style="color: #00a39d;">BSI</span>
-                            </div>
-                        </label>
-                    </div>
+                    <div class="qris-payment-card"><span class="qris-label-text">Bayar dengan QRIS</span><strong>QRIS</strong></div>
                 </div>
 
                 <div class="col-12 col-lg-4">
-                    <div class="detail-payment-card">
+                    <form method="post" action="/checkout/process" class="detail-payment-card">
                         <div class="detail-payment-title">Detail Pembayaran</div>
-
-                        <div class="detail-line">
-                            <span>Subtotal Aset</span>
-                            <span class="fw-bold text-dark" id="calcSubtotal">Rp0</span>
-                        </div>
-                        <div class="detail-line">
-                            <span>Biaya Layanan</span>
-                            <span class="fw-bold text-dark" id="calcAdmin">Rp2.500</span>
-                        </div>
-                        <div class="detail-line">
-                            <span>Diskon</span>
-                            <span class="fw-bold text-dark">- Rp0</span>
-                        </div>
-
-                        <div class="detail-line-total">
-                            <span>Total Bayar</span>
-                            <span class="fs-5" id="calcTotal">Rp0</span>
-                        </div>
-
-                        <div class="status-waiting">
-                            <span class="status-dot"></span>
-                            <span>Menunggu Pembayaran</span>
-                        </div>
-
-                        <button type="button" id="btnSubmitPayment" class="btn-buy" onclick="handlePaymentSubmit()">Beli</button>
-
-                        <p class="payment-disclaimer">
-                            Catatan: Anda akan diarahkan ke gerbang pembayaran aman Midtrans untuk simulasi transfer (Sandbox/Simulasi Medis).
-                        </p>
-                    </div>
+                        <?php foreach ($checkoutItems as $item): ?><input type="hidden" name="asset_ids[]" value="<?= htmlspecialchars($checkoutId($item), ENT_QUOTES, 'UTF-8') ?>"><?php endforeach; ?>
+                        <input type="hidden" name="payment_method" value="qris">
+                        <div class="detail-line"><span>Subtotal Aset</span><span class="fw-bold text-dark">Rp<?= number_format($checkoutSubtotal, 0, ',', '.') ?></span></div>
+                        <div class="detail-line"><span>Biaya Layanan</span><span class="fw-bold text-dark">Rp<?= number_format($checkoutFee, 0, ',', '.') ?></span></div>
+                        <div class="detail-line"><span>Diskon</span><span class="fw-bold text-dark">- Rp0</span></div>
+                        <div class="detail-line-total"><span>Total Bayar</span><span class="fs-5">Rp<?= number_format($checkoutTotal, 0, ',', '.') ?></span></div>
+                        <div class="status-waiting"><span class="status-dot"></span><span>Menunggu Pembayaran</span></div>
+                        <button type="submit" class="btn-buy" <?= $checkoutItems === [] ? 'disabled' : '' ?>>Beli</button>
+                        <p class="payment-disclaimer">Catatan: Anda akan diarahkan ke gerbang pembayaran aman Midtrans.</p>
+                    </form>
                 </div>
             </div>
         </div>
     </main>
 
-    <footer class="footer-creator-center py-5 mt-auto">
-        <div class="container text-center">
-            <h5 class="fw-bold mb-2 text-dark">IndoFX</h5>
-            <p class="text-muted small mb-3 mx-auto" style="max-width: 540px;">
+    <!-- FOOTER SOLID PUTIH PENUH PERSIS GAMBAR image_df71bc -->
+    <footer class="footer-white-solid">
+        <div class="container-figma text-center">
+            <h5 class="footer-white-brand">IndoFX</h5>
+            <p class="footer-white-desc">
                 Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
             </p>
-            <div class="d-flex justify-content-between align-items-center text-muted small pt-3 border-top flex-wrap gap-2">
+            <div class="footer-white-contact">
+                <strong>Kontak dan Email:</strong>
+                <span class="ms-3 me-4">08123456xxxx</span>
+                <span>helpdesk@indofx.com</span>
+            </div>
+
+            <div class="footer-white-bottom">
                 <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
                 <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
             </div>
@@ -527,347 +537,23 @@ if ($initials === '') {
     </footer>
 
     <script>
-        const userKey = '<?= $userKey ?>';
-        const directAssetId = '<?= htmlspecialchars((string)$directAssetId, ENT_QUOTES, 'UTF-8') ?>';
-
-        const catalogDB = {
-            '1': {
-                id: '1',
-                title: 'Volumetric Rain & Storm URP',
-                creator: 'Arga Studio',
-                price: 150000,
-                art: 'castle',
-                pipelines: ['URP', 'HDRP', 'Built-in']
-            },
-            '2': {
-                id: '2',
-                title: 'Stylized Toon Water Shader',
-                creator: 'Nusantara Digital',
-                price: 75000,
-                art: 'water',
-                pipelines: ['URP', 'Built-in']
-            },
-            '3': {
-                id: '3',
-                title: 'Explosion VFX Pack Vol. 1',
-                creator: 'Bayu Pratama',
-                price: 200000,
-                art: 'fire',
-                pipelines: ['HDRP']
-            },
-            '4': {
-                id: '4',
-                title: 'Lowpoly Indonesian Village Pack',
-                creator: 'Citra CG',
-                price: 350000,
-                art: 'castle',
-                pipelines: ['URP', 'HDRP', 'Built-in']
-            }
-        };
-
-        let activeItems = [];
-        const feeAdmin = 2500;
-
-        function loadCheckoutData() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const paramTitle = urlParams.get('title');
-            const paramPrice = urlParams.get('price');
-            const paramCreator = urlParams.get('creator');
-            const paramPipeline = urlParams.get('pipeline');
-
-            // 1. PRIORITAS UTAMA: Jika URL membawa parameter lengkap (dari klik Beli di detail.php)
-            if (paramTitle) {
-                let cleanPrice = 0;
-                if (paramPrice) {
-                    cleanPrice = parseFloat(paramPrice.replace(/[^0-9]/g, '')) || 0;
-                }
-                const pipes = paramPipeline ? [paramPipeline] : ['Built-in'];
-
-                activeItems = [{
-                    id: directAssetId || ('asset-' + Date.now()),
-                    title: paramTitle,
-                    creator: paramCreator || 'Studio Kreator',
-                    price: cleanPrice,
-                    art: 'castle',
-                    pipelines: pipes
-                }];
-                renderOrderSummary();
-                return;
-            }
-
-            // 2. PRIORITAS KEDUA: Cek di database katalog publik LocalStorage
-            if (directAssetId) {
-                try {
-                    const publicCatalog = JSON.parse(localStorage.getItem('indofx_public_catalog')) || [];
-                    const found = publicCatalog.find(item => String(item.id) === String(directAssetId));
-                    if (found) {
-                        let cleanPrice = 0;
-                        if (typeof found.price === 'number') {
-                            cleanPrice = found.price;
-                        } else if (typeof found.price === 'string') {
-                            cleanPrice = parseFloat(found.price.replace(/[^0-9]/g, '')) || 0;
-                        }
-
-                        activeItems = [{
-                            id: found.id,
-                            title: found.title,
-                            creator: found.creator || found.seller || 'Studio Kreator',
-                            price: cleanPrice,
-                            art: found.category === 'Shader' ? 'water' : 'castle',
-                            pipelines: Array.isArray(found.pipelines) ? found.pipelines : [found.render_pipeline || 'Built-in']
-                        }];
-                        renderOrderSummary();
-                        return;
-                    }
-                } catch (e) {}
-
-                // Cek di catalogDB bawaan
-                if (catalogDB[directAssetId]) {
-                    activeItems = [catalogDB[directAssetId]];
-                    renderOrderSummary();
-                    return;
-                }
-            }
-
-            // 3. PRIORITAS KETIGA: Cek dari keranjang checkout (sessionStorage)
-            try {
-                activeItems = JSON.parse(sessionStorage.getItem('indofx_checkout_items')) || [];
-            } catch (e) {
-                activeItems = [];
-            }
-
-            // Fallback default jika benar-benar tidak ada data
-            if (activeItems.length === 0) {
-                activeItems = [catalogDB['1']];
-            }
-
-            renderOrderSummary();
-        }
-
-        function renderOrderSummary() {
-            const container = document.getElementById('orderSummaryContainer');
-            let subtotal = 0;
-
-            container.innerHTML = activeItems.map(item => {
-                const price = parseFloat(item.price) || 0;
-                subtotal += price;
-
-                const artSvg = item.art ? ('chk-art-' + item.art) : 'chk-art-castle';
-                const pipelines = Array.isArray(item.pipelines) ? item.pipelines : ['URP', 'HDRP', 'Built-in'];
-
-                const badgeHtml = pipelines.map(p => {
-                    let cls = 'tag-urp';
-                    if (p.toLowerCase().includes('hdrp')) cls = 'tag-hdrp';
-                    if (p.toLowerCase().includes('built')) cls = 'tag-builtin';
-                    return `<span class="badge-pipeline-tag ${cls}">${p}</span>`;
-                }).join(' ');
-
-                return `
-                    <div class="order-summary-item d-flex align-items-center justify-content-between flex-wrap gap-2">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="item-thumb-box">
-                                <svg viewBox="0 0 175 98"><use href="#${artSvg}" /></svg>
-                            </div>
-                            <div>
-                                <div class="d-flex align-items-center gap-2 flex-wrap">
-                                    <span class="item-name">${item.title}</span>
-                                    ${badgeHtml}
-                                </div>
-                                <p class="item-author">Oleh ${item.creator || 'Arga Studio'}</p>
-                            </div>
-                        </div>
-                        <div class="item-price">Rp${price.toLocaleString('id-ID')}</div>
-                    </div>
-                `;
-            }).join('');
-
-            const grandTotal = subtotal + feeAdmin;
-
-            document.getElementById('calcSubtotal').innerText = 'Rp' + subtotal.toLocaleString('id-ID');
-            document.getElementById('calcTotal').innerText = 'Rp' + grandTotal.toLocaleString('id-ID');
-        }
-
-        function choosePayment(el) {
-            document.querySelectorAll('.payment-row').forEach(r => {
-                r.classList.remove('selected');
-                const radio = r.querySelector('input[type="radio"]');
-                if (radio) radio.checked = false;
-            });
-            el.classList.add('selected');
-            const radio = el.querySelector('input[type="radio"]');
-            if (radio) radio.checked = true;
-        }
-
-        // PROSES PEMBAYARAN: Masuk ke Library, Catat Riwayat Transaksi Invoice, dan Catat Penjualan Toko (Tanpa Duplikasi)
-        function handlePaymentSubmit() {
-            const btn = document.getElementById('btnSubmitPayment');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Memproses Pembayaran...';
-
-            setTimeout(() => {
-                // 1. Simpan semua item yang dibeli ke Library akun pembeli aktif
-                const libKey = 'indofx_library_' + userKey;
-                let currentLibrary = [];
-                try {
-                    currentLibrary = JSON.parse(localStorage.getItem(libKey)) || [];
-                } catch (e) {
-                    currentLibrary = [];
-                }
-
-                activeItems.forEach(item => {
-                    const exists = currentLibrary.some(l => String(l.id) === String(item.id));
-                    if (!exists) {
-                        currentLibrary.unshift({
-                            id: item.id,
-                            title: item.title,
-                            creator: item.creator,
-                            type: 'Berbayar',
-                            date: '<?= date("d M Y") ?>',
-                            pipelines: item.pipelines || ['URP', 'HDRP', 'Built-in'],
-                            art: item.art || 'castle'
-                        });
-                    }
-                });
-                localStorage.setItem(libKey, JSON.stringify(currentLibrary));
-
-                // 2. Data Waktu & No Invoice Unik
-                const now = new Date();
-                const randNum = Math.floor(1000 + Math.random() * 9000);
-                const yyyy = now.getFullYear();
-                const mm = String(now.getMonth() + 1).padStart(2, '0');
-                const dd = String(now.getDate()).padStart(2, '0');
-                const invoiceNo = `INV-${yyyy}${mm}${dd}-${randNum}`;
-
-                const selectedRadio = document.querySelector('input[name="payment_method"]:checked')?.value || 'ewallet';
-                let paymentMethodLabel = 'QRIS/GoPay';
-                if (selectedRadio === 'card') paymentMethodLabel = 'Kartu Kredit / Debit';
-                if (selectedRadio === 'bank') paymentMethodLabel = 'BCA Virtual Account';
-
-                const subtotal = activeItems.reduce((acc, curr) => acc + (parseFloat(curr.price) || 0), 0);
-                const totalBayar = subtotal + feeAdmin;
-
-                const monthsIndoShort = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-                const monthsIndo = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-                const fullDateStr = `${now.getDate()} ${monthsIndo[now.getMonth()]} ${yyyy}, ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')} WIB`;
-                const shortDateStr = `${now.getDate()} ${monthsIndoShort[now.getMonth()]} ${yyyy}, ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-                const rawDateStr = `${yyyy}-${mm}-${dd}`;
-
-                // 3. Simpan Riwayat Transaksi ke Invoice Pembeli
-                const txKey = 'indofx_transactions_' + userKey;
-                let transactions = [];
-                try {
-                    transactions = JSON.parse(localStorage.getItem(txKey)) || [];
-                } catch (e) {
-                    transactions = [];
-                }
-
-                const newTransaction = {
-                    invoice_no: invoiceNo,
-                    full_date: fullDateStr,
-                    short_date: shortDateStr,
-                    buyer_name: '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>',
-                    buyer_email: '<?= htmlspecialchars($userEmail, ENT_QUOTES, 'UTF-8') ?>',
-                    payment_method: paymentMethodLabel,
-                    status: 'Berhasil',
-                    items: activeItems.map(i => ({
-                        id: i.id,
-                        title: i.title,
-                        price: parseFloat(i.price) || 0
-                    })),
-                    subtotal: subtotal,
-                    fee: feeAdmin,
-                    total: totalBayar
-                };
-
-                transactions.unshift(newTransaction);
-                localStorage.setItem(txKey, JSON.stringify(transactions));
-
-                // 4. CATAT TRANSAKSI PENJUALAN KE DASHBOARD TOKO PENJUAL (DIPASTIKAN 1 KALI SIMPAN)
-                activeItems.forEach(item => {
-                    const rawCreator = (item.creator || 'Arga Studio').trim();
-                    const cleanCreatorKey = rawCreator.toLowerCase().replace(/[^a-z0-9]/g, '');
-
-                    // Gunakan satu kunci pasti berdasarkan identitas creator
-                    const sellerSalesKey = 'indofx_seller_sales_' + cleanCreatorKey;
-
-                    let sales = [];
-                    try {
-                        sales = JSON.parse(localStorage.getItem(sellerSalesKey)) || [];
-                    } catch (e) {
-                        sales = [];
-                    }
-
-                    // Proteksi ganda: Jangan simpan jika nomor invoice & ID aset sudah tercatat
-                    const isAlreadyRecorded = sales.some(s => s.invoice_no === invoiceNo && String(s.asset_id) === String(item.id));
-                    if (!isAlreadyRecorded) {
-                        sales.unshift({
-                            invoice_no: invoiceNo,
-                            asset_id: item.id,
-                            asset_title: item.title,
-                            price: parseFloat(item.price) || 0,
-                            payment_method: paymentMethodLabel,
-                            date: shortDateStr,
-                            date_raw: rawDateStr,
-                            status: 'Settlement',
-                            buyer_name: '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>'
-                        });
-                        localStorage.setItem(sellerSalesKey, JSON.stringify(sales));
-                    }
-
-                    // Naikkan jumlah unduhan/terjual di data aset penjual
-                    const sellerAssetsKey = 'indofx_seller_assets_' + cleanCreatorKey;
-                    try {
-                        let sAssets = JSON.parse(localStorage.getItem(sellerAssetsKey)) || [];
-                        sAssets = sAssets.map(sa => {
-                            if (String(sa.id) === String(item.id) || sa.title === item.title) {
-                                const currentCount = parseInt(String(sa.downloads || '0').replace(/[^0-9]/g, ''), 10) || 0;
-                                sa.downloads = (currentCount + 1) + 'x Terjual';
-                            }
-                            return sa;
-                        });
-                        localStorage.setItem(sellerAssetsKey, JSON.stringify(sAssets));
-                    } catch (e) {}
-                });
-
-                // 5. Hapus aset yang dibeli dari Keranjang belanja akun pembeli
-                const cartKey = 'indofx_cart_' + userKey;
-                let currentCart = [];
-                try {
-                    currentCart = JSON.parse(localStorage.getItem(cartKey)) || [];
-                } catch (e) {
-                    currentCart = [];
-                }
-
-                const boughtIds = activeItems.map(i => String(i.id));
-                currentCart = currentCart.filter(c => !boughtIds.includes(String(c.id)));
-                localStorage.setItem(cartKey, JSON.stringify(currentCart));
-
-                // 6. Bersihkan sesi sementara checkout & arahkan ke halaman invoice
-                sessionStorage.removeItem('indofx_checkout_items');
-                window.location.href = '/invoice';
-            }, 800);
-        }
-
         document.addEventListener('DOMContentLoaded', function() {
-            loadCheckoutData();
-
             const dropdownBtn = document.getElementById('profileDropdownBtn');
             const dropdownMenu = document.getElementById('profileDropdownMenu');
-
-            if (dropdownBtn && dropdownMenu) {
-                dropdownBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    dropdownMenu.classList.toggle('show');
-                });
-
-                document.addEventListener('click', function(e) {
-                    if (!dropdownMenu.contains(e.target) && !dropdownBtn.contains(e.target)) {
-                        dropdownMenu.classList.remove('show');
-                    }
-                });
-            }
+            if (!dropdownBtn || !dropdownMenu) return;
+            dropdownBtn.addEventListener('click', function(event) {
+                event.stopPropagation();
+                const isHidden = dropdownMenu.hasAttribute('hidden');
+                dropdownMenu.toggleAttribute('hidden', !isHidden);
+                dropdownBtn.setAttribute('aria-expanded', String(isHidden));
+            });
+            document.addEventListener('click', function(event) {
+                if (!dropdownMenu.contains(event.target) && !dropdownBtn.contains(event.target)) {
+                    dropdownMenu.setAttribute('hidden', '');
+                    dropdownBtn.setAttribute('aria-expanded', 'false');
+                }
+            });
         });
     </script>
 </body>
-
 </html>

@@ -39,6 +39,7 @@ class AuthFlowTest extends TestCase
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         ]);
         self::$pdo->exec((string) file_get_contents(BASE_PATH . '/database/Script marketplace_game_assets.sql'));
+        self::$pdo->exec((string) file_get_contents(BASE_PATH . '/database/migrations/2026-11-09_seller_profiles.sql'));
 
         $appPort = self::freePort();
         self::$baseUrl = "http://127.0.0.1:{$appPort}";
