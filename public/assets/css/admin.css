@@ -9,7 +9,7 @@
    6. Kartu Tabel & Struktur Tabel Admin
    7. Lencana Status (Pills, Pipelines & Counters)
    8. Tombol Aksi Tabel & Antarmuka
-   9. Modal Dialog & Formulir Kategori (Tambah, Edit, Hapus)
+   9. Modal Dialog & Formulir (Kategori & Edit Pengguna)
    10. Modal Rincian Transaksi, Revenue Split & JSON Gateway
    11. Footer Administrator
    12. Aturan Tampilan Responsif (Tablet & Mobile Fix)
@@ -622,10 +622,16 @@ body.admin-body {
   transition: all 0.15s ease;
 }
 
-.btn-edit-user:hover {
+.btn-edit-user:hover:not(:disabled) {
   background-color: #fdf5f0;
   border-color: var(--admin-orange);
   color: var(--admin-orange);
+}
+
+.btn-edit-user:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background-color: #f7f3ee;
 }
 
 /* Aksi Pengajuan Penjual */
@@ -761,7 +767,7 @@ body.admin-body {
 }
 
 /* ==========================================================================
-   9. MODAL DIALOG & FORMULIR KATEGORI (TAMBAH, EDIT, HAPUS)
+   9. MODAL DIALOG & FORMULIR (KATEGORI & EDIT PENGGUNA)
    ========================================================================== */
 .modal-category-card {
   border: 1.5px solid var(--admin-dark-border) !important;
@@ -792,6 +798,23 @@ body.admin-body {
   font-weight: 700;
   color: #1a1a1a;
   margin-bottom: 6px;
+}
+
+/* Tampilan Teks Read-Only Modal Edit Data Pengguna (Figma Accurate) */
+.user-readonly-name {
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: #1a1a1a;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.user-readonly-email {
+  font-size: 1.02rem;
+  font-weight: 400;
+  color: #1a1a1a;
+  line-height: 1.35;
+  word-break: break-all;
 }
 
 .input-slug-prefix {
