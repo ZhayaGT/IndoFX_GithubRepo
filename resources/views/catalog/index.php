@@ -244,7 +244,7 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
                         <h4 class="catalog-heading mb-1">Aset Gratis Unggulan</h4>
                         <p class="catalog-subheading m-0">Mulai kembangkan prototype game Anda tanpa biaya</p>
                     </div>
-                    <a href="/catalog/explore?is_free=1" class="catalog-side-link">Selengkapnya</a>
+                    <a href="/catalog/explore?price_filter_radio=free" class="catalog-side-link">Selengkapnya</a>
                 </div>
 
                 <div class="row g-3">

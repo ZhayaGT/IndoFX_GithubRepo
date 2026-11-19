@@ -343,8 +343,8 @@ $avatarTextColor = $viewedIsSeller ? '#35211B' : '#7a1919';
                         <!-- Tautan Sosial Khusus Penjual (Disembunyikan jika pembeli biasa) -->
                         <?php if ($viewedIsSeller): ?>
                             <div class="seller-social-links">
-                                <?php if (!empty($userData['portofolio_url'])): ?>
-                                    <a href="<?= htmlspecialchars($userData['portofolio_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" class="seller-social-link">
+                                <?php if (!empty($userData['portfolio_url'])): ?>
+                                    <a href="<?= htmlspecialchars($userData['portfolio_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" class="seller-social-link">
                                         <i class="bi bi-palette"></i> <span>ArtStation</span>
                                     </a>
                                 <?php endif; ?>

@@ -667,70 +667,86 @@ $isLoggedIn = isset($_SESSION['user_id']);
                     <div class="asset-purchase-card p-4">
                         <span class="asset-category-tag d-block mb-1"><?= mb_strtoupper(htmlspecialchars($categoryLabel ?? 'KATEGORI')) ?></span>
                         <h2 class="asset-detail-title mb-1"><?= htmlspecialchars($asset['title'] ?? 'Judul Aset') ?></h2>
-                        <p class="detail-creator mb-3">
+                        <p class="detail-creator-line mb-3">
                             Oleh <a href="/creator/profile?id=<?= htmlspecialchars($asset['seller_public_id'] ?? '', ENT_QUOTES, 'UTF-8') ?>" class="creator-link fw-bold">
-                                    <?= htmlspecialchars($asset['seller_name'] ?? 'Studio Kreator', ENT_QUOTES, 'UTF-8') ?>
-                                </a>
+                                <?= htmlspecialchars($asset['seller_name'] ?? 'Studio Kreator', ENT_QUOTES, 'UTF-8') ?>
+                            </a>
                         </p>
 
-                        <span class="price-label d-block mb-1">Harga Aset</span>
-                        <h3 class="price-amount mb-4">
-                            <?= ($isGratis) ? 'Gratis' : 'Rp' . number_format($numericPrice, 0, ',', '.') ?>
-                        </h3>
+                        <?php if (empty($isOwned)): ?>
+                            <span class="price-label-text d-block">Harga Aset</span>
+                            <h3 class="price-amount-text">
+                                <?= ($isGratis) ? 'Gratis' : 'Rp' . number_format($numericPrice, 0, ',', '.') ?>
+                            </h3>
+                        <?php endif; ?>
 
-                        <div class="specs-table mb-4">
-                            <div class="d-flex justify-content-between py-2 border-bottom-spec">
-                                <span class="spec-label">Versi Unity</span>
+                        <div class="specs-table-box">
+                            <div class="spec-item-row">
+                                <span class="label-col">Versi Unity</span>
                                 <?php $unityVersion = $asset['unity_version'] ?? ($detail['unity_versions'] ?? 'Semua Versi'); ?>
-                                <span class="spec-value"><?= htmlspecialchars($unityVersion) ?></span>
+                                <span class="val-col"><?= htmlspecialchars($unityVersion) ?></span>
                             </div>
-                            <div class="d-flex justify-content-between py-2 border-bottom-spec">
-                                <span class="spec-label">Render Pipeline</span>
+                            <div class="spec-item-row">
+                                <span class="label-col">Render Pipeline</span>
                                 <?php 
-                                // Mendukung output berbentuk array maupun string murni
                                 $pipelineData = $asset['render_pipeline'] ?? ($detail['pipelines'] ?? ['Any']);
                                 $pipelineText = is_array($pipelineData) ? implode(', ', $pipelineData) : $pipelineData;
                                 ?>
-                                <span class="spec-value"><?= htmlspecialchars($pipelineText) ?></span>
+                                <span class="val-col"><?= htmlspecialchars($pipelineText) ?></span>
                             </div>
-                            <div class="d-flex justify-content-between py-2">
-                                <span class="spec-label">Format File</span>
-                                <span class="spec-value"><?= htmlspecialchars($detail['file_format'] ?? '.unitypackage') ?></span>
+                            <div class="spec-item-row">
+                                <span class="label-col">Format File</span>
+                                <span class="val-col"><?= htmlspecialchars($detail['file_format'] ?? '.unitypackage') ?></span>
                             </div>
+                            <?php if (empty($isOwned)): ?>
+                                <div class="spec-item-row">
+                                    <span class="label-col">Lisensi</span>
+                                    <span class="val-col"><?= htmlspecialchars($asset['lisensi'] ?? 'Standard Commercial') ?></span>
+                                </div>
+                            <?php endif; ?>
                         </div>
 
-                        <!-- Tombol Aksi -->
+                        <!-- Tombol Aksi Sesuai 3 Kondisi Figma -->
                         <div id="actionButtonWrapper" class="d-grid gap-2">
-                            <?php if ($isGratis): ?>
+                            <?php if (!empty($isOwned)): ?>
+                                <!-- KONDISI 1: SUDAH DIMILIKI -->
+                                <a href="/library/download?id=<?= urlencode((string)($asset['id'] ?? '')) ?>" class="btn-download-package">
+                                    <i class="bi bi-download"></i>
+                                    <span>Unduh</span>
+                                </a>
+
+                            <?php elseif ($isGratis): ?>
+                                <!-- KONDISI 2: ASET GRATIS (BELUM DI LIBRARY) -->
                                 <?php if ($isLoggedIn): ?>
-                                    <button type="button" id="btnClaimLibrary" class="btn btn-cart-secondary">
+                                    <button type="button" id="btnDownloadFree" class="btn-download-package" onclick="claimAndDownload(<?= (int)($asset['id'] ?? 0) ?>)">
+                                        <i class="bi bi-download"></i>
+                                        <span>Unduh</span>
+                                    </button>
+                                    <button type="button" id="btnClaimLibrary" class="btn-figma-free-library" onclick="claimToLibrary(<?= (int)($asset['id'] ?? 0) ?>)">
                                         Tambahkan ke Library
                                     </button>
                                 <?php else: ?>
-                                    <a href="/login" class="btn btn-cart-secondary text-decoration-none">
-                                        <span class="link-masuk fw-bold">Masuk untuk menambahkan ke Library</span>
+                                    <a href="/login" class="btn-figma-guest-login">
+                                        <span class="link-masuk">Masuk</span>&nbsp;untuk mengunduh aset gratis
                                     </a>
                                 <?php endif; ?>
+
                             <?php else: ?>
-                                <!-- URL Checkout disesuaikan untuk UUID public_id -->
-                                <?php
-                                $checkoutUrl = '/checkout?' . http_build_query(['asset_id' => $asset['public_id'] ?? '']);
-                                ?>
-                                <a href="<?= $isLoggedIn ? htmlspecialchars($checkoutUrl, ENT_QUOTES, 'UTF-8') : '/login' ?>" class="btn btn-buy-primary" id="btnBuyPrimary">
+                                <!-- KONDISI 3: ASET BERBAYAR (BELUM DIBELI) -->
+                                <?php $checkoutUrl = '/checkout?' . http_build_query(['asset_id' => $asset['public_id'] ?? '']); ?>
+                                <a href="<?= $isLoggedIn ? htmlspecialchars($checkoutUrl, ENT_QUOTES, 'UTF-8') : '/login' ?>" class="btn-figma-buy-orange" id="btnBuyPrimary">
                                     Beli
                                 </a>
                                 
                                 <?php if ($isLoggedIn): ?>
-                                    <!-- Form POST untuk menambahkan item ke Cart Database -->
                                     <form action="/cart/add" method="POST" class="d-grid m-0 p-0">
                                         <input type="hidden" name="asset_id" value="<?= htmlspecialchars($asset['id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
-                                        <button type="submit" class="btn btn-cart-secondary">
+                                        <button type="submit" class="btn-figma-add-cart-outline">
                                             Tambahkan ke Keranjang
                                         </button>
                                     </form>
                                 <?php else: ?>
-                                    <!-- Jika belum login, arahkan ke login -->
-                                    <a href="/login" class="btn btn-cart-secondary text-decoration-none text-center">
+                                    <a href="/login" class="btn-figma-add-cart-outline">
                                         Tambahkan ke Keranjang
                                     </a>
                                 <?php endif; ?>
@@ -784,7 +800,60 @@ $isLoggedIn = isset($_SESSION['user_id']);
             }
         }
 
-        // 2. Sinkronisasi Border Aktif pada Thumbnail saat Carousel Bergeser
+        // 2. Klaim aset gratis ke Library (Supabase entitlements)
+        function claimToLibrary(assetId) {
+            const btn = document.getElementById('btnClaimLibrary');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = 'Menambahkan...';
+            }
+
+            fetch('/api/library/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: assetId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Aset berhasil ditambahkan ke Library Anda!');
+                    window.location.reload(); // Refresh agar berubah ke tampilan "Sudah Dimiliki"
+                } else {
+                    alert(data.message || 'Gagal menambahkan ke Library.');
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerText = 'Tambahkan ke Library';
+                    }
+                }
+            })
+            .catch(() => {
+                alert('Terjadi kesalahan jaringan.');
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = 'Tambahkan ke Library';
+                }
+            });
+        }
+
+        // 3. Klaim aset gratis otomatis lalu langsung mulai unduhan
+        function claimAndDownload(assetId) {
+            fetch('/api/library/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: assetId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/library/download?id=' + encodeURIComponent(assetId);
+                } else {
+                    alert(data.message || 'Gagal memproses unduhan.');
+                }
+            })
+            .catch(() => alert('Terjadi kesalahan jaringan.'));
+        }
+
+        // 4. Sinkronisasi Border Aktif pada Thumbnail saat Carousel Bergeser
         document.addEventListener('DOMContentLoaded', function() {
             const detailCarousel = document.getElementById('assetDetailCarousel');
             const thumbCards = document.querySelectorAll('.thumb-row .thumb-card');

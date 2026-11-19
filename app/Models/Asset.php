@@ -266,19 +266,33 @@ class Asset extends Model {
         return $formats;
     }
 
-    // Mengambil semua aset yang dibuat oleh seorang Penjual (Kreator)
+    // Mengambil semua aset milik penjual tertentu untuk halaman Profil Publik
     public function getAssetsBySellerId($sellerId) {
-        $sql = "SELECT a.*, ai.image_path as thumbnail, p.name as seller_name 
-                FROM assets a 
-                LEFT JOIN asset_images ai ON a.id = ai.asset_id AND ai.sort_order = 1
-                LEFT JOIN user_profiles p ON a.seller_id = p.user_id 
-                LEFT JOIN users u ON a.seller_id = u.id
-                WHERE a.seller_id = :seller_id
+        $sql = "SELECT 
+                    a.id,
+                    a.public_id,
+                    a.title,
+                    a.price,
+                    a.render_pipeline,
+                    COALESCE(sp.store_name, up.name, 'Kreator IndoFX') AS seller_name,
+                    (
+                        SELECT ai.image_path 
+                        FROM asset_images ai 
+                        WHERE ai.asset_id = a.id 
+                        ORDER BY ai.sort_order ASC, ai.id ASC 
+                        LIMIT 1
+                    ) AS thumbnail
+                FROM assets a
+                LEFT JOIN seller_profiles sp ON a.seller_id = sp.user_id
+                LEFT JOIN user_profiles up ON a.seller_id = up.user_id
+                WHERE a.seller_id = :seller_id 
+                  AND a.deleted_at IS NULL
                 ORDER BY a.created_at DESC";
+
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(':seller_id', $sellerId, PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->fetchAll();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     // Mengambil data aset berdasarkan ID internal (angka / INT8)

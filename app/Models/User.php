@@ -9,9 +9,10 @@ class User extends Model {
     // Mencari pengguna berdasarkan email.
     // Digunakan saat validasi Login atau mengecek duplikasi email saat Register.
     public function findByEmail($email) {
-        $sql = "SELECT u.*, p.name, p.bio 
+        $sql = "SELECT u.*, p.name, p.bio, s.store_name 
                 FROM users u
-               LEFT JOIN user_profiles p ON u.id = p.user_id
+                LEFT JOIN user_profiles p ON u.id = p.user_id
+                LEFT JOIN seller_profiles s ON u.id = s.user_id
                 WHERE u.email = :email 
                 LIMIT 1";
         $stmt = $this->db->prepare($sql);
@@ -65,7 +66,9 @@ class User extends Model {
 
     // Mengambil user berdasarkan ID Internal (Untuk Session/Dashboard)
     public function getUserById($id) {
-        $sql = "SELECT u.id, u.public_id, u.email, u.role, p.name, p.bio, s.store_name, s.portofolio_url, s.website_url
+        $sql = "SELECT u.id, u.public_id, u.email, u.role, p.name, p.bio, 
+                       s.store_name, s.portfolio_url, s.website_url, 
+                       s.payout_number, s.payout_account_name
                 FROM users u
                 LEFT JOIN user_profiles p ON u.id = p.user_id
                 LEFT JOIN seller_profiles s ON u.id = s.user_id
@@ -79,11 +82,11 @@ class User extends Model {
 
     // Mengambil user berdasarkan UUID Publik (Untuk URL Publik)
     public function getUserByPublicId($publicId) {
-        $sql = "SELECT u.id, u.public_id, u.email, u.role, p.name, p.bio, s.store_name, s.portofolio_url, s.website_url
+        $sql = "SELECT u.id, u.public_id, u.email, u.role, p.name, p.bio, s.store_name, s.portfolio_url, s.website_url
                 FROM users u
                 LEFT JOIN user_profiles p ON u.id = p.user_id
                 LEFT JOIN seller_profiles s ON u.id = s.user_id
-                WHERE u.public_id = :public_id::uuid
+                WHERE u.public_id = CAST(:public_id AS uuid)
                 LIMIT 1";
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(':public_id', $publicId, PDO::PARAM_STR);
@@ -110,7 +113,7 @@ class User extends Model {
                 store_name = :store_name, 
                 address = :address,
                 reason = :reason,
-                portofolio_url = :portofolio_url,
+                portfolio_url = :portfolio_url,
                 website_url = :website_url, 
                 payout_number = :payout_number,
                 payout_account_name = :payout_account_name,
@@ -119,5 +122,68 @@ class User extends Model {
         $stmt = $this->db->prepare($sql);
         $data[':id'] = $id; 
         return $stmt->execute($data);
+    }
+
+    // Menyimpan Pengajuan Daftar Jadi Penjual (Mendukung User Baru & User yang Sudah Login)
+    public function createSellerApplication($data, $existingUserId = null) {
+        try {
+            $this->db->beginTransaction();
+
+            $userId = $existingUserId;
+
+            // Jika belum login, buat akun baru di tabel users & user_profiles
+            if (!$userId) {
+                $sqlUser = "INSERT INTO users (email, password, role) 
+                            VALUES (:email, :password, 'buyer') 
+                            RETURNING id";
+                $stmtUser = $this->db->prepare($sqlUser);
+                $stmtUser->execute([
+                    ':email'    => $data['email'],
+                    ':password' => $data['password_hash']
+                ]);
+                $userId = $stmtUser->fetchColumn();
+
+                $sqlProfile = "INSERT INTO user_profiles (user_id, name) VALUES (:user_id, :name)";
+                $this->db->prepare($sqlProfile)->execute([
+                    ':user_id' => $userId,
+                    ':name'    => $data['store_name']
+                ]);
+            }
+
+            // Simpan atau perbarui pengajuan di tabel seller_profiles
+            $sqlSeller = "INSERT INTO seller_profiles (
+                              user_id, store_name, address, reason, portfolio_url,
+                              sample_asset_path, sample_asset_desc, status, created_at, updated_at
+                          ) VALUES (
+                              :user_id, :store_name, :address, :reason, :portfolio_url,
+                              :sample_asset_path, :sample_asset_desc, 'pending', NOW(), NOW()
+                          )
+                          ON CONFLICT (user_id) DO UPDATE SET
+                              store_name        = EXCLUDED.store_name,
+                              address           = EXCLUDED.address,
+                              reason            = EXCLUDED.reason,
+                              portfolio_url    = EXCLUDED.portfolio_url,
+                              sample_asset_path = EXCLUDED.sample_asset_path,
+                              sample_asset_desc = EXCLUDED.sample_asset_desc,
+                              status            = 'pending',
+                              updated_at        = NOW()";
+
+            $stmtSeller = $this->db->prepare($sqlSeller);
+            $stmtSeller->execute([
+                ':user_id'           => $userId,
+                ':store_name'        => $data['store_name'],
+                ':address'           => $data['address'],
+                ':reason'            => $data['reason'],
+                ':portfolio_url'    => $data['portfolio_url'],
+                ':sample_asset_path' => $data['sample_asset_path'],
+                ':sample_asset_desc' => $data['sample_asset_desc']
+            ]);
+
+            $this->db->commit();
+            return $this->getUserById($userId);
+        } catch (\Exception $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
     }
 }

@@ -197,11 +197,26 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
         <h2 class="seller-register-title">Daftar Jadi Penjual</h2>
         <p class="seller-register-sub">Upload hasil karyamu agar dikenal semua orang.</p>
 
-        <form id="formRegisterSeller">
-            <!-- 1. Nama Lengkap -->
+<!-- Alert Error / Sukses dari Backend -->
+        <?php if (!empty($_SESSION['error_msg'])): ?>
+            <div class="alert alert-danger py-2 small mb-3">
+                <?= htmlspecialchars($_SESSION['error_msg'], ENT_QUOTES, 'UTF-8') ?>
+            </div>
+            <?php unset($_SESSION['error_msg']); ?>
+        <?php endif; ?>
+
+        <?php if (!empty($_SESSION['success_msg'])): ?>
+            <div class="alert alert-success py-2 small mb-3">
+                <?= htmlspecialchars($_SESSION['success_msg'], ENT_QUOTES, 'UTF-8') ?>
+            </div>
+            <?php unset($_SESSION['success_msg']); ?>
+        <?php endif; ?>
+
+        <form id="formRegisterSeller" action="/seller/register" method="POST" enctype="multipart/form-data">
+            <!-- 1. Nama Lengkap / Nama Toko -->
             <div class="mb-3">
-                <label class="form-label-custom">Nama Lengkap</label>
-                <input type="text" id="regName" class="form-control form-control-custom"
+                <label class="form-label-custom">Nama Lengkap / Nama Studio</label>
+                <input type="text" name="store_name" id="regName" class="form-control form-control-custom"
                     value="<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>"
                     placeholder="Arga Studio" required>
             </div>
@@ -209,7 +224,7 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
             <!-- 2. Alamat Email -->
             <div class="mb-3">
                 <label class="form-label-custom">Alamat Email</label>
-                <input type="email" id="regEmail" class="form-control form-control-custom"
+                <input type="email" name="email" id="regEmail" class="form-control form-control-custom"
                     value="<?= htmlspecialchars($userEmail, ENT_QUOTES, 'UTF-8') ?>"
                     placeholder="argastudio@mail.com" required <?= $isLoggedIn && !empty($userEmail) ? 'readonly style="background-color: #faf5f0;"' : '' ?>>
             </div>
@@ -217,52 +232,54 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
             <!-- 3. Alamat Domisili -->
             <div class="mb-3">
                 <label class="form-label-custom">Alamat Domisili</label>
-                <textarea id="regAddress" class="form-control form-control-custom" rows="3"
-                    placeholder="" required></textarea>
+                <textarea name="address" id="regAddress" class="form-control form-control-custom" rows="3"
+                    placeholder="Masukkan alamat domisili lengkap..." required></textarea>
             </div>
 
             <!-- 4. Alasan -->
             <div class="mb-3">
                 <label class="form-label-custom">Alasan</label>
-                <textarea id="regReason" class="form-control form-control-custom" rows="2"
-                    placeholder="" required></textarea>
+                <textarea name="reason" id="regReason" class="form-control form-control-custom" rows="2"
+                    placeholder="Alasan kamu menjadi penjual..." required></textarea>
             </div>
 
             <!-- 5. Contoh Aset -->
             <div class="mb-3">
                 <label class="form-label-custom">Contoh Aset</label>
-                <input type="file" id="regAssetFile" class="form-control form-control-custom" accept=".unitypackage,.zip,.rar,.fbx" required>
+                <input type="file" name="sample_asset" id="regAssetFile" class="form-control form-control-custom" accept=".unitypackage,.zip,.rar,.fbx" required>
             </div>
 
             <!-- 6. Deskripsi Aset -->
             <div class="mb-3">
                 <label class="form-label-custom">Deskripsi Aset</label>
-                <textarea id="regAssetDesc" class="form-control form-control-custom" rows="3"
-                    placeholder="" required></textarea>
+                <textarea name="sample_asset_desc" id="regAssetDesc" class="form-control form-control-custom" rows="3"
+                    placeholder="Deskripsi singkat contoh aset..." required></textarea>
             </div>
 
             <!-- 7. URL Portofolio (Opsional) -->
             <div class="mb-3">
                 <label class="form-label-custom">URL Portofolio (Opsional)</label>
-                <input type="url" id="regPortfolio" class="form-control form-control-custom"
-                    placeholder="">
+                <input type="url" name="portofolio_url" id="regPortfolio" class="form-control form-control-custom"
+                    placeholder="https://www.argastudio.com">
             </div>
 
-            <!-- 8. Password: Buat Kata Sandi & Ulangi Kata Sandi -->
-            <div class="row g-2 mb-3">
-                <div class="col-6">
-                    <label class="form-label-custom">Buat Kata Sandi</label>
-                    <input type="password" id="regPassword" class="form-control form-control-custom" placeholder="" <?= !$isLoggedIn ? 'required' : '' ?>>
+            <!-- 8. Password (hanya wajib jika belum login) -->
+            <?php if (!$isLoggedIn): ?>
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label-custom">Buat Kata Sandi</label>
+                        <input type="password" name="password" id="regPassword" class="form-control form-control-custom" required>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label-custom">Ulangi Kata Sandi</label>
+                        <input type="password" name="password_confirm" id="regPasswordConfirm" class="form-control form-control-custom" required>
+                    </div>
                 </div>
-                <div class="col-6">
-                    <label class="form-label-custom">Ulangi Kata Sandi</label>
-                    <input type="password" id="regPasswordConfirm" class="form-control form-control-custom" placeholder="" <?= !$isLoggedIn ? 'required' : '' ?>>
-                </div>
-            </div>
+            <?php endif; ?>
 
             <!-- 9. Checkbox Syarat & Ketentuan -->
             <div class="mb-4 form-check-terms">
-                <input class="form-check-input" type="checkbox" id="checkTerms" required>
+                <input class="form-check-input" type="checkbox" name="agree_terms" id="checkTerms" value="1" required>
                 <label class="form-check-label" for="checkTerms">
                     Saya telah menyetujui <span class="link-terms" onclick="openTermsModal()">Syarat dan Ketentuan</span>
                 </label>
@@ -271,10 +288,11 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
             <!-- 10. Tombol Daftar Oranye -->
             <button type="submit" class="btn-register-submit mb-3">Daftar</button>
 
-            <!-- 11. Tautan Login -->
-            <div>
-                <small class="text-muted">Sudah punya akun? <a href="/login" class="text-primary text-decoration-none fw-bold">Login</a></small>
-            </div>
+            <?php if (!$isLoggedIn): ?>
+                <div>
+                    <small class="text-muted">Sudah punya akun? <a href="/login" class="text-primary text-decoration-none fw-bold">Login</a></small>
+                </div>
+            <?php endif; ?>
         </form>
     </div>
 
@@ -340,82 +358,12 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
             modalTermsInstance = new bootstrap.Modal(document.getElementById('modalTerms'));
 
             document.getElementById('formRegisterSeller').addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                // Validasi Checkbox
-                const termsChecked = document.getElementById('checkTerms').checked;
-                if (!termsChecked) {
-                    alert('Harap setujui Syarat dan Ketentuan terlebih dahulu untuk mendaftar sebagai Penjual.');
-                    return;
-                }
-
-                // Validasi Password jika diisi
-                const pass = document.getElementById('regPassword') ? document.getElementById('regPassword').value : '';
-                const passConfirm = document.getElementById('regPasswordConfirm') ? document.getElementById('regPasswordConfirm').value : '';
-                if (pass && passConfirm && pass !== passConfirm) {
+                const pass = document.getElementById('regPassword');
+                const passConfirm = document.getElementById('regPasswordConfirm');
+                if (pass && passConfirm && pass.value !== passConfirm.value) {
+                    e.preventDefault();
                     alert('Konfirmasi Kata Sandi tidak cocok!');
-                    return;
                 }
-
-                const sellerName = document.getElementById('regName').value.trim() || 'Arga Studio';
-                const sellerEmail = document.getElementById('regEmail').value.trim();
-                const sellerAddress = document.getElementById('regAddress').value.trim();
-                const sellerReason = document.getElementById('regReason').value.trim();
-                const portfolioUrl = document.getElementById('regPortfolio') ? document.getElementById('regPortfolio').value.trim() : '';
-                const fileInput = document.getElementById('regAssetFile');
-                const assetDesc = document.getElementById('regAssetDesc').value.trim();
-
-                const targetKey = '<?= $userKey ?>' || ('user_' + Date.now());
-
-                // Simpan Profil Toko / Penjual
-                const sellerProfile = {
-                    user_id: targetKey,
-                    store_name: sellerName,
-                    is_seller: true,
-                    email: sellerEmail,
-                    address: sellerAddress,
-                    reason: sellerReason,
-                    portfolio: portfolioUrl || '-',
-                    is_active: true
-                };
-
-                localStorage.setItem('indofx_seller_profile_' + targetKey, JSON.stringify(sellerProfile));
-                localStorage.setItem('indofx_is_seller_' + targetKey, 'true');
-                localStorage.setItem('indofx_seller_profile', JSON.stringify(sellerProfile));
-                localStorage.setItem('indofx_is_seller', 'true');
-
-                // Simpan Pengajuan Penjual ke Antrean Admin
-                let sellerRequests = [];
-                try {
-                    sellerRequests = JSON.parse(localStorage.getItem('indofx_seller_requests')) || [];
-                } catch (err) {
-                    sellerRequests = [];
-                }
-
-                const sampleFileName = (fileInput && fileInput.files.length > 0) ?
-                    fileInput.files[0].name.replace(/\.[^/.]+$/, "") :
-                    'Sample Asset Project';
-
-                sellerRequests.unshift({
-                    id: 'req-' + Date.now(),
-                    store_name: sellerName,
-                    email: sellerEmail,
-                    address: sellerAddress,
-                    reason: sellerReason,
-                    portfolio: portfolioUrl || '-',
-                    sample_file: sampleFileName,
-                    description: assetDesc,
-                    status: 'Menunggu',
-                    created_at: new Date().toLocaleDateString('id-ID', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric'
-                    })
-                });
-                localStorage.setItem('indofx_seller_requests', JSON.stringify(sellerRequests));
-
-                alert('Pendaftaran Penjual berhasil diajukan! Pengajuan Anda akan diverifikasi oleh Admin IndoFX.');
-                window.location.href = '/dashboard/assets';
             });
         });
     </script>
