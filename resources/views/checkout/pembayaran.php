@@ -393,42 +393,20 @@ $grandTotal = $subtotal > 0 ? ($subtotal + $feeAdmin) : 0;
                             <?php endif; ?>
                         </div>
 
-                        <div class="section-subtitle">Pilih Metode Pembayaran</div>
-                        <div class="payment-method-box">
-                            <label class="payment-row selected" onclick="choosePayment(this)">
-                                <div class="d-flex align-items-center gap-2">
-                                    <input type="radio" name="payment_method" value="ewallet" class="form-check-input m-0" checked>
-                                    <span class="payment-label">E-wallet</span>
+                        <!-- Metode Pembayaran Khusus QRIS Sesuai Figma -->
+                        <input type="hidden" name="payment_method" value="qris">
+                        <div class="qris-payment-card">
+                            <span class="qris-label-text">Bayar dengan</span>
+                            
+                            <div class="qris-official-badge">                               
+                                <span style="font-weight: 900; font-size: 1.15rem; letter-spacing: 0.5px; color: #1A1A1A; font-family: 'Inter', sans-serif;">
+                                    QRIS
+                                </span>
+                                <div class="qris-badge-text">
+                                    <span>QR Code Standar</span>
+                                    <span>Pembayaran Nasional</span>
                                 </div>
-                                <div class="payment-logos">
-                                    <span class="logo-badge" style="color: #00a5cf;">gopay</span>
-                                    <span class="logo-badge" style="color: #e53e3e;">QRIS</span>
-                                    <span class="logo-badge" style="color: #118eea;">DANA</span>
-                                </div>
-                            </label>
-
-                            <label class="payment-row" onclick="choosePayment(this)">
-                                <div class="d-flex align-items-center gap-2">
-                                    <input type="radio" name="payment_method" value="card" class="form-check-input m-0">
-                                    <span class="payment-label">Bayar dengan kartu</span>
-                                </div>
-                                <div class="payment-logos">
-                                    <span class="logo-badge" style="color: #1a1f71;">VISA</span>
-                                    <span class="logo-badge" style="color: #eb001b;">Mastercard</span>
-                                </div>
-                            </label>
-
-                            <label class="payment-row" onclick="choosePayment(this)">
-                                <div class="d-flex align-items-center gap-2">
-                                    <input type="radio" name="payment_method" value="bank" class="form-check-input m-0">
-                                    <span class="payment-label">Transfer Bank</span>
-                                </div>
-                                <div class="payment-logos">
-                                    <span class="logo-badge" style="color: #005eac;">BCA</span>
-                                    <span class="logo-badge" style="color: #f15a24;">BNI</span>
-                                    <span class="logo-badge" style="color: #003d79;">Mandiri</span>
-                                </div>
-                            </label>
+                            </div>
                         </div>
                     </div>
 

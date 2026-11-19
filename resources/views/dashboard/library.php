@@ -4,16 +4,14 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna');
-$userKey  = (string) ($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user');
+$userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna');$userKey  = (string) ($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user');
 
 $initials = '';
 $words = preg_split('/\s+/', trim($userName)) ?: [];
-foreach (array_slice($words, 0, 2) as $word) {
+foreach (array_slice($words, 0, 2) as$word) {
     $initials .= mb_strtoupper(mb_substr($word, 0, 1));
 }
-if ($initials === '') {
-    $initials = 'U';
+if ($initials === '') {$initials = 'U';
 }
 ?>
 <!DOCTYPE html>
@@ -26,18 +24,16 @@ if ($initials === '') {
 
     <!-- Google Fonts & Bootstrap Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
-    <!-- CSS terpusat murni tanpa tag style tambahan -->
     <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 
 <body class="d-flex flex-column min-vh-100">
 
-    <!-- SVG Thumbnails -->
+    <!-- SVG Thumbnails Fallback -->
     <svg class="d-none">
         <defs>
             <g id="lib-art-castle">
@@ -46,20 +42,6 @@ if ($initials === '') {
                 <polygon points="45,25 35,90 55,90" fill="#151115" />
                 <polygon points="87,15 72,95 102,95" fill="#100D10" />
                 <polygon points="130,22 120,90 140,90" fill="#151115" />
-            </g>
-            <g id="lib-art-water">
-                <rect width="175" height="98" fill="#14232C" />
-                <ellipse cx="87" cy="55" rx="75" ry="25" fill="#234657" opacity="0.5" />
-                <polygon points="45,25 35,90 55,90" fill="#0C171E" />
-                <polygon points="87,15 72,95 102,95" fill="#081015" />
-                <polygon points="130,22 120,90 140,90" fill="#0C171E" />
-            </g>
-            <g id="lib-art-forest">
-                <rect width="175" height="98" fill="#1E2A28" />
-                <ellipse cx="87" cy="55" rx="75" ry="25" fill="#4E6D66" opacity="0.45" />
-                <polygon points="45,25 35,90 55,90" fill="#141E1C" />
-                <polygon points="260,50 200,380 320,380" fill="#182421" />
-                <polygon points="130,22 120,90 140,90" fill="#141E1C" />
             </g>
         </defs>
     </svg>
@@ -110,7 +92,7 @@ if ($initials === '') {
         </div>
     </main>
 
-    <!-- Footer Resmi IndoFX Membentang Penuh di Dasar Halaman -->
+    <!-- Footer Resmi IndoFX -->
     <?php
     $footerPartial = BASE_PATH . '/resources/views/partials/footer.php';
     if (file_exists($footerPartial)) {
@@ -138,7 +120,7 @@ if ($initials === '') {
         </footer>
     <?php } ?>
 
-    <!-- Modal Ulasan Persis Figma -->
+    <!-- Modal Ulasan -->
     <div class="modal fade modal-review-figma" id="reviewModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" style="max-width: 530px;">
             <div class="modal-content">
@@ -152,7 +134,6 @@ if ($initials === '') {
                     <div class="modal-body">
                         <input type="hidden" id="reviewAssetId">
 
-                        <!-- Rating Bintang Oranye Interaktif -->
                         <div class="mb-3">
                             <label class="form-label-figma">Rating (1-5)</label>
                             <div class="interactive-stars-box" id="starRatingGroup">
@@ -164,13 +145,11 @@ if ($initials === '') {
                             </div>
                         </div>
 
-                        <!-- Judul Ulasan -->
                         <div class="mb-3">
                             <label class="form-label-figma">Judul Ulasan</label>
                             <input type="text" class="form-control input-review-figma" id="reviewTitleInput" placeholder="Contoh: Mudah dipelajari untuk prototipe">
                         </div>
 
-                        <!-- Feedback -->
                         <div class="mb-2">
                             <label class="form-label-figma">Feedback</label>
                             <textarea class="form-control input-review-figma" id="reviewCommentInput" rows="4" placeholder="Ceritakan pengalamanmu selama menggunakan aset ini..."></textarea>
@@ -179,7 +158,7 @@ if ($initials === '') {
 
                     <div class="modal-footer">
                         <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Batal</button>
-                        <button type="button" class="btn-modal-upload" onclick="submitUserReview()">Upload Ulasan</button>
+                        <button type="button" class="btn-modal-upload" id="btnSubmitReview" onclick="submitUserReview()">Upload Ulasan</button>
                     </div>
                 </div>
 
@@ -192,7 +171,6 @@ if ($initials === '') {
                         <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Tutup</button>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -200,46 +178,23 @@ if ($initials === '') {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/assets/js/navbar-auth.js"></script>
     <script>
-        const userKey = '<?= $userKey ?>';
-        const userName = '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>';
-        const storageKey = 'indofx_library_' + userKey;
-        const reviewedStorageKey = 'indofx_reviewed_assets_' + userKey;
+        // Data dinamis dari LibraryController (Supabase)
+        const libraryItemsFromDB = <?= json_encode($libraryItems ?? []) ?>;
 
         let currentFilter = 'semua';
         let currentSelectedRating = 5;
 
         function getLibraryData() {
-            try {
-                return JSON.parse(localStorage.getItem(storageKey)) || [];
-            } catch (e) {
-                return [];
-            }
+            return libraryItemsFromDB;
         }
 
-        function getReviewedAssets() {
-            try {
-                return JSON.parse(localStorage.getItem(reviewedStorageKey)) || [];
-            } catch (e) {
-                return [];
-            }
-        }
-
-        function openAssetDetail(asset) {
-            const params = new URLSearchParams({
-                id: asset.id || '1',
-                title: asset.title || 'Aset IndoFX',
-                creator: asset.creator || 'Arga Studio',
-                category: asset.category || (asset.type === 'Gratis' ? 'PARTIKEL' : 'SHADER'),
-                pipeline: Array.isArray(asset.pipelines) ? asset.pipelines.join(', ') : (asset.pipeline || 'URP, HDRP'),
-                art: asset.art || 'castle'
-            });
-            window.location.href = '/library/detail?' + params.toString();
+        function openAssetDetail(assetId) {
+            window.location.href = '/library/detail?id=' + encodeURIComponent(assetId);
         }
 
         function renderLibrary() {
             const container = document.getElementById('libraryContainer');
             const items = getLibraryData();
-            const reviewedList = getReviewedAssets();
 
             let filtered = items;
             if (currentFilter === 'berbayar') {
@@ -251,9 +206,9 @@ if ($initials === '') {
             if (filtered.length === 0) {
                 container.innerHTML = `
                     <div class="empty-library-card">
-                        <i class="bi bi-box-seam fs-1 text-secondary mb-2"></i>
-                        <h5 class="fw-bold mb-1" style="color: var(--indofx-dark, #2b2623);">Belum ada aset di Library Anda</h5>
-                        <p class="text-muted small mb-3">Temukan dan tambahkan aset visual pilihan Anda melalui katalog.</p>
+                        <i class="bi bi-exclamation-circle fs-1 text-secondary mb-2"></i>
+                        <h5 class="fw-bold mb-1" style="color: var(--indofx-dark, #2b2623);">Belum ada aset</h5>
+                        <p class="text-muted small mb-3">Tambah aset dari <strong>beranda</strong> atau <strong>katalog</strong></p>
                         <a href="/catalog/explore" class="btn btn-hero-orange">Jelajahi Katalog</a>
                     </div>
                 `;
@@ -261,8 +216,7 @@ if ($initials === '') {
             }
 
             container.innerHTML = filtered.map(item => {
-                const artId = item.art ? ('lib-art-' + item.art) : 'lib-art-castle';
-                const pipelines = Array.isArray(item.pipelines) ? item.pipelines : ['HDRP'];
+                const pipelines = Array.isArray(item.pipelines) && item.pipelines.length > 0 ? item.pipelines : ['URP'];
 
                 const badgesHtml = pipelines.map(p => {
                     let cls = 'badge-urp';
@@ -271,37 +225,38 @@ if ($initials === '') {
                     return `<span class="badge-tag-custom ${cls}">${p}</span>`;
                 }).join(' ');
 
-                const itemJson = JSON.stringify(item).replace(/"/g, '&quot;');
-                const alreadyReviewed = reviewedList.includes(String(item.id));
+                const thumbHtml = item.thumbnail
+                    ? `<img src="${item.thumbnail}" alt="${item.title}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><svg style="display:none;" viewBox="0 0 175 98"><use href="#lib-art-castle" /></svg>`
+                    : `<svg viewBox="0 0 175 98"><use href="#lib-art-castle" /></svg>`;
+
+                const alreadyReviewed = Boolean(item.is_reviewed);
+                const safeTitle = String(item.title || '').replace(/'/g, "\\'");
 
                 const actionButtonHtml = alreadyReviewed ? `
                     <button type="button" class="btn-already-reviewed" disabled onclick="event.stopPropagation()">
                         Sudah Diulas
                     </button>
                 ` : `
-                    <button type="button" class="btn-action-delete" onclick="event.stopPropagation(); removeLibraryItem('${item.id}')">
-                        Hapus
-                    </button>
-                    <button type="button" class="btn-action-review" onclick="event.stopPropagation(); openReviewModal('${item.id}', '${item.title.replace(/'/g, "\\'")}')">
+                    <button type="button" class="btn-action-review" onclick="event.stopPropagation(); openReviewModal('${item.id}', '${safeTitle}')">
                         Beri Ulasan
                     </button>
                 `;
 
                 return `
-                    <div class="library-item-card" onclick="openAssetDetail(${itemJson})" title="Klik untuk membuka detail dan unduh aset">
+                    <div class="library-item-card" onclick="openAssetDetail('${item.id}')" title="Klik untuk membuka detail dan unduh aset">
                         <div class="library-item-thumb">
-                            <svg viewBox="0 0 175 98"><use href="#${artId}" /></svg>
+                            ${thumbHtml}
                         </div>
                         <div class="library-item-content">
                             <div class="d-flex align-items-center gap-2 mb-1">
-                                <span class="status-badge-blue">DIBELI</span>
-                                <span class="text-muted small">Perolehan: ${item.date || '02 Nov 2026'}</span>
+                                <span class="status-badge-blue">${item.source_text || 'DIBELI'}</span>
+                                <span class="text-muted small">Perolehan: ${item.date || '-'}</span>
                             </div>
                             <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
                                 <h5 class="library-asset-heading">${item.title}</h5>
                                 <div>${badgesHtml}</div>
                             </div>
-                            <p class="text-muted small m-0">Oleh ${item.creator || 'Arga Studio'}</p>
+                            <p class="text-muted small m-0">Oleh ${item.creator || 'Kreator IndoFX'}</p>
                         </div>
                         <div class="library-actions-wrap">
                             ${actionButtonHtml}
@@ -318,22 +273,10 @@ if ($initials === '') {
             renderLibrary();
         }
 
-        function removeLibraryItem(assetId) {
-            if (!confirm('Hapus aset ini dari Library Anda?')) return;
-            let items = getLibraryData();
-            items = items.filter(i => String(i.id) !== String(assetId));
-            localStorage.setItem(storageKey, JSON.stringify(items));
-            renderLibrary();
-        }
-
         function updateStarUI(rating) {
             const stars = document.querySelectorAll('#starRatingGroup i');
             stars.forEach((star, index) => {
-                if (index < rating) {
-                    star.className = 'bi bi-star-fill';
-                } else {
-                    star.className = 'bi bi-star';
-                }
+                star.className = index < rating ? 'bi bi-star-fill' : 'bi bi-star';
             });
         }
 
@@ -351,8 +294,8 @@ if ($initials === '') {
         }
 
         function openReviewModal(assetId, assetTitle) {
-            const reviewedList = getReviewedAssets();
-            if (reviewedList.includes(String(assetId))) {
+            const target = libraryItemsFromDB.find(i => String(i.id) === String(assetId));
+            if (target && target.is_reviewed) {
                 alert('Anda sudah pernah memberikan ulasan untuk aset ini.');
                 return;
             }
@@ -372,46 +315,49 @@ if ($initials === '') {
 
         function submitUserReview() {
             const assetId = document.getElementById('reviewAssetId').value;
-            const title = document.getElementById('reviewTitleInput').value.trim();
+            const title   = document.getElementById('reviewTitleInput').value.trim();
             const comment = document.getElementById('reviewCommentInput').value.trim();
+            const btn     = document.getElementById('btnSubmitReview');
 
             if (!comment) {
                 alert('Silakan tuliskan feedback pengalaman Anda.');
                 return;
             }
 
-            const revStorageKey = 'indofx_public_reviews_' + assetId;
-            let reviews = [];
-            try {
-                reviews = JSON.parse(localStorage.getItem(revStorageKey)) || [];
-            } catch (e) {
-                reviews = [];
-            }
+            btn.disabled = true;
+            btn.innerText = 'Menyimpan...';
 
-            const now = new Date();
-            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-            const dateStr = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+            fetch('/api/reviews/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    asset_id: assetId,
+                    rating: currentSelectedRating,
+                    title: title,
+                    comment: comment
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerText = 'Upload Ulasan';
 
-            reviews.unshift({
-                user_name: userName,
-                rating: currentSelectedRating,
-                title: title,
-                comment: comment,
-                date: dateStr
+                if (data.success) {
+                    const target = libraryItemsFromDB.find(i => String(i.id) === String(assetId));
+                    if (target) target.is_reviewed = true;
+
+                    document.getElementById('reviewFormView').classList.add('d-none');
+                    document.getElementById('reviewSuccessView').classList.remove('d-none');
+                    renderLibrary();
+                } else {
+                    alert(data.message || 'Gagal menyimpan ulasan.');
+                }
+            })
+            .catch(() => {
+                btn.disabled = false;
+                btn.innerText = 'Upload Ulasan';
+                alert('Terjadi kesalahan jaringan.');
             });
-
-            localStorage.setItem(revStorageKey, JSON.stringify(reviews));
-
-            let reviewedList = getReviewedAssets();
-            if (!reviewedList.includes(String(assetId))) {
-                reviewedList.push(String(assetId));
-                localStorage.setItem(reviewedStorageKey, JSON.stringify(reviewedList));
-            }
-
-            document.getElementById('reviewFormView').classList.add('d-none');
-            document.getElementById('reviewSuccessView').classList.remove('d-none');
-
-            renderLibrary();
         }
 
         document.addEventListener('DOMContentLoaded', renderLibrary);

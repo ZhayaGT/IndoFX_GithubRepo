@@ -5,6 +5,7 @@ namespace IndoFX\Controllers;
 use IndoFX\Core\Controller;
 use IndoFX\Models\Cart;
 use IndoFX\Models\Asset;
+use IndoFX\Models\Transaction;
 use Midtrans\Config;
 use Midtrans\Snap;
 
@@ -148,13 +149,23 @@ class CheckoutController extends Controller {
                 'first_name' => $customerName,
                 'email'      => $customerEmail,
             ],
-
+            
+            'enabled_payments' => ['other_qris', 'gopay'],
             'custom_field1' => 'TOKO PENJUAL: ' . $sellerName,
             'custom_field2' => 'EMAIL PENJUAL: ' . $sellerEmail,
             'custom_field3' => 'NO. HP PENJUAL: ' . $sellerPhone
         ];
 
-        // 8. Memintakan Snap Token ke Server Midtrans
+        // 8. Menyimpan ke database dengan status 'pending' melalui Model
+        try {
+            $txModel = new Transaction();
+            $txModel->createPendingTransaction($_SESSION['user_id'], $orderId, $grossAmount, $itemDetails);
+        } catch (\Exception $e) {
+            echo json_encode(['error' => 'Gagal membuat tagihan di database: ' . $e->getMessage()]);
+            return;
+        }
+
+        // 9. Memintakan Snap Token ke Server Midtrans
         try {
             $snapToken = Snap::getSnapToken($transaction);
             
