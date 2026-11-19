@@ -10,7 +10,7 @@ use IndoFX\Core\Database;
 $router->add('GET', '/', 'HomeController', 'index');
 $router->add('GET', '/catalog/explore', 'CatalogController', 'explore');
 
-// Halaman Detail Aset (Arahkan ke AssetController)
+// Halaman Detail Aset
 $router->add('GET', '/asset/detail', 'AssetController', 'detail');
 $router->add('GET', '/asset', 'AssetController', 'detail');
 
@@ -23,25 +23,32 @@ $router->add('GET', '/register', 'AuthController', 'register');
 $router->add('POST', '/register', 'AuthController', 'processRegister');
 $router->add('GET', '/logout', 'AuthController', 'logout');
 
-// Seller
+// Registrasi Penjual
 $router->get('/seller/register', function () {
     require BASE_PATH . '/resources/views/auth/seller_register.php';
 });
 $router->add('POST', '/seller/register', 'AuthController', 'processSellerRegister');
 
-// =======================
-// 3. PROFIL & KELOLA PROFIL 
-// =======================
+// ==========================================
+// 3. PROFIL & KELOLA PROFIL
+// ==========================================
 
 // 1. Profil Publik (Tanpa Sidebar - Untuk dilihat orang lain)
 $router->add('GET', '/creator/profile', 'ProfileController', 'publicProfile');
 
 // 2. Profil Dashboard Penjual (Dengan Sidebar)
+$router->add('GET', '/dashboard', 'SellerDashboardController', 'index');
+$router->add('GET', '/dashboard/assets', 'SellerDashboardController', 'assets');
+$router->add('GET', '/dashboard/transactions', 'SellerDashboardController', 'transactions');
 $router->add('GET', '/dashboard/profile', 'ProfileController', 'dashboardProfile');
+
+$router->add('GET', '/dashboard/add-asset', 'SellerDashboardController', 'addAssetForm');
+$router->add('POST', '/dashboard/add-asset', 'SellerDashboardController', 'storeAsset');
+$router->add('POST', '/dashboard/edit-asset', 'SellerDashboardController', 'updateAsset');
 
 // 3. Menampilkan Halaman Edit Profil (Ubah Profil)
 $router->add('GET', '/dashboard/ubah-profil', 'ProfileController', 'edit');
-$router->add('GET', '/dashboard/ubahprofile', 'ProfileController', 'edit'); 
+$router->add('GET', '/dashboard/ubahprofile', 'ProfileController', 'edit');
 
 // 4. Memproses Form Penyimpanan Profil
 $router->add('POST', '/dashboard/ubah-profil', 'ProfileController', 'updateBuyer');
@@ -51,271 +58,66 @@ $router->add('POST', '/dashboard/ubah-profil-toko', 'ProfileController', 'update
 // 4. KERANJANG, CHECKOUT & INVOICE
 // ==========================================
 
-// Menampilkan halaman keranjang
 $router->get('/cart', function () {
-    $controller = new \IndoFX\Controllers\CartController();
-    $controller->index();
+    (new \IndoFX\Controllers\CartController())->index();
 });
 
-// Endpoint untuk menambahkan barang ke keranjang
 $router->post('/cart/add', function () {
-    $controller = new \IndoFX\Controllers\CartController();
-    $controller->add();
+    (new \IndoFX\Controllers\CartController())->add();
 });
 
-// Endpoint untuk menghapus barang dari keranjang
 $router->post('/cart/remove', function () {
-    $controller = new \IndoFX\Controllers\CartController();
-    $controller->remove();
+    (new \IndoFX\Controllers\CartController())->remove();
 });
 
-// Rute untuk menampilkan halaman checkout dari tombol "Beli" (GET)
 $router->get('/checkout', function () {
-    $controller = new \IndoFX\Controllers\CheckoutController();
-    $controller->index();
+    (new \IndoFX\Controllers\CheckoutController())->index();
 });
 
-// Rute untuk menampilkan halaman checkout dari form "Keranjang" (POST)
 $router->post('/checkout', function () {
-    $controller = new \IndoFX\Controllers\CheckoutController();
-    $controller->index();
+    (new \IndoFX\Controllers\CheckoutController())->index();
 });
 
-// Rute untuk memproses tombol "Lanjutkan Pembayaran"
 $router->post('/checkout/process', function () {
-    $controller = new \IndoFX\Controllers\CheckoutController();
-    $controller->process();
+    (new \IndoFX\Controllers\CheckoutController())->process();
 });
 
-// Riwayat Transaksi & Invoice
+$router->post('/webhook/midtrans', function () {
+    (new \IndoFX\Controllers\WebhookController())->midtransCallback();
+});
+
 $router->get('/invoice', function () {
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: /login');
-        exit;
-    }
-    $invoicePath = BASE_PATH . '/resources/views/dashboard/invoice.php';
-    if (!file_exists($invoicePath)) {
-        $invoicePath = BASE_PATH . '/resources/views/invoice.php';
-    }
-    require $invoicePath;
+    (new \IndoFX\Controllers\UserController())->invoiceHistory();
 });
 
 // ==========================================
-// 5. ALUR LIBRARY PENGGUNA TERISOLASI
+// 5. LIBRARY PENGGUNA & ULASAN (DATABASE)
 // ==========================================
 
-if (!function_exists('getUserLibraryFile')) {
-    function getUserLibraryFile(string|int $userId): string
-    {
-        $dir = BASE_PATH . '/storage/app';
-        if (!is_dir($dir)) {
-            mkdir($dir, 0777, true);
-        }
-        return $dir . '/library_' . preg_replace('/[^a-zA-Z0-9_-]/', '', (string)$userId) . '.json';
-    }
-}
-
-// Halaman Tampilan Library
 $router->get('/library', function () {
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: /login');
-        exit;
-    }
-
-    $userId = $_SESSION['user_id'];
-    $filePath = getUserLibraryFile($userId);
-    $libraryItems = [];
-
-    if (file_exists($filePath)) {
-        $content = file_get_contents($filePath);
-        $libraryItems = json_decode($content, true) ?: [];
-    }
-
-    $libCandidates = [
-        BASE_PATH . '/resources/views/library.php',
-        BASE_PATH . '/resources/views/dashboard/library.php'
-    ];
-
-    foreach ($libCandidates as $path) {
-        if (file_exists($path)) {
-            require $path;
-            return;
-        }
-    }
-
-    http_response_code(404);
-    die('Berkas tampilan library tidak ditemukan.');
+    (new \IndoFX\Controllers\LibraryController())->index();
 });
 
-// API Tambah Aset ke Library
+$router->get('/library/detail', function () {
+    (new \IndoFX\Controllers\LibraryController())->detail();
+});
+
+$router->get('/library/download', function () {
+    (new \IndoFX\Controllers\LibraryController())->download();
+});
+
 $router->post('/api/library/add', function () {
-    header('Content-Type: application/json');
-
-    if (!isset($_SESSION['user_id'])) {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'message' => 'Silakan login terlebih dahulu']);
-        exit;
-    }
-
-    $userId = $_SESSION['user_id'];
-    $input = json_decode(file_get_contents('php://input'), true);
-
-    $assetId = $input['id'] ?? 'free-forest-mist';
-    $title = $input['title'] ?? 'Forest Mist & Fog Volume';
-    $seller = $input['seller'] ?? ($input['creator'] ?? 'Rimba Digital');
-    $image = $input['image'] ?? '/assets/img/forest-mist.jpg';
-    $pipelines = $input['pipelines'] ?? ['URP', 'HDRP'];
-
-    $filePath = getUserLibraryFile($userId);
-    $currentData = [];
-    if (file_exists($filePath)) {
-        $currentData = json_decode(file_get_contents($filePath), true) ?: [];
-    }
-
-    foreach ($currentData as $item) {
-        if ($item['id'] === $assetId) {
-            echo json_encode(['success' => true, 'message' => 'Aset sudah ada di library Anda']);
-            exit;
-        }
-    }
-
-    $newItem = [
-        'id' => $assetId,
-        'title' => $title,
-        'seller' => $seller,
-        'creator' => $seller,
-        'image' => $image,
-        'pipelines' => $pipelines,
-        'type' => $input['type'] ?? 'Gratis',
-        'acquired_date' => date('d M Y')
-    ];
-
-    array_unshift($currentData, $newItem);
-    file_put_contents($filePath, json_encode($currentData, JSON_PRETTY_PRINT));
-
-    echo json_encode(['success' => true, 'message' => 'Berhasil ditambahkan ke library']);
-    exit;
+    (new \IndoFX\Controllers\LibraryController())->claimFree();
 });
-
-// API Hapus Aset dari Library
-$router->post('/api/library/remove', function () {
-    header('Content-Type: application/json');
-
-    if (!isset($_SESSION['user_id'])) {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-        exit;
-    }
-
-    $userId = $_SESSION['user_id'];
-    $input = json_decode(file_get_contents('php://input'), true);
-    $assetId = (string)($input['id'] ?? '');
-
-    $filePath = getUserLibraryFile($userId);
-    if (file_exists($filePath)) {
-        $currentData = json_decode(file_get_contents($filePath), true) ?: [];
-        $currentData = array_values(array_filter($currentData, function ($item) use ($assetId) {
-            return (string)($item['id'] ?? '') !== $assetId;
-        }));
-        file_put_contents($filePath, json_encode($currentData, JSON_PRETTY_PRINT));
-    }
-
-    echo json_encode(['success' => true, 'message' => 'Aset berhasil dihapus']);
-    exit;
-});
-
-// ==========================================
-// 6. API ULASAN PUBLIK ASET
-// ==========================================
 
 $router->post('/api/reviews/add', function () {
-    header('Content-Type: application/json');
-
-    if (!isset($_SESSION['user_id'])) {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'message' => 'Silakan login terlebih dahulu']);
-        exit;
-    }
-
-    $input = json_decode(file_get_contents('php://input'), true);
-    $assetId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($input['asset_id'] ?? 'free-forest-mist'));
-    $rating  = (int) ($input['rating'] ?? 5);
-    $comment = trim((string) ($input['comment'] ?? ''));
-
-    if ($comment === '') {
-        echo json_encode(['success' => false, 'message' => 'Feedback tidak boleh kosong']);
-        exit;
-    }
-
-    $storageDir = BASE_PATH . '/storage/app';
-    if (!is_dir($storageDir)) {
-        mkdir($storageDir, 0777, true);
-    }
-
-    $reviewFile = $storageDir . '/reviews_' . $assetId . '.json';
-    $reviews = [];
-    if (file_exists($reviewFile)) {
-        $reviews = json_decode(file_get_contents($reviewFile), true) ?: [];
-    }
-
-    $userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna IndoFX');
-
-    array_unshift($reviews, [
-        'id'        => uniqid('rev_'),
-        'user_name' => $userName,
-        'rating'    => $rating,
-        'comment'   => $comment,
-        'date'      => date('d F Y')
-    ]);
-
-    file_put_contents($reviewFile, json_encode($reviews, JSON_PRETTY_PRINT));
-
-    echo json_encode(['success' => true, 'message' => 'Ulasan berhasil disimpan']);
-    exit;
-});
-
-$router->get('/api/reviews', function () {
-    header('Content-Type: application/json');
-    $assetId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($_GET['asset_id'] ?? 'free-forest-mist'));
-    $reviewFile = BASE_PATH . '/storage/app/reviews_' . $assetId . '.json';
-
-    $reviews = [];
-    if (file_exists($reviewFile)) {
-        $reviews = json_decode(file_get_contents($reviewFile), true) ?: [];
-    }
-
-    echo json_encode(['success' => true, 'data' => $reviews]);
-    exit;
-});
-
-// Halaman Detail Aset Milik User di Library (Untuk Unduh)
-$router->get('/library/detail', function () {
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: /login');
-        exit;
-    }
-
-    $detailLibCandidates = [
-        BASE_PATH . '/resources/views/dashboard/detail-library.php',
-        BASE_PATH . '/resources/views/detail-library.php',
-    ];
-
-    foreach ($detailLibCandidates as $path) {
-        if (file_exists($path)) {
-            require $path;
-            return;
-        }
-    }
-
-    http_response_code(404);
-    die('Berkas detail-library.php tidak ditemukan.');
+    (new \IndoFX\Controllers\LibraryController())->submitReview();
 });
 
 // ==========================================
-// 7. DASHBOARD ADMINISTRATOR (PROTEKSI ROLE)
+// 6. DASHBOARD ADMINISTRATOR (PROTEKSI ROLE)
 // ==========================================
 
-// Helper pengecekan hak akses admin
 $checkAdminAccess = function () {
     if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
         header('Location: /login');
@@ -323,7 +125,6 @@ $checkAdminAccess = function () {
     }
 };
 
-// 1. Dashboard Utama Admin
 $router->add('GET', '/admin', function () use ($checkAdminAccess) {
     $checkAdminAccess();
     require __DIR__ . '/../resources/views/admin/dashboard.php';
@@ -334,48 +135,19 @@ $router->add('GET', '/admin/dashboard', function () use ($checkAdminAccess) {
     require __DIR__ . '/../resources/views/admin/dashboard.php';
 });
 
-// 2. Kelola Pengguna Platform
 $router->add('GET', '/admin/users', function () use ($checkAdminAccess) {
     $checkAdminAccess();
     require __DIR__ . '/../resources/views/admin/users.php';
 });
 
-// 3. Moderasi Aset (Cegah 404 saat sidebar/tombol diklik)
-$router->add('GET', '/admin/assets', function () use ($checkAdminAccess) {
-    $checkAdminAccess();
-    $viewPath = __DIR__ . '/../resources/views/admin/assets.php';
-    if (file_exists($viewPath)) {
-        require $viewPath;
-    } else {
-        // Fallback sementara ke dashboard jika file belum dibuat
-        require __DIR__ . '/../resources/views/admin/dashboard.php';
-    }
-});
-
-// 4. Kelola Kategori (Cegah 404)
-$router->add('GET', '/admin/categories', function () use ($checkAdminAccess) {
-    $checkAdminAccess();
-    $viewPath = __DIR__ . '/../resources/views/admin/categories.php';
-    if (file_exists($viewPath)) {
-        require $viewPath;
-    } else {
-        require __DIR__ . '/../resources/views/admin/dashboard.php';
-    }
-});
-
-// 5. Monitor Transaksi (Cegah 404)
-$router->add('GET', '/admin/transactions', function () use ($checkAdminAccess) {
-    $checkAdminAccess();
-    $viewPath = __DIR__ . '/../resources/views/admin/transactions.php';
-    if (file_exists($viewPath)) {
-        require $viewPath;
-    } else {
-        require __DIR__ . '/../resources/views/admin/dashboard.php';
-    }
-});
 $router->add('GET', '/admin/assets', function () use ($checkAdminAccess) {
     $checkAdminAccess();
     require __DIR__ . '/../resources/views/admin/assets.php';
+});
+
+$router->add('GET', '/admin/assets/review', function () use ($checkAdminAccess) {
+    $checkAdminAccess();
+    require __DIR__ . '/../resources/views/admin/asset_review.php';
 });
 
 $router->add('GET', '/admin/categories', function () use ($checkAdminAccess) {
@@ -387,12 +159,9 @@ $router->add('GET', '/admin/seller-requests', function () use ($checkAdminAccess
     $checkAdminAccess();
     require __DIR__ . '/../resources/views/admin/seller_requests.php';
 });
+
 $router->add('GET', '/admin/transactions', function () use ($checkAdminAccess) {
     $checkAdminAccess();
     require __DIR__ . '/../resources/views/admin/transactions.php';
 });
 
-$router->add('GET', '/admin/assets/review', function () use ($checkAdminAccess) {
-    $checkAdminAccess();
-    require __DIR__ . '/../resources/views/admin/asset_review.php';
-});

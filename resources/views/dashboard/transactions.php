@@ -202,28 +202,20 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        const userKey = '<?= $userKey ?>';
-        let storeName = 'Arga Studio';
-        let allTransactions = [];
+        const storeName = <?= json_encode($storeName ?? $userName) ?>;
+        const allTransactions = <?= json_encode($transactions ?? []) ?>;
 
         document.addEventListener('DOMContentLoaded', function() {
-            // 1. Identifikasi Profil Penjual
-            const profileRaw = localStorage.getItem('indofx_seller_profile_' + userKey);
-            if (profileRaw) {
-                try {
-                    const prof = JSON.parse(profileRaw);
-                    if (prof.store_name) storeName = prof.store_name;
-                } catch (e) {}
-            }
-
+            // 1. Nama Toko & Inisial
             document.getElementById('navDashStoreName').innerText = storeName.toUpperCase();
             const words = storeName.trim().split(/\s+/);
             let inits = '';
             words.slice(0, 2).forEach(w => inits += w.charAt(0).toUpperCase());
             document.getElementById('navDashAvatar').innerText = inits || 'AS';
 
-            // 2. Ambil Transaksi Penjual
-            loadTransactions();
+            // 2. Render Stat & Tabel dari Database
+            updateSummaryCards(allTransactions);
+            renderTransactions();
 
             // 3. Listener Filter
             document.getElementById('filterKeyword').addEventListener('input', renderTransactions);
@@ -310,28 +302,102 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                 return;
             }
 
-            tbody.innerHTML = filtered.map(item => {
+            // Simpan hasil filter ke variabel global agar mudah diambil saat cetak
+            window.currentFilteredTransactions = filtered;
+
+            tbody.innerHTML = filtered.map((item, idx) => {
                 const price = parseFloat(item.price) || 0;
                 return `
                     <tr>
                         <td>
-                            <a href="javascript:void(0)" class="action-link fw-semibold">${item.invoice_no}</a>
+                            <a href="javascript:void(0)" onclick="printInvoice(${idx})" class="action-link fw-semibold">${item.invoice_no}</a>
                         </td>
                         <td class="fw-bold text-dark item-asset-title">${item.asset_title}</td>
-                        <td class="text-secondary small">${item.payment_method || 'QRIS/GoPay'}</td>
+                        <td class="text-secondary small">${item.payment_method || 'QRIS'}</td>
                         <td class="text-muted small">${item.date || 'Hari ini'}</td>
                         <td>
                             <span class="badge-status-approved">Settlement</span>
                         </td>
                         <td class="fw-bold text-success-income">Rp${price.toLocaleString('id-ID')}</td>
                         <td class="text-center">
-                            <a href="javascript:window.print()" class="text-dark print-btn-icon" title="Cetak Bukti Transaksi">
+                            <a href="javascript:void(0)" onclick="printInvoice(${idx})" class="text-dark print-btn-icon" title="Cetak Bukti Transaksi">
                                 <i class="bi bi-printer fs-5"></i>
                             </a>
                         </td>
                     </tr>
                 `;
             }).join('');
+        }
+
+        function printInvoice(idx) {
+            const item = (window.currentFilteredTransactions || [])[idx];
+            if (!item) return;
+
+            const priceFormatted = 'Rp ' + (parseFloat(item.price) || 0).toLocaleString('id-ID');
+            const buyerInfo = item.buyer_email && item.buyer_email !== '-'
+                ? `${item.buyer_name} (${item.buyer_email})`
+                : (item.buyer_name || 'Pembeli IndoFX');
+
+            const printWin = window.open('', '_blank', 'width=800,height=900');
+            printWin.document.write(`
+                <!DOCTYPE html>
+                <html lang="id">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Invoice - ${item.invoice_no}</title>
+                    <style>
+                        body { font-family: Arial, Helvetica, sans-serif; color: #222; padding: 36px 44px; margin: 0; }
+                        .inv-title { color: #ED6B1D; font-size: 20px; font-weight: 800; margin: 0 0 6px 0; }
+                        .inv-meta { font-size: 13px; margin: 2px 0; color: #333; }
+                        .inv-divider { border: none; border-top: 2px solid #ED6B1D; margin: 16px 0 22px 0; }
+                        .inv-info p { font-size: 13.5px; margin: 10px 0; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13.5px; }
+                        th, td { border: 1px solid #ddd; padding: 10px 12px; }
+                        th { background-color: #f8f9fa; text-align: left; font-weight: 700; }
+                        th.text-right, td.text-right { text-align: right; }
+                        .inv-total { text-align: right; font-size: 14.5px; font-weight: 700; margin-top: 14px; }
+                    </style>
+                </head>
+                <body>
+                    <h1 class="inv-title">INDOFX MARKETPLACE - INVOICE</h1>
+                    <p class="inv-meta">No. Order: <strong>${item.invoice_no}</strong></p>
+                    <p class="inv-meta">Tanggal: ${item.date}</p>
+
+                    <hr class="inv-divider">
+
+                    <div class="inv-info">
+                        <p><strong>Pembeli:</strong> ${buyerInfo}</p>
+                        <p><strong>Penjual:</strong> ${storeName}</p>
+                        <p><strong>Metode Pembayaran:</strong> ${item.payment_method || 'QRIS'} (Ref: ${item.midtrans_ref || '-'})</p>
+                        <p><strong>Status:</strong> Settlement</p>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Item Aset</th>
+                                <th class="text-right">Harga</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>${item.asset_title}</td>
+                                <td class="text-right">${priceFormatted}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="inv-total">Total Bayar: ${priceFormatted}</div>
+
+                    <script>
+                        window.onload = function() {
+                            window.print();
+                        };
+                    <\/script>
+                </body>
+                </html>
+            `);
+            printWin.document.close();
         }
     </script>
 </body>

@@ -121,7 +121,7 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                     <div class="col-10 col-sm-5 col-md-3">
                         <select class="form-select filter-select" id="filterCategory">
                             <option value="all" selected>Semua Kategori</option>
-                            <option value="VFX Partikel">VFX Partikel</option>
+                            <option value="Particle">Particle</option>
                             <option value="Shader">Shader</option>
                             <option value="Model 3D">Model 3D</option>
                             <option value="Tekstur & Material">Tekstur &amp; Material</option>
@@ -185,32 +185,18 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- SCRIPT HIDRASI DATA DINAMIS & PENGHITUNG TERJUAL -->
     <script>
-        const userKey = '<?= $userKey ?>';
-        const defaultUserName = '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>';
-        let allAssets = [];
-        let storeName = defaultUserName || 'Arga Studio';
-        let sellerSales = [];
+        const storeName = <?= json_encode($storeName ?? $userName) ?>;
+        const allAssets = <?= json_encode($assets ?? []) ?>;
 
         document.addEventListener('DOMContentLoaded', function() {
-            const profileRaw = localStorage.getItem('indofx_seller_profile_' + userKey);
-            if (profileRaw) {
-                try {
-                    const prof = JSON.parse(profileRaw);
-                    if (prof.store_name) storeName = prof.store_name;
-                } catch (e) {}
-            }
-
             document.getElementById('pageStoreTitle').innerText = storeName;
             document.getElementById('navDashStoreName').innerText = storeName.toUpperCase();
 
             const words = storeName.trim().split(/\s+/);
-            let inits = '';
-            words.slice(0, 2).forEach(w => inits += w.charAt(0).toUpperCase());
-            document.getElementById('navDashAvatar').innerText = inits || 'AS';
+            document.getElementById('navDashAvatar').innerText = words.slice(0, 2).map(w => w.charAt(0).toUpperCase()).join('') || 'S';
 
-            loadAssets();
+            renderTable();
 
             document.getElementById('filterKeyword').addEventListener('input', renderTable);
             document.getElementById('filterStatus').addEventListener('change', renderTable);
@@ -218,179 +204,16 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
             document.getElementById('btnApplyFilter').addEventListener('click', renderTable);
         });
 
-        function loadAssets() {
-            let combined = [];
-            const seenTitles = new Set();
-
-            // 1. Tarik dari antrean moderasi admin (vfx_modern & asset_bagus)
-            try {
-                const adminQueue = JSON.parse(localStorage.getItem('indofx_moderation_queue')) || [];
-                adminQueue.forEach(aq => {
-                    const cleanTitle = (aq.title || '').trim().toLowerCase();
-                    if (cleanTitle) {
-                        const studio = (aq.studio || aq.creator || aq.seller || '').toLowerCase();
-                        const isMine = studio.includes('naufal') ||
-                            studio === storeName.toLowerCase() ||
-                            studio === defaultUserName.toLowerCase() ||
-                            studio === '';
-
-                        if (isMine) {
-                            seenTitles.add(cleanTitle);
-
-                            let mappedStatus = 'Pending';
-                            if (aq.status === 'Published' || aq.status === 'Disetujui') {
-                                mappedStatus = 'Disetujui';
-                            } else if (aq.status === 'Ditolak') {
-                                mappedStatus = 'Ditolak';
-                            } else {
-                                mappedStatus = 'Pending';
-                            }
-
-                            combined.push({
-                                id: aq.id || ('asset-' + Date.now()),
-                                title: aq.title,
-                                category: aq.category || 'VFX Partikel',
-                                pipelines: Array.isArray(aq.pipelines) ? aq.pipelines : [aq.pipeline || 'Built-in'],
-                                price: aq.price_num || parseFloat(String(aq.price).replace(/[^0-9]/g, '')) || 0,
-                                price_text: aq.price || (aq.price_num === 0 ? 'Gratis' : 'Rp' + Number(aq.price_num || 0).toLocaleString('id-ID')),
-                                status: mappedStatus,
-                                downloads: aq.downloads || aq.sales || '0x Terjual',
-                                created_at: aq.date || aq.created_at || '10 Nov 2026',
-                                reject_reason: aq.reject_reason || ''
-                            });
-                        }
-                    }
-                });
-            } catch (e) {}
-
-            // 2. Ambil dari penyimpanan toko penjual
-            Object.keys(localStorage).forEach(key => {
-                if (key.startsWith('indofx_seller_assets_')) {
-                    try {
-                        const parsed = JSON.parse(localStorage.getItem(key)) || [];
-                        if (Array.isArray(parsed)) {
-                            parsed.forEach(item => {
-                                const cleanTitle = (item.title || '').trim().toLowerCase();
-                                if (cleanTitle && !seenTitles.has(cleanTitle)) {
-                                    seenTitles.add(cleanTitle);
-                                    let mappedStatus = item.status || 'Pending';
-                                    if (mappedStatus === 'Menunggu') mappedStatus = 'Pending';
-
-                                    combined.push({
-                                        id: item.id || ('asset-' + Date.now()),
-                                        title: item.title,
-                                        category: item.category || 'VFX Partikel',
-                                        pipelines: Array.isArray(item.pipelines) ? item.pipelines : [item.pipeline || 'Built-in'],
-                                        price: item.price_num || parseFloat(String(item.price).replace(/[^0-9]/g, '')) || 0,
-                                        price_text: item.price_text || (typeof item.price === 'string' ? item.price : ('Rp' + Number(item.price || 0).toLocaleString('id-ID'))),
-                                        status: mappedStatus,
-                                        downloads: item.sales || item.downloads || '0x Terjual',
-                                        created_at: item.date || item.created_at || '6 Nov 2026',
-                                        reject_reason: item.reject_reason || ''
-                                    });
-                                }
-                            });
-                        }
-                    } catch (e) {}
-                }
-            });
-
-            // 3. Fallback 3 aset awal Figma
-            const defaultBase = [{
-                    id: 'asset-vfx-2',
-                    title: 'vfx_test2',
-                    category: 'VFX Partikel',
-                    pipelines: ['Built-in', 'URP'],
-                    price: 200000,
-                    price_text: 'Rp200.000',
-                    status: 'Disetujui',
-                    created_at: '6 Nov 2026',
-                    downloads: '1x Terjual'
-                },
-                {
-                    id: 'asset-vfx-1',
-                    title: 'vfx_test1',
-                    category: 'VFX Partikel',
-                    pipelines: ['Built-in', 'URP'],
-                    price: 300000,
-                    price_text: 'Rp300.000',
-                    status: 'Disetujui',
-                    created_at: '5 Nov 2026',
-                    downloads: '3x Terjual'
-                },
-                {
-                    id: 'asset-black-24',
-                    title: 'black-24dp',
-                    category: 'VFX Partikel',
-                    pipelines: ['Built-in'],
-                    price: 150000,
-                    price_text: 'Rp150.000',
-                    status: 'Disetujui',
-                    created_at: '5 Nov 2026',
-                    downloads: '0x Terjual'
-                }
-            ];
-
-            defaultBase.forEach(dba => {
-                const cleanTitle = dba.title.trim().toLowerCase();
-                if (!seenTitles.has(cleanTitle)) {
-                    seenTitles.add(cleanTitle);
-                    combined.push(dba);
-                }
-            });
-
-            allAssets = combined;
-
-            // CROSS-CHECK TRANSAKSI PEMBELIAN PEMBELI
-            const myTitles = new Set(allAssets.map(a => a.title.trim().toLowerCase()));
-            const myIds = new Set(allAssets.map(a => String(a.id)));
-            let combinedSales = [];
-
-            Object.keys(localStorage).forEach(key => {
-                if (key.startsWith('indofx_transactions_')) {
-                    try {
-                        const txList = JSON.parse(localStorage.getItem(key)) || [];
-                        txList.forEach(tx => {
-                            if (Array.isArray(tx.items)) {
-                                tx.items.forEach(it => {
-                                    if (myTitles.has((it.title || '').trim().toLowerCase()) || myIds.has(String(it.id))) {
-                                        combinedSales.push({
-                                            invoice_no: tx.invoice_no,
-                                            asset_id: it.id,
-                                            asset_title: it.title,
-                                            price: it.price
-                                        });
-                                    }
-                                });
-                            }
-                        });
-                    } catch (e) {}
-                }
-            });
-
-            let seen = new Set();
-            sellerSales = [];
-            combinedSales.forEach(s => {
-                const uniqKey = (s.invoice_no || '') + '_' + (s.asset_title || '');
-                if (!seen.has(uniqKey) && (s.invoice_no || s.asset_title)) {
-                    seen.add(uniqKey);
-                    sellerSales.push(s);
-                }
-            });
-
-            renderTable();
-        }
-
         function renderTable() {
-            const tbody = document.getElementById('assetsTableBody');
-            const keyword = document.getElementById('filterKeyword').value.toLowerCase().trim();
-            const statusFilter = document.getElementById('filterStatus').value;
+            const tbody          = document.getElementById('assetsTableBody');
+            const keyword        = document.getElementById('filterKeyword').value.toLowerCase().trim();
+            const statusFilter   = document.getElementById('filterStatus').value;
             const categoryFilter = document.getElementById('filterCategory').value;
 
             const filtered = allAssets.filter(item => {
-                const matchKeyword = !keyword || (item.title && item.title.toLowerCase().includes(keyword));
-                const matchStatus = statusFilter === 'all' || item.status === statusFilter;
-                const matchCategory = categoryFilter === 'all' || item.category === categoryFilter;
+                const matchKeyword  = !keyword || (item.title && item.title.toLowerCase().includes(keyword));
+                const matchStatus   = statusFilter === 'all' || item.status === statusFilter;
+                const matchCategory = categoryFilter === 'all' || (item.category || '').toLowerCase() === categoryFilter.toLowerCase();
                 return matchKeyword && matchStatus && matchCategory;
             });
 
@@ -409,10 +232,7 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
             }
 
             tbody.innerHTML = filtered.map(item => {
-                const pipes = Array.isArray(item.pipelines) ?
-                    item.pipelines : [item.pipelines || item.render_pipeline || 'Built-in'];
-                const primaryPipe = pipes[0] || 'Built-in';
-
+                const pipes = Array.isArray(item.pipelines) && item.pipelines.length > 0 ? item.pipelines : ['Built-in'];
                 const pipeHtml = pipes.map(p => {
                     const pLower = String(p).toLowerCase();
                     let cls = 'badge-urp';
@@ -421,64 +241,29 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                     return `<span class="badge-pipe ${cls} me-1">${p}</span>`;
                 }).join('');
 
-                let priceNum = 0;
-                let isGratis = false;
-                if (typeof item.price === 'number') {
-                    priceNum = item.price;
-                    isGratis = (priceNum <= 0);
-                } else if (typeof item.price === 'string') {
-                    const cleaned = item.price.replace(/[^0-9]/g, '');
-                    priceNum = cleaned ? parseInt(cleaned, 10) : 0;
-                    isGratis = (item.price.toLowerCase().trim() === 'gratis' || priceNum <= 0);
-                }
-
-                // Hitung Terjual / Unduhan Dinamis
-                let downloadOrSalesText = item.downloads || '0x Terjual';
+                const isGratis = Number(item.price) <= 0;
+                let downloadOrSalesText = '-';
                 if (item.status === 'Disetujui') {
-                    if (isGratis) {
-                        const rawCount = parseInt(String(item.downloads || '0').replace(/[^0-9]/g, ''), 10) || 0;
-                        downloadOrSalesText = `${Math.max(rawCount, 1)}x Unduhan`;
-                    } else {
-                        const salesCount = sellerSales.filter(s =>
-                            String(s.asset_id) === String(item.id) || s.asset_title === item.title
-                        ).length;
-
-                        const storedCount = parseInt(String(item.downloads || '0').replace(/[^0-9]/g, ''), 10) || 0;
-                        const finalCount = Math.max(salesCount, storedCount, item.title === 'vfx_test1' ? 3 : (item.title === 'vfx_test2' ? 1 : 0));
-                        downloadOrSalesText = `${finalCount}x Terjual`;
-                    }
-                } else {
-                    downloadOrSalesText = '-';
+                    downloadOrSalesText = isGratis
+                        ? `${item.download_count}x Unduhan`
+                        : `${item.sold_count}x Terjual`;
                 }
 
-                const detailUrl = `/asset/detail?id=${encodeURIComponent(item.id || '')}` +
-                    `&slug=${encodeURIComponent(item.slug || item.id || '')}` +
-                    `&title=${encodeURIComponent(item.title || '')}` +
-                    `&category=${encodeURIComponent(item.category || 'VFX Partikel')}` +
-                    `&creator=${encodeURIComponent(storeName)}` +
-                    `&price=${encodeURIComponent(priceNum)}` +
-                    `&pipeline=${encodeURIComponent(primaryPipe)}`;
+                const detailUrl = `/asset/detail?id=${encodeURIComponent(item.public_id)}`;
 
                 let statusBadge = `<span class="badge-status-pending">Pending</span>`;
-                let actionBtn = ``;
+                let actionBtn   = `<span class="text-muted small fst-italic">Ditinjau Admin</span>`;
 
                 if (item.status === 'Disetujui') {
-                    statusBadge = `<span class="badge-status-approved">Disetujui</span>`;
+                    statusBadge = `<span class="badge-status-approved">Published</span>`;
                     actionBtn = `
                         <a href="/dashboard/add-asset?edit_id=${encodeURIComponent(item.id)}" class="action-link-edit">Edit</a>
                         <span class="action-divider">|</span>
                         <a href="${detailUrl}" class="action-link-view">Lihat</a>
                     `;
                 } else if (item.status === 'Ditolak') {
-                    statusBadge = `
-                        <div class="d-inline-flex align-items-center gap-1">
-                            <span class="badge-status-rejected">Ditolak</span>
-                        </div>
-                    `;
-                    actionBtn = `<a href="/dashboard/add-asset?edit_id=${encodeURIComponent(item.id)}" class="action-link-danger">Revisi</a>`;
-                } else {
-                    statusBadge = `<span class="badge-status-pending">Menunggu</span>`;
-                    actionBtn = `<span class="text-muted small fst-italic">Ditinjau Admin</span>`;
+                    statusBadge = `<span class="badge-status-rejected">Ditolak</span>`;
+                    actionBtn   = `<a href="/dashboard/add-asset?edit_id=${encodeURIComponent(item.id)}" class="action-link-danger">Revisi</a>`;
                 }
 
                 return `
@@ -487,11 +272,11 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                             <div class="fw-bold text-dark item-asset-title">${item.title}</div>
                             <div class="d-flex flex-wrap gap-1 mt-1">${pipeHtml}</div>
                         </td>
-                        <td class="text-muted small">${item.category || 'VFX Partikel'}</td>
-                        <td class="fw-bold text-dark">${item.price_text || (isGratis ? 'Gratis' : 'Rp' + priceNum.toLocaleString('id-ID'))}</td>
+                        <td class="text-muted small">${item.category}</td>
+                        <td class="fw-bold text-dark">${item.price_text}</td>
                         <td>${statusBadge}</td>
                         <td class="text-muted small">${downloadOrSalesText}</td>
-                        <td class="text-muted small">${item.created_at || '15 Jan 2026'}</td>
+                        <td class="text-muted small">${item.created_at}</td>
                         <td class="text-end pe-4 text-nowrap">${actionBtn}</td>
                     </tr>
                 `;
