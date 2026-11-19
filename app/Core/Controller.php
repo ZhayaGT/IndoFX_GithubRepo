@@ -25,4 +25,24 @@ class Controller
         header('Location: ' . $path);
         exit;
     }
+
+    // Halaman pembeli: tamu diarahkan ke login.
+    public static function guardLogin(): void
+    {
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: /login');
+            exit;
+        }
+    }
+
+    // Halaman penjual: pembeli diarahkan ke pendaftaran penjual.
+    public static function guardSeller(): void
+    {
+        self::guardLogin();
+
+        if (($_SESSION['role'] ?? '') !== 'seller') {
+            header('Location: /seller/register');
+            exit;
+        }
+    }
 }

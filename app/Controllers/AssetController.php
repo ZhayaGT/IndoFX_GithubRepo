@@ -26,6 +26,15 @@ class AssetController extends Controller {
             return;
         }
 
+        // Aset yang belum disetujui hanya boleh dilihat pemiliknya.
+        $isOwner = isset($_SESSION['user_id']) && (int) $_SESSION['user_id'] === (int) $asset['seller_id'];
+        $isVisible = $asset['status'] === 'published' && $asset['deleted_at'] === null;
+
+        if (!$isVisible && !$isOwner) {
+            $this->notFound();
+            return;
+        }
+
         // 3. Ambil galeri gambar dari Supabase (atau gunakan array kosong jika belum ada)
         $internalId = $asset['id']; 
         $galleryImages = $assetModel->getAssetGallery($internalId);
@@ -67,5 +76,11 @@ class AssetController extends Controller {
             'reviewSummary' => ['average' => 0, 'total' => 0, 'counts' => [5=>0, 4=>0, 3=>0, 2=>0, 1=>0]],
             'reviews'       => [],
         ]);
+    }
+
+    private function notFound(): void
+    {
+        http_response_code(404);
+        require BASE_PATH . '/resources/views/errors/404.php';
     }
 }

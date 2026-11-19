@@ -1,7 +1,14 @@
 <?php
-$isLoggedIn = isset($_SESSION['user_id']);
-$userKey    = (string) ($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user');
-$userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna');
+$storeName    = $storeName ?? 'Toko Saya';
+$initials     = $initials ?? 'AS';
+$transactions = $transactions ?? [];
+$income       = $income ?? 0;
+$count        = $count ?? 0;
+$average      = $average ?? 0;
+
+$keyword     = trim((string) ($_GET['q'] ?? ''));
+$paymentType = trim((string) ($_GET['payment_type'] ?? ''));
+$date        = trim((string) ($_GET['date'] ?? ''));
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -11,27 +18,21 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Riwayat Transaksi Penjualan - IndoFX</title>
 
-    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Bootstrap 5 CSS & Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    <!-- Stylesheets -->
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/dashboard.css">
 </head>
 
 <body class="dashboard-body">
 
-    <!-- 1. Header Navbar Oranye Dashboard -->
     <nav class="navbar navbar-orange sticky-top">
         <div class="container-fluid px-4 d-flex justify-content-between align-items-center">
-
-            <!-- Logo IndoFX Kiri -->
             <a class="navbar-brand m-0 d-flex align-items-center gap-2 text-decoration-none" href="/">
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 2L20.66 7V17L12 22L3.34 17V7L12 2Z" fill="#ED6B1D" stroke="#1A1A1A" stroke-width="1.8" stroke-linejoin="round" />
@@ -44,19 +45,15 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                 <span class="brand-text">IndoFX</span>
             </a>
 
-            <!-- Profil Kreator Kanan Dinamis -->
             <a href="/" class="d-flex align-items-center gap-2 text-white text-decoration-none" title="Kembali ke Beranda">
-                <span class="avatar-circle" id="navDashAvatar">AS</span>
-                <span class="fw-bold fs-7 tracking-wide" id="navDashStoreName">ARGA STUDIO</span>
+                <span class="avatar-circle"><?= htmlspecialchars($initials, ENT_QUOTES, 'UTF-8') ?></span>
+                <span class="fw-bold fs-7 tracking-wide"><?= htmlspecialchars(mb_strtoupper($storeName), ENT_QUOTES, 'UTF-8') ?></span>
             </a>
-
         </div>
     </nav>
 
-    <!-- 2. Kontainer Utama -->
     <div class="dashboard-layout-container">
 
-        <!-- SIDEBAR KIRI (PUTIH) -->
         <aside class="dashboard-sidebar">
             <ul class="nav flex-column sidebar-nav-list">
                 <li class="nav-item">
@@ -86,78 +83,86 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
             </ul>
         </aside>
 
-        <!-- KONTEN KANAN -->
         <main class="dashboard-main-content">
 
-            <!-- Header Judul -->
             <div class="mb-4">
                 <h2 class="dash-page-title mb-1">Riwayat Transaksi Penjualan</h2>
                 <p class="text-muted small m-0">Daftar seluruh transaksi pembelian aset Anda oleh pembeli lokal.</p>
             </div>
 
-            <!-- 3 Stat Cards Dinamis dengan Garis Aksen Kiri -->
             <div class="row g-3 mb-4">
-                <!-- Card 1: Total Pendapatan (Aksen Hijau) -->
                 <div class="col-12 col-md-4">
                     <div class="stat-card stat-card-stripe stripe-green p-3 h-100">
                         <span class="stat-card-title d-block mb-1">Total Pendapatan</span>
-                        <div class="stat-card-value text-stat-green mb-1" id="statTotalIncome">Rp0</div>
+                        <div class="stat-card-value text-stat-green mb-1"><?= format_rupiah_amount((int) $income) ?></div>
                         <span class="stat-card-sub text-muted">Sudah termasuk potongan fee platform</span>
                     </div>
                 </div>
 
-                <!-- Card 2: Aset Terjual (Aksen Biru) -->
                 <div class="col-12 col-md-4">
                     <div class="stat-card stat-card-stripe stripe-blue p-3 h-100">
                         <span class="stat-card-title d-block mb-1">Aset Terjual</span>
-                        <div class="stat-card-value text-stat-blue mb-1" id="statTotalOrders">0 Transaksi</div>
+                        <div class="stat-card-value text-stat-blue mb-1"><?= (int) $count ?> Transaksi</div>
                         <span class="stat-card-sub text-muted">Status: Midtrans Settlement</span>
                     </div>
                 </div>
 
-                <!-- Card 3: Rata-rata Pendapatan (Aksen Kuning) -->
                 <div class="col-12 col-md-4">
                     <div class="stat-card stat-card-stripe stripe-yellow p-3 h-100">
                         <span class="stat-card-title d-block mb-1">Rata-rata Pendapatan</span>
-                        <div class="stat-card-value text-stat-yellow mb-1" id="statAvgIncome">Rp0</div>
+                        <div class="stat-card-value text-stat-yellow mb-1"><?= format_rupiah_amount((int) $average) ?></div>
                         <span class="stat-card-sub text-muted">Per Aset Berbayar</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Bar Filter Transaksi Responsif -->
-            <div class="filter-bar-container mb-4">
+            <form class="filter-bar-container mb-4" method="get" action="/dashboard/transactions">
                 <div class="row g-2 align-items-center">
-                    <!-- Search Input -->
                     <div class="col-12 col-md-5">
                         <div class="search-input-box">
                             <i class="bi bi-search"></i>
-                            <input type="text" id="filterKeyword" class="form-control filter-input" placeholder="Cari No.Invoice atau Judul Aset.....">
+                            <input type="text" name="q" class="form-control filter-input" placeholder="Cari No.Invoice atau Judul Aset....."
+                                value="<?= htmlspecialchars($keyword, ENT_QUOTES, 'UTF-8') ?>">
                         </div>
                     </div>
-                    <!-- Date Picker -->
                     <div class="col-12 col-sm-6 col-md-3">
-                        <input type="date" id="filterDate" class="form-control filter-input">
+                        <input type="date" name="date" class="form-control filter-input" value="<?= htmlspecialchars($date, ENT_QUOTES, 'UTF-8') ?>">
                     </div>
-                    <!-- Dropdown Metode Pembayaran -->
                     <div class="col-10 col-sm-5 col-md-3">
-                        <select class="form-select filter-select" id="filterPayment">
-                            <option value="all" selected>Semua Metode Pembayaran</option>
-                            <option value="qris">QRIS / GoPay / E-wallet</option>
-                            <option value="card">Kartu Kredit / Debit</option>
-                            <option value="bank">Virtual Account / Bank</option>
+                        <select class="form-select filter-select" name="payment_type">
+                            <option value="">Semua Metode Pembayaran</option>
+                            <option value="qris" <?= $paymentType === 'qris' ? 'selected' : '' ?>>QRIS / GoPay / E-wallet</option>
+                            <option value="credit_card" <?= $paymentType === 'credit_card' ? 'selected' : '' ?>>Kartu Kredit / Debit</option>
+                            <option value="bank_transfer" <?= $paymentType === 'bank_transfer' ? 'selected' : '' ?>>Virtual Account / Bank</option>
                         </select>
                     </div>
-                    <!-- Tombol Cari -->
                     <div class="col-2 col-sm-1 col-md-1 text-end">
-                        <button class="btn btn-filter-submit w-100" type="button" id="btnApplyFilter">
+                        <button class="btn btn-filter-submit w-100" type="submit">
                             <i class="bi bi-search"></i>
                         </button>
                     </div>
                 </div>
-            </div>
+            </form>
 
-            <!-- Tabel Riwayat Transaksi -->
+            <?php
+            // Filter diterapkan di PHP karena daftar transaksi satu penjual selalu kecil.
+            $rows = array_values(array_filter($transactions, static function (array $row) use ($keyword, $paymentType, $date): bool {
+                if ($keyword !== ''
+                    && stripos((string) $row['invoice_number'], $keyword) === false
+                    && stripos((string) $row['asset_title'], $keyword) === false) {
+                    return false;
+                }
+                if ($paymentType !== '' && (string) $row['payment_type'] !== $paymentType) {
+                    return false;
+                }
+                if ($date !== '' && !str_starts_with((string) ($row['paid_at'] ?? $row['created_at']), $date)) {
+                    return false;
+                }
+
+                return true;
+            }));
+            ?>
+
             <div class="table-card-wrapper">
                 <div class="table-responsive">
                     <table class="table table-custom align-middle mb-0">
@@ -172,8 +177,32 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                                 <th scope="col" class="text-center" style="width: 6%;">Cetak</th>
                             </tr>
                         </thead>
-                        <tbody id="transactionsTableBody">
-                            <!-- Diisi dinamis dari LocalStorage -->
+                        <tbody>
+                            <?php if ($rows === []): ?>
+                                <tr>
+                                    <td colspan="7" class="text-center py-5 text-muted">
+                                        <i class="bi bi-receipt fs-2 d-block mb-2 text-secondary"></i>
+                                        <h6 class="fw-bold mb-1">Belum Ada Transaksi Penjualan</h6>
+                                        <p class="small text-muted mb-0">Transaksi pembelian aset berbayar Anda oleh pengguna lain akan otomatis muncul di sini.</p>
+                                    </td>
+                                </tr>
+                            <?php else: ?>
+                                <?php foreach ($rows as $row): ?>
+                                    <tr>
+                                        <td><span class="action-link fw-semibold"><?= htmlspecialchars($row['invoice_number'], ENT_QUOTES, 'UTF-8') ?></span></td>
+                                        <td class="fw-bold text-dark item-asset-title"><?= htmlspecialchars($row['asset_title'], ENT_QUOTES, 'UTF-8') ?></td>
+                                        <td class="text-secondary small"><?= htmlspecialchars((string) ($row['payment_type'] ?: 'QRIS/GoPay'), ENT_QUOTES, 'UTF-8') ?></td>
+                                        <td class="text-muted small"><?= date('d M Y', strtotime((string) ($row['paid_at'] ?? $row['created_at']))) ?></td>
+                                        <td><span class="badge-status-approved"><?= htmlspecialchars(ucfirst((string) $row['status']), ENT_QUOTES, 'UTF-8') ?></span></td>
+                                        <td class="fw-bold text-success-income"><?= format_rupiah_amount((int) $row['amount']) ?></td>
+                                        <td class="text-center">
+                                            <a href="javascript:window.print()" class="text-dark print-btn-icon" title="Cetak Bukti Transaksi">
+                                                <i class="bi bi-printer fs-5"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -182,7 +211,6 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
         </main>
     </div>
 
-    <!-- 3. Footer Minimal -->
     <footer class="footer-main" id="tentang">
         <div class="container-figma">
             <div class="footer-center-content">
@@ -198,142 +226,7 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
         </div>
     </footer>
 
-    <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <script>
-        const userKey = '<?= $userKey ?>';
-        let storeName = 'Arga Studio';
-        let allTransactions = [];
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // 1. Identifikasi Profil Penjual
-            const profileRaw = localStorage.getItem('indofx_seller_profile_' + userKey);
-            if (profileRaw) {
-                try {
-                    const prof = JSON.parse(profileRaw);
-                    if (prof.store_name) storeName = prof.store_name;
-                } catch (e) {}
-            }
-
-            document.getElementById('navDashStoreName').innerText = storeName.toUpperCase();
-            const words = storeName.trim().split(/\s+/);
-            let inits = '';
-            words.slice(0, 2).forEach(w => inits += w.charAt(0).toUpperCase());
-            document.getElementById('navDashAvatar').innerText = inits || 'AS';
-
-            // 2. Ambil Transaksi Penjual
-            loadTransactions();
-
-            // 3. Listener Filter
-            document.getElementById('filterKeyword').addEventListener('input', renderTransactions);
-            document.getElementById('filterDate').addEventListener('change', renderTransactions);
-            document.getElementById('filterPayment').addEventListener('change', renderTransactions);
-            document.getElementById('btnApplyFilter').addEventListener('click', renderTransactions);
-        });
-
-        function loadTransactions() {
-            // Kunci spesifik penjual: indofx_seller_sales_[userKey] atau nama toko yang dinormalisasi
-            const cleanKey = storeName.toLowerCase().replace(/[^a-z0-9]/g, '');
-            const rawSales = localStorage.getItem('indofx_seller_sales_' + userKey) ||
-                localStorage.getItem('indofx_seller_sales_' + cleanKey) ||
-                localStorage.getItem('indofx_seller_sales_' + storeName);
-
-            if (rawSales) {
-                try {
-                    allTransactions = JSON.parse(rawSales);
-                } catch (e) {
-                    allTransactions = [];
-                }
-            } else {
-                // Jika penjual belum memiliki transaksi penjualan dari pembeli
-                allTransactions = [];
-            }
-
-            updateSummaryCards(allTransactions);
-            renderTransactions();
-        }
-
-        function updateSummaryCards(data) {
-            const totalOrders = data.length;
-            let totalIncome = 0;
-
-            data.forEach(item => {
-                const price = parseFloat(item.price) || 0;
-                totalIncome += price;
-            });
-
-            const avgIncome = totalOrders > 0 ? Math.round(totalIncome / totalOrders) : 0;
-
-            document.getElementById('statTotalIncome').innerText = 'Rp ' + totalIncome.toLocaleString('id-ID');
-            document.getElementById('statTotalOrders').innerText = totalOrders + ' Transaksi';
-            document.getElementById('statAvgIncome').innerText = 'Rp ' + avgIncome.toLocaleString('id-ID');
-        }
-
-        function renderTransactions() {
-            const tbody = document.getElementById('transactionsTableBody');
-            const keyword = document.getElementById('filterKeyword').value.toLowerCase().trim();
-            const selectedDate = document.getElementById('filterDate').value; // Format YYYY-MM-DD
-            const paymentFilter = document.getElementById('filterPayment').value;
-
-            const filtered = allTransactions.filter(item => {
-                const matchKeyword = !keyword ||
-                    (item.invoice_no && item.invoice_no.toLowerCase().includes(keyword)) ||
-                    (item.asset_title && item.asset_title.toLowerCase().includes(keyword));
-
-                let matchDate = true;
-                if (selectedDate && item.date_raw) {
-                    matchDate = item.date_raw.startsWith(selectedDate);
-                }
-
-                let matchPayment = true;
-                if (paymentFilter !== 'all') {
-                    const payStr = (item.payment_method || '').toLowerCase();
-                    if (paymentFilter === 'qris') matchPayment = payStr.includes('qris') || payStr.includes('gopay') || payStr.includes('shopee') || payStr.includes('ewallet');
-                    if (paymentFilter === 'card') matchPayment = payStr.includes('kartu') || payStr.includes('card') || payStr.includes('visa');
-                    if (paymentFilter === 'bank') matchPayment = payStr.includes('bank') || payStr.includes('virtual') || payStr.includes('bill') || payStr.includes('bca') || payStr.includes('mandiri');
-                }
-
-                return matchKeyword && matchDate && matchPayment;
-            });
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="text-center py-5 text-muted">
-                            <i class="bi bi-receipt fs-2 d-block mb-2 text-secondary"></i>
-                            <h6 class="fw-bold mb-1">Belum Ada Transaksi Penjualan</h6>
-                            <p class="small text-muted mb-0">Transaksi pembelian aset berbayar Anda oleh pengguna lain akan otomatis muncul di sini.</p>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            tbody.innerHTML = filtered.map(item => {
-                const price = parseFloat(item.price) || 0;
-                return `
-                    <tr>
-                        <td>
-                            <a href="javascript:void(0)" class="action-link fw-semibold">${item.invoice_no}</a>
-                        </td>
-                        <td class="fw-bold text-dark item-asset-title">${item.asset_title}</td>
-                        <td class="text-secondary small">${item.payment_method || 'QRIS/GoPay'}</td>
-                        <td class="text-muted small">${item.date || 'Hari ini'}</td>
-                        <td>
-                            <span class="badge-status-approved">Settlement</span>
-                        </td>
-                        <td class="fw-bold text-success-income">Rp${price.toLocaleString('id-ID')}</td>
-                        <td class="text-center">
-                            <a href="javascript:window.print()" class="text-dark print-btn-icon" title="Cetak Bukti Transaksi">
-                                <i class="bi bi-printer fs-5"></i>
-                            </a>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-    </script>
 </body>
 
 </html>

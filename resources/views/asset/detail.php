@@ -1,19 +1,6 @@
 <?php
-// Basis URL gambar katalog: STORAGE_BASE_URL + folder catalog/ di bucket.
-$storageBasePath = rtrim((string) \IndoFX\Core\Env::get('STORAGE_BASE_URL', ''), '/') . '/catalog/';
-
-// Fungsi pintar untuk menentukan apakah gambar dari lokal (dummy) atau Supabase (DB)
-function getDetailImageUrl($path, $basePath) {
-    if (empty($path)) {
-        return "https://via.placeholder.com/700x420/2C3A47/FFFFFF?text=Gambar+Kosong";
-    }
-    // Jika path adalah URL utuh atau file lokal bawaan
-    if (strpos($path, 'http') === 0 || strpos($path, '/assets/') === 0) {
-        return $path;
-    }
-    // Jika path hanya nama file (dari database), gabungkan dengan Supabase
-    return $basePath . $path;
-}
+// Placeholder gambar bila aset belum punya pratinjau.
+$placeholderImage = 'https://via.placeholder.com/700x420/2C3A47/FFFFFF?text=Gambar+Kosong';
 
 // Menyiapkan array galeri (cegah error jika kosong)
 $gallery = $detail['gallery'] ?? [];
@@ -91,7 +78,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
                         <div class="carousel-inner h-100">
                             <?php foreach ($gallery as $index => $img): ?>
                                 <div class="carousel-item <?= $index === 0 ? 'active' : '' ?> h-100">
-                                    <img src="<?= htmlspecialchars(getDetailImageUrl($img, $storageBasePath)) ?>" class="d-block w-100 h-100" style="object-fit: cover;" alt="Preview <?= $index + 1 ?>">
+                                    <img src="<?= htmlspecialchars(image_url($img) ?: $placeholderImage, ENT_QUOTES, 'UTF-8') ?>" class="d-block w-100 h-100" style="object-fit: cover;" alt="Preview <?= $index + 1 ?>">
                                 </div>
                             <?php endforeach; ?>
                         </div>
@@ -102,7 +89,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
                         <?php foreach ($gallery as $index => $img): ?>
                             <div class="col-3">
                                 <div class="thumb-card <?= $index === 0 ? 'active' : '' ?>" data-bs-target="#assetDetailCarousel" data-bs-slide-to="<?= $index ?>">
-                                    <img src="<?= htmlspecialchars(getDetailImageUrl($img, $storageBasePath)) ?>" class="d-block w-100 h-100" style="object-fit: cover;" alt="Thumb <?= $index + 1 ?>">
+                                    <img src="<?= htmlspecialchars(image_url($img) ?: $placeholderImage, ENT_QUOTES, 'UTF-8') ?>" class="d-block w-100 h-100" style="object-fit: cover;" alt="Thumb <?= $index + 1 ?>">
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -248,7 +235,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
                         <span class="asset-category-tag d-block mb-1"><?= mb_strtoupper(htmlspecialchars($categoryLabel ?? 'KATEGORI')) ?></span>
                         <h2 class="asset-detail-title mb-1"><?= htmlspecialchars($asset['title'] ?? 'Judul Aset') ?></h2>
                         <p class="detail-creator mb-3">
-                            Oleh <a href="/creator/profile" class="creator-link fw-bold"><?= htmlspecialchars($asset['seller_name'] ?? 'Studio Kreator') ?></a>
+                            Oleh <a href="<?= htmlspecialchars(($asset['seller_public_id'] ?? '') === '' ? '/creator/profile' : '/creator/profile?id=' . urlencode((string) $asset['seller_public_id']), ENT_QUOTES, 'UTF-8') ?>" class="creator-link fw-bold"><?= htmlspecialchars($asset['seller_name'] ?? 'Studio Kreator') ?></a>
                         </p>
 
                         <span class="price-label d-block mb-1">Harga Aset</span>

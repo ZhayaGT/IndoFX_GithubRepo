@@ -1,6 +1,11 @@
 <?php
-// Basis URL gambar katalog: STORAGE_BASE_URL + folder catalog/ di bucket.
-$storageBasePath = rtrim((string) \IndoFX\Core\Env::get('STORAGE_BASE_URL', ''), '/') . '/catalog/';
+// Tautan profil penjual per kartu aset.
+function seller_profile_url(array $asset): string
+{
+    $sellerId = trim((string) ($asset['seller_public_id'] ?? ''));
+
+    return $sellerId === '' ? '/creator/profile' : '/creator/profile?id=' . urlencode($sellerId);
+}
 ?>
 
 <!DOCTYPE html>
@@ -173,15 +178,10 @@ $storageBasePath = rtrim((string) \IndoFX\Core\Env::get('STORAGE_BASE_URL', ''),
                                 
                                 <!-- 1. Perbaikan URL Gambar & htmlspecialchars -->
                                 <a href="/asset/detail?id=<?= $asset['public_id'] ?>" class="asset-thumb-wrapper d-block">
-                                    <?php 
-                                    $thumbnailFile = $asset['thumbnail'] ?? ''; 
-                                    
-                                    if (empty($thumbnailFile)) {
-                                        $imageUrl = "https://via.placeholder.com/400x220/2C3A47/FFFFFF?text=Gambar+Kosong";
-                                    } elseif (strpos($thumbnailFile, 'http') === 0) {
-                                        $imageUrl = $thumbnailFile; 
-                                    } else {
-                                        $imageUrl = $storageBasePath . $thumbnailFile;
+                                    <?php
+                                    $imageUrl = image_url($asset['thumbnail'] ?? '');
+                                    if ($imageUrl === '') {
+                                        $imageUrl = 'https://via.placeholder.com/400x220/2C3A47/FFFFFF?text=Gambar+Kosong';
                                     }
                                     ?>
                                     <img src="<?= htmlspecialchars($imageUrl) ?>" alt="<?= htmlspecialchars($asset['title'] ?? 'Aset IndoFX') ?>" style="width: 100%; height: 175px; object-fit: cover;">
@@ -190,7 +190,7 @@ $storageBasePath = rtrim((string) \IndoFX\Core\Env::get('STORAGE_BASE_URL', ''),
                                 <div class="asset-card-body d-flex flex-column justify-content-between flex-grow-1">
                                     <div>
                                         <!-- 2. Nama Kreator Dinamis -->
-                                        <a href="/creator/profile" class="asset-studio text-decoration-none d-inline-block">
+                                        <a href="<?= htmlspecialchars(seller_profile_url($asset), ENT_QUOTES, 'UTF-8') ?>" class="asset-studio text-decoration-none d-inline-block">
                                             <?= htmlspecialchars($asset['seller_name'] ?? 'Studio Kreator') ?>
                                         </a>
                                         
@@ -251,15 +251,10 @@ $storageBasePath = rtrim((string) \IndoFX\Core\Env::get('STORAGE_BASE_URL', ''),
                                 
                                 <!-- 1. Perbaikan URL Gambar & htmlspecialchars -->
                                 <a href="/asset/detail?id=<?= $asset['public_id'] ?>" class="asset-thumb-wrapper d-block">
-                                    <?php 
-                                    $thumbnailFile = $asset['thumbnail'] ?? ''; 
-                                    
-                                    if (empty($thumbnailFile)) {
-                                        $imageUrl = "https://via.placeholder.com/400x220/2C3A47/FFFFFF?text=Gambar+Kosong";
-                                    } elseif (strpos($thumbnailFile, 'http') === 0) {
-                                        $imageUrl = $thumbnailFile; 
-                                    } else {
-                                        $imageUrl = $storageBasePath . $thumbnailFile;
+                                    <?php
+                                    $imageUrl = image_url($asset['thumbnail'] ?? '');
+                                    if ($imageUrl === '') {
+                                        $imageUrl = 'https://via.placeholder.com/400x220/2C3A47/FFFFFF?text=Gambar+Kosong';
                                     }
                                     ?>
                                     <img src="<?= htmlspecialchars($imageUrl) ?>" alt="<?= htmlspecialchars($asset['title'] ?? 'Aset IndoFX') ?>" style="width: 100%; height: 175px; object-fit: cover;">
@@ -268,7 +263,7 @@ $storageBasePath = rtrim((string) \IndoFX\Core\Env::get('STORAGE_BASE_URL', ''),
                                 <div class="asset-card-body d-flex flex-column justify-content-between flex-grow-1">
                                     <div>
                                         <!-- 2. Nama Kreator Dinamis -->
-                                        <a href="/creator/profile" class="asset-studio text-decoration-none d-inline-block">
+                                        <a href="<?= htmlspecialchars(seller_profile_url($asset), ENT_QUOTES, 'UTF-8') ?>" class="asset-studio text-decoration-none d-inline-block">
                                             <?= htmlspecialchars($asset['seller_name'] ?? 'Studio Kreator') ?>
                                         </a>
                                         

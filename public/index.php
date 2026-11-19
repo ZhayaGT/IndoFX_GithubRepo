@@ -28,7 +28,13 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
         $_SESSION['public_id'] = $user['public_id'];
         $_SESSION['role'] = $user['role'];
         $_SESSION['name'] = $user['name'];
+        $_SESSION['email'] = $user['email'];
         $_SESSION['bio'] = $user['bio'] ?? '';
+
+        if ($user['role'] === 'seller') {
+            $profile = (new \IndoFX\Models\SellerProfile())->find((int) $user['id']);
+            $_SESSION['store_name'] = $profile['store_name'] ?? $user['name'];
+        }
     } else {
         setcookie('remember_token', '', time() - 3600, '/');
     }
