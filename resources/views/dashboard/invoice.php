@@ -246,8 +246,7 @@ if ($initials === '') {
             .col-lg-7,
             .table-custom-container,
             .btn-print-invoice,
-            footer,
-            .footer-main {
+            footer {
                 display: none !important;
             }
 
@@ -353,27 +352,7 @@ if ($initials === '') {
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <?php $transactions = is_array($transactions ?? null) ? $transactions : []; ?>
-                                <?php if ($transactions === []): ?>
-                                    <tr><td colspan="6" class="empty-history-box"><i class="bi bi-receipt text-secondary fs-1 d-block mb-2"></i><h6 class="fw-bold text-dark mb-1">Belum Ada Riwayat Transaksi</h6><p class="small text-muted mb-0">Transaksi pembelian aset berbayar Anda akan tercatat otomatis di sini.</p></td></tr>
-                                <?php else: foreach ($transactions as $index => $transaction):
-                                    $txItems = $transaction['items'] ?? $transaction['assets'] ?? [];
-                                    $txItems = is_array($txItems) ? $txItems : [];
-                                    $firstItem = $txItems[0] ?? [];
-                                    $txTotal = (float)($transaction['total'] ?? $transaction['amount'] ?? $firstItem['price'] ?? 0);
-                                    $txStatus = (string)($transaction['status'] ?? 'pending');
-                                ?>
-                                    <tr>
-                                        <td><strong><?= htmlspecialchars((string)($transaction['invoice_no'] ?? $transaction['invoice_number'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></strong></td>
-                                        <td><?= htmlspecialchars((string)($firstItem['title'] ?? $transaction['asset_title'] ?? 'Aset Visual IndoFX'), ENT_QUOTES, 'UTF-8') ?><?= count($txItems) > 1 ? ' (+' . (count($txItems) - 1) . ' aset lainnya)' : '' ?></td>
-                                        <td><?= htmlspecialchars((string)($transaction['short_date'] ?? $transaction['created_at'] ?? $transaction['date'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>
-                                        <td><strong>Rp<?= number_format($txTotal, 0, ',', '.') ?></strong></td>
-                                        <td><span class="badge-status-berhasil"><?= htmlspecialchars($txStatus, ENT_QUOTES, 'UTF-8') ?></span></td>
-                                        <td><button type="button" class="btn-view-invoice" data-invoice-index="<?= $index ?>">Lihat Invoice</button></td>
-                                    </tr>
-                                <?php endforeach; endif; ?>
-                            </tbody>
+                            <tbody id="transactionTableBody"></tbody>
                         </table>
                     </div>
                 </div>
@@ -420,64 +399,103 @@ if ($initials === '') {
         </div>
     </main>
 
-    <!-- Footer Resmi IndoFX Membentang Penuh di Dasar Halaman -->
-    <?php
-    $footerPartial = BASE_PATH . '/resources/views/partials/footer.php';
-    if (file_exists($footerPartial)) {
-        require $footerPartial;
-    } else {
-    ?>
-        <footer class="footer-main mt-auto">
-            <div class="container-figma">
-                <div class="footer-center-content">
-                    <h5 class="footer-brand-title-center">IndoFX</h5>
-                    <p class="footer-brand-desc-center">
-                        Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
-                    </p>
-                    <div style="font-size: 0.85rem; color: #1a1a1a; margin-top: 10px;">
-                        <strong style="font-weight: 800;">Kontak dan Email:</strong>
-                        <span style="margin: 0 16px;">08123456xxxx</span>
-                        <span>helpdesk@indofx.com</span>
-                    </div>
-                </div>
-                <div class="footer-bottom-bar">
-                    <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
-                    <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
-                </div>
-            </div>
-        </footer>
-    <?php } ?>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Helper escape output HTML -->
-    <script src="/assets/js/indofx-utils.js"></script>
     <script src="/assets/js/navbar-auth.js"></script>
     <script>
-        const userTransactions = <?= json_encode($transactions ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+        const userKey = '<?= $userKey ?>';
+        const txKey = 'indofx_transactions_' + userKey;
+        let userTransactions = [];
+
+        function getTransactions() {
+            try {
+                return JSON.parse(localStorage.getItem(txKey)) || [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function loadTransactions() {
+            userTransactions = getTransactions();
+            const tbody = document.getElementById('transactionTableBody');
+            const card = document.getElementById('invoiceCard');
+
+            if (userTransactions.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-history-box">
+                            <i class="bi bi-receipt text-secondary fs-1 d-block mb-2"></i>
+                            <h6 class="fw-bold text-dark mb-1">Belum Ada Riwayat Transaksi</h6>
+                            <p class="small text-muted mb-0">Transaksi pembelian aset berbayar Anda akan tercatat secara otomatis di sini.</p>
+                        </td>
+                    </tr>
+                `;
+                if (card) card.style.display = 'none';
+                return;
+            }
+
+            if (card) card.style.display = 'block';
+
+            tbody.innerHTML = userTransactions.map((tx, idx) => {
+                const firstItemTitle = tx.items && tx.items.length > 0 ? tx.items[0].title : 'Aset Visual IndoFX';
+                const moreItemsCount = tx.items && tx.items.length > 1 ? ` (+${tx.items.length - 1} aset lainnya)` : '';
+                const displayTitle = firstItemTitle + moreItemsCount;
+                const totalDisplay = tx.total ? `Rp${tx.total.toLocaleString('id-ID')}` : 'Gratis';
+
+                return `
+                    <tr>
+                        <td><strong>${tx.invoice_no}</strong></td>
+                        <td>${displayTitle}</td>
+                        <td>${tx.short_date || tx.date}</td>
+                        <td><strong>${totalDisplay}</strong></td>
+                        <td><span class="badge-status-berhasil">${tx.status || 'Berhasil'}</span></td>
+                        <td>
+                            <a href="javascript:void(0)" class="btn-view-invoice" onclick="selectInvoice(${idx})">
+                                Lihat Invoice
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            selectInvoice(0);
+        }
 
         function selectInvoice(index) {
             const tx = userTransactions[index];
             if (!tx) return;
-            const items = Array.isArray(tx.items) ? tx.items : (Array.isArray(tx.assets) ? tx.assets : []);
-            document.getElementById('invoiceCard').style.display = 'block';
-            document.getElementById('invNoText').innerText = tx.invoice_no || tx.invoice_number || '-';
-            document.getElementById('invBadgeStatus').innerText = tx.status || 'pending';
-            document.getElementById('invDateText').innerText = 'Tanggal: ' + (tx.full_date || tx.created_at || tx.date || '-');
-            document.getElementById('invBuyerName').innerText = tx.buyer_name || <?= json_encode($userName, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
-            document.getElementById('invBuyerEmail').innerText = tx.buyer_email || <?= json_encode($userEmail ?? '', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
-            document.getElementById('invPaymentMethod').innerText = tx.payment_method || tx.payment_type || '-';
-            document.getElementById('invItemsList').innerHTML = items.length ? items.map(item => '<tr><td><strong>' + esc(item.title || item.asset_title || 'Aset Visual IndoFX') + '</strong></td><td class="text-end"><strong>Rp' + Number(item.price || item.amount || 0).toLocaleString('id-ID') + '</strong></td></tr>').join('') : '<tr><td colspan="2">Tidak ada rincian aset.</td></tr>';
-            document.getElementById('invTotalText').innerText = 'Rp' + Number(tx.total || tx.amount || 0).toLocaleString('id-ID');
+
+            document.getElementById('invNoText').innerText = tx.invoice_no;
+            document.getElementById('invBadgeStatus').innerText = tx.status || 'Berhasil';
+            document.getElementById('invDateText').innerText = 'Tanggal: ' + (tx.full_date || tx.date);
+            document.getElementById('invBuyerName').innerText = tx.buyer_name || '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>';
+            document.getElementById('invBuyerEmail').innerText = tx.buyer_email || 'user@email.com';
+            document.getElementById('invPaymentMethod').innerText = tx.payment_method || 'QRIS (GoPay)';
+
+            const itemsContainer = document.getElementById('invItemsList');
+            if (tx.items && tx.items.length > 0) {
+                itemsContainer.innerHTML = tx.items.map(it => `
+                    <tr>
+                        <td><strong>${it.title}</strong></td>
+                        <td class="text-end"><strong>Rp${(parseFloat(it.price) || 0).toLocaleString('id-ID')}</strong></td>
+                    </tr>
+                `).join('');
+            } else {
+                itemsContainer.innerHTML = `
+                    <tr>
+                        <td><strong>${tx.asset_title || 'Aset Visual IndoFX'}</strong></td>
+                        <td class="text-end"><strong>Rp${(parseFloat(tx.total) || 0).toLocaleString('id-ID')}</strong></td>
+                    </tr>
+                `;
+            }
+
+            document.getElementById('invTotalText').innerText = 'Rp' + (parseFloat(tx.total) || 0).toLocaleString('id-ID');
         }
 
-        function printInvoice() { window.print(); }
-        document.addEventListener('DOMContentLoaded', function() {
-            const card = document.getElementById('invoiceCard');
-            if (!userTransactions.length) card.style.display = 'none';
-            userTransactions.forEach((_, index) => document.querySelector('[data-invoice-index="' + index + '"]')?.addEventListener('click', () => selectInvoice(index)));
-            if (userTransactions.length) selectInvoice(0);
-        });
+        function printInvoice() {
+            window.print();
+        }
+
+        document.addEventListener('DOMContentLoaded', loadTransactions);
     </script>
 </body>
 

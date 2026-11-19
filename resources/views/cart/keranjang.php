@@ -89,24 +89,22 @@ if ($initials === '') {
             cursor: pointer;
         }
 
-        /* Disamakan dengan .navbar-avatar-menu di style.css */
         .profile-custom-menu {
             position: absolute;
             top: calc(100% + 12px);
             right: 0;
             background-color: #ffffff;
-            border: 1px solid #e2e2e2;
-            border-radius: 10px;
-            box-shadow: 0 10px 26px rgba(0, 0, 0, 0.12);
-            min-width: 210px;
-            max-width: calc(100vw - 32px);
+            border: 1px solid #e0d0c5;
+            border-radius: 8px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+            min-width: 200px;
             z-index: 1050;
+            display: none;
             padding: 6px 0;
-            overflow: hidden;
         }
 
-        .profile-custom-menu[hidden] {
-            display: none !important;
+        .profile-custom-menu.show {
+            display: block;
         }
 
         .profile-custom-item {
@@ -114,7 +112,7 @@ if ($initials === '') {
             padding: 9px 18px;
             color: #2b2129;
             text-decoration: none;
-            font-size: 0.86rem;
+            font-size: 0.9rem;
             transition: background-color 0.15s ease;
         }
 
@@ -398,66 +396,6 @@ if ($initials === '') {
             font-size: 0.82rem;
             color: #1A1A1A;
         }
-
-        /* ========================================================
-           RESPONSIF KERANJANG
-           ======================================================== */
-        @media (max-width: 768px) {
-            .cart-item-card {
-                flex-wrap: wrap;
-                align-items: flex-start;
-                padding: 12px;
-                gap: 12px;
-            }
-
-            .cart-item-thumb {
-                width: 100%;
-                height: auto;
-                aspect-ratio: 175 / 98;
-            }
-
-            .cart-item-content {
-                flex: 1 1 100%;
-                min-width: 0;
-            }
-
-            .cart-item-card > .d-flex:last-child {
-                width: 100%;
-                justify-content: space-between;
-            }
-
-            .cart-page-title {
-                font-size: 1.45rem;
-            }
-
-            #cartFooterArea {
-                justify-content: stretch !important;
-            }
-
-            .btn-cart-checkout {
-                width: 100%;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .btn-profile-trigger .profile-user-name {
-                display: none;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .cart-asset-title {
-                font-size: 1rem;
-            }
-
-            .cart-status-line {
-                font-size: 0.7rem;
-            }
-
-            .btn-cart-delete {
-                padding: 6px 12px;
-            }
-        }
     </style>
 </head>
 
@@ -514,21 +452,17 @@ if ($initials === '') {
                 </a>
 
                 <div class="profile-dropdown-wrapper">
-                    <button type="button" class="btn-profile-trigger" id="profileDropdownBtn"
-                        aria-haspopup="true" aria-expanded="false" aria-controls="profileDropdownMenu">
+                    <button type="button" class="btn-profile-trigger" id="profileDropdownBtn" aria-expanded="false">
                         <span class="avatar-circle-header"><?= htmlspecialchars($initials, ENT_QUOTES, 'UTF-8') ?></span>
-                        <span class="fw-bold fs-6 profile-user-name"><?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?></span>
+                        <span class="fw-bold fs-6"><?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?></span>
                     </button>
 
-                    <div class="profile-custom-menu" id="profileDropdownMenu" hidden>
+                    <div class="profile-custom-menu" id="profileDropdownMenu">
                         <a href="/creator/profile?me=1" class="profile-custom-item fw-bold">
                             <?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>
                         </a>
-                        <a href="/dashboard/ubahprofile" class="profile-custom-item">
+                        <a href="/dashboard/ubah-profil" class="profile-custom-item">
                             Edit Profile
-                        </a>
-                        <a href="/library" class="profile-custom-item">
-                            Library Saya
                         </a>
                         <a href="/invoice" class="profile-custom-item">
                             Histori Pembelian
@@ -553,49 +487,11 @@ if ($initials === '') {
                 <p class="cart-page-sub mb-0">Semua aset visual Unity yang Anda Ingin Beli</p>
             </div>
 
-            <?php
-            $cartItems = is_array($cartItems ?? null) ? $cartItems : [];
-            $cartItemId = static function (array $item): string {
-                return (string)($item['public_id'] ?? $item['asset_public_id'] ?? $item['asset_id'] ?? $item['id'] ?? '');
-            };
-            ?>
-            <div id="cartListContainer">
-                <?php if ($cartItems === []): ?>
-                    <div class="empty-cart-card">
-                        <i class="bi bi-cart-x text-dark fs-1 mb-2"></i>
-                        <h5 class="fw-bold text-dark mb-1">Keranjang Belanja Anda Kosong</h5>
-                        <p class="text-muted small m-0 mb-3">Temukan aset visual pilihan untuk game Anda di <a href="/catalog/explore" class="text-dark fw-bold text-decoration-none">Katalog</a></p>
-                        <a href="/catalog/explore" class="btn btn-hero-orange">Jelajahi Aset</a>
-                    </div>
-                <?php else: ?>
-                    <?php foreach ($cartItems as $item):
-                        $itemId = $cartItemId($item);
-                        $pipelines = $item['render_pipeline'] ?? $item['pipelines'] ?? [];
-                        $pipelines = is_array($pipelines) ? $pipelines : [$pipelines];
-                    ?>
-                        <div class="cart-item-card" id="cart-item-<?= htmlspecialchars($itemId, ENT_QUOTES, 'UTF-8') ?>">
-                            <div class="cart-item-thumb"><img src="<?= htmlspecialchars((string)($item['image_url'] ?? $item['image'] ?? '/assets/img/placeholder.png'), ENT_QUOTES, 'UTF-8') ?>" class="w-100 h-100" style="object-fit:cover" alt=""></div>
-                            <div class="cart-item-content">
-                                <div class="cart-status-line"><span class="cart-status-badge">DI DALAM KERANJANG</span></div>
-                                <div class="d-flex align-items-center flex-wrap gap-2 mb-1"><h5 class="cart-asset-title m-0"><?= htmlspecialchars((string)($item['title'] ?? 'Aset IndoFX'), ENT_QUOTES, 'UTF-8') ?></h5>
-                                    <div class="d-flex gap-1"><?php foreach ($pipelines as $pipeline): ?><span class="badge-tag-custom badge-urp"><?= htmlspecialchars((string)$pipeline, ENT_QUOTES, 'UTF-8') ?></span><?php endforeach; ?></div>
-                                </div>
-                                <p class="cart-asset-creator m-0">Oleh <?= htmlspecialchars((string)($item['seller_name'] ?? $item['creator'] ?? 'Studio Kreator'), ENT_QUOTES, 'UTF-8') ?></p>
-                            </div>
-                            <div class="d-flex align-items-center gap-3">
-                                <span class="fw-bold">Rp<?= number_format((float)($item['price'] ?? 0), 0, ',', '.') ?></span>
-                                <form method="post" action="/cart/remove"><input type="hidden" name="asset_id" value="<?= htmlspecialchars($itemId, ENT_QUOTES, 'UTF-8') ?>"><button type="submit" class="btn-cart-delete">Hapus</button></form>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </div>
+            <div id="cartListContainer"></div>
 
-            <?php if ($cartItems !== []): ?>
-                <div class="d-flex justify-content-end align-items-center mt-4">
-                    <a href="/checkout" class="btn-cart-checkout">Checkout</a>
-                </div>
-            <?php endif; ?>
+            <div id="cartFooterArea" class="d-flex justify-content-end align-items-center mt-4">
+                <button type="button" class="btn-cart-checkout" onclick="proceedCheckout()">Checkout</button>
+            </div>
         </div>
     </main>
 
@@ -625,48 +521,167 @@ if ($initials === '') {
         </div>
     </div>
 
-    <footer class="footer-main">
+    <footer class="footer-main" id="tentang">
         <div class="container-figma">
+            <!-- Bagian Tengah: Judul & Deskripsi -->
             <div class="footer-center-content">
                 <h5 class="footer-brand-title-center">IndoFX</h5>
                 <p class="footer-brand-desc-center">
                     Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
                 </p>
-                <!-- Baris Kontak dan Email sesuai desain baru -->
-                <div style="font-size: 0.85rem; color: #1a1a1a; margin-top: 10px;">
-                    <strong style="font-weight: 800;">Kontak dan Email:</strong>
-                    <span style="margin: 0 16px;">08123456xxxx</span>
-                    <span>helpdesk@indofx.com</span>
-                </div>
             </div>
+
+            <!-- Bagian Bawah: Copyright Kiri & Slogan Kanan -->
             <div class="footer-bottom-bar">
                 <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
                 <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
             </div>
         </div>
     </footer>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Helper escape output HTML -->
-    <script src="/assets/js/indofx-utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        const userKey = '<?= $userKey ?>';
+        const cartStorageKey = 'indofx_cart_' + userKey;
+        let itemPendingDeleteId = null;
+
+        function getCartData() {
+            try {
+                return JSON.parse(localStorage.getItem(cartStorageKey)) || [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function renderCart() {
+            const listContainer = document.getElementById('cartListContainer');
+            const footerArea = document.getElementById('cartFooterArea');
+            const items = getCartData();
+
+            if (items.length === 0) {
+                if (footerArea) footerArea.style.display = 'none';
+                listContainer.innerHTML = `
+                    <div class="empty-cart-card">
+                        <i class="bi bi-cart-x text-dark fs-1 mb-2"></i>
+                        <h5 class="fw-bold text-dark mb-1">Keranjang Belanja Anda Kosong</h5>
+                        <p class="text-muted small m-0 mb-3">
+                            Temukan aset visual pilihan untuk game Anda di <a href="/catalog/explore" class="text-dark fw-bold text-decoration-none">Katalog</a>
+                        </p>
+                        <a href="/catalog/explore" class="btn btn-hero-orange">Jelajahi Aset</a>
+                    </div>
+                `;
+                return;
+            }
+
+            if (footerArea) footerArea.style.display = 'flex';
+
+            listContainer.innerHTML = items.map(item => {
+                const artSvg = item.art ? ('cart-art-' + item.art) : 'cart-art-castle';
+                const pipelines = Array.isArray(item.pipelines) ? item.pipelines : ['URP'];
+
+                const badgesHtml = pipelines.map(p => {
+                    let cls = 'badge-urp';
+                    if (p.toLowerCase().includes('hdrp')) cls = 'badge-hdrp';
+                    if (p.toLowerCase().includes('built')) cls = 'badge-builtin';
+                    return `<span class="badge-tag-custom ${cls}">${p}</span>`;
+                }).join(' ');
+
+                return `
+                    <div class="cart-item-card" id="cart-item-${item.id}">
+                        <div class="cart-item-thumb">
+                            <svg class="w-100 h-100 d-block" viewBox="0 0 175 98">
+                                <use href="#${artSvg}" />
+                            </svg>
+                        </div>
+
+                        <div class="cart-item-content">
+                            <div class="cart-status-line">
+                                <span class="cart-status-badge">DIBELI</span>
+                                <span class="text-muted ms-2">Perolehan: ${item.date || '02 Nov 2026'}</span>
+                            </div>
+
+                            <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
+                                <h5 class="cart-asset-title m-0">${item.title}</h5>
+                                <div class="d-flex gap-1">${badgesHtml}</div>
+                            </div>
+
+                            <p class="cart-asset-creator m-0">Oleh ${item.creator || 'Arga Studio'}</p>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-3">
+                            <input type="checkbox" class="cart-checkbox" checked value="${item.id}">
+                            <button type="button" class="btn-cart-delete" onclick="openDeleteModal('${item.id}')">
+                                Hapus
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openDeleteModal(assetId) {
+            itemPendingDeleteId = assetId;
+            const modalEl = document.getElementById('deleteConfirmModal');
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        }
+
+        function executeDeleteCartItem() {
+            if (!itemPendingDeleteId) return;
+
+            let items = getCartData();
+            items = items.filter(item => String(item.id) !== String(itemPendingDeleteId));
+            localStorage.setItem(cartStorageKey, JSON.stringify(items));
+
+            const modalEl = document.getElementById('deleteConfirmModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+
+            itemPendingDeleteId = null;
+            renderCart();
+        }
+
+        function proceedCheckout() {
+            const items = getCartData();
+            if (items.length === 0) {
+                alert('Keranjang Anda kosong!');
+                return;
+            }
+
+            const checkedBoxes = document.querySelectorAll('.cart-checkbox:checked');
+            if (checkedBoxes.length === 0) {
+                alert('Pilih minimal satu aset yang ingin di-checkout!');
+                return;
+            }
+
+            const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
+            const checkoutItems = items.filter(item => selectedIds.includes(String(item.id)));
+
+            sessionStorage.setItem('indofx_checkout_items', JSON.stringify(checkoutItems));
+            window.location.href = '/checkout';
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            renderCart();
+
+            // Dropdown Profil Header
             const dropdownBtn = document.getElementById('profileDropdownBtn');
             const dropdownMenu = document.getElementById('profileDropdownMenu');
-            if (!dropdownBtn || !dropdownMenu) return;
-            dropdownBtn.addEventListener('click', function(event) {
-                event.stopPropagation();
-                const isHidden = dropdownMenu.hasAttribute('hidden');
-                dropdownMenu.toggleAttribute('hidden', !isHidden);
-                dropdownBtn.setAttribute('aria-expanded', String(isHidden));
-            });
-            document.addEventListener('click', function(event) {
-                if (!dropdownMenu.contains(event.target) && !dropdownBtn.contains(event.target)) {
-                    dropdownMenu.setAttribute('hidden', '');
-                    dropdownBtn.setAttribute('aria-expanded', 'false');
-                }
-            });
+
+            if (dropdownBtn && dropdownMenu) {
+                dropdownBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownMenu.classList.toggle('show');
+                });
+
+                document.addEventListener('click', function(e) {
+                    if (!dropdownMenu.contains(e.target) && !dropdownBtn.contains(e.target)) {
+                        dropdownMenu.classList.remove('show');
+                    }
+                });
+            }
         });
     </script>
+</body>
 
 </html>

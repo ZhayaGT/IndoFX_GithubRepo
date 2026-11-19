@@ -8,8 +8,9 @@ use IndoFX\Models\User;
 class AuthController extends Controller {
     // 1. Menampilkan halaman Login
     public function login() {
+        // Pengguna yang sudah login tidak perlu melihat form login
         if (isset($_SESSION['user_id'])) {
-            $this->redirect(($_SESSION['role'] ?? '') === 'admin' ? '/admin/dashboard' : '/');
+            $this->redirect('/');
         }
 
         $this->view('auth/login', [
@@ -33,25 +34,24 @@ class AuthController extends Controller {
         if ($user && password_verify($password, $user['password'])) {
             // Daftarkan sesi pengguna
             $_SESSION['user_id'] = $user['id'];
-            $_SESSION['public_id'] = $user['public_id'];
-            $_SESSION['role'] = $user['role'];
-            $_SESSION['name'] = $user['name'];
-            $_SESSION['email'] = $user['email'];
-            $_SESSION['bio'] = $user['bio'] ?? 'Hanya game developer pemula :v';
+            $_SESSION['public_id']  = $user['public_id'];
+            $_SESSION['role']    = $user['role'];
+            $_SESSION['name']    = $user['name'];
 
-            if (($user['role'] ?? '') === 'seller') {
-                $profile = (new \IndoFX\Models\SellerProfile())->find((int) $user['id']);
-                $_SESSION['store_name'] = $profile['store_name'] ?? $user['name'];
-            }
-
+            // Mengambil bio dari database (jika belum diisi, pakai bio default)
+            $_SESSION['bio']     = $user['bio'] ?? 'Hanya game developer pemula :v';
+            
             // Fitur "Ingat Saya"
             if (isset($_POST['remember_me'])) {
-                $token = bin2hex(random_bytes(32));
-                $userModel->updateRememberToken($user['id'], $token);
-                setcookie('remember_token', $token, time() + (86400 * 30), '/', '', false, true);
+                // Buat token acak sepanjang 64 karakter
+                $token = bin2hex(random_bytes(32)); 
+                // Simpan token ke Supabase
+                $userModel->updateRememberToken($user['id'], $token);    
+                // Tanam cookie di browser pengguna selama 30 hari
+                setcookie('remember_token', $token, time() + (86400 * 30), "/", "", false, true);
             }
 
-            $this->redirect(($user['role'] ?? '') === 'admin' ? '/admin/dashboard' : (($user['role'] ?? '') === 'seller' ? '/dashboard' : '/'));
+            $this->redirect('/');
         }
 
         // Login gagal: simpan pesan lalu kembali ke form

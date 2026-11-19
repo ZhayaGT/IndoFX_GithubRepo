@@ -1,12 +1,7 @@
 <?php
-if (!isset($_SESSION['user_id'])) {
-    header('Location: /login');
-    exit;
-}
-
-$sellerUsername = (string) ($storeName ?? $_SESSION['store_name'] ?? $_SESSION['name'] ?? 'Toko Saya');
-$sellerUserId   = (string) ($_SESSION['user_id'] ?? '');
-$sellerInitials = (string) ($initials ?? mb_strtoupper(mb_substr($sellerUsername, 0, 1)));
+$isLoggedIn = isset($_SESSION['user_id']);
+$userKey    = (string) ($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user');
+$userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna');
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -51,37 +46,41 @@ $sellerInitials = (string) ($initials ?? mb_strtoupper(mb_substr($sellerUsername
 
             <!-- Profil Kreator Kanan Dinamis -->
             <a href="/" class="d-flex align-items-center gap-2 text-white text-decoration-none" title="Kembali ke Beranda">
-                <span class="avatar-circle" id="navDashAvatar"><?= htmlspecialchars($sellerInitials) ?></span>
-                <span class="fw-bold fs-7 tracking-wide text-uppercase" id="navDashStoreName"><?= htmlspecialchars($sellerUsername) ?></span>
+                <span class="avatar-circle" id="navDashAvatar">AS</span>
+                <span class="fw-bold fs-7 tracking-wide" id="navDashStoreName">ARGA STUDIO</span>
             </a>
 
         </div>
     </nav>
 
-    <!-- 2. Kontainer Utama -->
+    <!-- 2. Kontainer Utama: Sidebar Kiri & Konten Kanan -->
     <div class="dashboard-layout-container">
 
         <!-- SIDEBAR KIRI (PUTIH) -->
         <aside class="dashboard-sidebar">
             <ul class="nav flex-column sidebar-nav-list">
+                <!-- 1. Dashboard Utama -> main.php -->
                 <li class="nav-item">
                     <a href="/dashboard" class="sidebar-link active">
                         <i class="bi bi-grid-fill"></i>
                         <span>Dashboard Utama</span>
                     </a>
                 </li>
+                <!-- 2. Semua Aset Saya -> dashboard.php -->
                 <li class="nav-item">
                     <a href="/dashboard/assets" class="sidebar-link">
                         <i class="bi bi-stack"></i>
                         <span>Semua Aset Saya</span>
                     </a>
                 </li>
+                <!-- 3. Riwayat Transaksi -> transactions.php -->
                 <li class="nav-item">
                     <a href="/dashboard/transactions" class="sidebar-link">
                         <i class="bi bi-receipt"></i>
                         <span>Riwayat Transaksi</span>
                     </a>
                 </li>
+                <!-- 4. Profil Penjual -> profile.php (Rute Diperbaiki) -->
                 <li class="nav-item">
                     <a href="/dashboard/profile" class="sidebar-link">
                         <i class="bi bi-person"></i>
@@ -91,17 +90,18 @@ $sellerInitials = (string) ($initials ?? mb_strtoupper(mb_substr($sellerUsername
             </ul>
         </aside>
 
-        <!-- KONTEN KANAN -->
+        <!-- KONTEN KANAN (KREM HANGAT) -->
         <main class="dashboard-main-content">
 
             <!-- Header Judul Dinamis -->
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                 <h2 class="dash-page-title mb-0">Dashboard Penjual</h2>
-                <span class="fw-bold fs-6 text-dark" id="dashContentStoreName"><?= htmlspecialchars($sellerUsername) ?></span>
+                <span class="fw-bold fs-6 text-dark" id="dashContentStoreName">Arga Studio</span>
             </div>
 
-            <!-- 4 Summary Stat Cards 100% Dinamis -->
+            <!-- 4 Summary Stat Cards Dinamis & Responsif -->
             <div class="row g-3 mb-4">
+                <!-- Card 1: Total Aset -->
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="stat-card p-3 h-100">
                         <span class="stat-card-title d-block mb-2">Total Aset</span>
@@ -110,6 +110,7 @@ $sellerInitials = (string) ($initials ?? mb_strtoupper(mb_substr($sellerUsername
                     </div>
                 </div>
 
+                <!-- Card 2: Aset Terjual -->
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="stat-card p-3 h-100">
                         <span class="stat-card-title d-block mb-2">Aset Terjual</span>
@@ -118,6 +119,7 @@ $sellerInitials = (string) ($initials ?? mb_strtoupper(mb_substr($sellerUsername
                     </div>
                 </div>
 
+                <!-- Card 3: Total Unduhan -->
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="stat-card p-3 h-100">
                         <span class="stat-card-title d-block mb-2">Total Unduhan</span>
@@ -126,6 +128,7 @@ $sellerInitials = (string) ($initials ?? mb_strtoupper(mb_substr($sellerUsername
                     </div>
                 </div>
 
+                <!-- Card 4: Total Pendapatan -->
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="stat-card p-3 h-100">
                         <span class="stat-card-title d-block mb-2">Total Pendapatan</span>
@@ -153,7 +156,7 @@ $sellerInitials = (string) ($initials ?? mb_strtoupper(mb_substr($sellerUsername
                                 </tr>
                             </thead>
                             <tbody id="tableAssetsBody">
-                                <!-- Diisi otomatis dari gabungan antrean & storage -->
+                                <!-- Diisi otomatis dari LocalStorage -->
                             </tbody>
                         </table>
                     </div>
@@ -179,7 +182,7 @@ $sellerInitials = (string) ($initials ?? mb_strtoupper(mb_substr($sellerUsername
                                 </tr>
                             </thead>
                             <tbody id="tableTransactionsBody">
-                                <!-- Diisi otomatis dari riwayat transaksi -->
+                                <!-- Diisi otomatis dari riwayat pembelian pengguna lain -->
                             </tbody>
                         </table>
                     </div>
@@ -208,32 +211,177 @@ $sellerInitials = (string) ($initials ?? mb_strtoupper(mb_substr($sellerUsername
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Script Hidrasi Data Dinamis Sesuai Akun Penjual -->
     <script>
-        const sellerStore = <?= json_encode((string) ($storeName ?? $sellerUsername), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
-        const stats = <?= json_encode($stats ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
-        const assets = <?= json_encode($assets ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
-        const transactions = <?= json_encode($transactions ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
-
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('dashContentStoreName').textContent = sellerStore;
-            document.getElementById('navDashStoreName').textContent = sellerStore.toUpperCase();
-            document.getElementById('navDashAvatar').textContent = sellerStore.trim().split(/\s+/).slice(0, 2).map(word => word.charAt(0).toUpperCase()).join('') || 'AS';
-            document.getElementById('statTotalAsset').textContent = stats.total || 0;
-            document.getElementById('statAssetSub').textContent = (stats.published || 0) + ' Terpublikasi';
-            document.getElementById('statSold').textContent = (stats.sold || 0) + 'x';
-            document.getElementById('statDownloads').textContent = stats.downloads || 0;
-            document.getElementById('statRevenue').textContent = 'Rp' + Number(stats.revenue || 0).toLocaleString('id-ID');
+            const userKey = '<?= $userKey ?>';
 
-            const assetRows = document.getElementById('tableAssetsBody');
-            assetRows.innerHTML = assets.length ? assets.map(asset => {
-                const price = Number(asset.price || 0);
-                const status = String(asset.status || 'review');
-                const statusHtml = status === 'published' ? '<span class="badge-status-approved">Disetujui</span>' : status === 'rejected' ? '<span class="badge-status-rejected">Ditolak</span>' : '<span class="badge-status-pending">Menunggu</span>';
-                return `<tr><td class="fw-bold text-dark item-asset-title">${esc(asset.title || '')}</td><td class="text-muted small">${esc(asset.category_name || '')}</td><td class="fw-bold text-dark">${price ? 'Rp' + price.toLocaleString('id-ID') : 'Gratis'}</td><td>${statusHtml}</td><td class="text-muted small">${esc(asset.created_at || '')}</td><td class="text-end pe-4 text-nowrap"><a href="/dashboard/add-asset?edit_id=${encodeURIComponent(asset.public_id || '')}" class="action-link me-2">Edit</a><span class="text-muted mx-1">|</span><a href="/asset/detail?id=${encodeURIComponent(asset.public_id || '')}" class="action-link">Lihat</a></td></tr>`;
-            }).join('') : '<tr><td colspan="6" class="text-center py-4 text-muted small">Belum ada aset yang diunggah.</td></tr>';
+            // 1. Ambil Profil Penjual Terdaftar
+            const profileRaw = localStorage.getItem('indofx_seller_profile_' + userKey);
+            let storeName = 'Arga Studio';
 
-            const transactionRows = document.getElementById('tableTransactionsBody');
-            transactionRows.innerHTML = transactions.length ? transactions.map(transaction => `<tr><td class="fw-semibold"><a href="/dashboard/transactions" class="action-link">${esc(transaction.invoice_number || '')}</a></td><td class="fw-bold text-dark item-asset-title">${esc(transaction.asset_title || '')}</td><td class="text-muted small">${esc(transaction.created_at || '')}</td><td class="text-end pe-4 fw-bold text-success">Rp${Number(transaction.amount || 0).toLocaleString('id-ID')}</td></tr>`).join('') : '<tr><td colspan="4" class="text-center py-4 text-muted small">Belum ada transaksi penjualan.</td></tr>';
+            if (profileRaw) {
+                try {
+                    const profile = JSON.parse(profileRaw);
+                    if (profile.store_name) {
+                        storeName = profile.store_name;
+                    }
+                } catch (e) {}
+            }
+
+            // Tampilkan Nama Toko di Judul Konten & Header Navbar
+            const titleEl = document.getElementById('dashContentStoreName');
+            const navStoreEl = document.getElementById('navDashStoreName');
+            if (titleEl) titleEl.innerText = storeName;
+            if (navStoreEl) navStoreEl.innerText = storeName.toUpperCase();
+
+            // Inisial Avatar
+            const words = storeName.trim().split(/\s+/);
+            let inits = '';
+            words.slice(0, 2).forEach(w => inits += w.charAt(0).toUpperCase());
+            const avatarEl = document.getElementById('navDashAvatar');
+            if (avatarEl) avatarEl.innerText = inits || 'AS';
+
+            // 2. Ambil Aset Penjual dari LocalStorage
+            const assetsRaw = localStorage.getItem('indofx_seller_assets_' + userKey);
+            let sellerAssets = [];
+
+            if (assetsRaw) {
+                try {
+                    sellerAssets = JSON.parse(assetsRaw);
+                } catch (e) {
+                    sellerAssets = [];
+                }
+            }
+
+            const assetsTbody = document.getElementById('tableAssetsBody');
+
+            if (sellerAssets.length > 0) {
+                assetsTbody.innerHTML = sellerAssets.map(item => {
+                    const primaryPipe = Array.isArray(item.pipelines) ? (item.pipelines[0] || 'Built-in') : (item.pipelines || item.render_pipeline || 'Built-in');
+
+                    let priceNum = 0;
+                    if (typeof item.price === 'number') {
+                        priceNum = item.price;
+                    } else if (typeof item.price === 'string') {
+                        const cleaned = item.price.replace(/[^0-9]/g, '');
+                        priceNum = cleaned ? parseInt(cleaned, 10) : 0;
+                    }
+
+                    const detailUrl = `/asset/detail?id=${encodeURIComponent(item.id || '')}` +
+                        `&slug=${encodeURIComponent(item.slug || item.id || '')}` +
+                        `&title=${encodeURIComponent(item.title || '')}` +
+                        `&category=${encodeURIComponent(item.category || 'VFX Partikel')}` +
+                        `&creator=${encodeURIComponent(item.creator || item.seller || storeName)}` +
+                        `&price=${encodeURIComponent(priceNum)}` +
+                        `&pipeline=${encodeURIComponent(primaryPipe)}`;
+
+                    let statusBadgeClass = 'badge-status-pending';
+                    if (item.status === 'Disetujui') {
+                        statusBadgeClass = 'badge-status-approved';
+                    } else if (item.status === 'Ditolak') {
+                        statusBadgeClass = 'badge-status-rejected';
+                    }
+
+                    return `
+                        <tr>
+                            <td class="fw-bold text-dark item-asset-title">${item.title}</td>
+                            <td class="text-muted small">${item.category || 'VFX Partikel'}</td>
+                            <td class="fw-bold text-dark">${item.price || 'Gratis'}</td>
+                            <td>
+                                <span class="${statusBadgeClass}">
+                                    ${item.status || 'Pending'}
+                                </span>
+                            </td>
+                            <td class="text-muted small">${item.created_at || new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                            <td class="text-end pe-4 text-nowrap">
+                                <a href="/dashboard/add-asset?edit_id=${encodeURIComponent(item.id || '')}" class="action-link me-2">Edit</a>
+                                <span class="text-muted mx-1">|</span>
+                                <a href="${detailUrl}" class="action-link">Lihat</a>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                document.getElementById('statTotalAsset').innerText = sellerAssets.length;
+                const approvedCount = sellerAssets.filter(a => a.status === 'Disetujui').length;
+                document.getElementById('statAssetSub').innerText = approvedCount + ' Terpublikasi';
+            } else {
+                assetsTbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted small">
+                            <i class="bi bi-box-seam fs-3 d-block mb-1 text-secondary"></i>
+                            Belum ada aset yang diunggah. Klik <a href="/dashboard/assets" class="fw-bold text-primary">Semua Aset Saya</a> untuk mulai mengunggah.
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('statTotalAsset').innerText = '0';
+                document.getElementById('statAssetSub').innerText = '0 Terpublikasi';
+            }
+
+            // 3. Ambil data transaksi toko dari LocalStorage
+            const cleanKey = storeName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const rawSales = localStorage.getItem('indofx_seller_sales_' + cleanKey) ||
+                localStorage.getItem('indofx_seller_sales_' + storeName) ||
+                localStorage.getItem('indofx_seller_sales_' + userKey);
+
+            let sellerSales = [];
+            if (rawSales) {
+                try {
+                    sellerSales = JSON.parse(rawSales);
+                } catch (e) {
+                    sellerSales = [];
+                }
+            }
+
+            let totalRevenue = 0;
+            sellerSales.forEach(sale => {
+                totalRevenue += (parseFloat(sale.price) || 0);
+            });
+
+            let totalDownloads = 0;
+            sellerAssets.forEach(sa => {
+                if (sa.downloads) {
+                    const count = parseInt(String(sa.downloads).replace(/[^0-9]/g, ''), 10) || 0;
+                    totalDownloads += count;
+                }
+            });
+            if (totalDownloads < sellerSales.length) {
+                totalDownloads = sellerSales.length;
+            }
+
+            document.getElementById('statSold').innerText = sellerSales.length + 'x';
+            document.getElementById('statDownloads').innerText = totalDownloads;
+            document.getElementById('statRevenue').innerText = 'Rp' + totalRevenue.toLocaleString('id-ID');
+
+            // 4. Render tabel transaksi penjualan terbaru
+            const transTbody = document.getElementById('tableTransactionsBody');
+
+            if (sellerSales.length > 0) {
+                const latestSales = sellerSales.slice(0, 5);
+                transTbody.innerHTML = latestSales.map(item => {
+                    const price = parseFloat(item.price) || 0;
+                    return `
+                        <tr>
+                            <td class="fw-semibold">
+                                <a href="/dashboard/transactions" class="action-link">${item.invoice_no}</a>
+                            </td>
+                            <td class="fw-bold text-dark item-asset-title">${item.asset_title}</td>
+                            <td class="text-muted small">${item.date || 'Hari ini'}</td>
+                            <td class="text-end pe-4 fw-bold text-success">Rp${price.toLocaleString('id-ID')}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } else {
+                transTbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-muted small">
+                            <i class="bi bi-receipt text-secondary fs-3 d-block mb-1"></i>
+                            Belum ada transaksi penjualan terbaru.
+                        </td>
+                    </tr>
+                `;
+            }
         });
     </script>
 </body>
