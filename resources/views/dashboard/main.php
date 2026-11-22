@@ -211,10 +211,10 @@ $sellerInitials = mb_strtoupper(mb_substr($sellerUsername, 0, 1));
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const storeName    = <?= json_encode($storeName ?? $sellerUsername) ?>;
-            const stats        = <?= json_encode($stats ?? []) ?>;
-            const recentAssets = <?= json_encode($recentAssets ?? []) ?>;
-            const recentSales  = <?= json_encode($recentSales ?? []) ?>;
+            const storeName    = <?= json_encode($storeName ?? $sellerUsername, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+            const stats        = <?= json_encode($stats ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+            const recentAssets = <?= json_encode($recentAssets ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+            const recentSales  = <?= json_encode($recentSales ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 
             // 1. Nama Toko & Inisial
             const titleEl    = document.getElementById('dashContentStoreName');
@@ -254,11 +254,11 @@ $sellerInitials = mb_strtoupper(mb_substr($sellerUsername, 0, 1));
 
                     return `
                         <tr>
-                            <td class="fw-bold text-dark item-asset-title">${item.title}</td>
-                            <td class="text-muted small">${item.category}</td>
-                            <td class="fw-bold text-dark">${item.price_text}</td>
+                            <td class="fw-bold text-dark item-asset-title">${esc(item.title)}</td>
+                            <td class="text-muted small">${esc(item.category)}</td>
+                            <td class="fw-bold text-dark">${esc(item.price_text)}</td>
                             <td>${badgeHtml}</td>
-                            <td class="text-muted small">${item.created_at}</td>
+                            <td class="text-muted small">${esc(item.created_at)}</td>
                             <td class="text-end pe-4 text-nowrap">
                                 <a href="/dashboard/add-asset?edit_id=${encodeURIComponent(item.id)}" class="action-link me-2">Edit</a>
                             </td>
@@ -279,10 +279,10 @@ $sellerInitials = mb_strtoupper(mb_substr($sellerUsername, 0, 1));
                 transTbody.innerHTML = recentSales.map(item => `
                     <tr>
                         <td class="fw-semibold">
-                            <a href="/dashboard/transactions" class="action-link">${item.invoice_no}</a>
+                            <a href="/dashboard/transactions" class="action-link">${esc(item.invoice_no)}</a>
                         </td>
-                        <td class="fw-bold text-dark item-asset-title">${item.asset_title}</td>
-                        <td class="text-muted small">${item.date}</td>
+                        <td class="fw-bold text-dark item-asset-title">${esc(item.asset_title)}</td>
+                        <td class="text-muted small">${esc(item.date)}</td>
                         <td class="text-end pe-4 fw-bold text-success">Rp${Number(item.price || 0).toLocaleString('id-ID')}</td>
                     </tr>
                 `).join('');

@@ -176,10 +176,11 @@ if ($initials === '') {$initials = 'U';
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/indofx-utils.js"></script>
     <script src="/assets/js/navbar-auth.js"></script>
     <script>
         // Data dinamis dari LibraryController (Supabase)
-        const libraryItemsFromDB = <?= json_encode($libraryItems ?? []) ?>;
+        const libraryItemsFromDB = <?= json_encode($libraryItems ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 
         let currentFilter = 'semua';
         let currentSelectedRating = 5;
@@ -222,22 +223,22 @@ if ($initials === '') {$initials = 'U';
                     let cls = 'badge-urp';
                     if (p.toLowerCase().includes('hdrp')) cls = 'badge-hdrp';
                     if (p.toLowerCase().includes('built')) cls = 'badge-builtin';
-                    return `<span class="badge-tag-custom ${cls}">${p}</span>`;
+                    return `<span class="badge-tag-custom ${cls}">${esc(p)}</span>`;
                 }).join(' ');
 
                 const thumbHtml = item.thumbnail
-                    ? `<img src="${item.thumbnail}" alt="${item.title}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><svg style="display:none;" viewBox="0 0 175 98"><use href="#lib-art-castle" /></svg>`
+                    ? `<img src="${esc(item.thumbnail)}" alt="${esc(item.title)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><svg style="display:none;" viewBox="0 0 175 98"><use href="#lib-art-castle" /></svg>`
                     : `<svg viewBox="0 0 175 98"><use href="#lib-art-castle" /></svg>`;
 
                 const alreadyReviewed = Boolean(item.is_reviewed);
-                const safeTitle = String(item.title || '').replace(/'/g, "\\'");
+                const safeTitle = esc(JSON.stringify(String(item.title || '')));
 
                 const actionButtonHtml = alreadyReviewed ? `
                     <button type="button" class="btn-already-reviewed" disabled onclick="event.stopPropagation()">
                         Sudah Diulas
                     </button>
                 ` : `
-                    <button type="button" class="btn-action-review" onclick="event.stopPropagation(); openReviewModal('${item.id}', '${safeTitle}')">
+                    <button type="button" class="btn-action-review" onclick="event.stopPropagation(); openReviewModal('${item.id}', ${safeTitle})">
                         Beri Ulasan
                     </button>
                 `;
@@ -249,14 +250,14 @@ if ($initials === '') {$initials = 'U';
                         </div>
                         <div class="library-item-content">
                             <div class="d-flex align-items-center gap-2 mb-1">
-                                <span class="status-badge-blue">${item.source_text || 'DIBELI'}</span>
-                                <span class="text-muted small">Perolehan: ${item.date || '-'}</span>
+                                <span class="status-badge-blue">${esc(item.source_text || 'DIBELI')}</span>
+                                <span class="text-muted small">Perolehan: ${esc(item.date || '-')}</span>
                             </div>
                             <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
-                                <h5 class="library-asset-heading">${item.title}</h5>
+                                <h5 class="library-asset-heading">${esc(item.title)}</h5>
                                 <div>${badgesHtml}</div>
                             </div>
-                            <p class="text-muted small m-0">Oleh ${item.creator || 'Kreator IndoFX'}</p>
+                            <p class="text-muted small m-0">Oleh ${esc(item.creator || 'Kreator IndoFX')}</p>
                         </div>
                         <div class="library-actions-wrap">
                             ${actionButtonHtml}

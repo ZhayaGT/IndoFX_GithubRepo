@@ -4,7 +4,7 @@
 
 .auth-wrapper {
   background-color: var(--ifx-cream-bg, #fdece2);
-  min-height: calc(100vh - 56px - 220px); /* Pas di antara Navbar dan Footer */
+  flex: 1 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -95,4 +95,27 @@
   color: var(--ifx-brown-muted, #6e5a4f);
   margin-top: 20px;
   text-align: center;
+}
+
+/* ==========================================================================
+   RESPONSIF LAYAR KECIL
+   ========================================================================== */
+@media (max-width: 576px) {
+  .auth-wrapper {
+    min-height: auto;
+    padding: 28px 12px;
+  }
+
+  .auth-card {
+    padding: 24px 18px;
+    border-radius: 10px;
+  }
+
+  .auth-title {
+    font-size: 1.15rem;
+  }
+
+  .auth-subtitle {
+    margin-bottom: 18px;
+  }
 }

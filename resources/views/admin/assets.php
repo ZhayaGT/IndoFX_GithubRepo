@@ -103,7 +103,7 @@ $adminInitials = 'AP';
                 <div class="col-6 col-md-3">
                     <select class="form-select admin-select" id="filterModerationStatus">
                         <option value="all" selected>Semua Status Moderasi</option>
-                        <option value="Pending Review">Pending Review</option>
+                        <option value="Menunggu">Menunggu Peninjauan</option>
                         <option value="Published">Published</option>
                         <option value="Ditolak">Ditolak</option>
                     </select>
@@ -166,6 +166,12 @@ $adminInitials = 'AP';
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Helper escape output HTML -->
+    <script src="/assets/js/indofx-utils.js"></script>
+
+    <!-- Helper penyimpanan lokal (kunci berbasis user_id) -->
+    <script src="/assets/js/indofx-storage.js"></script>
 
     <!-- ENGINE TABEL MODERASI ASET (MENGARAH KE SUBPAGE PENINJAUAN) -->
     <script>
@@ -248,8 +254,9 @@ $adminInitials = 'AP';
                                     price_num: parseFloat(String(sa.price).replace(/[^0-9]/g, '')) || 0,
                                     date: sa.created_at || sa.date || 'Hari ini',
                                     time: 'Baru saja',
-                                    status: sa.status === 'Disetujui' ? 'Published' : (sa.status || 'Pending Review'),
-                                    seller_key: key
+                                    status: IndoFXStorage.normalizeStatus(sa.status),
+                                    seller_key: key,
+                                    seller_user_id: sa.seller_user_id || key.replace('indofx_seller_assets_', '')
                                 });
                             }
                         });
@@ -260,7 +267,7 @@ $adminInitials = 'AP';
             localStorage.setItem('indofx_moderation_queue', JSON.stringify(moderationAssets));
 
             // Perbarui badge sidebar
-            const pendingCount = moderationAssets.filter(a => a.status === 'Pending' || a.status === 'Pending Review').length;
+            const pendingCount = moderationAssets.filter(a => IndoFXStorage.normalizeStatus(a.status) === 'Menunggu').length;
             document.getElementById('sidebarModerationBadge').innerText = pendingCount;
 
             renderModerationTable();
@@ -277,7 +284,7 @@ $adminInitials = 'AP';
                     item.title.toLowerCase().includes(keyword) ||
                     item.studio.toLowerCase().includes(keyword);
 
-                const itemStatusNormalized = (item.status === 'Disetujui' ? 'Published' : (item.status === 'Pending' ? 'Pending Review' : item.status));
+                const itemStatusNormalized = IndoFXStorage.normalizeStatus(item.status);
                 const matchStatus = statusFilter === 'all' || itemStatusNormalized === statusFilter;
                 const matchCategory = categoryFilter === 'all' || item.category === categoryFilter;
 
@@ -301,8 +308,8 @@ $adminInitials = 'AP';
                 if (pipe.toLowerCase().includes('hdrp')) pipeClass = 'badge-pipe-hdrp';
                 if (pipe.toLowerCase().includes('built')) pipeClass = 'badge-pipe-builtin';
 
-                const isPublished = (item.status === 'Published' || item.status === 'Disetujui');
-                const isRejected = (item.status === 'Ditolak');
+                const isPublished = IndoFXStorage.normalizeStatus(item.status) === 'Published';
+                const isRejected = IndoFXStorage.normalizeStatus(item.status) === 'Ditolak';
 
                 let statusBadge = `<span class="badge-status-review">Pending Review</span>`;
                 if (isPublished) {
@@ -314,7 +321,7 @@ $adminInitials = 'AP';
                 // Tombol Detail langsung membuka SUBPAGE REVIEW FIGMA (bukan modal popup)
                 const actionBtn = isPublished ?
                     `
-                        <a href="/asset/detail?id=${encodeURIComponent(item.id)}&title=${encodeURIComponent(item.title)}" class="btn-admin-public">
+                        <a href="/asset/detail?id=${encodeURIComponent(item.id)}&title=${encodeURIComponent(item.title)}&category=${encodeURIComponent(item.category || '')}&creator=${encodeURIComponent(item.studio || '')}&price=${encodeURIComponent(item.price_num || 0)}&pipeline=${encodeURIComponent(item.pipeline || '')}" class="btn-admin-public">
                             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0">
                                 <rect x="2" y="2" width="12" height="12" rx="2.5" />
                                 <line x1="5.5" y1="5.5" x2="10.5" y2="5.5" />
@@ -337,17 +344,17 @@ $adminInitials = 'AP';
                     <tr>
                         <td>
                             <div class="d-inline-flex align-items-center gap-2 flex-nowrap">
-                                <span class="fw-bold text-dark text-nowrap">${item.title}</span>
-                                <span class="badge-pipe-admin ${pipeClass}">${pipe}</span>
+                                <span class="fw-bold text-dark text-nowrap">${esc(item.title)}</span>
+                                <span class="badge-pipe-admin ${pipeClass}">${esc(pipe)}</span>
                             </div>
-                            <div class="text-muted small" style="font-size: 0.73rem;">${item.file_info}</div>
+                            <div class="text-muted small" style="font-size: 0.73rem;">${esc(item.file_info)}</div>
                         </td>
-                        <td class="fw-bold text-dark cell-nowrap">${item.studio}</td>
-                        <td class="text-dark cell-nowrap">${item.unity_ver || 'Unity 2022.3 LTS'}</td>
-                        <td class="fw-bold text-dark cell-nowrap">${item.price}</td>
+                        <td class="fw-bold text-dark cell-nowrap">${esc(item.studio)}</td>
+                        <td class="text-dark cell-nowrap">${esc(item.unity_ver || 'Unity 2022.3 LTS')}</td>
+                        <td class="fw-bold text-dark cell-nowrap">${esc(item.price)}</td>
                         <td class="cell-nowrap">
-                            <div class="text-dark">${displayDate}</div>
-                            <div class="text-muted small" style="font-size: 0.72rem;">${displayTime}</div>
+                            <div class="text-dark">${esc(displayDate)}</div>
+                            <div class="text-muted small" style="font-size: 0.72rem;">${esc(displayTime)}</div>
                         </td>
                         <td class="cell-nowrap">${statusBadge}</td>
                         <td class="text-end pe-3 cell-nowrap">${actionBtn}</td>

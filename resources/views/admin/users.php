@@ -324,6 +324,9 @@ try {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Helper escape output HTML -->
+    <script src="/assets/js/indofx-utils.js"></script>
+
     <!-- ENGINE PENGGABUNGAN DATA PENJUAL + AKUN PGADMIN -->
     <script>
         // 1. DATA PENJUAL & STUDIO SEBELUMNYA LENGKAP
@@ -602,32 +605,38 @@ try {
                 const statusBadge = u.status === 'Aktif' ?
                     '<span class="badge-status-active">Aktif</span>' :
                     '<span class="badge-status-blocked">Diblokir</span>';
+                const isAdminAccount = String(u.role || '').trim().toLowerCase() === 'admin';
+                const editButton = isAdminAccount ?
+                    `<button type="button" class="btn-edit-user is-disabled" disabled aria-disabled="true" title="Akun administrator tidak dapat diedit">
+                        <i class="bi bi-pencil-square"></i> Edit
+                    </button>` :
+                    `<button type="button" class="btn-edit-user" data-edit-user-id="${esc(u.id)}">
+                        <i class="bi bi-pencil-square"></i> Edit
+                    </button>`;
 
                 return `
                     <tr>
                         <td>
                             <div class="d-flex align-items-center gap-2">
-                                <span class="user-avatar-tag" style="background-color: ${u.badge_bg || '#FCE8DC'}; color: ${u.badge_color || '#ED6B1D'};">
-                                    ${u.inits || 'US'}
+                                <span class="user-avatar-tag" style="background-color: ${esc(u.badge_bg || '#FCE8DC')}; color: ${esc(u.badge_color || '#ED6B1D')};">
+                                    ${esc(u.inits || 'US')}
                                 </span>
                                 <div>
                                     <div class="fw-bold text-dark">
-                                        <span>${u.name}</span>
+                                        <span>${esc(u.name)}</span>
                                         ${verifiedIcon}
                                     </div>
-                                    <div class="text-muted" style="font-size: 0.74rem;">${u.email}</div>
+                                    <div class="text-muted" style="font-size: 0.74rem;">${esc(u.email)}</div>
                                 </div>
                             </div>
                         </td>
-                        <td class="text-muted">${u.email}</td>
-                        <td><span class="role-pill">${u.role}</span></td>
+                        <td class="text-muted">${esc(u.email)}</td>
+                        <td><span class="role-pill">${esc(u.role)}</span></td>
                         <td>${statusBadge}</td>
-                        <td class="text-muted">${u.join_date}</td>
-                        <td class="fw-bold text-dark">${u.stats || '-'}</td>
+                        <td class="text-muted">${esc(u.join_date)}</td>
+                        <td class="fw-bold text-dark">${esc(u.stats || '-')}</td>
                         <td class="text-end pe-4">
-                            <button type="button" class="btn-edit-user" onclick="openEditUserModal('${u.id}')">
-                                <i class="bi bi-pencil-square"></i> Edit
-                            </button>
+                            ${editButton}
                         </td>
                     </tr>
                 `;
@@ -656,7 +665,7 @@ try {
             }
 
             btnsHtml += `
-                <button type="button" class="btn-page-admin ${currentPage === totalPages ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})">
+                <button type="button" class="btn-page-admin ${currentPage === totalPages ? 'disabled' : ''}" onclick="goToPage(${currentPage + 1})">
                     <i class="bi bi-chevron-right"></i>
                 </button>
             `;
@@ -673,6 +682,11 @@ try {
         function openEditUserModal(userId) {
             const user = users.find(u => String(u.id) === String(userId));
             if (!user) return;
+
+            // Akun administrator tidak boleh diubah dari halaman ini.
+            if (String(user.role || '').trim().toLowerCase() === 'admin') {
+                return;
+            }
 
             document.getElementById('editUserId').value = user.id;
             document.getElementById('editUserName').value = user.name;
@@ -717,6 +731,13 @@ try {
 
         document.addEventListener('DOMContentLoaded', function() {
             modalEditUserInstance = new bootstrap.Modal(document.getElementById('modalEditUser'));
+
+            // Delegasi tombol Edit pengguna
+            document.addEventListener('click', function(event) {
+                const editBtn = event.target.closest('[data-edit-user-id]');
+                if (!editBtn) return;
+                openEditUserModal(editBtn.getAttribute('data-edit-user-id'));
+            });
 
             // Muat data gabungan
             loadUsersData();

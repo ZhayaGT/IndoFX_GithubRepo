@@ -302,6 +302,9 @@ $adminInitials = 'AP';
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Helper escape output HTML -->
+    <script src="/assets/js/indofx-utils.js"></script>
+
     <!-- ENGINE MONITORING TRANSAKSI DINAMIS 100% -->
     <script>
         let transactions = [];
@@ -466,25 +469,25 @@ $adminInitials = 'AP';
                 return `
                     <tr>
                         <td>
-                            <div class="fw-bold text-dark cell-nowrap">${item.order_id}</div>
-                            <div class="text-muted small" style="font-size: 0.73rem;">${item.time}</div>
+                            <div class="fw-bold text-dark cell-nowrap">${esc(item.order_id)}</div>
+                            <div class="text-muted small" style="font-size: 0.73rem;">${esc(item.time)}</div>
                         </td>
                         <td>
-                            <div class="fw-bold text-dark">${item.asset_title}</div>
-                            <div class="text-muted small" style="font-size: 0.73rem;">Oleh: ${item.seller}</div>
+                            <div class="fw-bold text-dark">${esc(item.asset_title)}</div>
+                            <div class="text-muted small" style="font-size: 0.73rem;">Oleh: ${esc(item.seller)}</div>
                         </td>
                         <td>
-                            <div class="fw-bold text-dark cell-nowrap">${item.buyer}</div>
-                            <div class="text-muted small" style="font-size: 0.73rem;">${item.buyer_email}</div>
+                            <div class="fw-bold text-dark cell-nowrap">${esc(item.buyer)}</div>
+                            <div class="text-muted small" style="font-size: 0.73rem;">${esc(item.buyer_email)}</div>
                         </td>
-                        <td class="fw-bold text-dark cell-nowrap">${item.method}</td>
+                        <td class="fw-bold text-dark cell-nowrap">${esc(item.method)}</td>
                         <td class="cell-nowrap">
                             <div class="fw-bold text-dark">Rp ${(item.total_bayar || 0).toLocaleString('id-ID')}</div>
                             <div class="text-muted small" style="font-size: 0.72rem;">Fee (10%): Rp ${(item.fee || Math.round(item.total_bayar * 0.1)).toLocaleString('id-ID')}</div>
                         </td>
                         <td>${statusBadge}</td>
                         <td class="text-end pe-4 cell-nowrap">
-                            <button type="button" class="btn-detail-log" onclick="openTrxDetailModal('${item.order_id}')">
+                            <button type="button" class="btn-detail-log" data-trx-order-id="${esc(item.order_id)}">
                                 <i class="bi bi-file-earmark-text"></i> Detail Log
                             </button>
                         </td>
@@ -567,7 +570,7 @@ $adminInitials = 'AP';
             printWindow.document.write(`
                 <html>
                 <head>
-                    <title>Invoice - ${currentActiveTrx.order_id}</title>
+                    <title>Invoice - ${esc(currentActiveTrx.order_id)}</title>
                     <style>
                         body { font-family: sans-serif; padding: 30px; color: #2B2623; }
                         .header { border-bottom: 2px solid #ED6B1D; padding-bottom: 12px; margin-bottom: 20px; }
@@ -581,13 +584,13 @@ $adminInitials = 'AP';
                 <body>
                     <div class="header">
                         <div class="title">INDOFX MARKETPLACE - INVOICE</div>
-                        <div>No. Order: <strong>${currentActiveTrx.order_id}</strong></div>
-                        <div>Tanggal: ${currentActiveTrx.time}</div>
+                        <div>No. Order: <strong>${esc(currentActiveTrx.order_id)}</strong></div>
+                        <div>Tanggal: ${esc(currentActiveTrx.time)}</div>
                     </div>
-                    <p><strong>Pembeli:</strong> ${currentActiveTrx.buyer} (${currentActiveTrx.buyer_email})</p>
-                    <p><strong>Penjual:</strong> ${currentActiveTrx.seller}</p>
-                    <p><strong>Metode Pembayaran:</strong> ${currentActiveTrx.method} (Ref: ${currentActiveTrx.ref_id})</p>
-                    <p><strong>Status:</strong> ${currentActiveTrx.status}</p>
+                    <p><strong>Pembeli:</strong> ${esc(currentActiveTrx.buyer)} (${esc(currentActiveTrx.buyer_email)})</p>
+                    <p><strong>Penjual:</strong> ${esc(currentActiveTrx.seller)}</p>
+                    <p><strong>Metode Pembayaran:</strong> ${esc(currentActiveTrx.method)} (Ref: ${esc(currentActiveTrx.ref_id)})</p>
+                    <p><strong>Status:</strong> ${esc(currentActiveTrx.status)}</p>
                     <table>
                         <thead>
                             <tr>
@@ -597,7 +600,7 @@ $adminInitials = 'AP';
                         </thead>
                         <tbody>
                             <tr>
-                                <td>${currentActiveTrx.asset_title}</td>
+                                <td>${esc(currentActiveTrx.asset_title)}</td>
                                 <td style="text-align: right;">Rp ${(currentActiveTrx.total_bayar || 0).toLocaleString('id-ID')}</td>
                             </tr>
                         </tbody>
@@ -645,6 +648,13 @@ $adminInitials = 'AP';
         document.addEventListener('DOMContentLoaded', function() {
             modalTrxInstance = new bootstrap.Modal(document.getElementById('modalTrxDetail'));
             loadTransactionsData();
+
+            // Delegasi tombol Detail Log transaksi
+            document.addEventListener('click', function(event) {
+                const logBtn = event.target.closest('[data-trx-order-id]');
+                if (!logBtn) return;
+                openTrxDetailModal(logBtn.getAttribute('data-trx-order-id'));
+            });
 
             document.getElementById('trxSearchInput').addEventListener('input', renderTransactionsTable);
             document.getElementById('filterStatusMidtrans').addEventListener('change', renderTransactionsTable);

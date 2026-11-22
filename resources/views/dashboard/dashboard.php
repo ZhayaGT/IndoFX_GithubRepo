@@ -186,8 +186,8 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        const storeName = <?= json_encode($storeName ?? $userName) ?>;
-        const allAssets = <?= json_encode($assets ?? []) ?>;
+        const storeName = <?= json_encode($storeName ?? $userName, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+        const allAssets = <?= json_encode($assets ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('pageStoreTitle').innerText = storeName;
@@ -238,7 +238,7 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                     let cls = 'badge-urp';
                     if (pLower.includes('hdrp')) cls = 'badge-hdrp';
                     else if (pLower.includes('built')) cls = 'badge-builtin';
-                    return `<span class="badge-pipe ${cls} me-1">${p}</span>`;
+                    return `<span class="badge-pipe ${cls} me-1">${esc(p)}</span>`;
                 }).join('');
 
                 const isGratis = Number(item.price) <= 0;
@@ -269,14 +269,14 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                 return `
                     <tr>
                         <td>
-                            <div class="fw-bold text-dark item-asset-title">${item.title}</div>
+                            <div class="fw-bold text-dark item-asset-title">${esc(item.title)}</div>
                             <div class="d-flex flex-wrap gap-1 mt-1">${pipeHtml}</div>
                         </td>
-                        <td class="text-muted small">${item.category}</td>
-                        <td class="fw-bold text-dark">${item.price_text}</td>
+                        <td class="text-muted small">${esc(item.category)}</td>
+                        <td class="fw-bold text-dark">${esc(item.price_text)}</td>
                         <td>${statusBadge}</td>
                         <td class="text-muted small">${downloadOrSalesText}</td>
-                        <td class="text-muted small">${item.created_at}</td>
+                        <td class="text-muted small">${esc(item.created_at)}</td>
                         <td class="text-end pe-4 text-nowrap">${actionBtn}</td>
                     </tr>
                 `;

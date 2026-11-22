@@ -91,27 +91,3 @@ if ($initials === '') {
     <?php endif; ?>
 </div>
 
-<!-- Script Handler Dropdown Profil -->
-<script>
-    document.addEventListener('click', function(e) {
-        const avatarBtn = document.getElementById('navbar-avatar');
-        const avatarMenu = document.getElementById('navbar-avatar-menu');
-        if (!avatarBtn || !avatarMenu) return;
-
-        if (avatarBtn.contains(e.target)) {
-            e.preventDefault();
-            e.stopPropagation();
-            const isHidden = avatarMenu.hasAttribute('hidden');
-            if (isHidden) {
-                avatarMenu.removeAttribute('hidden');
-                avatarBtn.setAttribute('aria-expanded', 'true');
-            } else {
-                avatarMenu.setAttribute('hidden', '');
-                avatarBtn.setAttribute('aria-expanded', 'false');
-            }
-        } else if (!avatarMenu.contains(e.target)) {
-            avatarMenu.setAttribute('hidden', '');
-            avatarBtn.setAttribute('aria-expanded', 'false');
-        }
-    });
-</script>

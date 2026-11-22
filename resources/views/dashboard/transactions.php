@@ -202,8 +202,8 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        const storeName = <?= json_encode($storeName ?? $userName) ?>;
-        const allTransactions = <?= json_encode($transactions ?? []) ?>;
+        const storeName = <?= json_encode($storeName ?? $userName, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+        const allTransactions = <?= json_encode($transactions ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 
         document.addEventListener('DOMContentLoaded', function() {
             // 1. Nama Toko & Inisial
@@ -310,11 +310,11 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                 return `
                     <tr>
                         <td>
-                            <a href="javascript:void(0)" onclick="printInvoice(${idx})" class="action-link fw-semibold">${item.invoice_no}</a>
+                            <a href="javascript:void(0)" onclick="printInvoice(${idx})" class="action-link fw-semibold">${esc(item.invoice_no)}</a>
                         </td>
-                        <td class="fw-bold text-dark item-asset-title">${item.asset_title}</td>
-                        <td class="text-secondary small">${item.payment_method || 'QRIS'}</td>
-                        <td class="text-muted small">${item.date || 'Hari ini'}</td>
+                        <td class="fw-bold text-dark item-asset-title">${esc(item.asset_title)}</td>
+                        <td class="text-secondary small">${esc(item.payment_method || 'QRIS')}</td>
+                        <td class="text-muted small">${esc(item.date || 'Hari ini')}</td>
                         <td>
                             <span class="badge-status-approved">Settlement</span>
                         </td>
@@ -344,7 +344,7 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                 <html lang="id">
                 <head>
                     <meta charset="UTF-8">
-                    <title>Invoice - ${item.invoice_no}</title>
+                    <title>Invoice - ${esc(item.invoice_no)}</title>
                     <style>
                         body { font-family: Arial, Helvetica, sans-serif; color: #222; padding: 36px 44px; margin: 0; }
                         .inv-title { color: #ED6B1D; font-size: 20px; font-weight: 800; margin: 0 0 6px 0; }
@@ -360,15 +360,15 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                 </head>
                 <body>
                     <h1 class="inv-title">INDOFX MARKETPLACE - INVOICE</h1>
-                    <p class="inv-meta">No. Order: <strong>${item.invoice_no}</strong></p>
-                    <p class="inv-meta">Tanggal: ${item.date}</p>
+                    <p class="inv-meta">No. Order: <strong>${esc(item.invoice_no)}</strong></p>
+                    <p class="inv-meta">Tanggal: ${esc(item.date)}</p>
 
                     <hr class="inv-divider">
 
                     <div class="inv-info">
-                        <p><strong>Pembeli:</strong> ${buyerInfo}</p>
-                        <p><strong>Penjual:</strong> ${storeName}</p>
-                        <p><strong>Metode Pembayaran:</strong> ${item.payment_method || 'QRIS'} (Ref: ${item.midtrans_ref || '-'})</p>
+                        <p><strong>Pembeli:</strong> ${esc(buyerInfo)}</p>
+                        <p><strong>Penjual:</strong> ${esc(storeName)}</p>
+                        <p><strong>Metode Pembayaran:</strong> ${esc(item.payment_method || 'QRIS')} (Ref: ${esc(item.midtrans_ref || '-')})</p>
                         <p><strong>Status:</strong> Settlement</p>
                     </div>
 
@@ -381,7 +381,7 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                         </thead>
                         <tbody>
                             <tr>
-                                <td>${item.asset_title}</td>
+                                <td>${esc(item.asset_title)}</td>
                                 <td class="text-right">${priceFormatted}</td>
                             </tr>
                         </tbody>

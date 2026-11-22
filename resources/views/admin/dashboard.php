@@ -169,7 +169,7 @@ $adminInitials = 'AP';
         </main>
     </div>
 
-    <!-- 3. MODAL PENINJAUAN MODERASI ASET (AKSI DINAMIS ADMIN) -->
+    <!-- 3. MODAL DETAIL ASET PADA ANTREAN MODERASI -->
     <div class="modal fade" id="modalReviewAsset" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" style="max-width: 580px;">
             <div class="modal-content modal-review-card">
@@ -178,7 +178,7 @@ $adminInitials = 'AP';
                         <div class="seller-header-icon-box">
                             <i class="bi bi-shield-check"></i>
                         </div>
-                        <h5 class="modal-category-title mb-0">Peninjauan Moderasi Aset</h5>
+                        <h5 class="modal-category-title mb-0">Detail Aset</h5>
                     </div>
                     <button type="button" class="btn-seller-close" data-bs-dismiss="modal" aria-label="Close">
                         <i class="bi bi-x-lg"></i>
@@ -189,11 +189,7 @@ $adminInitials = 'AP';
 
                     <div class="mb-3">
                         <span class="seller-label">Judul Aset</span>
-                        <h5 class="fw-bold text-dark mb-1" id="reviewAssetTitle">-</h5>
-                        <div class="d-flex align-items-center gap-2 mt-1">
-                            <span class="badge-pipe-admin badge-pipe-hdrp" id="reviewPipelineBadge">HDRP</span>
-                            <span class="text-muted small" id="reviewCategoryText">Shader</span>
-                        </div>
+                        <h5 class="fw-bold text-dark mb-0" id="reviewAssetTitle">-</h5>
                     </div>
 
                     <div class="row g-2 mb-3">
@@ -211,30 +207,15 @@ $adminInitials = 'AP';
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <span class="seller-label">Berkas Paket Aset</span>
-                        <div class="p-2 border rounded bg-light d-flex align-items-center justify-content-between">
-                            <div class="d-flex align-items-center gap-2">
-                                <i class="bi bi-file-earmark-zip text-danger fs-5"></i>
-                                <span class="small fw-semibold text-dark" id="reviewFileName">asset_package.zip</span>
-                            </div>
-                            <span class="badge bg-secondary" id="reviewFileSize">32 MB</span>
-                        </div>
-                    </div>
-
                     <div class="mb-2">
-                        <label class="seller-label mb-1" for="reviewRejectReason">Catatan Keputusan (Wajib jika menolak):</label>
-                        <textarea id="reviewRejectReason" class="seller-textarea" style="height: 75px;" placeholder="Tuliskan catatan perbaikan untuk kreator jika aset ditolak..."></textarea>
+                        <span class="seller-label">Deskripsi Aset</span>
+                        <p class="mb-0 text-secondary small" id="reviewAssetDescription" style="line-height: 1.6;">-</p>
                     </div>
                 </div>
                 <div class="modal-category-footer">
-                    <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" class="btn-modal-confirm-delete" onclick="handleModerationReject()">
-                        <i class="bi bi-x-lg"></i> Tolak Aset
-                    </button>
-                    <button type="button" class="btn-modal-submit" onclick="handleModerationApprove()">
-                        <i class="bi bi-check2"></i> Setujui &amp; Publikasikan
-                    </button>
+                    <a href="/admin/assets" class="btn-modal-submit" id="reviewDetailLink">
+                        <i class="bi bi-box-arrow-up-right"></i> Detail Aset
+                    </a>
                 </div>
             </div>
         </div>
@@ -262,6 +243,12 @@ $adminInitials = 'AP';
     </footer>
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Helper escape output HTML -->
+    <script src="/assets/js/indofx-utils.js"></script>
+
+    <!-- Helper penyimpanan lokal (kunci berbasis user_id) -->
+    <script src="/assets/js/indofx-storage.js"></script>
 
     <!-- ENGINE DATA DINAMIS ADMIN INDOFX -->
     <script>
@@ -435,8 +422,10 @@ $adminInitials = 'AP';
                                     price_num: parseFloat(String(sa.price).replace(/[^0-9]/g, '')) || 0,
                                     created_at: sa.created_at || 'Hari ini',
                                     time: 'Baru saja',
-                                    status: sa.status === 'Disetujui' ? 'Published' : (sa.status || 'Pending Review'),
-                                    seller_storage_key: key
+                                    status: IndoFXStorage.normalizeStatus(sa.status),
+                                    description: sa.description || '',
+                                    seller_storage_key: key,
+                                    seller_user_id: sa.seller_user_id || key.replace('indofx_seller_assets_', '')
                                 });
                             }
                         });
@@ -448,7 +437,7 @@ $adminInitials = 'AP';
             localStorage.setItem('indofx_moderation_queue', JSON.stringify(allModerationAssets));
 
             // Hitung eksak aset pending
-            const pendingList = allModerationAssets.filter(a => a.status === 'Pending' || a.status === 'Pending Review');
+            const pendingList = allModerationAssets.filter(a => IndoFXStorage.normalizeStatus(a.status) === 'Menunggu');
             document.getElementById('statPendingModeration').innerText = pendingList.length + ' Aset';
             document.getElementById('sidebarModerationBadge').innerText = pendingList.length;
 
@@ -462,7 +451,7 @@ $adminInitials = 'AP';
                 publicCatalog = [];
             }
 
-            const publishedInQueue = allModerationAssets.filter(a => a.status === 'Published' || a.status === 'Disetujui');
+            const publishedInQueue = allModerationAssets.filter(a => IndoFXStorage.normalizeStatus(a.status) === 'Published');
 
             // Himpunan ID unik yang terpublikasi
             const publishedAssetIds = new Set();
@@ -552,8 +541,8 @@ $adminInitials = 'AP';
                 if (pipe.toLowerCase().includes('hdrp')) pipeClass = 'badge-pipe-hdrp';
                 if (pipe.toLowerCase().includes('built')) pipeClass = 'badge-pipe-builtin';
 
-                const isPublished = (item.status === 'Published' || item.status === 'Disetujui');
-                const isRejected = (item.status === 'Ditolak');
+                const isPublished = IndoFXStorage.normalizeStatus(item.status) === 'Published';
+                const isRejected = IndoFXStorage.normalizeStatus(item.status) === 'Ditolak';
 
                 let statusBadge = `<span class="badge-status-review">Pending Review</span>`;
                 if (isPublished) {
@@ -564,7 +553,7 @@ $adminInitials = 'AP';
 
                 const actionBtn = isPublished ?
                     `
-                        <a href="/asset/detail?id=${encodeURIComponent(item.id)}&title=${encodeURIComponent(item.title)}" class="btn-admin-public">
+                        <a href="/asset/detail?id=${encodeURIComponent(item.id)}&title=${encodeURIComponent(item.title)}&category=${encodeURIComponent(item.category || '')}&creator=${encodeURIComponent(item.studio || '')}&price=${encodeURIComponent(item.price_num || 0)}&pipeline=${encodeURIComponent(item.pipeline || '')}" class="btn-admin-public">
                             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0">
                                 <rect x="2" y="2" width="12" height="12" rx="2.5" />
                                 <line x1="5.5" y1="5.5" x2="10.5" y2="5.5" />
@@ -575,7 +564,7 @@ $adminInitials = 'AP';
                         </a>
                     ` :
                     `
-                        <button type="button" class="btn-admin-detail" onclick="openReviewModal('${item.id}')">
+                        <button type="button" class="btn-admin-detail" data-review-id="${esc(item.id)}">
                             <i class="bi bi-file-earmark-text"></i> Detail
                         </button>
                     `;
@@ -584,17 +573,17 @@ $adminInitials = 'AP';
                     <tr>
                         <td>
                             <div class="d-inline-flex align-items-center gap-2 flex-nowrap">
-                                <span class="fw-bold text-dark text-nowrap">${item.title}</span>
-                                <span class="badge-pipe-admin ${pipeClass}">${pipe}</span>
+                                <span class="fw-bold text-dark text-nowrap">${esc(item.title)}</span>
+                                <span class="badge-pipe-admin ${pipeClass}">${esc(pipe)}</span>
                             </div>
-                            <div class="text-muted small" style="font-size: 0.73rem;">${item.file_info || 'File: package.zip'}</div>
+                            <div class="text-muted small" style="font-size: 0.73rem;">${esc(item.file_info || 'File: package.zip')}</div>
                         </td>
-                        <td class="fw-bold text-dark cell-nowrap">${item.studio || 'Studio Kreator'}</td>
-                        <td class="text-dark cell-nowrap">${item.unity_ver || 'Unity 2022.3 LTS'}</td>
-                        <td class="fw-bold text-dark cell-nowrap">${item.price || 'Gratis'}</td>
+                        <td class="fw-bold text-dark cell-nowrap">${esc(item.studio || 'Studio Kreator')}</td>
+                        <td class="text-dark cell-nowrap">${esc(item.unity_ver || 'Unity 2022.3 LTS')}</td>
+                        <td class="fw-bold text-dark cell-nowrap">${esc(item.price || 'Gratis')}</td>
                         <td class="cell-nowrap">
-                            <div class="text-dark">${item.created_at || 'Hari ini'}</div>
-                            <div class="text-muted small" style="font-size: 0.72rem;">${item.time || 'WIB'}</div>
+                            <div class="text-dark">${esc(item.created_at || 'Hari ini')}</div>
+                            <div class="text-muted small" style="font-size: 0.72rem;">${esc(item.time || 'WIB')}</div>
                         </td>
                         <td class="cell-nowrap">${statusBadge}</td>
                         <td class="text-end pe-3 cell-nowrap">${actionBtn}</td>
@@ -603,7 +592,7 @@ $adminInitials = 'AP';
             }).join('');
         }
 
-        // 3. AKSI BUKA MODAL DETAIL PENINJAUAN
+        // 3. BUKA MODAL DETAIL ASET (HANYA INFORMASI)
         function openReviewModal(assetId) {
             const item = allModerationAssets.find(a => String(a.id) === String(assetId));
             if (!item) return;
@@ -612,103 +601,29 @@ $adminInitials = 'AP';
             document.getElementById('reviewAssetTitle').innerText = item.title;
             document.getElementById('reviewStudioName').innerText = item.studio || 'Studio Kreator';
             document.getElementById('reviewPriceText').innerText = item.price || 'Gratis';
-            document.getElementById('reviewCategoryText').innerText = item.category || 'VFX Partikel';
-            document.getElementById('reviewPipelineBadge').innerText = item.pipeline || 'URP';
-            document.getElementById('reviewFileName').innerText = (item.title.toLowerCase().replace(/[^a-z0-9]/g, '_')) + '.unitypackage';
-            document.getElementById('reviewRejectReason').value = '';
+            document.getElementById('reviewAssetDescription').innerText =
+                (item.description && String(item.description).trim() !== '') ?
+                String(item.description).trim() :
+                'Penjual belum mencantumkan deskripsi aset.';
+
+            const detailLink = document.getElementById('reviewDetailLink');
+            if (detailLink) {
+                detailLink.href = '/admin/assets/review?id=' + encodeURIComponent(item.id);
+            }
 
             modalReviewInstance.show();
-        }
-
-        // 4. AKSI SETUJUI & PUBLIKASIKAN ASET
-        function handleModerationApprove() {
-            const assetId = document.getElementById('reviewAssetId').value;
-            let targetAsset = null;
-
-            allModerationAssets = allModerationAssets.map(item => {
-                if (String(item.id) === String(assetId)) {
-                    item.status = 'Published';
-                    targetAsset = item;
-                }
-                return item;
-            });
-
-            localStorage.setItem('indofx_moderation_queue', JSON.stringify(allModerationAssets));
-
-            if (targetAsset) {
-                let publicCatalog = [];
-                try {
-                    publicCatalog = JSON.parse(localStorage.getItem('indofx_public_catalog')) || [];
-                } catch (e) {}
-                publicCatalog = publicCatalog.filter(c => String(c.id) !== String(targetAsset.id));
-                publicCatalog.unshift({
-                    id: targetAsset.id,
-                    title: targetAsset.title,
-                    creator: targetAsset.studio,
-                    price: targetAsset.price_num || 0,
-                    category: targetAsset.category || 'VFX Partikel',
-                    pipelines: [targetAsset.pipeline || 'Built-in'],
-                    downloads: '0x Terjual'
-                });
-                localStorage.setItem('indofx_public_catalog', JSON.stringify(publicCatalog));
-
-                if (targetAsset.seller_storage_key) {
-                    try {
-                        let sAssets = JSON.parse(localStorage.getItem(targetAsset.seller_storage_key)) || [];
-                        sAssets = sAssets.map(sa => {
-                            if (String(sa.id) === String(targetAsset.id)) sa.status = 'Disetujui';
-                            return sa;
-                        });
-                        localStorage.setItem(targetAsset.seller_storage_key, JSON.stringify(sAssets));
-                    } catch (e) {}
-                }
-            }
-
-            modalReviewInstance.hide();
-            syncAdminDashboardData();
-        }
-
-        // 5. AKSI TOLAK ASET
-        function handleModerationReject() {
-            const assetId = document.getElementById('reviewAssetId').value;
-            const reason = document.getElementById('reviewRejectReason').value.trim();
-
-            if (!reason) {
-                alert('Silakan tuliskan catatan perbaikan alasan penolakan untuk penjual.');
-                document.getElementById('reviewRejectReason').focus();
-                return;
-            }
-
-            allModerationAssets = allModerationAssets.map(item => {
-                if (String(item.id) === String(assetId)) {
-                    item.status = 'Ditolak';
-                    item.reject_reason = reason;
-
-                    if (item.seller_storage_key) {
-                        try {
-                            let sAssets = JSON.parse(localStorage.getItem(item.seller_storage_key)) || [];
-                            sAssets = sAssets.map(sa => {
-                                if (String(sa.id) === String(item.id)) {
-                                    sa.status = 'Ditolak';
-                                    sa.reject_reason = reason;
-                                }
-                                return sa;
-                            });
-                            localStorage.setItem(item.seller_storage_key, JSON.stringify(sAssets));
-                        } catch (e) {}
-                    }
-                }
-                return item;
-            });
-
-            localStorage.setItem('indofx_moderation_queue', JSON.stringify(allModerationAssets));
-            modalReviewInstance.hide();
-            syncAdminDashboardData();
         }
 
         document.addEventListener('DOMContentLoaded', function() {
             modalReviewInstance = new bootstrap.Modal(document.getElementById('modalReviewAsset'));
             syncAdminDashboardData();
+
+            // Delegasi tombol Detail pada tabel antrean
+            document.addEventListener('click', function(event) {
+                const detailBtn = event.target.closest('[data-review-id]');
+                if (!detailBtn) return;
+                openReviewModal(detailBtn.getAttribute('data-review-id'));
+            });
 
             // Dropdown Profil Admin
             const btn = document.getElementById('adminDropdownBtn');

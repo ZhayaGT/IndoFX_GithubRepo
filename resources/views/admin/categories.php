@@ -73,7 +73,7 @@ $adminInitials = 'AP';
                 </a>
                 <a href="/admin/assets" class="admin-sidebar-link">
                     <span><i class="bi bi-card-checklist me-2"></i>Moderasi Aset</span>
-                    <span class="admin-sidebar-badge">2</span>
+                    <span class="admin-sidebar-badge" id="sidebarModerationBadge">0</span>
                 </a>
                 <a href="/admin/categories" class="admin-sidebar-link active">
                     <span><i class="bi bi-tags me-2"></i>Kelola Kategori</span>
@@ -83,7 +83,7 @@ $adminInitials = 'AP';
                 </a>
                 <a href="/admin/seller-requests" class="admin-sidebar-link">
                     <span><i class="bi bi-person-badge me-2"></i>Pengajuan Penjual</span>
-                    <span class="admin-sidebar-badge">2</span>
+                    <span class="admin-sidebar-badge" id="sidebarSellerBadge">0</span>
                 </a>
                 <a href="/admin/transactions" class="admin-sidebar-link">
                     <span><i class="bi bi-currency-dollar me-2"></i>Monitor Transaksi</span>
@@ -260,7 +260,7 @@ $adminInitials = 'AP';
                 </div>
 
                 <div class="d-flex justify-content-center gap-3">
-                    <button type="button" class="btn-modal-cancel" style="border: 1.5px solid #2B2623;" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Batal</button>
                     <button type="button" class="btn-modal-confirm-delete" onclick="confirmDeleteCategory()">
                         <i class="bi bi-trash3"></i> Ya, Hapus
                     </button>
@@ -292,6 +292,12 @@ $adminInitials = 'AP';
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Helper escape output HTML -->
+    <script src="/assets/js/indofx-utils.js"></script>
+
+    <!-- Helper penyimpanan lokal (kunci berbasis user_id) -->
+    <script src="/assets/js/indofx-storage.js"></script>
 
     <script>
         // Data Awal Kategori Sesuai Figma image_1ee300
@@ -367,18 +373,18 @@ $adminInitials = 'AP';
                     <tr>
                         <td class="text-muted fw-bold">${index + 1}</td>
                         <td>
-                            <div class="fw-bold text-dark" style="font-size: 0.88rem;">${cat.name}</div>
-                            <div class="text-muted" style="font-size: 0.74rem;">${cat.desc || '-'}</div>
+                            <div class="fw-bold text-dark" style="font-size: 0.88rem;">${esc(cat.name)}</div>
+                            <div class="text-muted" style="font-size: 0.74rem;">${esc(cat.desc || '-')}</div>
                         </td>
-                        <td style="color: #c05e19; font-weight: 500;">/kategori/${cat.slug}</td>
+                        <td style="color: #c05e19; font-weight: 500;">/kategori/${esc(cat.slug)}</td>
                         <td>
-                            <span class="badge-category-count">${cat.count || '0 Aset'}</span>
+                            <span class="badge-category-count">${esc(cat.count || '0 Aset')}</span>
                         </td>
                         <td class="text-end pe-4 text-nowrap">
-                            <button type="button" class="btn-category-edit me-1" onclick="openEditCategoryModal(${cat.id})">
+                            <button type="button" class="btn-category-edit me-1" data-category-action="edit" data-category-id="${esc(cat.id)}">
                                 <i class="bi bi-pencil-square"></i> Edit
                             </button>
-                            <button type="button" class="btn-category-delete" onclick="openDeleteCategoryModal(${cat.id})">
+                            <button type="button" class="btn-category-delete" data-category-action="delete" data-category-id="${esc(cat.id)}">
                                 <i class="bi bi-trash3"></i> Hapus
                             </button>
                         </td>
@@ -484,12 +490,39 @@ $adminInitials = 'AP';
             modalDeleteInstance.hide();
         }
 
+        // Badge sidebar mengikuti antrean moderasi & pengajuan penjual
+        function updateSidebarBadges() {
+            const moderationBadge = document.getElementById('sidebarModerationBadge');
+            const sellerBadge = document.getElementById('sidebarSellerBadge');
+
+            if (moderationBadge && window.IndoFXStorage) {
+                moderationBadge.innerText = IndoFXStorage.countPendingModeration();
+            }
+            if (sellerBadge && window.IndoFXStorage) {
+                sellerBadge.innerText = IndoFXStorage.countPendingSellerRequests();
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             modalAddInstance = new bootstrap.Modal(document.getElementById('modalAddCategory'));
             modalEditInstance = new bootstrap.Modal(document.getElementById('modalEditCategory'));
             modalDeleteInstance = new bootstrap.Modal(document.getElementById('modalDeleteCategory'));
 
             loadCategories();
+            updateSidebarBadges();
+
+            // Delegasi tombol Edit/Hapus kategori
+            document.addEventListener('click', function(event) {
+                const actionBtn = event.target.closest('[data-category-action]');
+                if (!actionBtn) return;
+
+                const categoryId = actionBtn.getAttribute('data-category-id');
+                if (actionBtn.getAttribute('data-category-action') === 'edit') {
+                    openEditCategoryModal(categoryId);
+                } else {
+                    openDeleteCategoryModal(categoryId);
+                }
+            });
 
             // Dropdown Profil Admin
             const btn = document.getElementById('adminDropdownBtn');
