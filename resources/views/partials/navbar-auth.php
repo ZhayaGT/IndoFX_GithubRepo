@@ -37,7 +37,9 @@ if ($initials === '') {
     <div id="nav-pembeli" class="navbar-auth-group">
         
         <!-- Tombol Dinamis: Dashboard (Penjual) atau Jadi Penjual (Pembeli) -->
-        <?php if ($isSeller): ?>
+        <?php if ($userRole === 'admin'): ?>
+            <a href="/admin/dashboard" class="btn btn-nav-seller d-none d-md-inline-flex">Dashboard Admin</a>
+        <?php elseif ($isSeller): ?>
             <a href="/dashboard" class="btn btn-nav-seller d-none d-md-inline-flex">Dashboard</a>
         <?php else: ?>
             <a href="/seller/register" class="btn btn-nav-seller d-none d-md-inline-flex">Jadi Penjual</a>
@@ -68,7 +70,9 @@ if ($initials === '') {
 
                 <!-- Tampilan Mobile -->
                 <div class="d-md-none border-bottom">
-                    <?php if ($isSeller): ?>
+                    <?php if ($userRole === 'admin'): ?>
+                        <a href="/admin/dashboard" class="navbar-menu-item text-primary fw-bold">Dashboard Admin</a>
+                    <?php elseif ($isSeller): ?>
                         <a href="/dashboard/profile" class="navbar-menu-item text-primary fw-bold">Dashboard</a>
                     <?php else: ?>
                         <a href="/seller/register" class="navbar-menu-item text-primary fw-bold">Jadi Penjual</a>

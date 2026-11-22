@@ -6,13 +6,8 @@
  * Pemakaian:
  *   php database/seeders/users.php
  *
- * Seeder bersifat idempoten:
- *   - Akun yang belum ada akan dibuat.
- *   - Akun seed yang sudah ada dengan hash password valid akan dilewati.
- *   - Akun seed dengan hash rusak (mis. berisi teks error) atau password yang
- *     tidak sesuai akan direset. Jika akun sudah punya aset, hash di-update
- *     di tempat agar aset tidak terhapus oleh ON DELETE CASCADE; jika belum
- *     punya aset, baris lama dihapus lalu dibuat ulang.
+ * Akun baru dibuat; kredensial akun demo yang berubah diperbarui tanpa
+ * menghapus akun atau data terkait.
  */
 
 declare(strict_types=1);
