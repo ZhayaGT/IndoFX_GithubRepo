@@ -6,7 +6,7 @@ $publicId   = (string) ($_SESSION['public_id'] ?? '');
 
 // Deteksi status penjual dari backend
 $isSeller   = ($userRole === 'seller' || !empty($_SESSION['is_seller']));
-$storeName  = (string) ($_SESSION['store_name'] ?? $userName); // Pastikan backend menyimpan nama toko ke session
+$storeName  = (string) ($_SESSION['store_name'] ?? $userName);
 
 /**
  * Menghasilkan inisial nama otomatis
@@ -55,7 +55,6 @@ if ($initials === '') {
                 aria-haspopup="true" aria-expanded="false" aria-controls="navbar-avatar-menu"
                 title="<?= htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8') ?>">
                 <span class="avatar-circle-inner"><?= htmlspecialchars($initials, ENT_QUOTES, 'UTF-8') ?></span>
-                <!-- Label nama (Sembunyi jika penjual agar lebih rapi) -->
                 <span class="avatar-username-label <?= $isSeller ? 'd-none' : 'd-none d-lg-inline' ?>">
                     <?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>
                 </span>
@@ -63,14 +62,14 @@ if ($initials === '') {
 
             <!-- Dropdown Menu Profil -->
             <div id="navbar-avatar-menu" class="navbar-avatar-menu" hidden>
-                <a href="/creator/profile?id=<?= $publicId ?>" class="navbar-menu-item font-weight-bold">
+                <a href="/creator/profile?id=<?= htmlspecialchars($publicId, ENT_QUOTES, 'UTF-8') ?>" class="navbar-menu-item font-weight-bold">
                     <?= htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8') ?>
                 </a>
 
-                <!-- Tampilan Mobile (Menu tambahan) -->
+                <!-- Tampilan Mobile -->
                 <div class="d-md-none border-bottom">
                     <?php if ($isSeller): ?>
-                        <a href="/dashboard" class="navbar-menu-item text-primary fw-bold">Dashboard</a>
+                        <a href="/dashboard/profile" class="navbar-menu-item text-primary fw-bold">Dashboard</a>
                     <?php else: ?>
                         <a href="/seller/register" class="navbar-menu-item text-primary fw-bold">Jadi Penjual</a>
                     <?php endif; ?>
@@ -79,7 +78,7 @@ if ($initials === '') {
 
                 <!-- Menu Edit Profile disembunyikan jika sudah jadi penjual (pakai dashboard) -->
                 <?php if (!$isSeller): ?>
-                    <a href="/dashboard/ubahprofile" class="navbar-menu-item">Edit Profile</a>
+                    <a href="/dashboard/ubah-profil" class="navbar-menu-item">Edit Profile</a>
                 <?php endif; ?>
 
                 <a href="/invoice" class="navbar-menu-item">Histori Pembelian</a>

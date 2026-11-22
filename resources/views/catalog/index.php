@@ -149,7 +149,7 @@ $storageBasePath = rtrim((string) \IndoFX\Core\Env::get('STORAGE_BASE_URL', ''),
             <section class="category-section text-center">
                 <h3 class="section-heading-center mb-1">Telusuri Berdasarkan Kategori</h3>
                 <p class="section-sub-center mb-4">Temukan spesifikasi aset yang tepat untuk game engine Anda</p>
-                    <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <div class="d-flex justify-content-center gap-3 mb-4 flex-wrap">
                         <a href="/catalog/explore?category[]=shader" class="btn category-pill">Shader</a>
                         <a href="/catalog/explore?category[]=particle" class="btn category-pill">Particle</a>
                         <a href="/catalog/explore?price_filter_radio=free" class="btn category-pill">Gratis</a>
@@ -190,14 +190,14 @@ $storageBasePath = rtrim((string) \IndoFX\Core\Env::get('STORAGE_BASE_URL', ''),
                                 <div class="asset-card-body d-flex flex-column justify-content-between flex-grow-1">
                                     <div>
                                         <!-- 2. Nama Kreator Dinamis -->
-                                        <a href="/creator/profile" class="asset-studio text-decoration-none d-inline-block">
-                                            <?= htmlspecialchars($asset['seller_name'] ?? 'Studio Kreator') ?>
+                                        <a href="/creator/profile?id=<?= htmlspecialchars($asset['seller_public_id'] ?? '', ENT_QUOTES, 'UTF-8') ?>" class="text-decoration-none text-muted small seller-link-hover">
+                                            <?= htmlspecialchars($asset['seller_name'] ?? 'Kreator', ENT_QUOTES, 'UTF-8') ?>
                                         </a>
                                         
                                         <a href="/asset/detail?id=<?= $asset['public_id'] ?>" class="text-decoration-none d-block">
                                             <h6 class="asset-name"><?= htmlspecialchars($asset['title'] ?? '') ?></h6>
                                         </a>
-                                        
+
                                         <!-- 3. Badge Pipeline Dinamis -->
                                         <div class="d-flex gap-1 mb-2 flex-wrap">
                                             <?php 
@@ -241,7 +241,7 @@ $storageBasePath = rtrim((string) \IndoFX\Core\Env::get('STORAGE_BASE_URL', ''),
                         <h4 class="catalog-heading mb-1">Aset Gratis Unggulan</h4>
                         <p class="catalog-subheading m-0">Mulai kembangkan prototype game Anda tanpa biaya</p>
                     </div>
-                    <a href="/catalog/explore?is_free=1" class="catalog-side-link">Selengkapnya</a>
+                    <a href="/catalog/explore?price_filter_radio=free" class="catalog-side-link">Selengkapnya</a>
                 </div>
 
                 <div class="row g-3">
@@ -268,8 +268,8 @@ $storageBasePath = rtrim((string) \IndoFX\Core\Env::get('STORAGE_BASE_URL', ''),
                                 <div class="asset-card-body d-flex flex-column justify-content-between flex-grow-1">
                                     <div>
                                         <!-- 2. Nama Kreator Dinamis -->
-                                        <a href="/creator/profile" class="asset-studio text-decoration-none d-inline-block">
-                                            <?= htmlspecialchars($asset['seller_name'] ?? 'Studio Kreator') ?>
+                                        <a href="/creator/profile?id=<?= htmlspecialchars($asset['seller_public_id'] ?? '', ENT_QUOTES, 'UTF-8') ?>" class="text-decoration-none text-muted small seller-link-hover">
+                                            <?= htmlspecialchars($asset['seller_name'] ?? 'Kreator', ENT_QUOTES, 'UTF-8') ?>
                                         </a>
                                         
                                         <a href="/asset/detail?id=<?= $asset['public_id'] ?>" class="text-decoration-none d-block">
@@ -315,18 +315,20 @@ $storageBasePath = rtrim((string) \IndoFX\Core\Env::get('STORAGE_BASE_URL', ''),
         </div>
     </main>
 
-    <!-- Footer Putih Solid Full-Width Sesuai Figma -->
-    <footer class="footer-main" id="tentang">
+    <footer class="footer-main">
         <div class="container-figma">
-            <!-- Bagian Tengah: Judul & Deskripsi -->
             <div class="footer-center-content">
                 <h5 class="footer-brand-title-center">IndoFX</h5>
                 <p class="footer-brand-desc-center">
                     Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
                 </p>
+                <!-- Baris Kontak dan Email sesuai desain baru -->
+                <div style="font-size: 0.85rem; color: #1a1a1a; margin-top: 10px;">
+                    <strong style="font-weight: 800;">Kontak dan Email:</strong>
+                    <span style="margin: 0 16px;">08123456xxxx</span>
+                    <span>helpdesk@indofx.com</span>
+                </div>
             </div>
-
-            <!-- Bagian Bawah: Copyright Kiri & Slogan Kanan -->
             <div class="footer-bottom-bar">
                 <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
                 <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>

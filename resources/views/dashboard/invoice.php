@@ -92,6 +92,26 @@ if ($initials === '') {
             display: inline-block;
         }
 
+        .badge-status-tertunda {
+            background-color: #ed6c02;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.72rem;
+            padding: 4px 12px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .badge-status-gagal {
+            background-color: #d32f2f;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.72rem;
+            padding: 4px 12px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
         .btn-view-invoice {
             color: #0d6efd;
             font-weight: 700;
@@ -246,7 +266,8 @@ if ($initials === '') {
             .col-lg-7,
             .table-custom-container,
             .btn-print-invoice,
-            footer {
+            footer,
+            .footer-main {
                 display: none !important;
             }
 
@@ -399,21 +420,47 @@ if ($initials === '') {
         </div>
     </main>
 
+    <!-- Footer Resmi IndoFX Membentang Penuh di Dasar Halaman -->
+    <?php
+    $footerPartial = BASE_PATH . '/resources/views/partials/footer.php';
+    if (file_exists($footerPartial)) {
+        require $footerPartial;
+    } else {
+    ?>
+        <footer class="footer-main mt-auto">
+            <div class="container-figma">
+                <div class="footer-center-content">
+                    <h5 class="footer-brand-title-center">IndoFX</h5>
+                    <p class="footer-brand-desc-center">
+                        Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
+                    </p>
+                    <div style="font-size: 0.85rem; color: #1a1a1a; margin-top: 10px;">
+                        <strong style="font-weight: 800;">Kontak dan Email:</strong>
+                        <span style="margin: 0 16px;">08123456xxxx</span>
+                        <span>helpdesk@indofx.com</span>
+                    </div>
+                </div>
+                <div class="footer-bottom-bar">
+                    <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
+                    <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
+                </div>
+            </div>
+        </footer>
+    <?php } ?>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/assets/js/navbar-auth.js"></script>
     <script>
         const userKey = '<?= $userKey ?>';
-        const txKey = 'indofx_transactions_' + userKey;
+        // Menerima data JSON dari PHP Controller
+        const userTransactionsFromDB = <?= json_encode($transactions ?? []) ?>;
         let userTransactions = [];
 
+        // Menimpa fungsi agar mengambil data dari PHP (Database)
         function getTransactions() {
-            try {
-                return JSON.parse(localStorage.getItem(txKey)) || [];
-            } catch (e) {
-                return [];
-            }
+            return userTransactionsFromDB;
         }
-
+        
         function loadTransactions() {
             userTransactions = getTransactions();
             const tbody = document.getElementById('transactionTableBody');
@@ -447,7 +494,7 @@ if ($initials === '') {
                         <td>${displayTitle}</td>
                         <td>${tx.short_date || tx.date}</td>
                         <td><strong>${totalDisplay}</strong></td>
-                        <td><span class="badge-status-berhasil">${tx.status || 'Berhasil'}</span></td>
+                        <td><span class="${getBadgeClass(tx.status)}">${tx.status || 'Tertunda'}</span></td>
                         <td>
                             <a href="javascript:void(0)" class="btn-view-invoice" onclick="selectInvoice(${idx})">
                                 Lihat Invoice
@@ -457,12 +504,25 @@ if ($initials === '') {
                 `;
             }).join('');
 
-            selectInvoice(0);
+            const targetOrderId = <?= json_encode($_GET['order_id'] ?? null) ?>;
+            let defaultIndex = 0;
+
+            if (targetOrderId) {
+                const foundIndex = userTransactions.findIndex(tx => tx.invoice_no === targetOrderId);
+                if (foundIndex !== -1) {
+                    defaultIndex = foundIndex;
+                }
+            }       
+            selectInvoice(defaultIndex);
         }
 
         function selectInvoice(index) {
             const tx = userTransactions[index];
             if (!tx) return;
+
+            const badgeEl = document.getElementById('invBadgeStatus');
+            badgeEl.innerText = tx.status || 'Tertunda';
+            badgeEl.className = getBadgeClass(tx.status);
 
             document.getElementById('invNoText').innerText = tx.invoice_no;
             document.getElementById('invBadgeStatus').innerText = tx.status || 'Berhasil';
@@ -493,6 +553,12 @@ if ($initials === '') {
 
         function printInvoice() {
             window.print();
+        }
+
+        function getBadgeClass(status) {
+            if (status === 'Berhasil') return 'badge-status-berhasil';
+            if (status === 'Gagal') return 'badge-status-gagal';
+            return 'badge-status-tertunda';
         }
 
         document.addEventListener('DOMContentLoaded', loadTransactions);

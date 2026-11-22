@@ -44,18 +44,439 @@ $isLoggedIn = isset($_SESSION['user_id']);
     <!-- CSS Utama & CSS Detail -->
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/detail.css">
+
+    <style>
+        :root {
+            --indofx-cream-bg: #FAF0E6;
+            --indofx-text-main: #3C2A21;
+            --indofx-text-muted: #7A685D;
+            --indofx-border: #4A3B32;
+            --indofx-orange: #ED6B1D;
+        }
+
+        body {
+            background-color: var(--indofx-cream-bg, #FAF0E6);
+            font-family: 'Inter', sans-serif;
+            color: var(--indofx-text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-detail-wrapper {
+            background-color: var(--indofx-cream-bg, #FAF0E6);
+            padding: 32px 0 54px 0;
+            flex-grow: 1;
+        }
+
+        .main-preview-card {
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1.5px solid var(--indofx-border);
+            background-color: #2b2129;
+            height: 420px;
+            width: 100%;
+        }
+
+        .thumb-gallery-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .thumb-card-item {
+            width: 76px;
+            height: 52px;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1.5px solid var(--indofx-border);
+            cursor: pointer;
+            background-color: #2b2129;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
+        }
+
+        .thumb-card-item.active {
+            border: 2px solid var(--indofx-orange);
+        }
+
+        .thumb-card-item:hover {
+            opacity: 0.9;
+        }
+
+        .detail-nav-tabs {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            margin-bottom: 16px;
+        }
+
+        .detail-nav-tabs .tab-link {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--indofx-text-muted);
+            text-decoration: none;
+            padding-bottom: 6px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.15s ease;
+        }
+
+        .detail-nav-tabs .tab-link.active {
+            color: var(--indofx-text-main);
+            font-weight: 800;
+            border-bottom: 2.5px solid var(--indofx-orange);
+        }
+
+        .detail-content-box {
+            background-color: #ffffff;
+            border-radius: 8px;
+            border: 1.5px solid var(--indofx-border);
+            font-size: 0.88rem;
+            line-height: 1.65;
+            color: var(--indofx-text-main);
+            padding: 24px;
+        }
+
+        /* Seksi Judul & Konten Dinamis */
+        .section-content-title {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .section-text-body {
+            white-space: pre-line;
+            line-height: 1.7;
+            color: #2b2623;
+            font-size: 0.88rem;
+        }
+
+        .section-divider {
+            border: none;
+            border-top: 1px solid #ebdcd1;
+            margin: 24px 0;
+        }
+
+        /* Kartu Sisi Kanan */
+        .asset-purchase-card {
+            background-color: #ffffff;
+            border: 1.5px solid var(--indofx-border);
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 4px 14px rgba(60, 42, 33, 0.05);
+        }
+
+        .asset-category-tag {
+            font-size: 0.76rem;
+            font-weight: 800;
+            color: var(--indofx-text-main);
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .asset-detail-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--indofx-text-main) !important;
+            line-height: 1.25;
+            letter-spacing: -0.3px;
+            margin-top: 2px;
+            margin-bottom: 6px;
+        }
+
+        .detail-creator-line {
+            font-size: 0.88rem;
+            color: var(--indofx-text-muted);
+            margin-bottom: 22px;
+        }
+
+        .detail-creator-line a {
+            color: var(--indofx-text-main) !important;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .detail-creator-line a:hover {
+            text-decoration: underline;
+        }
+
+        .price-label-text {
+            font-size: 0.8rem;
+            color: var(--indofx-text-muted);
+            margin-bottom: 2px;
+        }
+
+        .price-amount-text {
+            font-size: 1.95rem;
+            font-weight: 800;
+            color: var(--indofx-text-main) !important;
+            letter-spacing: -0.5px;
+            margin-bottom: 24px;
+        }
+
+        .specs-table-box {
+            border-top: 1px solid #EBDCD1;
+            margin-bottom: 24px;
+        }
+
+        .spec-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 11px 0;
+            border-bottom: 1px solid #EBDCD1;
+            font-size: 0.85rem;
+        }
+
+        .spec-item-row .label-col {
+            color: var(--indofx-text-muted);
+        }
+
+        .spec-item-row .val-col {
+            font-weight: 800;
+            color: var(--indofx-text-main);
+        }
+
+        .btn-figma-buy-orange {
+            background-color: var(--indofx-orange);
+            color: #ffffff !important;
+            font-weight: 800;
+            font-size: 0.95rem;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            transition: background-color 0.15s ease;
+        }
+
+        .btn-figma-buy-orange:hover {
+            background-color: #D85A0E;
+        }
+
+        .btn-figma-add-cart-outline {
+            background-color: #FFFDFC;
+            color: var(--indofx-text-main) !important;
+            border: 1.5px solid var(--indofx-border);
+            font-weight: 800;
+            font-size: 0.92rem;
+            border-radius: 6px;
+            padding: 11px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-figma-add-cart-outline:hover {
+            background-color: #F8EFE9;
+        }
+
+        .btn-figma-free-library {
+            background-color: var(--indofx-border);
+            color: #ffffff !important;
+            font-weight: 800;
+            font-size: 0.95rem;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 16px;
+            text-align: center;
+            cursor: pointer;
+            width: 100%;
+            display: block;
+            text-decoration: none;
+            transition: opacity 0.15s ease;
+        }
+
+        .btn-figma-free-library:hover {
+            opacity: 0.92;
+        }
+
+        .btn-figma-guest-login {
+            background-color: #FCEEE6 !important;
+            color: var(--indofx-text-main, #3C2A21) !important;
+            border: 1.5px solid var(--indofx-border, #3C2A21) !important;
+            font-weight: 700;
+            font-size: 0.88rem;
+            border-radius: 6px;
+            padding: 12px 14px;
+            text-align: center;
+            text-decoration: none !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            width: 100%;
+            transition: all 0.15s ease;
+        }
+
+        .btn-figma-guest-login:hover {
+            background-color: #F8DFD2 !important;
+        }
+
+        .btn-figma-guest-login .link-masuk {
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            text-decoration-thickness: 1.5px;
+            font-weight: 800;
+        }
+
+        .owned-badge-card {
+            background-color: #F0FDF4;
+            border: 1.5px solid #86EFAC;
+            border-radius: 8px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #15803D;
+            font-weight: 700;
+            font-size: 0.88rem;
+            text-align: center;
+            line-height: 1.35;
+        }
+
+        .owned-badge-card i {
+            color: #16A34A;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .btn-download-package {
+            background-color: var(--indofx-orange, #ED6B1D) !important;
+            color: #ffffff !important;
+            font-weight: 800;
+            font-size: 0.95rem;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 18px;
+            text-align: center;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.15s ease, transform 0.1s ease;
+            box-shadow: 0 4px 12px rgba(237, 107, 29, 0.25);
+        }
+
+        .btn-download-package:hover {
+            background-color: #D85A0E !important;
+            transform: translateY(-1px);
+        }
+
+        .rating-summary-box {
+            background-color: #fdf5ef;
+            border: 1px solid #ebdcd1;
+            border-radius: 8px;
+        }
+
+        .rating-big-score {
+            font-size: 2.3rem;
+            font-weight: 800;
+            color: var(--indofx-text-main);
+            line-height: 1;
+        }
+
+        .rating-out-of {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--indofx-text-muted);
+        }
+
+        .rating-stars-gold {
+            color: var(--indofx-orange);
+            font-size: 0.95rem;
+        }
+
+        .rating-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.78rem;
+            margin-bottom: 4px;
+        }
+
+        .rating-bar-label {
+            width: 25px;
+            color: var(--indofx-text-main);
+            font-weight: 600;
+        }
+
+        .rating-bar-track {
+            flex-grow: 1;
+            height: 6px;
+            background-color: #eeddd2;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .rating-bar-fill {
+            height: 100%;
+            background-color: var(--indofx-orange);
+            border-radius: 999px;
+        }
+
+        .rating-bar-num {
+            width: 20px;
+            text-align: right;
+            color: var(--indofx-text-muted);
+            font-weight: 600;
+        }
+
+        .badge-owner {
+            background-color: #fef3eb;
+            color: var(--indofx-orange);
+            border: 1px solid #fed7aa;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .review-item-block {
+            padding: 14px 0;
+            border-bottom: 1px solid #efe0d5;
+        }
+
+        .review-item-block:last-child {
+            border-bottom: none;
+        }
+
+        .footer-figma-white {
+            background-color: #ffffff !important;
+            width: 100%;
+            padding: 42px 0 24px 0;
+            margin-top: auto;
+            border-top: 1px solid #efe0d5;
+        }
+    </style>
 </head>
 
 <body class="detail-page-body">
 
     <!-- 1. Header Navbar Oranye -->
     <nav class="navbar navbar-orange sticky-top">
-        <div class="container-figma d-flex justify-content-between align-items-center w-100">
+        <div class="navbar-figma-container">
             <a class="navbar-brand m-0 d-flex align-items-center gap-2 text-decoration-none" href="/">
-                <span class="brand-icon-box">
-                    <i class="bi bi-layers-half"></i>
-                </span>
-                <span class="brand-text">IndoFX</span>
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L20.66 7V17L12 22L3.34 17V7L12 2Z" fill="#ED6B1D" stroke="#1A1A1A" stroke-width="1.8" stroke-linejoin="round" />
+                    <path d="M12 2L20.66 7L12 12L3.34 7L12 2Z" fill="#FDBA74" stroke="#1A1A1A" stroke-width="1.5" stroke-linejoin="round" />
+                    <path d="M12 12V22" stroke="#1A1A1A" stroke-width="1.5" />
+                    <path d="M12 12L20.66 7" stroke="#1A1A1A" stroke-width="1.5" />
+                    <path d="M12 12L3.34 7" stroke="#1A1A1A" stroke-width="1.5" />
+                    <path d="M12 4.5L16.5 7L12 9.5L7.5 7L12 4.5Z" fill="#FED7AA" stroke="#1A1A1A" stroke-width="1" stroke-linejoin="round" />
+                </svg>
+                <span class="brand-text text-white fw-bold">IndoFX</span>
             </a>
 
             <?php
@@ -240,89 +661,117 @@ $isLoggedIn = isset($_SESSION['user_id']);
 
                     </div>
                 </div>
-                <!-- ==================== AKHIR KOLOM KIRI ==================== -->
 
-                <!-- ==================== KOLOM KANAN (4 KOLOM) ==================== -->
                 <div class="col-12 col-lg-4">
                     <div class="asset-purchase-card p-4">
                         <span class="asset-category-tag d-block mb-1"><?= mb_strtoupper(htmlspecialchars($categoryLabel ?? 'KATEGORI')) ?></span>
                         <h2 class="asset-detail-title mb-1"><?= htmlspecialchars($asset['title'] ?? 'Judul Aset') ?></h2>
-                        <p class="detail-creator mb-3">
-                            Oleh <a href="/creator/profile" class="creator-link fw-bold"><?= htmlspecialchars($asset['seller_name'] ?? 'Studio Kreator') ?></a>
+                        <p class="detail-creator-line mb-3">
+                            Oleh <a href="/creator/profile?id=<?= htmlspecialchars($asset['seller_public_id'] ?? '', ENT_QUOTES, 'UTF-8') ?>" class="creator-link fw-bold">
+                                <?= htmlspecialchars($asset['seller_name'] ?? 'Studio Kreator', ENT_QUOTES, 'UTF-8') ?>
+                            </a>
                         </p>
 
-                        <span class="price-label d-block mb-1">Harga Aset</span>
-                        <h3 class="price-amount mb-4">
-                            <?= ($isGratis) ? 'Gratis' : 'Rp' . number_format($numericPrice, 0, ',', '.') ?>
-                        </h3>
+                        <?php if (empty($isOwned)): ?>
+                            <span class="price-label-text d-block">Harga Aset</span>
+                            <h3 class="price-amount-text">
+                                <?= ($isGratis) ? 'Gratis' : 'Rp' . number_format($numericPrice, 0, ',', '.') ?>
+                            </h3>
+                        <?php endif; ?>
 
-                        <div class="specs-table mb-4">
-                            <div class="d-flex justify-content-between py-2 border-bottom-spec">
-                                <span class="spec-label">Versi Unity</span>
+                        <div class="specs-table-box">
+                            <div class="spec-item-row">
+                                <span class="label-col">Versi Unity</span>
                                 <?php $unityVersion = $asset['unity_version'] ?? ($detail['unity_versions'] ?? 'Semua Versi'); ?>
-                                <span class="spec-value"><?= htmlspecialchars($unityVersion) ?></span>
+                                <span class="val-col"><?= htmlspecialchars($unityVersion) ?></span>
                             </div>
-                            <div class="d-flex justify-content-between py-2 border-bottom-spec">
-                                <span class="spec-label">Render Pipeline</span>
+                            <div class="spec-item-row">
+                                <span class="label-col">Render Pipeline</span>
                                 <?php 
-                                // Mendukung output berbentuk array maupun string murni
                                 $pipelineData = $asset['render_pipeline'] ?? ($detail['pipelines'] ?? ['Any']);
                                 $pipelineText = is_array($pipelineData) ? implode(', ', $pipelineData) : $pipelineData;
                                 ?>
-                                <span class="spec-value"><?= htmlspecialchars($pipelineText) ?></span>
+                                <span class="val-col"><?= htmlspecialchars($pipelineText) ?></span>
                             </div>
-                            <div class="d-flex justify-content-between py-2">
-                                <span class="spec-label">Format File</span>
-                                <span class="spec-value"><?= htmlspecialchars($detail['file_format'] ?? '.unitypackage') ?></span>
+                            <div class="spec-item-row">
+                                <span class="label-col">Format File</span>
+                                <span class="val-col"><?= htmlspecialchars($detail['file_format'] ?? '.unitypackage') ?></span>
                             </div>
+                            <?php if (empty($isOwned)): ?>
+                                <div class="spec-item-row">
+                                    <span class="label-col">Lisensi</span>
+                                    <span class="val-col"><?= htmlspecialchars($asset['lisensi'] ?? 'Standard Commercial') ?></span>
+                                </div>
+                            <?php endif; ?>
                         </div>
 
-                        <!-- Tombol Aksi: Terdeteksi Otomatis Guest vs Login -->
+                        <!-- Tombol Aksi Sesuai 3 Kondisi Figma -->
                         <div id="actionButtonWrapper" class="d-grid gap-2">
-                            <?php if ($isGratis): ?>
+                            <?php if (!empty($isOwned)): ?>
+                                <!-- KONDISI 1: SUDAH DIMILIKI -->
+                                <a href="/library/download?id=<?= urlencode((string)($asset['id'] ?? '')) ?>" class="btn-download-package">
+                                    <i class="bi bi-download"></i>
+                                    <span>Unduh</span>
+                                </a>
+
+                            <?php elseif ($isGratis): ?>
+                                <!-- KONDISI 2: ASET GRATIS (BELUM DI LIBRARY) -->
                                 <?php if ($isLoggedIn): ?>
-                                    <button type="button" id="btnClaimLibrary" class="btn btn-cart-secondary">
+                                    <button type="button" id="btnDownloadFree" class="btn-download-package" onclick="claimAndDownload(<?= (int)($asset['id'] ?? 0) ?>)">
+                                        <i class="bi bi-download"></i>
+                                        <span>Unduh</span>
+                                    </button>
+                                    <button type="button" id="btnClaimLibrary" class="btn-figma-free-library" onclick="claimToLibrary(<?= (int)($asset['id'] ?? 0) ?>)">
                                         Tambahkan ke Library
                                     </button>
                                 <?php else: ?>
-                                    <a href="/login" class="btn btn-cart-secondary text-decoration-none">
-                                        <span><span class="link-masuk fw-bold">Masuk</span> untuk menambahkan ke Library</span>
+                                    <a href="/login" class="btn-figma-guest-login">
+                                        <span class="link-masuk">Masuk</span>&nbsp;untuk mengunduh aset gratis
                                     </a>
                                 <?php endif; ?>
+
                             <?php else: ?>
-                                <!-- URL Checkout disesuaikan untuk UUID public_id -->
-                                <?php
-                                $checkoutUrl = '/checkout?' . http_build_query(['asset_id' => $asset['public_id'] ?? '']);
-                                ?>
-                                <a href="<?= $isLoggedIn ? htmlspecialchars($checkoutUrl, ENT_QUOTES, 'UTF-8') : '/login' ?>" class="btn btn-buy-primary" id="btnBuyPrimary">
+                                <!-- KONDISI 3: ASET BERBAYAR (BELUM DIBELI) -->
+                                <?php $checkoutUrl = '/checkout?' . http_build_query(['asset_id' => $asset['public_id'] ?? '']); ?>
+                                <a href="<?= $isLoggedIn ? htmlspecialchars($checkoutUrl, ENT_QUOTES, 'UTF-8') : '/login' ?>" class="btn-figma-buy-orange" id="btnBuyPrimary">
                                     Beli
                                 </a>
-                                <button type="button" class="btn btn-cart-secondary">
-                                    Tambahkan ke Keranjang
-                                </button>
+                                
+                                <?php if ($isLoggedIn): ?>
+                                    <form action="/cart/add" method="POST" class="d-grid m-0 p-0">
+                                        <input type="hidden" name="asset_id" value="<?= htmlspecialchars($asset['id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                                        <button type="submit" class="btn-figma-add-cart-outline">
+                                            Tambahkan ke Keranjang
+                                        </button>
+                                    </form>
+                                <?php else: ?>
+                                    <a href="/login" class="btn-figma-add-cart-outline">
+                                        Tambahkan ke Keranjang
+                                    </a>
+                                <?php endif; ?>
                             <?php endif; ?>
                         </div>
                     </div>
                 </div>
-                <!-- ==================== AKHIR KOLOM KANAN ==================== -->
-
             </div>
         </div>
     </main>
 
-    <!-- Footer Putih Solid Full-Width Sesuai Figma -->
-    <footer class="footer-main" id="tentang">
+    <footer class="footer-main">
         <div class="container-figma">
-            <!-- Bagian Tengah: Judul & Deskripsi -->
             <div class="footer-center-content">
                 <h5 class="footer-brand-title-center">IndoFX</h5>
                 <p class="footer-brand-desc-center">
                     Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
                 </p>
+                <!-- Baris Kontak dan Email sesuai desain baru -->
+                <div style="font-size: 0.85rem; color: #1a1a1a; margin-top: 10px;">
+                    <strong style="font-weight: 800;">Kontak dan Email:</strong>
+                    <span style="margin: 0 16px;">08123456xxxx</span>
+                    <span>helpdesk@indofx.com</span>
+                </div>
             </div>
-
-            <!-- Bagian Bawah: Copyright Kiri & Slogan Kanan -->
-            <div class="footer-bottom-bar flex-wrap gap-2">
+            <div class="footer-bottom-bar">
                 <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
                 <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>
             </div>
@@ -350,7 +799,60 @@ $isLoggedIn = isset($_SESSION['user_id']);
             }
         }
 
-        // 2. Sinkronisasi Border Aktif pada Thumbnail saat Carousel Bergeser
+        // 2. Klaim aset gratis ke Library (Supabase entitlements)
+        function claimToLibrary(assetId) {
+            const btn = document.getElementById('btnClaimLibrary');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = 'Menambahkan...';
+            }
+
+            fetch('/api/library/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: assetId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Aset berhasil ditambahkan ke Library Anda!');
+                    window.location.reload(); // Refresh agar berubah ke tampilan "Sudah Dimiliki"
+                } else {
+                    alert(data.message || 'Gagal menambahkan ke Library.');
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerText = 'Tambahkan ke Library';
+                    }
+                }
+            })
+            .catch(() => {
+                alert('Terjadi kesalahan jaringan.');
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = 'Tambahkan ke Library';
+                }
+            });
+        }
+
+        // 3. Klaim aset gratis otomatis lalu langsung mulai unduhan
+        function claimAndDownload(assetId) {
+            fetch('/api/library/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: assetId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/library/download?id=' + encodeURIComponent(assetId);
+                } else {
+                    alert(data.message || 'Gagal memproses unduhan.');
+                }
+            })
+            .catch(() => alert('Terjadi kesalahan jaringan.'));
+        }
+
+        // 4. Sinkronisasi Border Aktif pada Thumbnail saat Carousel Bergeser
         document.addEventListener('DOMContentLoaded', function() {
             const detailCarousel = document.getElementById('assetDetailCarousel');
             const thumbCards = document.querySelectorAll('.thumb-row .thumb-card');

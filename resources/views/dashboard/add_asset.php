@@ -1,7 +1,46 @@
 <?php
-$isLoggedIn = isset($_SESSION['user_id']);
-$userKey    = (string) ($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user');
-$userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna');
+if (!isset($_SESSION['user_id'])) {
+    header('Location: /login');
+    exit;
+}
+
+$isEdit       = !empty($asset);
+$storeName    = (string) ($storeName ?? $_SESSION['store_name'] ?? $_SESSION['name'] ?? 'Penjual');
+$categories   = $categories ?? [];
+$assetImage   = $assetImage ?? null;
+$assetFile    = $assetFile ?? null;
+
+$words = preg_split('/\s+/', trim($storeName)) ?: [];
+$sellerInitials = '';
+foreach (array_slice($words, 0, 2) as $w) {
+    $sellerInitials .= mb_strtoupper(mb_substr($w, 0, 1));
+}
+if ($sellerInitials === '') $sellerInitials = 'S';
+
+// Siapkan nilai default untuk mode Edit vs Tambah
+$valTitle       = $asset['title'] ?? '';
+$valCategoryId  = (int) ($asset['category_id'] ?? 0);
+$valDesc        = $asset['description'] ?? '';
+$valHowToUse    = $asset['how_to_use'] ?? '';
+$valUnityVer    = $asset['unity_version'] ?? '';
+$valLisensi     = $asset['lisensi'] ?? 'Standard Unity Asset Store EULA';
+$valPrice       = isset($asset['price']) ? (int) $asset['price'] : 150000;
+$valIsFree      = $isEdit && $valPrice <= 0;
+$valVideoUrl    = $asset['preview_video_url'] ?? '';
+$valPipelines   = $isEdit ? strtolower((string) ($asset['render_pipeline'] ?? '')) : 'built-in, urp';
+
+// URL gambar pratinjau lama (jika mode edit)
+$supabaseUrl = $_ENV['SUPABASE_URL'] ?? $_SERVER['SUPABASE_URL'] ?? getenv('SUPABASE_URL') ?? '';
+$storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-previews/catalog/';
+$currentImgUrl = '';
+if (!empty($assetImage['image_path'])) {
+    $p = $assetImage['image_path'];
+    if (strpos($p, 'http') === 0 || strpos($p, '/') === 0) {
+        $currentImgUrl = $p;
+    } else {
+        $currentImgUrl = $storageBasePath . $p;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -9,18 +48,15 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambah Aset Baru - IndoFX</title>
+    <title><?= $isEdit ? 'Edit & Perbarui Aset' : 'Tambah Aset Baru' ?> - IndoFX</title>
 
-    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Bootstrap 5 CSS & Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    <!-- Stylesheets -->
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/dashboard.css">
 </head>
@@ -42,10 +78,9 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                 <span class="brand-text">IndoFX</span>
             </a>
 
-            <!-- Profil Kreator Kanan Dinamis -->
-            <a href="/" class="d-flex align-items-center gap-2 text-white text-decoration-none" title="Kembali ke Beranda">
-                <span class="avatar-circle" id="navDashAvatar">AS</span>
-                <span class="fw-bold fs-7 tracking-wide" id="navDashStoreName">ARGA STUDIO</span>
+            <a href="/dashboard/assets" class="d-flex align-items-center gap-2 text-white text-decoration-none" title="Semua Aset Saya">
+                <span class="avatar-circle"><?= htmlspecialchars($sellerInitials, ENT_QUOTES, 'UTF-8') ?></span>
+                <span class="fw-bold fs-7 tracking-wide text-uppercase"><?= htmlspecialchars($storeName, ENT_QUOTES, 'UTF-8') ?></span>
             </a>
         </div>
     </nav>
@@ -54,13 +89,32 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
     <main class="py-4 form-page-wrapper">
         <div class="container-form">
 
-            <!-- Judul Halaman -->
-            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-                <h2 class="dash-page-title mb-0">Tambah Aset Baru</h2>
-                <a href="/dashboard/assets" class="btn btn-outline-secondary btn-sm px-3 fw-bold">Kembali ke Daftar Aset</a>
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <h2 class="dash-page-title mb-0"><?= $isEdit ? 'Edit &amp; Perbarui Aset' : 'Tambah Aset Baru' ?></h2>
+                <a href="/dashboard/assets" class="btn btn-outline-secondary btn-sm px-3 fw-bold">Kembali ke Semua Aset Saya</a>
             </div>
 
-            <form id="formAddAsset">
+            <?php if (!empty($_SESSION['error_msg'])): ?>
+                <div class="alert alert-danger py-2 px-3 mb-3 small">
+                    <?= htmlspecialchars($_SESSION['error_msg'], ENT_QUOTES, 'UTF-8') ?>
+                </div>
+                <?php unset($_SESSION['error_msg']); ?>
+            <?php endif; ?>
+
+            <?php if ($isEdit): ?>
+                <!-- Banner Pemberitahuan Re-moderasi sesuai Figma -->
+                <div class="alert d-flex align-items-start gap-2 mb-4 small" style="background-color: #FADBD8; border: 1px solid #F5B7B1; color: #5B2C27; border-radius: 8px;">
+                    <i class="bi bi-exclamation-triangle-fill mt-1"></i>
+                    <div>
+                        <strong>Pemberitahuan Re-moderasi:</strong> Pengubahan berkas paket utama atau penetapan harga baru akan mengubah status aset menjadi <strong>pending</strong> untuk pemeriksaan ulang oleh Admin.
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <form action="<?= $isEdit ? '/dashboard/edit-asset' : '/dashboard/add-asset' ?>" method="POST" enctype="multipart/form-data">
+                <?php if ($isEdit): ?>
+                    <input type="hidden" name="asset_id" value="<?= (int) $asset['id'] ?>">
+                <?php endif; ?>
 
                 <!-- CARD 1: INFORMASI ASET -->
                 <div class="form-section-card p-4 mb-4">
@@ -68,57 +122,73 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
 
                     <div class="mb-3">
                         <label for="asset_title" class="form-label form-field-label">Judul Aset *</label>
-                        <input type="text" class="form-control form-field-input" id="asset_title" placeholder="Judul Aset Anda" required>
+                        <input type="text" class="form-control form-field-input" id="asset_title" name="title"
+                            value="<?= htmlspecialchars($valTitle, ENT_QUOTES, 'UTF-8') ?>" placeholder="Judul Aset Anda" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="category_id" class="form-label form-field-label">Kategori Aset *</label>
-                        <select class="form-select form-field-input" id="category_id" required>
-                            <option selected disabled value="">Pilih Minimal 1 Kategori</option>
-                            <option value="VFX Partikel">VFX Partikel</option>
-                            <option value="Shader">Shader</option>
-                            <option value="Model 3D">Model 3D</option>
-                            <option value="Tekstur & Material">Tekstur &amp; Material</option>
+                        <select class="form-select form-field-input" id="category_id" name="category_id" required>
+                            <option value="" disabled <?= $valCategoryId === 0 ? 'selected' : '' ?>>Pilih Minimal 1 Kategori</option>
+                            <?php foreach ($categories as $cat): ?>
+                                <option value="<?= (int) $cat['id'] ?>" <?= $valCategoryId === (int) $cat['id'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($cat['name'], ENT_QUOTES, 'UTF-8') ?>
+                                </option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
 
                     <div class="mb-0">
-                        <label for="description" class="form-label form-field-label">Deskripsi Aset</label>
-                        <textarea class="form-control form-field-input" id="description" rows="4" placeholder="Tulis deskripsi lengkap aset Anda..."></textarea>
+                        <label for="description" class="form-label form-field-label">Deskripsi Aset *</label>
+                        <textarea class="form-control form-field-input" id="description" name="description" rows="4"
+                            placeholder="Tulis deskripsi lengkap aset Anda..." required><?= htmlspecialchars($valDesc, ENT_QUOTES, 'UTF-8') ?></textarea>
                     </div>
                 </div>
 
-                <!-- CARD 2: KOMPATIBILITAS -->
+                <!-- CARD 2: KOMPATIBILITAS & LISENSI -->
                 <div class="form-section-card p-4 mb-4">
-                    <h5 class="form-section-title mb-3">Kompatibilitas</h5>
+                    <h5 class="form-section-title mb-3">Kompatibilitas &amp; Lisensi</h5>
 
                     <div class="mb-3">
                         <label for="unity_version" class="form-label form-field-label">Versi Unity Minimum *</label>
-                        <select class="form-select form-field-input" id="unity_version" required>
-                            <option selected disabled value="">Pilih versi minimum yang kompatibel</option>
-                            <option value="2021.3">Unity 2021.3 LTS</option>
-                            <option value="2022.3">Unity 2022.3 LTS</option>
-                            <option value="2023.2">Unity 2023.2</option>
-                            <option value="6.0">Unity 6</option>
+                        <select class="form-select form-field-input" id="unity_version" name="unity_version" required>
+                            <option value="" disabled <?= $valUnityVer === '' ? 'selected' : '' ?>>Pilih versi minimum yang kompatibel</option>
+                            <option value="2021.3 LTS" <?= stripos($valUnityVer, '2021') !== false ? 'selected' : '' ?>>Unity 2021.3 LTS</option>
+                            <option value="2022.3 LTS" <?= stripos($valUnityVer, '2022') !== false ? 'selected' : '' ?>>Unity 2022.3 LTS</option>
+                            <option value="2023.2" <?= stripos($valUnityVer, '2023') !== false ? 'selected' : '' ?>>Unity 2023.2</option>
+                            <option value="Unity 6" <?= stripos($valUnityVer, '6') !== false ? 'selected' : '' ?>>Unity 6</option>
                         </select>
                     </div>
 
-                    <div>
+                    <div class="mb-3">
                         <label class="form-label form-field-label d-block mb-2">Render Pipeline Didukung (Pilih semua yang sesuai) *</label>
                         <div class="d-flex align-items-center gap-4 flex-wrap">
                             <div class="form-check">
-                                <input class="form-check-input form-checkbox-custom" type="checkbox" name="render_pipeline" value="Built-in" id="pipe_builtin" checked>
+                                <input class="form-check-input form-checkbox-custom" type="checkbox" name="render_pipeline[]" value="Built-in" id="pipe_builtin"
+                                    <?= stripos($valPipelines, 'built') !== false ? 'checked' : '' ?>>
                                 <label class="form-check-label form-check-text" for="pipe_builtin">Built-in</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input form-checkbox-custom" type="checkbox" name="render_pipeline" value="URP" id="pipe_urp" checked>
+                                <input class="form-check-input form-checkbox-custom" type="checkbox" name="render_pipeline[]" value="URP" id="pipe_urp"
+                                    <?= stripos($valPipelines, 'urp') !== false ? 'checked' : '' ?>>
                                 <label class="form-check-label form-check-text" for="pipe_urp">Universal Render Pipeline (URP)</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input form-checkbox-custom" type="checkbox" name="render_pipeline" value="HDRP" id="pipe_hdrp">
-                                <label class="form-check-label form-check-text text-muted" for="pipe_hdrp">High Definition Render Pipeline (HDRP)</label>
+                                <input class="form-check-input form-checkbox-custom" type="checkbox" name="render_pipeline[]" value="HDRP" id="pipe_hdrp"
+                                    <?= stripos($valPipelines, 'hdrp') !== false ? 'checked' : '' ?>>
+                                <label class="form-check-label form-check-text" for="pipe_hdrp">High Definition Render Pipeline (HDRP)</label>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="mb-0">
+                        <label for="lisensi" class="form-label form-field-label">Lisensi *</label>
+                        <select class="form-select form-field-input" id="lisensi" name="lisensi" required>
+                            <option value="Standard Unity Asset Store EULA" <?= $valLisensi === 'Standard Unity Asset Store EULA' ? 'selected' : '' ?>>Standard Unity Asset Store EULA</option>
+                            <option value="MIT License" <?= $valLisensi === 'MIT License' ? 'selected' : '' ?>>MIT License (Open Source)</option>
+                            <option value="CC BY 4.0" <?= $valLisensi === 'CC BY 4.0' ? 'selected' : '' ?>>Creative Commons (CC BY 4.0)</option>
+                            <option value="Commercial Single-Seat" <?= $valLisensi === 'Commercial Single-Seat' ? 'selected' : '' ?>>Commercial Single-Seat</option>
+                        </select>
                     </div>
                 </div>
 
@@ -128,20 +198,31 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
 
                     <div class="d-flex align-items-center gap-4 mb-3">
                         <div class="form-check">
-                            <input class="form-check-input form-radio-custom" type="radio" name="pricing_type" id="price_paid" value="paid" checked onchange="togglePriceInput(true)">
+                            <input class="form-check-input form-radio-custom" type="radio" name="pricing_type" id="price_paid" value="paid"
+                                <?= !$valIsFree ? 'checked' : '' ?> onchange="togglePriceInput(true)">
                             <label class="form-check-label form-check-text fw-semibold" for="price_paid">Berbayar</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input form-radio-custom" type="radio" name="pricing_type" id="price_free" value="free" onchange="togglePriceInput(false)">
+                            <input class="form-check-input form-radio-custom" type="radio" name="pricing_type" id="price_free" value="free"
+                                <?= $valIsFree ? 'checked' : '' ?> onchange="togglePriceInput(false)">
                             <label class="form-check-label form-check-text text-muted" for="price_free">Gratis</label>
                         </div>
                     </div>
 
-                    <div id="priceInputFieldWrapper">
+                    <div id="priceInputFieldWrapper" class="<?= $valIsFree ? 'opacity-50' : '' ?>">
                         <label for="price" class="form-label form-field-label">Harga Jual (Rupiah) *</label>
                         <div class="input-group">
                             <span class="input-group-text form-addon-rp">Rp</span>
-                            <input type="number" class="form-control form-field-input" id="price" value="150000" placeholder="150000">
+                            <input type="number" class="form-control form-field-input" id="price" name="price"
+                                value="<?= $valPrice ?>" placeholder="150000" min="5000" step="1000"
+                                <?= $valIsFree ? 'disabled' : 'required' ?>>
+                        </div>
+
+                        <!-- Alert Peringatan Harga -->
+                        <div id="priceAlert" class="d-none mt-2 px-3 py-2 rounded-2 small fw-semibold align-items-center gap-2"
+                            style="background-color: #fef2f2; border: 1px solid #fecaca; color: #991b1b;">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <span id="priceAlertText">Peringatan: Harga jual aset berbayar tidak boleh kurang dari Rp5.000.</span>
                         </div>
                     </div>
                 </div>
@@ -151,11 +232,22 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                     <h5 class="form-section-title mb-3">Pratinjau Media</h5>
 
                     <div class="mb-3">
-                        <label class="form-label form-field-label">Gambar Pratinjau Utama (16:9) *</label>
-                        <div class="dropzone-box text-center p-4" onclick="document.getElementById('imageFileInput').click()">
-                            <input type="file" id="imageFileInput" class="d-none" accept="image/png, image/jpeg">
+                        <label class="form-label form-field-label">Gambar Pratinjau Utama (16:9) <?= $isEdit ? '(Opsional)' : '*' ?></label>
+
+                        <?php if ($isEdit && $currentImgUrl !== ''): ?>
+                            <div class="d-flex align-items-center gap-3 mb-3 p-2 border rounded bg-light">
+                                <img src="<?= htmlspecialchars($currentImgUrl, ENT_QUOTES, 'UTF-8') ?>" alt="Preview" style="width: 140px; height: 80px; object-fit: cover; border-radius: 6px;">
+                                <div>
+                                    <div class="fw-bold small text-dark"><?= htmlspecialchars(basename($currentImgUrl), ENT_QUOTES, 'UTF-8') ?></div>
+                                    <button type="button" class="btn btn-outline-danger btn-sm mt-1 py-0 px-2" onclick="document.getElementById('imageFileInput').click()">Ganti Gambar</button>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+
+                        <div class="dropzone-box text-center p-4" onclick="document.getElementById('imageFileInput').click()" style="cursor: pointer;">
+                            <input type="file" id="imageFileInput" name="preview_image" class="d-none" accept="image/png, image/jpeg" <?= $isEdit ? '' : 'required' ?>>
                             <div class="dropzone-icon mb-2">
-                                <i class="bi bi-card-image fs-3"></i>
+                                <i class="bi bi-card-image fs-3 text-secondary"></i>
                             </div>
                             <div class="dropzone-title fw-bold mb-1" id="imageNameLabel">Tarik &amp; lepas gambar pratinjau di sini</div>
                             <div class="dropzone-hint text-muted small">Format PNG, JPG maks 5MB. Direkomendasikan resolusi 1920×1080.</div>
@@ -164,7 +256,8 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
 
                     <div class="mb-0">
                         <label for="preview_video_url" class="form-label form-field-label">Video Pratinjau (Opsional)</label>
-                        <input type="url" class="form-control form-field-input" id="preview_video_url" placeholder="https://www.youtube.com/watch?v=...">
+                        <input type="url" class="form-control form-field-input" id="preview_video_url" name="preview_video_url"
+                            value="<?= htmlspecialchars($valVideoUrl, ENT_QUOTES, 'UTF-8') ?>" placeholder="https://www.youtube.com/watch?v=...">
                     </div>
                 </div>
 
@@ -173,43 +266,71 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                     <h5 class="form-section-title mb-3">Panduan Penggunaan &amp; Berkas Aset</h5>
 
                     <div class="mb-3">
-                        <label for="how_to_use" class="form-label form-field-label">Panduan Penggunaan Aset</label>
-                        <textarea class="form-control form-field-input" id="how_to_use" rows="3" placeholder="Tulis panduan lengkap cara penggunaan aset..."></textarea>
+                        <label for="how_to_use" class="form-label form-field-label">Panduan Penggunaan Aset *</label>
+                        <textarea class="form-control form-field-input" id="how_to_use" name="how_to_use" rows="4"
+                            placeholder="Tulis panduan lengkap cara penggunaan aset Anda langkah demi langkah..." required><?= htmlspecialchars($valHowToUse, ENT_QUOTES, 'UTF-8') ?></textarea>
                     </div>
 
-                    <div class="mb-0">
-                        <label class="form-label form-field-label">Berkas Aset (.unitypackage / .zip) *</label>
-                        <div class="dropzone-box text-center p-4" onclick="document.getElementById('packageFileInput').click()">
-                            <input type="file" id="packageFileInput" class="d-none" accept=".unitypackage, .zip, .rar" required>
-                            <div class="dropzone-icon mb-2">
-                                <i class="bi bi-box-seam fs-3"></i>
+                    <?php if ($isEdit && !empty($assetFile)): ?>
+                        <div class="mb-3">
+                            <label class="form-label form-field-label">Berkas Aset Aktif</label>
+                            <div class="d-flex justify-content-between align-items-center p-3 border rounded bg-light">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-file-earmark-zip-fill text-primary fs-4"></i>
+                                    <div>
+                                        <div class="fw-bold small"><?= htmlspecialchars($assetFile['original_name'] ?? basename($assetFile['file_path']), ENT_QUOTES, 'UTF-8') ?></div>
+                                        <div class="text-muted" style="font-size: 0.75rem;">
+                                            Versi <?= htmlspecialchars($assetFile['version'] ?? '1.0', ENT_QUOTES, 'UTF-8') ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="badge bg-success">Versi Aktif</span>
                             </div>
-                            <div class="dropzone-title fw-bold mb-1" id="packageNameLabel">Pilih berkas package untuk diunggah</div>
+                        </div>
+                    <?php endif; ?>
+
+                    <div class="mb-0">
+                        <label class="form-label form-field-label">
+                            <?= $isEdit ? 'Unggah Versi Berkas Baru (Opsional)' : 'Berkas Aset (.unitypackage / .zip) *' ?>
+                        </label>
+                        <div class="dropzone-box text-center p-4" onclick="document.getElementById('packageFileInput').click()" style="cursor: pointer;">
+                            <input type="file" id="packageFileInput" name="package_file" class="d-none" accept=".unitypackage, .zip, .rar" <?= $isEdit ? '' : 'required' ?>>
+                            <div class="dropzone-icon mb-2">
+                                <i class="bi bi-box-seam fs-3 text-secondary"></i>
+                            </div>
+                            <div class="dropzone-title fw-bold mb-1" id="packageNameLabel">
+                                <?= $isEdit ? 'Biarkan kosong jika tidak ingin memperbarui berkas' : 'Pilih berkas package untuk diunggah' ?>
+                            </div>
                             <div class="dropzone-hint text-muted small">Maksimal ukuran berkas 500MB.</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- TOMBOL SUBMIT KANAN -->
-                <div class="d-flex justify-content-end mb-5">
-                    <button type="submit" class="btn btn-submit-upload" id="btnSubmitAsset">
-                        Ajukan Pengunggahan
+                <!-- TOMBOL SUBMIT -->
+                <div class="d-flex justify-content-end align-items-center gap-3 mb-5">
+                    <a href="/dashboard/assets" class="btn btn-profile-cancel">Batal</a>
+                    <button type="submit" class="btn btn-submit-upload">
+                        <i class="bi <?= $isEdit ? 'bi-check-lg' : 'bi-upload' ?> me-1"></i>
+                        <?= $isEdit ? 'Simpan Perubahan' : 'Ajukan Pengunggahan' ?>
                     </button>
                 </div>
 
             </form>
-
         </div>
     </main>
 
-    <!-- 3. Footer Sesuai Desain Minimal Baru -->
-    <footer class="footer-main" id="tentang">
+    <footer class="footer-main">
         <div class="container-figma">
             <div class="footer-center-content">
                 <h5 class="footer-brand-title-center">IndoFX</h5>
                 <p class="footer-brand-desc-center">
                     Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
                 </p>
+                <div style="font-size: 0.85rem; color: #1a1a1a; margin-top: 10px;">
+                    <strong style="font-weight: 800;">Kontak dan Email:</strong>
+                    <span style="margin: 0 16px;">08123456xxxx</span>
+                    <span>helpdesk@indofx.com</span>
+                </div>
             </div>
             <div class="footer-bottom-bar">
                 <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
@@ -218,103 +339,92 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
         </div>
     </footer>
 
-    <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        const userKey = '<?= $userKey ?>';
+        const priceInput = document.getElementById('price');
+        const priceAlert = document.getElementById('priceAlert');
+        const priceAlertText = document.getElementById('priceAlertText');
+        const assetForm = document.querySelector('form');
+
+        function validatePrice() {
+            const isPaid = document.getElementById('price_paid').checked;
+            if (!isPaid) {
+                priceAlert.classList.add('d-none');
+                priceAlert.classList.remove('d-flex');
+                return true;
+            }
+
+            const val = parseFloat(priceInput.value);
+
+            if (isNaN(val) || val < 0) {
+                priceAlertText.innerText = 'Peringatan: Harga jual tidak boleh bernilai minus atau kosong.';
+                priceAlert.classList.remove('d-none');
+                priceAlert.classList.add('d-flex');
+                return false;
+            }
+
+            if (val < 5000) {
+                priceAlertText.innerText = 'Peringatan: Harga jual aset berbayar tidak boleh kurang dari Rp5.000.';
+                priceAlert.classList.remove('d-none');
+                priceAlert.classList.add('d-flex');
+                return false;
+            }
+
+            priceAlert.classList.add('d-none');
+            priceAlert.classList.remove('d-flex');
+            return true;
+        }
 
         function togglePriceInput(isPaid) {
-            const priceInput = document.getElementById('price');
             const wrapper = document.getElementById('priceInputFieldWrapper');
             if (isPaid) {
                 wrapper.classList.remove('opacity-50');
                 priceInput.removeAttribute('disabled');
-                if (priceInput.value === '0') priceInput.value = '150000';
+                priceInput.setAttribute('required', 'true');
+                if (!priceInput.value || Number(priceInput.value) < 5000) {
+                    priceInput.value = '150000';
+                }
+                validatePrice();
             } else {
                 wrapper.classList.add('opacity-50');
                 priceInput.value = '0';
                 priceInput.setAttribute('disabled', 'true');
+                priceInput.removeAttribute('required');
+                priceAlert.classList.add('d-none');
+                priceAlert.classList.remove('d-flex');
             }
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            // Ambil Nama Studio
-            const profileRaw = localStorage.getItem('indofx_seller_profile_' + userKey);
-            let storeName = 'Arga Studio';
-            if (profileRaw) {
-                try {
-                    const prof = JSON.parse(profileRaw);
-                    if (prof.store_name) storeName = prof.store_name;
-                } catch (e) {}
-            }
-            document.getElementById('navDashStoreName').innerText = storeName.toUpperCase();
-            const words = storeName.trim().split(/\s+/);
-            let inits = '';
-            words.slice(0, 2).forEach(w => inits += w.charAt(0).toUpperCase());
-            document.getElementById('navDashAvatar').innerText = inits || 'AS';
-
-            // Nama File Indikator
-            const imgInput = document.getElementById('imageFileInput');
-            imgInput.addEventListener('change', function() {
-                if (this.files && this.files.length > 0) {
-                    document.getElementById('imageNameLabel').innerText = this.files[0].name;
-                }
-            });
-
-            const pkgInput = document.getElementById('packageFileInput');
-            pkgInput.addEventListener('change', function() {
-                if (this.files && this.files.length > 0) {
-                    document.getElementById('packageNameLabel').innerText = this.files[0].name;
-                }
-            });
-
-            // Form Submit Logic
-            document.getElementById('formAddAsset').addEventListener('submit', function(e) {
+        // Cegah mengetik tanda minus (-), plus (+), atau huruf e
+        priceInput.addEventListener('keydown', function(e) {
+            if (['-', '+', 'e', 'E'].includes(e.key)) {
                 e.preventDefault();
+            }
+        });
 
-                const isFree = document.getElementById('price_free').checked;
-                const rawPrice = document.getElementById('price').value;
-                const priceFormatted = isFree ? 'Gratis' : ('Rp' + Number(rawPrice).toLocaleString('id-ID'));
+        // Validasi langsung setiap kali angka diketik / diubah
+        priceInput.addEventListener('input', validatePrice);
 
-                const selectedPipes = [];
-                document.querySelectorAll('input[name="render_pipeline"]:checked').forEach(cb => {
-                    selectedPipes.push(cb.value);
-                });
+        // Tahan submit form jika harga belum valid
+        assetForm.addEventListener('submit', function(e) {
+            if (!validatePrice()) {
+                e.preventDefault();
+                priceInput.focus();
+                priceInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
 
-                const newAsset = {
-                    id: 'asset-' + Date.now(),
-                    title: document.getElementById('asset_title').value.trim(),
-                    category: document.getElementById('category_id').value,
-                    description: document.getElementById('description').value.trim(),
-                    price: priceFormatted,
-                    pipelines: selectedPipes.length > 0 ? selectedPipes : ['URP'],
-                    unity_version: document.getElementById('unity_version').value,
-                    status: 'Pending', // Selalu Pending saat baru diunggah
-                    downloads: '0x Unduhan',
-                    created_at: new Date().toLocaleDateString('id-ID', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric'
-                    }),
-                    seller: storeName,
-                    creator: storeName
-                };
+        document.getElementById('imageFileInput').addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                document.getElementById('imageNameLabel').innerText = this.files[0].name;
+            }
+        });
 
-                // Simpan ke daftar aset toko pengguna
-                let assets = [];
-                try {
-                    assets = JSON.parse(localStorage.getItem('indofx_seller_assets_' + userKey)) || [];
-                } catch (err) {
-                    assets = [];
-                }
-
-                assets.unshift(newAsset);
-                localStorage.setItem('indofx_seller_assets_' + userKey, JSON.stringify(assets));
-
-                // Arahkan kembali ke halaman Semua Aset Saya
-                window.location.href = '/dashboard/assets';
-            });
+        document.getElementById('packageFileInput').addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                document.getElementById('packageNameLabel').innerText = this.files[0].name;
+            }
         });
     </script>
 </body>

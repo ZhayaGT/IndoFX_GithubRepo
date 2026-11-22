@@ -86,8 +86,9 @@
                 <div class="mb-4">
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <label for="password" class="form-label auth-label m-0">Kata Sandi</label>
-                        <label>
-                            <input type="checkbox" name="remember_me" value="1"> Ingat Saya
+                        <label style="font-size: 14px; color: #4B5563; cursor: pointer; display: flex; align-items: center; gap: 6px; margin: 0; font-weight: 500;">
+                            <input type="checkbox" name="remember_me" value="1" style="cursor: pointer; width: 16px; height: 16px; accent-color: #ED6B1D; margin: 0;"> 
+                            Ingat Saya
                         </label>
                     </div>
                     <input type="password" class="form-control auth-input" id="password" name="password" placeholder="" required>
@@ -104,18 +105,20 @@
         </div>
     </main>
 
-        <!-- Footer Putih Solid Full-Width Sesuai Figma -->
-    <footer class="footer-main" id="tentang">
+    <footer class="footer-main">
         <div class="container-figma">
-            <!-- Bagian Tengah: Judul & Deskripsi -->
             <div class="footer-center-content">
                 <h5 class="footer-brand-title-center">IndoFX</h5>
                 <p class="footer-brand-desc-center">
                     Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
                 </p>
+                <!-- Baris Kontak dan Email sesuai desain baru -->
+                <div style="font-size: 0.85rem; color: #1a1a1a; margin-top: 10px;">
+                    <strong style="font-weight: 800;">Kontak dan Email:</strong>
+                    <span style="margin: 0 16px;">08123456xxxx</span>
+                    <span>helpdesk@indofx.com</span>
+                </div>
             </div>
-
-            <!-- Bagian Bawah: Copyright Kiri & Slogan Kanan -->
             <div class="footer-bottom-bar">
                 <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
                 <span>Dibuat dengan bangga untuk Game Developer Indonesia</span>

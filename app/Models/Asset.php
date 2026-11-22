@@ -9,9 +9,10 @@ class Asset extends Model {
     // Halaman beranda
     // Mengambil 4 aset terbaru untuk section "Aset CG & VFX Terbaru"
     public function getLatestAssets($limit = 4) {
-        $sql = "SELECT a.*, ai.image_path as thumbnail, u.name as seller_name 
+        $sql = "SELECT a.*, ai.image_path as thumbnail, p.name as seller_name, u.public_id as seller_public_id
                 FROM assets a 
                 LEFT JOIN asset_images ai ON a.id = ai.asset_id AND ai.sort_order = 1 
+                LEFT JOIN user_profiles p ON a.seller_id = p.user_id
                 LEFT JOIN users u ON a.seller_id = u.id
                 ORDER BY a.created_at DESC LIMIT :limit";
         $stmt = $this->db->prepare($sql);
@@ -22,9 +23,10 @@ class Asset extends Model {
 
     // Mengambil 4 aset gratis untuk section "Aset Gratis Unggulan"
     public function getFreeAssets($limit = 4) {
-        $sql = "SELECT a.*, ai.image_path as thumbnail, u.name as seller_name 
+        $sql = "SELECT a.*, ai.image_path as thumbnail, p.name as seller_name, u.public_id as seller_public_id
                 FROM assets a 
                 LEFT JOIN asset_images ai ON a.id = ai.asset_id AND ai.sort_order = 1 
+                LEFT JOIN user_profiles p ON a.seller_id = p.user_id
                 LEFT JOIN users u ON a.seller_id = u.id
                 WHERE a.price = 0 
                 ORDER BY a.created_at DESC LIMIT :limit";
@@ -37,9 +39,10 @@ class Asset extends Model {
     // Halaman Explore
     // Mengambil semua data aset, diurutkan dari yang terbaru untuk ditampilkan pada halaman explore
     public function getAllAssets() {
-        $sql = "SELECT a.*, ai.image_path as thumbnail, u.name as seller_name 
+        $sql = "SELECT a.*, ai.image_path as thumbnail, p.name as seller_name, u.public_id as seller_public_id
                 FROM assets a 
                 LEFT JOIN asset_images ai ON a.id = ai.asset_id AND ai.sort_order = 1 
+                LEFT JOIN user_profiles p ON a.seller_id = p.user_id
                 LEFT JOIN users u ON a.seller_id = u.id
                 ORDER BY a.created_at DESC";
         $stmt = $this->db->prepare($sql);
@@ -62,10 +65,11 @@ class Asset extends Model {
             $order = 'a.created_at DESC';
         }
 
-        $sql = "SELECT a.*, c.name as category_name, c.slug as category_slug, ai.image_path as thumbnail, u.name as seller_name
+        $sql = "SELECT a.*, c.name as category_name, c.slug as category_slug, ai.image_path as thumbnail, p.name as seller_name, u.public_id as seller_public_id
                 FROM assets a
                 LEFT JOIN categories c ON a.category_id = c.id
                 LEFT JOIN asset_images ai ON a.id = ai.asset_id AND ai.sort_order = 1
+                LEFT JOIN user_profiles p ON a.seller_id = p.user_id
                 LEFT JOIN users u ON a.seller_id = u.id
                 WHERE 1=1" . $where . " ORDER BY " . $order;
 
@@ -167,9 +171,11 @@ class Asset extends Model {
     // Halaman Detail Aset
     // Mengambil satu aset beserta nama penjual dan nama kategori berdasarkan ID
     public function getAssetById($publicId) {
-        $sql = "SELECT a.*, u.name as seller_name, c.name as category_name, c.slug as category_slug
+        $sql = "SELECT a.*, p.name as seller_name, u.public_id as seller_public_id, c.name as category_name, c.slug as category_slug
                 FROM assets a
                 LEFT JOIN users u ON a.seller_id = u.id
+                LEFT JOIN user_profiles p ON a.seller_id = p.user_id
+                LEFT JOIN seller_profiles s ON a.seller_id = s.user_id
                 LEFT JOIN categories c ON a.category_id = c.id
                 WHERE a.public_id = :public_id::uuid
                 LIMIT 1";
@@ -203,7 +209,6 @@ class Asset extends Model {
                 FROM asset_files 
                 WHERE asset_id = :asset_id 
                 AND extension IS NOT NULL";
-                
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(':asset_id', $assetId, PDO::PARAM_INT); 
         $stmt->execute();
@@ -221,7 +226,60 @@ class Asset extends Model {
                  $formats[] = strtolower($ext);
              }
         }
-        
         return $formats;
+    }
+
+    // Mengambil semua aset milik penjual tertentu untuk halaman Profil Publik
+    public function getAssetsBySellerId($sellerId) {
+        $sql = "SELECT 
+                    a.id,
+                    a.public_id,
+                    a.title,
+                    a.price,
+                    a.render_pipeline,
+                    COALESCE(sp.store_name, up.name, 'Kreator IndoFX') AS seller_name,
+                    (
+                        SELECT ai.image_path 
+                        FROM asset_images ai 
+                        WHERE ai.asset_id = a.id 
+                        ORDER BY ai.sort_order ASC, ai.id ASC 
+                        LIMIT 1
+                    ) AS thumbnail
+                FROM assets a
+                LEFT JOIN seller_profiles sp ON a.seller_id = sp.user_id
+                LEFT JOIN user_profiles up ON a.seller_id = up.user_id
+                WHERE a.seller_id = :seller_id 
+                  AND a.deleted_at IS NULL
+                ORDER BY a.created_at DESC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':seller_id', $sellerId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // Mengambil data aset berdasarkan ID internal (angka / INT8)
+    // Sangat berguna untuk operasi backend seperti Checkout & Keranjang
+    public function getAssetByInternalId($id) {
+        $sql = "SELECT a.*, 
+                       u.public_id as seller_public_id,
+                       u.email as seller_email,
+                       p.name as seller_name, 
+                       s.store_name,
+                       s.payout_number as seller_phone,
+                       c.name as category_name, 
+                       c.slug as category_slug
+                FROM assets a
+                LEFT JOIN users u ON a.seller_id = u.id
+                LEFT JOIN user_profiles p ON u.id = p.user_id
+                LEFT JOIN seller_profiles s ON u.id = s.user_id
+                LEFT JOIN categories c ON a.category_id = c.id
+                WHERE a.id = :id
+                LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        // Bind sebagai integer
+        $stmt->bindValue(':id', $id, \PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
 }

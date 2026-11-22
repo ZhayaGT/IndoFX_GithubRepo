@@ -1,7 +1,12 @@
 <?php
-$isLoggedIn = isset($_SESSION['user_id']);
+if (!isset($_SESSION['user_id'])) {
+    header('Location: /login');
+    exit;
+}
+
 $userKey    = (string) ($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user');
-$userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna');
+$userName   = (string) ($_SESSION['username'] ?? $_SESSION['name'] ?? 'naufalhaidarazmi');
+$sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -20,7 +25,7 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    <!-- Stylesheets -->
+    <!-- Stylesheets Asli Dashboard Figma (Konsisten dengan main.php) -->
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/dashboard.css">
 </head>
@@ -42,15 +47,15 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                 <span class="brand-text">IndoFX</span>
             </a>
 
-            <!-- Profil Kreator Kanan Dinamis -->
-            <a href="/" class="d-flex align-items-center gap-2 text-white text-decoration-none" title="Kembali ke Katalog">
-                <span class="avatar-circle" id="navDashAvatar">AS</span>
-                <span class="fw-bold fs-7 tracking-wide" id="navDashStoreName">ARGA STUDIO</span>
+            <!-- Profil Penjual Kanan -->
+            <a href="/dashboard" class="d-flex align-items-center gap-2 text-white text-decoration-none" title="Dashboard Utama">
+                <span class="avatar-circle" id="navDashAvatar"><?= htmlspecialchars($sellerInitials) ?></span>
+                <span class="fw-bold fs-7 tracking-wide text-uppercase" id="navDashStoreName"><?= htmlspecialchars($userName) ?></span>
             </a>
         </div>
     </nav>
 
-    <!-- 2. Kontainer Utama -->
+    <!-- 2. Kontainer Utama Dashboard (Menggunakan .dashboard-layout-container agar ukuran/zoom identik dengan main.php) -->
     <div class="dashboard-layout-container">
 
         <!-- SIDEBAR KIRI -->
@@ -86,17 +91,17 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
         <!-- KONTEN KANAN -->
         <main class="dashboard-main-content">
 
-            <!-- Header Judul & Tombol Tambah Responsif -->
+            <!-- Header Judul & Tombol Tambah -->
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                 <h2 class="dash-page-title mb-0">
-                    Semua Aset dari <span class="fw-normal" id="pageStoreTitle">Arga Studio</span>
+                    Semua Aset dari <span class="fw-normal" id="pageStoreTitle"><?= htmlspecialchars($userName) ?></span>
                 </h2>
                 <a href="/dashboard/add-asset" class="btn btn-add-new-asset">
                     + Aset Baru
                 </a>
             </div>
 
-            <!-- Bar Pencarian & Filter Responsif -->
+            <!-- Bar Pencarian & Filter -->
             <div class="filter-bar-container mb-4">
                 <div class="row g-2 align-items-center">
                     <div class="col-12 col-md-5">
@@ -109,17 +114,18 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                         <select class="form-select filter-select" id="filterStatus">
                             <option value="all" selected>Semua Status Moderasi</option>
                             <option value="Disetujui">Disetujui</option>
-                            <option value="Pending">Pending</option>
+                            <option value="Pending">Pending / Menunggu</option>
                             <option value="Ditolak">Ditolak</option>
                         </select>
                     </div>
                     <div class="col-10 col-sm-5 col-md-3">
                         <select class="form-select filter-select" id="filterCategory">
                             <option value="all" selected>Semua Kategori</option>
-                            <option value="VFX Partikel">VFX Partikel</option>
+                            <option value="Particle">Particle</option>
                             <option value="Shader">Shader</option>
                             <option value="Model 3D">Model 3D</option>
                             <option value="Tekstur & Material">Tekstur &amp; Material</option>
+                            <option value="Script / Tool">Script / Tool</option>
                         </select>
                     </div>
                     <div class="col-2 col-sm-1 col-md-1 text-end">
@@ -130,7 +136,7 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                 </div>
             </div>
 
-            <!-- Tabel Daftar Aset -->
+            <!-- Tabel Daftar Aset Dinamis -->
             <div class="table-card-wrapper">
                 <div class="table-responsive">
                     <table class="table table-custom align-middle mb-0">
@@ -146,7 +152,7 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                             </tr>
                         </thead>
                         <tbody id="assetsTableBody">
-                            <!-- Otomatis diisi oleh JavaScript -->
+                            <!-- Diisi dinamis oleh JavaScript -->
                         </tbody>
                     </table>
                 </div>
@@ -155,14 +161,19 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
         </main>
     </div>
 
-    <!-- 3. Footer Sesuai Desain Minimal Baru -->
-    <footer class="footer-main" id="tentang">
+    <footer class="footer-main">
         <div class="container-figma">
             <div class="footer-center-content">
                 <h5 class="footer-brand-title-center">IndoFX</h5>
                 <p class="footer-brand-desc-center">
                     Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
                 </p>
+                <!-- Baris Kontak dan Email sesuai desain baru -->
+                <div style="font-size: 0.85rem; color: #1a1a1a; margin-top: 10px;">
+                    <strong style="font-weight: 800;">Kontak dan Email:</strong>
+                    <span style="margin: 0 16px;">08123456xxxx</span>
+                    <span>helpdesk@indofx.com</span>
+                </div>
             </div>
             <div class="footer-bottom-bar">
                 <span>&copy; 2026 IndoFX. Hak Cipta Dilindungi Undang-Undang.</span>
@@ -174,73 +185,35 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Script Hidrasi Data & Simulasi Moderasi -->
     <script>
-        const userKey = '<?= $userKey ?>';
-        let allAssets = [];
-        let storeName = 'Arga Studio';
-        let sellerSales = [];
+        const storeName = <?= json_encode($storeName ?? $userName) ?>;
+        const allAssets = <?= json_encode($assets ?? []) ?>;
 
         document.addEventListener('DOMContentLoaded', function() {
-            // 1. Ambil Profil Toko
-            const profileRaw = localStorage.getItem('indofx_seller_profile_' + userKey);
-            if (profileRaw) {
-                try {
-                    const prof = JSON.parse(profileRaw);
-                    if (prof.store_name) storeName = prof.store_name;
-                } catch (e) {}
-            }
-
             document.getElementById('pageStoreTitle').innerText = storeName;
             document.getElementById('navDashStoreName').innerText = storeName.toUpperCase();
 
             const words = storeName.trim().split(/\s+/);
-            let inits = '';
-            words.slice(0, 2).forEach(w => inits += w.charAt(0).toUpperCase());
-            document.getElementById('navDashAvatar').innerText = inits || 'AS';
+            document.getElementById('navDashAvatar').innerText = words.slice(0, 2).map(w => w.charAt(0).toUpperCase()).join('') || 'S';
 
-            // 2. Ambil Riwayat Penjualan untuk Pencocokan Data Terjual Riil
-            const cleanKey = storeName.toLowerCase().replace(/[^a-z0-9]/g, '');
-            const rawSales = localStorage.getItem('indofx_seller_sales_' + cleanKey) ||
-                localStorage.getItem('indofx_seller_sales_' + storeName) ||
-                localStorage.getItem('indofx_seller_sales_' + userKey);
-            if (rawSales) {
-                try {
-                    sellerSales = JSON.parse(rawSales) || [];
-                } catch (e) {
-                    sellerSales = [];
-                }
-            }
+            renderTable();
 
-            // 3. Baca Aset Penjual dari LocalStorage
-            loadAssets();
-
-            // 4. Event Listener untuk Filter Pencarian
             document.getElementById('filterKeyword').addEventListener('input', renderTable);
             document.getElementById('filterStatus').addEventListener('change', renderTable);
             document.getElementById('filterCategory').addEventListener('change', renderTable);
             document.getElementById('btnApplyFilter').addEventListener('click', renderTable);
         });
 
-        function loadAssets() {
-            try {
-                allAssets = JSON.parse(localStorage.getItem('indofx_seller_assets_' + userKey)) || [];
-            } catch (e) {
-                allAssets = [];
-            }
-            renderTable();
-        }
-
         function renderTable() {
-            const tbody = document.getElementById('assetsTableBody');
-            const keyword = document.getElementById('filterKeyword').value.toLowerCase().trim();
-            const statusFilter = document.getElementById('filterStatus').value;
+            const tbody          = document.getElementById('assetsTableBody');
+            const keyword        = document.getElementById('filterKeyword').value.toLowerCase().trim();
+            const statusFilter   = document.getElementById('filterStatus').value;
             const categoryFilter = document.getElementById('filterCategory').value;
 
             const filtered = allAssets.filter(item => {
-                const matchKeyword = !keyword || (item.title && item.title.toLowerCase().includes(keyword));
-                const matchStatus = statusFilter === 'all' || item.status === statusFilter;
-                const matchCategory = categoryFilter === 'all' || item.category === categoryFilter;
+                const matchKeyword  = !keyword || (item.title && item.title.toLowerCase().includes(keyword));
+                const matchStatus   = statusFilter === 'all' || item.status === statusFilter;
+                const matchCategory = categoryFilter === 'all' || (item.category || '').toLowerCase() === categoryFilter.toLowerCase();
                 return matchKeyword && matchStatus && matchCategory;
             });
 
@@ -259,11 +232,7 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
             }
 
             tbody.innerHTML = filtered.map(item => {
-                // Pipeline tags
-                const pipes = Array.isArray(item.pipelines) ?
-                    item.pipelines : [item.pipelines || item.render_pipeline || 'Built-in'];
-                const primaryPipe = pipes[0] || 'Built-in';
-
+                const pipes = Array.isArray(item.pipelines) && item.pipelines.length > 0 ? item.pipelines : ['Built-in'];
                 const pipeHtml = pipes.map(p => {
                     const pLower = String(p).toLowerCase();
                     let cls = 'badge-urp';
@@ -272,73 +241,29 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                     return `<span class="badge-pipe ${cls} me-1">${p}</span>`;
                 }).join('');
 
-                // Normalisasi angka harga
-                let priceNum = 0;
-                let isGratis = false;
-                if (typeof item.price === 'number') {
-                    priceNum = item.price;
-                    isGratis = (priceNum <= 0);
-                } else if (typeof item.price === 'string') {
-                    const cleaned = item.price.replace(/[^0-9]/g, '');
-                    priceNum = cleaned ? parseInt(cleaned, 10) : 0;
-                    isGratis = (item.price.toLowerCase().trim() === 'gratis' || priceNum <= 0);
-                }
-
-                // Hitung Terjual / Unduhan Dinamis
+                const isGratis = Number(item.price) <= 0;
                 let downloadOrSalesText = '-';
                 if (item.status === 'Disetujui') {
-                    if (isGratis) {
-                        // Aset Gratis: Hitung dari counter unduhan
-                        const rawCount = parseInt(String(item.downloads || '0').replace(/[^0-9]/g, ''), 10) || 0;
-                        downloadOrSalesText = `${rawCount}x Unduhan`;
-                    } else {
-                        // Aset Berbayar: Hitung dari riwayat transaksi penjualan riil
-                        const salesCount = sellerSales.filter(s =>
-                            String(s.asset_id) === String(item.id) || s.asset_title === item.title
-                        ).length;
-
-                        // Ambil angka tertinggi antara counter aset dan catatan invoice
-                        const storedCount = parseInt(String(item.downloads || '0').replace(/[^0-9]/g, ''), 10) || 0;
-                        const finalCount = Math.max(salesCount, storedCount);
-                        downloadOrSalesText = `${finalCount}x Terjual`;
-                    }
+                    downloadOrSalesText = isGratis
+                        ? `${item.download_count}x Unduhan`
+                        : `${item.sold_count}x Terjual`;
                 }
 
-                // Susun parameter URL detail yang lengkap dan presisi
-                const detailUrl = `/asset/detail?id=${encodeURIComponent(item.id || '')}` +
-                    `&slug=${encodeURIComponent(item.slug || item.id || '')}` +
-                    `&title=${encodeURIComponent(item.title || '')}` +
-                    `&category=${encodeURIComponent(item.category || 'VFX Partikel')}` +
-                    `&creator=${encodeURIComponent(item.creator || item.seller || storeName)}` +
-                    `&price=${encodeURIComponent(priceNum)}` +
-                    `&pipeline=${encodeURIComponent(primaryPipe)}`;
+                const detailUrl = `/asset/detail?id=${encodeURIComponent(item.public_id)}`;
 
-                // Status Badge & Aksi
                 let statusBadge = `<span class="badge-status-pending">Pending</span>`;
-                let actionBtn = ``;
+                let actionBtn   = `<span class="text-muted small fst-italic">Ditinjau Admin</span>`;
 
                 if (item.status === 'Disetujui') {
-                    statusBadge = `<span class="badge-status-approved">Disetujui</span>`;
+                    statusBadge = `<span class="badge-status-approved">Published</span>`;
                     actionBtn = `
                         <a href="/dashboard/add-asset?edit_id=${encodeURIComponent(item.id)}" class="action-link-edit">Edit</a>
                         <span class="action-divider">|</span>
                         <a href="${detailUrl}" class="action-link-view">Lihat</a>
                     `;
                 } else if (item.status === 'Ditolak') {
-                    statusBadge = `
-                        <div class="d-inline-flex align-items-center gap-1">
-                            <span class="badge-status-rejected">Ditolak</span>
-                            <i class="bi bi-info-circle text-danger small" title="Perlu perbaikan deskripsi aset"></i>
-                        </div>
-                    `;
-                    actionBtn = `<a href="/dashboard/add-asset?edit_id=${encodeURIComponent(item.id)}" class="action-link-danger">Revisi</a>`;
-                } else {
-                    // Masih Pending: Tombol simulasi persetujuan moderasi
-                    actionBtn = `
-                        <button type="button" class="btn btn-sm btn-outline-success py-0 px-2 fw-bold text-nowrap" style="font-size: 0.72rem;" onclick="simulateApprove('${item.id}')" title="Klik untuk simulasi persetujuan Admin">
-                            <i class="bi bi-check-lg"></i> Setujui
-                        </button>
-                    `;
+                    statusBadge = `<span class="badge-status-rejected">Ditolak</span>`;
+                    actionBtn   = `<a href="/dashboard/add-asset?edit_id=${encodeURIComponent(item.id)}" class="action-link-danger">Revisi</a>`;
                 }
 
                 return `
@@ -347,43 +272,15 @@ $userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna
                             <div class="fw-bold text-dark item-asset-title">${item.title}</div>
                             <div class="d-flex flex-wrap gap-1 mt-1">${pipeHtml}</div>
                         </td>
-                        <td class="text-muted small">${item.category || 'VFX Partikel'}</td>
-                        <td class="fw-bold text-dark">${item.price || 'Gratis'}</td>
+                        <td class="text-muted small">${item.category}</td>
+                        <td class="fw-bold text-dark">${item.price_text}</td>
                         <td>${statusBadge}</td>
                         <td class="text-muted small">${downloadOrSalesText}</td>
-                        <td class="text-muted small">${item.created_at || '15 Jan 2026'}</td>
+                        <td class="text-muted small">${item.created_at}</td>
                         <td class="text-end pe-4 text-nowrap">${actionBtn}</td>
                     </tr>
                 `;
             }).join('');
-        }
-
-        // Fungsi Simulasi: Mengubah status 'Pending' -> 'Disetujui' dan mempublikasikan ke katalog
-        function simulateApprove(assetId) {
-            allAssets = allAssets.map(item => {
-                if (item.id === assetId) {
-                    item.status = 'Disetujui';
-
-                    // Inisialisasi label sesuai tipe gratis / berbayar
-                    const priceLower = String(item.price || '').toLowerCase();
-                    const isGratis = priceLower.includes('gratis') || item.price === 0 || item.price === '0';
-                    item.downloads = isGratis ? '0x Unduhan' : '0x Terjual';
-
-                    // Simpan ke katalog publik global agar langsung muncul di halaman katalog/explore
-                    let globalCatalog = [];
-                    try {
-                        globalCatalog = JSON.parse(localStorage.getItem('indofx_public_catalog')) || [];
-                    } catch (e) {
-                        globalCatalog = [];
-                    }
-                    globalCatalog.unshift(item);
-                    localStorage.setItem('indofx_public_catalog', JSON.stringify(globalCatalog));
-                }
-                return item;
-            });
-
-            localStorage.setItem('indofx_seller_assets_' + userKey, JSON.stringify(allAssets));
-            renderTable();
         }
     </script>
 </body>

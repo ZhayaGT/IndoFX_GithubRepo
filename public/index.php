@@ -24,8 +24,11 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
     $user = (new \IndoFX\Models\User())->findByRememberToken($_COOKIE['remember_token']);
 
     if ($user) {
+        session_regenerate_id(true);
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['public_id'] = $user['public_id'];
+        $_SESSION['email'] = $user['email'];
+        $_SESSION['store_name'] = $user['store_name'] ?? $user['name'];
         $_SESSION['role'] = $user['role'];
         $_SESSION['name'] = $user['name'];
         $_SESSION['bio'] = $user['bio'] ?? '';

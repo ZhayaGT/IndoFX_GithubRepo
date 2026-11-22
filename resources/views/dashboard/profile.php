@@ -1,8 +1,31 @@
 <?php
-$isLoggedIn = isset($_SESSION['user_id']);
-$userKey    = (string) ($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user');
-$userName   = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna');
-$userEmail  = (string) ($_SESSION['email'] ?? ($userName . '@gmail.com'));
+if (!isset($_SESSION['user_id'])) {
+    header('Location: /login');
+    exit;
+}
+
+$publicId = (string) ($_SESSION['public_id'] ?? $user['public_id'] ?? '');
+$userName = (string) ($_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Pengguna');
+
+// Ambil data murni dari database (dikirim oleh ProfileController::dashboardProfile)
+$storeName         = (string) ($sellerProfile['store_name'] ?? $user['store_name'] ?? '');
+$contactEmail      = (string) ($sellerProfile['contact_email'] ?? $user['email'] ?? $_SESSION['email'] ?? '');
+$bio               = (string) ($sellerProfile['bio'] ?? $user['bio'] ?? '');
+$portfolioUrl      = (string) ($sellerProfile['portfolio_url'] ?? $user['portfolio_url'] ?? '');
+$websiteUrl        = (string) ($sellerProfile['website_url'] ?? $user['website_url'] ?? '');
+$payoutNumber      = (string) ($sellerProfile['payout_number'] ?? $sellerProfile['dana_number'] ?? $user['payout_number'] ?? '');
+$payoutAccountName = (string) ($sellerProfile['payout_account_name'] ?? $sellerProfile['dana_account_name'] ?? $user['payout_account_name'] ?? '');
+
+// Inisial & nama tampilan header navbar
+$headerDisplayName = $storeName !== '' ? $storeName : $userName;
+$initials = '';
+$words = preg_split('/\s+/', trim($headerDisplayName)) ?: [];
+foreach (array_slice($words, 0, 2) as $word) {
+    $initials .= mb_strtoupper(mb_substr($word, 0, 1));
+}
+if ($initials === '') {
+    $initials = 'S';
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -14,7 +37,7 @@ $userEmail  = (string) ($_SESSION['email'] ?? ($userName . '@gmail.com'));
 
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Bootstrap 5 CSS & Bootstrap Icons -->
@@ -47,8 +70,8 @@ $userEmail  = (string) ($_SESSION['email'] ?? ($userName . '@gmail.com'));
 
             <!-- Profil Kreator Kanan Dinamis -->
             <a href="/" class="d-flex align-items-center gap-2 text-white text-decoration-none" title="Kembali ke Beranda">
-                <span class="avatar-circle" id="navDashAvatar">AS</span>
-                <span class="fw-bold fs-7 tracking-wide" id="navDashStoreName">ARGA STUDIO</span>
+                <span class="avatar-circle" id="navDashAvatar"><?= htmlspecialchars($initials, ENT_QUOTES, 'UTF-8') ?></span>
+                <span class="fw-bold fs-7 tracking-wide text-uppercase" id="navDashStoreName"><?= htmlspecialchars($headerDisplayName, ENT_QUOTES, 'UTF-8') ?></span>
             </a>
 
         </div>
@@ -95,17 +118,27 @@ $userEmail  = (string) ($_SESSION['email'] ?? ($userName . '@gmail.com'));
                     <h2 class="dash-page-title mb-1">Profil Penjual</h2>
                     <p class="text-muted small m-0">Kelola identitas publik toko dan rekening pencairan hasil penjualan Anda.</p>
                 </div>
-                <a href="/creator/profile?me=1" class="btn btn-outline-secondary btn-sm fw-bold px-3">
+                <a href="/creator/profile?id=<?= htmlspecialchars($publicId, ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-secondary btn-sm fw-bold px-3">
                     <i class="bi bi-eye me-1"></i>Lihat Profil Publik Toko
                 </a>
             </div>
 
-            <!-- Alert Notifikasi Berhasil -->
-            <div id="saveSuccessAlert" class="alert alert-success py-2 px-3 mb-4 rounded-3 small d-none">
-                <i class="bi bi-check-circle-fill me-1"></i> Perubahan profil penjual berhasil disimpan dan diperbarui!
-            </div>
+            <!-- Alert Notifikasi dari Backend -->
+            <?php if (!empty($_SESSION['success_msg'])): ?>
+                <div class="alert alert-success py-2 px-3 mb-4 rounded-3 small">
+                    <i class="bi bi-check-circle-fill me-1"></i> <?= htmlspecialchars($_SESSION['success_msg'], ENT_QUOTES, 'UTF-8') ?>
+                </div>
+                <?php unset($_SESSION['success_msg']); ?>
+            <?php endif; ?>
 
-            <form id="formSellerProfile" onsubmit="handleSaveSellerProfile(event)">
+            <?php if (!empty($_SESSION['error_msg'])): ?>
+                <div class="alert alert-danger py-2 px-3 mb-4 rounded-3 small">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i> <?= htmlspecialchars($_SESSION['error_msg'], ENT_QUOTES, 'UTF-8') ?>
+                </div>
+                <?php unset($_SESSION['error_msg']); ?>
+            <?php endif; ?>
+
+            <form id="formSellerProfile" action="/dashboard/ubah-profil-toko" method="POST">
 
                 <!-- CARD 1: INFORMASI PENJUAL -->
                 <div class="form-section-card p-4 mb-4">
@@ -113,28 +146,35 @@ $userEmail  = (string) ($_SESSION['email'] ?? ($userName . '@gmail.com'));
 
                     <div class="row g-3 mb-3">
                         <div class="col-12 col-md-6">
-                            <label for="seller_name" class="form-label form-field-label">Nama Toko / Kreator*</label>
-                            <input type="text" class="form-control form-field-input" id="seller_name" name="seller_name" required>
+                            <label for="store_name" class="form-label form-field-label">Nama Toko / Kreator*</label>
+                            <input type="text" class="form-control form-field-input" id="store_name" name="store_name"
+                                value="<?= htmlspecialchars($storeName, ENT_QUOTES, 'UTF-8') ?>" required>
                         </div>
                         <div class="col-12 col-md-6">
                             <label for="contact_email" class="form-label form-field-label">Email Kontak*</label>
-                            <input type="email" class="form-control form-field-input" id="contact_email" name="contact_email" required>
+                            <input type="email" class="form-control form-field-input" id="contact_email" name="contact_email"
+                                value="<?= htmlspecialchars($contactEmail, ENT_QUOTES, 'UTF-8') ?>" readonly>
                         </div>
                     </div>
 
                     <div class="mb-3">
                         <label for="bio" class="form-label form-field-label">Bio &amp; Deskripsi Kreator</label>
-                        <textarea class="form-control form-field-input" id="bio" name="bio" rows="3" placeholder="Ceritakan tentang spesialisasi aset yang Anda buat..."></textarea>
+                        <textarea class="form-control form-field-input" id="bio" name="bio" rows="3"
+                            placeholder="Ceritakan tentang spesialisasi aset yang Anda buat..."><?= htmlspecialchars($bio, ENT_QUOTES, 'UTF-8') ?></textarea>
                     </div>
 
                     <div class="row g-3">
                         <div class="col-12 col-md-6">
                             <label for="portfolio_url" class="form-label form-field-label">Tautan Portofolio (ArtStation / Behance)</label>
-                            <input type="url" class="form-control form-field-input" id="portfolio_url" name="portfolio_url" placeholder="https://www.artstation.com/nama_anda">
+                            <input type="url" class="form-control form-field-input" id="portfolio_url" name="portfolio_url"
+                                value="<?= htmlspecialchars($portfolioUrl, ENT_QUOTES, 'UTF-8') ?>"
+                                placeholder="https://www.artstation.com/nama_anda">
                         </div>
                         <div class="col-12 col-md-6">
                             <label for="website_url" class="form-label form-field-label">Tautan GitHub / Website</label>
-                            <input type="text" class="form-control form-field-input" id="website_url" name="website_url" placeholder="https://github.com/nama_anda">
+                            <input type="text" class="form-control form-field-input" id="website_url" name="website_url"
+                                value="<?= htmlspecialchars($websiteUrl, ENT_QUOTES, 'UTF-8') ?>"
+                                placeholder="https://github.com/nama_anda">
                         </div>
                     </div>
                 </div>
@@ -146,11 +186,15 @@ $userEmail  = (string) ($_SESSION['email'] ?? ($userName . '@gmail.com'));
                     <div class="row g-3">
                         <div class="col-12 col-md-6">
                             <label for="dana_number" class="form-label form-field-label">Nomor DANA / Rekening</label>
-                            <input type="text" class="form-control form-field-input" id="dana_number" name="dana_number" placeholder="Contoh: 08123456789">
+                            <input type="text" class="form-control form-field-input" id="dana_number" name="dana_number"
+                                value="<?= htmlspecialchars($payoutNumber, ENT_QUOTES, 'UTF-8') ?>"
+                                placeholder="Contoh: 08123456789">
                         </div>
                         <div class="col-12 col-md-6">
                             <label for="dana_account_name" class="form-label form-field-label">Nama Pemilik Akun</label>
-                            <input type="text" class="form-control form-field-input" id="dana_account_name" name="dana_account_name" placeholder="Sesuai nama rekening">
+                            <input type="text" class="form-control form-field-input" id="dana_account_name" name="dana_account_name"
+                                value="<?= htmlspecialchars($payoutAccountName, ENT_QUOTES, 'UTF-8') ?>"
+                                placeholder="Sesuai nama rekening">
                         </div>
                     </div>
                 </div>
@@ -184,107 +228,6 @@ $userEmail  = (string) ($_SESSION['email'] ?? ($userName . '@gmail.com'));
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <script>
-        const userKey = '<?= $userKey ?>';
-        const defaultName = '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>';
-        const defaultEmail = '<?= htmlspecialchars($userEmail, ENT_QUOTES, 'UTF-8') ?>';
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // 1. Ambil data profil toko tersimpan
-            let storeData = {
-                store_name: defaultName,
-                contact_email: defaultEmail,
-                bio: 'Pengembang independen aset visual Unity berbasis di Indonesia.',
-                portfolio_url: '',
-                website_url: '',
-                dana_number: '',
-                dana_account_name: defaultName
-            };
-
-            const savedRaw = localStorage.getItem('indofx_seller_profile_' + userKey);
-            if (savedRaw) {
-                try {
-                    const parsed = JSON.parse(savedRaw);
-                    storeData = Object.assign(storeData, parsed);
-                } catch (e) {}
-            }
-
-            // 2. Isi formulir
-            document.getElementById('seller_name').value = storeData.store_name || defaultName;
-            document.getElementById('contact_email').value = storeData.contact_email || defaultEmail;
-            document.getElementById('bio').value = storeData.bio || '';
-            document.getElementById('portfolio_url').value = storeData.portfolio_url || '';
-            document.getElementById('website_url').value = storeData.website_url || '';
-            document.getElementById('dana_number').value = storeData.dana_number || '';
-            document.getElementById('dana_account_name').value = storeData.dana_account_name || storeData.store_name || defaultName;
-
-            // 3. Update header
-            updateHeaderNav(storeData.store_name || defaultName);
-        });
-
-        function updateHeaderNav(name) {
-            const navName = document.getElementById('navDashStoreName');
-            const navAvatar = document.getElementById('navDashAvatar');
-            if (navName) navName.innerText = name.toUpperCase();
-            if (navAvatar) {
-                const words = name.trim().split(/\s+/);
-                let inits = '';
-                words.slice(0, 2).forEach(w => inits += w.charAt(0).toUpperCase());
-                navAvatar.innerText = inits || 'AS';
-            }
-        }
-
-        function handleSaveSellerProfile(e) {
-            e.preventDefault();
-
-            const btn = document.getElementById('btnSubmitSeller');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
-
-            const sellerName = document.getElementById('seller_name').value.trim();
-            const contactEmail = document.getElementById('contact_email').value.trim();
-            const bioText = document.getElementById('bio').value.trim();
-            const portfolio = document.getElementById('portfolio_url').value.trim();
-            const website = document.getElementById('website_url').value.trim();
-            const danaNo = document.getElementById('dana_number').value.trim();
-            const danaName = document.getElementById('dana_account_name').value.trim();
-
-            const profilePayload = {
-                is_seller: true,
-                store_name: sellerName || defaultName,
-                owner_name: defaultName,
-                contact_email: contactEmail || defaultEmail,
-                bio: bioText || 'Pengembang independen aset visual game di IndoFX.',
-                portfolio_url: portfolio,
-                website_url: website,
-                dana_number: danaNo,
-                dana_account_name: danaName,
-                status: 'approved',
-                updated_at: new Date().toISOString()
-            };
-
-            // Simpan ke kunci profil toko penjual aktif
-            localStorage.setItem('indofx_seller_profile_' + userKey, JSON.stringify(profilePayload));
-
-            // Perbarui header
-            updateHeaderNav(profilePayload.store_name);
-
-            setTimeout(() => {
-                btn.disabled = false;
-                btn.innerHTML = 'Simpan Perubahan';
-
-                const alertEl = document.getElementById('saveSuccessAlert');
-                if (alertEl) {
-                    alertEl.classList.remove('d-none');
-                    window.scrollTo({
-                        top: 0,
-                        behavior: 'smooth'
-                    });
-                }
-            }, 400);
-        }
-    </script>
 </body>
 
 </html>
