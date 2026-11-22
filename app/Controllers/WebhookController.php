@@ -8,6 +8,12 @@ use IndoFX\Models\Transaction;
 class WebhookController extends Controller {
 
     public function midtransCallback() {
+        $serverKey = \IndoFX\Core\Env::get('MIDTRANS_SERVER_KEY', '');
+        if (trim($serverKey) === '') {
+            http_response_code(503);
+            echo 'Payment notifications are not configured.';
+            return;
+        }
         // 1. Ambil data JSON yang dikirimkan oleh Midtrans secara otomatis
         $json = file_get_contents('php://input');
         $notification = json_decode($json);
@@ -19,14 +25,20 @@ class WebhookController extends Controller {
         }
 
         // 2. Verifikasi Keamanan (Signature Key)
-        $serverKey = $_ENV['MIDTRANS_SERVER_KEY'] ?? getenv('MIDTRANS_SERVER_KEY');
+        foreach (['order_id', 'status_code', 'gross_amount', 'signature_key', 'transaction_status'] as $field) {
+            if (!isset($notification->$field) || !is_scalar($notification->$field)) {
+                http_response_code(400);
+                echo 'Invalid notification fields';
+                return;
+            }
+        }
         $orderId = $notification->order_id;
         $statusCode = $notification->status_code;
         $grossAmount = $notification->gross_amount;
     
         $signatureKey = hash("sha512", $orderId . $statusCode . $grossAmount . $serverKey);
         
-        if ($signatureKey !== $notification->signature_key) {
+        if (!hash_equals($signatureKey, (string) $notification->signature_key)) {
             http_response_code(403);
             echo "Invalid Signature";
             return;

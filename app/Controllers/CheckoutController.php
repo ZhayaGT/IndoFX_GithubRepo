@@ -67,6 +67,13 @@ class CheckoutController extends Controller {
             return;
         }
 
+        if (!\IndoFX\Core\Env::get('MIDTRANS_SERVER_KEY') || !\IndoFX\Core\Env::get('MIDTRANS_CLIENT_KEY')) {
+            http_response_code(503);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Pembayaran belum diaktifkan. Silakan hubungi admin.']);
+            return;
+        }
+
         // 1. Konfigurasi Midtrans dari .env
         Config::$serverKey = $_ENV['MIDTRANS_SERVER_KEY'] ?? getenv('MIDTRANS_SERVER_KEY');
         Config::$isProduction = ($_ENV['MIDTRANS_IS_PRODUCTION'] ?? getenv('MIDTRANS_IS_PRODUCTION')) === 'true';
