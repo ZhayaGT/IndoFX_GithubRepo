@@ -254,7 +254,7 @@ try {
         </main>
     </div>
 
-    <!-- MODAL EDIT DATA PENGGUNA -->
+    <!-- MODAL EDIT DATA PENGGUNA (READ-ONLY NAMA & EMAIL SESUAI FIGMA) -->
     <div class="modal fade" id="modalEditUser" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
             <div class="modal-content modal-category-card">
@@ -265,24 +265,23 @@ try {
                     <input type="hidden" id="editUserId">
                     <div class="modal-category-body">
                         <div class="mb-3">
-                            <label class="form-label-admin">Nama Pengguna / Studio *</label>
-                            <input type="text" id="editUserName" class="form-control admin-search-input" style="padding-left: 12px;" required>
+                            <label class="form-label-admin d-block">Nama Pengguna / Studio</label>
+                            <div id="editUserNameDisplay" class="user-readonly-name">-</div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label-admin">Alamat Email *</label>
-                            <input type="email" id="editUserEmail" class="form-control admin-search-input" style="padding-left: 12px;" required>
+                            <label class="form-label-admin d-block">Alamat Email</label>
+                            <div id="editUserEmailDisplay" class="user-readonly-email">-</div>
                         </div>
-                        <div class="row g-2 mb-3">
+                        <div class="row g-2 mb-1">
                             <div class="col-6">
-                                <label class="form-label-admin">Peran Pengguna</label>
+                                <label for="editUserRole" class="form-label-admin">Peran Pengguna</label>
                                 <select id="editUserRole" class="form-select admin-select">
                                     <option value="Penjual">Penjual</option>
                                     <option value="Pembeli">Pembeli</option>
-                                    <option value="Admin">Admin</option>
                                 </select>
                             </div>
                             <div class="col-6">
-                                <label class="form-label-admin">Status Akun</label>
+                                <label for="editUserStatus" class="form-label-admin">Status Akun</label>
                                 <select id="editUserStatus" class="form-select admin-select">
                                     <option value="Aktif">Aktif</option>
                                     <option value="Diblokir">Diblokir</option>
@@ -515,10 +514,13 @@ try {
             try {
                 const savedEdits = JSON.parse(localStorage.getItem('indofx_admin_user_overrides')) || {};
                 combined = combined.map(u => {
-                    if (savedEdits[u.id] || savedEdits[u.email]) {
+                    const override = savedEdits[u.id] || savedEdits[u.email];
+                    if (override) {
                         return {
                             ...u,
-                            ...(savedEdits[u.id] || savedEdits[u.email])
+                            role: override.role || u.role,
+                            status: override.status || u.status,
+                            verified: typeof override.verified === 'boolean' ? override.verified : (override.role === 'Penjual')
                         };
                     }
                     return u;
@@ -678,10 +680,10 @@ try {
             renderUsersTable();
         }
 
-        // 5. BUKA MODAL EDIT USER
+        // 5. BUKA MODAL EDIT USER (NAMA & EMAIL READ-ONLY)
         function openEditUserModal(userId) {
             const user = users.find(u => String(u.id) === String(userId));
-            if (!user) return;
+            if (!user || user.role === 'Admin') return;
 
             // Akun administrator tidak boleh diubah dari halaman ini.
             if (String(user.role || '').trim().toLowerCase() === 'admin') {
@@ -689,38 +691,31 @@ try {
             }
 
             document.getElementById('editUserId').value = user.id;
-            document.getElementById('editUserName').value = user.name;
-            document.getElementById('editUserEmail').value = user.email;
-            document.getElementById('editUserRole').value = user.role;
+            document.getElementById('editUserNameDisplay').textContent = user.name;
+            document.getElementById('editUserEmailDisplay').textContent = user.email;
+            document.getElementById('editUserRole').value = (user.role === 'Penjual') ? 'Penjual' : 'Pembeli';
             document.getElementById('editUserStatus').value = user.status;
 
             modalEditUserInstance.show();
         }
 
-        // 6. SIMPAN EDIT USER
+        // 6. SIMPAN EDIT USER (HANYA PERAN & STATUS AKUN)
         function saveUserEdit(e) {
             e.preventDefault();
             const id = document.getElementById('editUserId').value;
-            const name = document.getElementById('editUserName').value.trim();
-            const email = document.getElementById('editUserEmail').value.trim();
             const role = document.getElementById('editUserRole').value;
             const status = document.getElementById('editUserStatus').value;
+
+            if (role !== 'Penjual' && role !== 'Pembeli') return;
 
             let overrides = {};
             try {
                 overrides = JSON.parse(localStorage.getItem('indofx_admin_user_overrides')) || {};
             } catch (e) {}
 
-            const words = name.split(/\s+/);
-            let inits = '';
-            words.slice(0, 2).forEach(w => inits += w.charAt(0).toUpperCase());
-
             overrides[id] = {
-                name: name,
-                email: email,
                 role: role,
                 status: status,
-                inits: inits || 'US',
                 verified: (role === 'Penjual')
             };
 
