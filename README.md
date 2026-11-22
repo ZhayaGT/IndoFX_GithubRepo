@@ -266,6 +266,33 @@ bergantung pada skema UUID lama.
 
 ---
 
+## Hosting demo di Instabox
+
+Box `indofx` memakai Nginx dan PHP 8.4-FPM pada port 8000. URL HTTPS dibuat oleh
+Instabox; database tetap memakai Supabase. Aplikasi aktif berada di
+`/data/indofx/current`, yang menunjuk ke `/data/indofx/releases/<commit>`.
+Konfigurasi `.env`, unggahan, dan sesi berada di `/data/indofx/shared` agar tetap
+tersimpan saat source diganti. Source dan `.env` aplikasi sebelumnya di
+`/data/home/indofx` dipertahankan sebagai cadangan.
+
+Untuk pembaruan: buat ZIP dengan `sh deploy/package.sh /tmp/indofx.zip`, kirim ke
+box, ekstrak ke direktori release baru, lalu jalankan:
+
+```sh
+sudo sh /data/indofx/releases/<commit>/deploy/instabox/install.sh /data/indofx/releases/<commit>
+```
+
+File konfigurasi dan installer ada di `deploy/instabox/`. Nginx menolak akses
+langsung ke paket aset dan sampel penjual; unduhan melalui endpoint PHP tetap
+memeriksa hak akses. Key database dan Midtrans tidak dimasukkan ke ZIP atau Git.
+
+Paket gratis Instabox dapat pause setelah idle atau batas runtime tercapai.
+Periksa batas yang sedang berlaku dengan `instabox get indofx --json`.
+Resume manual dengan `instabox resume indofx` bila box dipause oleh pengguna.
+Instabox ini ditujukan untuk demo dan pengujian; tidak menjamin uptime 24 jam.
+
+---
+
 ## Deployment Azure App Service Linux
 
 Konfigurasi hosting ada di `deploy/azure/`. Gunakan runtime PHP 8.3 atau versi
@@ -304,7 +331,7 @@ oleh record database; berkas ini tidak dikirim lewat Git.
 Buat paket dari commit yang akan dirilis:
 
 ```sh
-sh deploy/azure/package.sh /tmp/indofx-azure.zip
+sh deploy/package.sh /tmp/indofx-azure.zip
 ```
 
 Paket hanya memuat source aplikasi dan dependency produksi. `.env`, `.mcp.json`,

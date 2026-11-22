@@ -33,7 +33,7 @@ jobs:
           find app public routes resources/views -name '*.php' -print0 | xargs -0 -n1 php -l
 
       - name: Package application
-        run: sh deploy/azure/package.sh /tmp/indofx-azure.zip
+        run: sh deploy/package.sh /tmp/indofx-azure.zip
 
       - name: Login to Azure
         uses: azure/login@v2
