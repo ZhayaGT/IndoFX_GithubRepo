@@ -45,7 +45,42 @@ if ($initials === '') {
         .navbar-checkout {
             background-color: #ED6B1D;
             padding: 12px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+        }
+
+        /* Badge Angka Keranjang Dinamis ala Shopee */
+        .cart-icon-wrapper {
             position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cart-badge-count {
+            position: absolute;
+            top: -5px;
+            right: -9px;
+            background-color: #ffffff;
+            color: #ED6B1D;
+            border: 1.5px solid #1A1A1A;
+            font-size: 0.68rem;
+            font-weight: 800;
+            line-height: 1;
+            min-width: 19px;
+            height: 19px;
+            padding: 0 5px;
+            border-radius: 999px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
+            pointer-events: none;
+        }
+
+        .cart-badge-count.show {
+            display: inline-flex;
         }
 
         .avatar-circle-header {
@@ -156,10 +191,12 @@ if ($initials === '') {
             flex-shrink: 0;
         }
 
-        .item-thumb-box svg {
+        .item-thumb-box svg,
+        .item-thumb-box img {
             width: 100%;
             height: 100%;
             display: block;
+            object-fit: cover;
         }
 
         .item-name {
@@ -202,7 +239,7 @@ if ($initials === '') {
             background-color: #0b72b9;
         }
 
-        /* CARD METODE PEMBAYARAN KHUSUS QRIS PERSIS FIGMA image_df847a */
+        /* CARD METODE PEMBAYARAN KHUSUS QRIS */
         .qris-payment-card {
             background-color: #ffffff;
             border: 1.5px solid #2B2129;
@@ -222,7 +259,6 @@ if ($initials === '') {
             margin: 0;
         }
 
-        /* BADGE LOGO QRIS SESUAI GAMBAR ACUAN image_df6923 */
         .qris-official-badge {
             background-color: #FAF2E8;
             border: 1.5px solid #D5C7BB;
@@ -332,7 +368,7 @@ if ($initials === '') {
             margin-bottom: 0;
         }
 
-        /* FOOTER PUTIH SOLID PENUH PERSIS GAMBAR image_df71bc */
+        /* FOOTER PUTIH SOLID PENUH */
         .footer-white-solid {
             background-color: #ffffff !important;
             border-top: 1px solid #ebdcd1;
@@ -407,7 +443,7 @@ if ($initials === '') {
         </defs>
     </svg>
 
-    <!-- Header Navbar Oranye -->
+    <!-- Header Navbar Oranye dengan Badge Keranjang Dinamis -->
     <nav class="navbar navbar-checkout sticky-top">
         <div class="container-figma d-flex justify-content-between align-items-center w-100">
             <a class="navbar-brand m-0 d-flex align-items-center gap-2 text-decoration-none" href="/">
@@ -423,8 +459,9 @@ if ($initials === '') {
             </a>
 
             <div class="d-flex align-items-center gap-3">
-                <a href="/cart" class="text-white text-decoration-none d-flex align-items-center" title="Keranjang">
+                <a href="/cart" class="text-white text-decoration-none cart-icon-wrapper" title="Keranjang">
                     <i class="bi bi-cart3 fs-4"></i>
+                    <span id="headerCartBadge" class="cart-badge-count">0</span>
                 </a>
 
                 <div class="profile-dropdown-wrapper">
@@ -465,38 +502,24 @@ if ($initials === '') {
                     <div class="section-subtitle">Ringkasan Pesanan</div>
                     <div class="order-summary-box" id="orderSummaryContainer"></div>
 
-                    <!-- METODE PEMBAYARAN: HANYA QRIS SESUAI FIGMA image_df847a & image_df6923 -->
+                    <!-- METODE PEMBAYARAN: HANYA QRIS -->
                     <div class="section-subtitle">Pilih Metode Pembayaran</div>
                     <div class="qris-payment-card">
                         <span class="qris-label-text">Bayar dengan</span>
 
-                        <!-- Lencana QRIS Presisi Sesuai image_df6923 -->
                         <div class="qris-official-badge">
-                            <!-- Vektor Logo QRIS Asli Hitam Monokrom -->
                             <svg width="84" height="28" viewBox="0 0 106 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <!-- Bracket Kiri Atas -->
                                 <path d="M1 1H16V3.8H3.8V16H1V1Z" fill="#1A1A1A" />
-
-                                <!-- Huruf Q (Finder QR Code) -->
                                 <rect x="7" y="6" width="19" height="19" rx="1.5" fill="#1A1A1A" />
                                 <rect x="10.5" y="9.5" width="12" height="12" rx="0.5" fill="#FAF2E8" />
                                 <rect x="13.2" y="12.2" width="6.6" height="6.6" fill="#1A1A1A" />
                                 <path d="M22 21H26V30H22V21Z" fill="#1A1A1A" />
-
-                                <!-- Huruf R -->
                                 <path d="M31 7H43.5C46.8 7 49 9.1 49 12.2C49 14.8 47.2 16.6 44.5 17L49.5 25H44.2L39.8 17.8H35.8V25H31V7ZM35.8 14H42.8C44 14 44.8 13.3 44.8 12.2C44.8 11.1 44 10.4 42.8 10.4H35.8V14Z" fill="#1A1A1A" />
-
-                                <!-- Huruf I -->
                                 <rect x="54" y="7" width="4.8" height="18" fill="#1A1A1A" />
-
-                                <!-- Huruf S -->
                                 <path d="M63 7H77V10.6H67.8V13H77V25H63V21.4H72.2V19H63V7Z" fill="#1A1A1A" />
-
-                                <!-- Bracket Kanan Bawah -->
                                 <path d="M85 19H87.8V30.2H76.6V33H87.8H90.6V30.2V19H85Z" fill="#1A1A1A" />
                             </svg>
 
-                            <!-- Teks Samping QR Code Standar Pembayaran Nasional -->
                             <div class="qris-badge-text">
                                 <span>QR Code Standar</span>
                                 <span>Pembayaran Nasional</span>
@@ -544,7 +567,7 @@ if ($initials === '') {
         </div>
     </main>
 
-    <!-- FOOTER SOLID PUTIH PENUH PERSIS GAMBAR image_df71bc -->
+    <!-- FOOTER SOLID PUTIH PENUH -->
     <footer class="footer-white-solid">
         <div class="container-figma text-center">
             <h5 class="footer-white-brand">IndoFX</h5>
@@ -566,6 +589,7 @@ if ($initials === '') {
 
     <script>
         const userKey = '<?= $userKey ?>';
+        const cartStorageKey = 'indofx_cart_' + userKey;
         const directAssetId = '<?= htmlspecialchars((string)$directAssetId, ENT_QUOTES, 'UTF-8') ?>';
 
         const catalogDB = {
@@ -604,7 +628,123 @@ if ($initials === '') {
         };
 
         let activeItems = [];
+        let catalogLookupMap = new Map();
         const feeAdmin = 2500;
+
+        function escapeHtml(text) {
+            return String(text === null || text === undefined ? '' : text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        // Perbarui badge angka keranjang di navbar atas sesuai isi keranjang user aktif
+        function updateHeaderCartBadge() {
+            const badge = document.getElementById('headerCartBadge');
+            if (!badge) return;
+
+            let count = 0;
+            try {
+                const items = JSON.parse(localStorage.getItem(cartStorageKey)) || [];
+                if (Array.isArray(items)) {
+                    count = items.length;
+                }
+            } catch (e) {
+                count = 0;
+            }
+
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : String(count);
+                badge.classList.add('show');
+            } else {
+                badge.textContent = '0';
+                badge.classList.remove('show');
+            }
+        }
+
+        // Indeks semua gambar & metadata aset dari katalog publik, moderasi, storage penjual & assets.json
+        function initCatalogLookup(done) {
+            catalogLookupMap.clear();
+
+            function indexList(list) {
+                if (!Array.isArray(list)) return;
+                list.forEach(entry => {
+                    if (!entry) return;
+                    const idKey = String(entry.id || '').toLowerCase().trim();
+                    const titleKey = String(entry.title || '').toLowerCase().trim();
+                    const hasImg = entry.image && typeof entry.image === 'string' &&
+                        (entry.image.includes('/') || entry.image.startsWith('data:'));
+
+                    if (idKey) {
+                        const existing = catalogLookupMap.get(idKey);
+                        if (!existing || (hasImg && !existing.image)) {
+                            catalogLookupMap.set(idKey, entry);
+                        }
+                    }
+                    if (titleKey) {
+                        const existing = catalogLookupMap.get(titleKey);
+                        if (!existing || (hasImg && !existing.image)) {
+                            catalogLookupMap.set(titleKey, entry);
+                        }
+                    }
+                });
+            }
+
+            Object.keys(localStorage).forEach(k => {
+                if (k.startsWith('indofx_seller_assets_')) {
+                    try {
+                        indexList(JSON.parse(localStorage.getItem(k)) || []);
+                    } catch (e) {}
+                }
+            });
+
+            try {
+                indexList(JSON.parse(localStorage.getItem('indofx_moderation_queue')) || []);
+            } catch (e) {}
+
+            try {
+                indexList(JSON.parse(localStorage.getItem('indofx_public_catalog')) || []);
+            } catch (e) {}
+
+            fetch('/assets/data/assets.json')
+                .then(res => res.ok ? res.json() : null)
+                .then(payload => {
+                    if (payload && Array.isArray(payload.data)) {
+                        indexList(payload.data);
+                    }
+                })
+                .catch(() => {})
+                .finally(() => {
+                    if (typeof done === 'function') done();
+                });
+        }
+
+        function enrichOrderItem(item) {
+            const idKey = String(item.id || '').toLowerCase().trim();
+            const titleKey = String(item.title || '').toLowerCase().trim();
+            const ref = catalogLookupMap.get(idKey) || catalogLookupMap.get(titleKey) || {};
+
+            const resolvedImage =
+                (item.image && typeof item.image === 'string' && (item.image.includes('/') || item.image.startsWith('data:'))) ?
+                item.image :
+                (ref.image || '');
+
+            const resolvedPipelines =
+                (Array.isArray(item.pipelines) && item.pipelines.length > 0) ?
+                item.pipelines :
+                (Array.isArray(ref.pipelines) && ref.pipelines.length > 0 ?
+                    ref.pipelines : [item.render_pipeline || ref.render_pipeline || 'URP']);
+
+            return {
+                ...ref,
+                ...item,
+                image: resolvedImage,
+                pipelines: resolvedPipelines,
+                creator: item.creator || item.seller_name || ref.creator || ref.seller_name || 'Arga Studio'
+            };
+        }
 
         function loadCheckoutData() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -612,6 +752,7 @@ if ($initials === '') {
             const paramPrice = urlParams.get('price');
             const paramCreator = urlParams.get('creator');
             const paramPipeline = urlParams.get('pipeline');
+            const paramImage = urlParams.get('image');
 
             if (paramTitle) {
                 let cleanPrice = 0;
@@ -625,6 +766,7 @@ if ($initials === '') {
                     title: paramTitle,
                     creator: paramCreator || detectCreatorByTitle(paramTitle) || 'Studio Kreator',
                     price: cleanPrice,
+                    image: paramImage || '',
                     art: 'castle',
                     pipelines: pipes
                 }];
@@ -649,6 +791,7 @@ if ($initials === '') {
                             title: found.title,
                             creator: found.creator || found.seller || detectCreatorByTitle(found.title) || 'Studio Kreator',
                             price: cleanPrice,
+                            image: found.image || '',
                             art: found.category === 'Shader' ? 'water' : 'castle',
                             pipelines: Array.isArray(found.pipelines) ? found.pipelines : [found.render_pipeline || 'Built-in']
                         }];
@@ -699,32 +842,41 @@ if ($initials === '') {
             const container = document.getElementById('orderSummaryContainer');
             let subtotal = 0;
 
-            container.innerHTML = activeItems.map(item => {
+            const enrichedItems = activeItems.map(enrichOrderItem);
+
+            container.innerHTML = enrichedItems.map(item => {
                 const price = parseFloat(item.price) || 0;
                 subtotal += price;
 
+                const hasRealImage = item.image && typeof item.image === 'string' &&
+                    (item.image.includes('/') || item.image.startsWith('data:'));
+
                 const artSvg = item.art ? ('chk-art-' + item.art) : 'chk-art-castle';
+                const thumbMediaHtml = hasRealImage ?
+                    `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}" loading="lazy">` :
+                    `<svg viewBox="0 0 175 98"><use href="#${artSvg}" /></svg>`;
+
                 const pipelines = Array.isArray(item.pipelines) ? item.pipelines : ['URP', 'HDRP', 'Built-in'];
 
                 const badgeHtml = pipelines.map(p => {
                     let cls = 'tag-urp';
-                    if (p.toLowerCase().includes('hdrp')) cls = 'tag-hdrp';
-                    if (p.toLowerCase().includes('built')) cls = 'tag-builtin';
-                    return `<span class="badge-pipeline-tag ${cls}">${p}</span>`;
+                    if (String(p).toLowerCase().includes('hdrp')) cls = 'tag-hdrp';
+                    if (String(p).toLowerCase().includes('built')) cls = 'tag-builtin';
+                    return `<span class="badge-pipeline-tag ${cls}">${escapeHtml(p)}</span>`;
                 }).join(' ');
 
                 return `
                     <div class="order-summary-item d-flex align-items-center justify-content-between flex-wrap gap-2">
                         <div class="d-flex align-items-center gap-3">
                             <div class="item-thumb-box">
-                                <svg viewBox="0 0 175 98"><use href="#${artSvg}" /></svg>
+                                ${thumbMediaHtml}
                             </div>
                             <div>
                                 <div class="d-flex align-items-center gap-2 flex-wrap">
-                                    <span class="item-name">${item.title}</span>
+                                    <span class="item-name">${escapeHtml(item.title)}</span>
                                     ${badgeHtml}
                                 </div>
-                                <p class="item-author">Oleh ${item.creator || 'Arga Studio'}</p>
+                                <p class="item-author">Oleh ${escapeHtml(item.creator || 'Arga Studio')}</p>
                             </div>
                         </div>
                         <div class="item-price">Rp${price.toLocaleString('id-ID')}</div>
@@ -743,31 +895,41 @@ if ($initials === '') {
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Memproses QRIS...';
 
+            const finalizedItems = activeItems.map(enrichOrderItem);
+
             setTimeout(() => {
-                const libKey = 'indofx_library_' + userKey;
-                let currentLibrary = [];
+                // 1. Simpan ke Library Pengguna (hindari duplikasi Base64 raksasa agar tidak melebihi kuota 5MB)
                 try {
-                    currentLibrary = JSON.parse(localStorage.getItem(libKey)) || [];
+                    const libKey = 'indofx_library_' + userKey;
+                    let currentLibrary = [];
+                    try {
+                        currentLibrary = JSON.parse(localStorage.getItem(libKey)) || [];
+                    } catch (e) {
+                        currentLibrary = [];
+                    }
+
+                    finalizedItems.forEach(item => {
+                        const exists = currentLibrary.some(l => String(l.id) === String(item.id) || l.title === item.title);
+                        if (!exists) {
+                            const safeImage = (item.image && !String(item.image).startsWith('data:')) ? item.image : '';
+                            currentLibrary.unshift({
+                                id: item.id,
+                                title: item.title,
+                                creator: item.creator,
+                                type: 'Berbayar',
+                                date: '<?= date("d M Y") ?>',
+                                pipelines: item.pipelines || ['URP', 'HDRP', 'Built-in'],
+                                image: safeImage,
+                                art: item.art || 'castle'
+                            });
+                        }
+                    });
+                    localStorage.setItem(libKey, JSON.stringify(currentLibrary));
                 } catch (e) {
-                    currentLibrary = [];
+                    console.warn('Peringatan penyimpanan library:', e);
                 }
 
-                activeItems.forEach(item => {
-                    const exists = currentLibrary.some(l => String(l.id) === String(item.id) || l.title === item.title);
-                    if (!exists) {
-                        currentLibrary.unshift({
-                            id: item.id,
-                            title: item.title,
-                            creator: item.creator,
-                            type: 'Berbayar',
-                            date: '<?= date("d M Y") ?>',
-                            pipelines: item.pipelines || ['URP', 'HDRP', 'Built-in'],
-                            art: item.art || 'castle'
-                        });
-                    }
-                });
-                localStorage.setItem(libKey, JSON.stringify(currentLibrary));
-
+                // 2. Buat Nomor Invoice & Simpan Histori Transaksi Pembeli
                 const now = new Date();
                 const randNum = Math.floor(1000 + Math.random() * 9000);
                 const yyyy = now.getFullYear();
@@ -776,8 +938,7 @@ if ($initials === '') {
                 const invoiceNo = `INV-${yyyy}${mm}${dd}-${randNum}`;
 
                 const paymentMethodLabel = 'QRIS';
-
-                const subtotal = activeItems.reduce((acc, curr) => acc + (parseFloat(curr.price) || 0), 0);
+                const subtotal = finalizedItems.reduce((acc, curr) => acc + (parseFloat(curr.price) || 0), 0);
                 const totalBayar = subtotal + feeAdmin;
 
                 const monthsIndoShort = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
@@ -786,36 +947,41 @@ if ($initials === '') {
                 const shortDateStr = `${now.getDate()} ${monthsIndoShort[now.getMonth()]} ${yyyy}, ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
                 const rawDateStr = `${yyyy}-${mm}-${dd}`;
 
-                const txKey = 'indofx_transactions_' + userKey;
-                let transactions = [];
                 try {
-                    transactions = JSON.parse(localStorage.getItem(txKey)) || [];
+                    const txKey = 'indofx_transactions_' + userKey;
+                    let transactions = [];
+                    try {
+                        transactions = JSON.parse(localStorage.getItem(txKey)) || [];
+                    } catch (e) {
+                        transactions = [];
+                    }
+
+                    const newTransaction = {
+                        invoice_no: invoiceNo,
+                        full_date: fullDateStr,
+                        short_date: shortDateStr,
+                        buyer_name: '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>',
+                        buyer_email: '<?= htmlspecialchars($userEmail, ENT_QUOTES, 'UTF-8') ?>',
+                        payment_method: paymentMethodLabel,
+                        status: 'Berhasil',
+                        items: finalizedItems.map(i => ({
+                            id: i.id,
+                            title: i.title,
+                            price: parseFloat(i.price) || 0
+                        })),
+                        subtotal: subtotal,
+                        fee: feeAdmin,
+                        total: totalBayar
+                    };
+
+                    transactions.unshift(newTransaction);
+                    localStorage.setItem(txKey, JSON.stringify(transactions));
                 } catch (e) {
-                    transactions = [];
+                    console.warn('Peringatan penyimpanan transaksi:', e);
                 }
 
-                const newTransaction = {
-                    invoice_no: invoiceNo,
-                    full_date: fullDateStr,
-                    short_date: shortDateStr,
-                    buyer_name: '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>',
-                    buyer_email: '<?= htmlspecialchars($userEmail, ENT_QUOTES, 'UTF-8') ?>',
-                    payment_method: paymentMethodLabel,
-                    status: 'Berhasil',
-                    items: activeItems.map(i => ({
-                        id: i.id,
-                        title: i.title,
-                        price: parseFloat(i.price) || 0
-                    })),
-                    subtotal: subtotal,
-                    fee: feeAdmin,
-                    total: totalBayar
-                };
-
-                transactions.unshift(newTransaction);
-                localStorage.setItem(txKey, JSON.stringify(transactions));
-
-                activeItems.forEach(item => {
+                // 3. Catat Penjualan ke Dashboard Kreator
+                finalizedItems.forEach(item => {
                     const priceVal = parseFloat(item.price) || 0;
                     const saleRecord = {
                         invoice_no: invoiceNo,
@@ -868,26 +1034,24 @@ if ($initials === '') {
                     });
 
                     targetKeys.forEach(tKey => {
-                        let sales = [];
                         try {
-                            sales = JSON.parse(localStorage.getItem(tKey)) || [];
-                        } catch (e) {
-                            sales = [];
-                        }
-                        const exists = sales.some(s => s.invoice_no === invoiceNo && s.asset_title === item.title);
-                        if (!exists) {
-                            sales.unshift(saleRecord);
-                            localStorage.setItem(tKey, JSON.stringify(sales));
-                        }
+                            let sales = JSON.parse(localStorage.getItem(tKey)) || [];
+                            const exists = sales.some(s => s.invoice_no === invoiceNo && s.asset_title === item.title);
+                            if (!exists) {
+                                sales.unshift(saleRecord);
+                                localStorage.setItem(tKey, JSON.stringify(sales));
+                            }
+                        } catch (e) {}
                     });
                 });
 
-                const cartKey = 'indofx_cart_' + userKey;
+                // 4. Hapus Item yang Sudah Dibeli dari Keranjang & Update Badge
                 try {
-                    let currentCart = JSON.parse(localStorage.getItem(cartKey)) || [];
-                    const boughtIds = activeItems.map(i => String(i.id));
+                    let currentCart = JSON.parse(localStorage.getItem(cartStorageKey)) || [];
+                    const boughtIds = finalizedItems.map(i => String(i.id));
                     currentCart = currentCart.filter(c => !boughtIds.includes(String(c.id)));
-                    localStorage.setItem(cartKey, JSON.stringify(currentCart));
+                    localStorage.setItem(cartStorageKey, JSON.stringify(currentCart));
+                    updateHeaderCartBadge();
                 } catch (e) {}
 
                 sessionStorage.removeItem('indofx_checkout_items');
@@ -896,7 +1060,15 @@ if ($initials === '') {
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            updateHeaderCartBadge();
             loadCheckoutData();
+            initCatalogLookup(renderOrderSummary);
+
+            window.addEventListener('storage', function(e) {
+                if (e.key === cartStorageKey) {
+                    updateHeaderCartBadge();
+                }
+            });
 
             const dropdownBtn = document.getElementById('profileDropdownBtn');
             const dropdownMenu = document.getElementById('profileDropdownMenu');

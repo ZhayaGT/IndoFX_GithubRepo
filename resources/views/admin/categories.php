@@ -4,8 +4,14 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
     exit;
 }
 
-$adminName = 'Super Admin IndoFX';
+$adminName = (string) ($_SESSION['name'] ?? 'Super Admin IndoFX');
 $adminInitials = 'AP';
+$words = preg_split('/\s+/', trim($adminName)) ?: [];
+if (count($words) >= 2) {
+    $adminInitials = mb_strtoupper(mb_substr($words[0], 0, 1) . mb_substr($words[1], 0, 1));
+} elseif (!empty($words[0])) {
+    $adminInitials = mb_strtoupper(mb_substr($words[0], 0, 2));
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -46,7 +52,7 @@ $adminInitials = 'AP';
                 <span class="brand-text text-white fw-bold fs-6">IndoFX</span>
             </a>
 
-            <!-- Profil Admin Kanan & Dropdown Menu Logout Sesuai Figma -->
+            <!-- Profil Admin Kanan & Dropdown Menu Logout -->
             <div class="admin-dropdown-wrap">
                 <button type="button" class="btn-admin-profile" id="adminDropdownBtn">
                     <span class="avatar-admin-badge"><?= htmlspecialchars($adminInitials) ?></span>
@@ -65,7 +71,7 @@ $adminInitials = 'AP';
     <!-- 2. Kontainer Layout Utama -->
     <div class="admin-layout-container">
 
-        <!-- Sidebar Kiri Sesuai Figma image_1ee300 -->
+        <!-- Sidebar Kiri -->
         <aside class="admin-sidebar">
             <nav class="nav flex-column">
                 <a href="/admin/dashboard" class="admin-sidebar-link">
@@ -73,7 +79,7 @@ $adminInitials = 'AP';
                 </a>
                 <a href="/admin/assets" class="admin-sidebar-link">
                     <span><i class="bi bi-card-checklist me-2"></i>Moderasi Aset</span>
-                    <span class="admin-sidebar-badge">2</span>
+                    <span class="admin-sidebar-badge" id="sidebarModerationBadge">0</span>
                 </a>
                 <a href="/admin/categories" class="admin-sidebar-link active">
                     <span><i class="bi bi-tags me-2"></i>Kelola Kategori</span>
@@ -83,7 +89,7 @@ $adminInitials = 'AP';
                 </a>
                 <a href="/admin/seller-requests" class="admin-sidebar-link">
                     <span><i class="bi bi-person-badge me-2"></i>Pengajuan Penjual</span>
-                    <span class="admin-sidebar-badge">2</span>
+                    <span class="admin-sidebar-badge" id="sidebarSellerBadge">0</span>
                 </a>
                 <a href="/admin/transactions" class="admin-sidebar-link">
                     <span><i class="bi bi-currency-dollar me-2"></i>Monitor Transaksi</span>
@@ -100,9 +106,9 @@ $adminInitials = 'AP';
                     <i class="bi bi-plus-lg"></i> Tambah Kategori
                 </button>
             </div>
-            <p class="admin-page-sub">Atur kategori pengelompokan aset Unity yang tampil di katalog IndoFX.</p>
+            <p class="admin-page-sub">Atur kategori pengelompokan aset Unity yang tampil di katalog &amp; filter Explore IndoFX.</p>
 
-            <!-- Tabel Daftar Kategori Sesuai Figma image_1ee300 -->
+            <!-- Tabel Daftar Kategori -->
             <div class="admin-table-card">
                 <div class="table-responsive">
                     <table class="table table-admin align-middle">
@@ -125,7 +131,7 @@ $adminInitials = 'AP';
         </main>
     </div>
 
-    <!-- 3. MODAL 1: TAMBAH KATEGORI BARU (Sesuai Figma image_1ee2de) -->
+    <!-- 3. MODAL 1: TAMBAH KATEGORI BARU -->
     <div class="modal fade" id="modalAddCategory" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
             <div class="modal-content modal-category-card">
@@ -134,13 +140,11 @@ $adminInitials = 'AP';
                 </div>
                 <form id="formAddCategory" onsubmit="saveNewCategory(event)">
                     <div class="modal-category-body">
-                        <!-- Nama Kategori -->
                         <div class="mb-3">
                             <label class="form-label-admin">Nama Kategori *</label>
                             <input type="text" id="addCategoryName" class="form-control admin-search-input" style="padding-left: 12px;" placeholder="Contoh: Audio / SFX" required oninput="autoGenerateAddSlug(this.value)">
                         </div>
 
-                        <!-- Slug URL -->
                         <div class="mb-3">
                             <label class="form-label-admin">Slug URL *</label>
                             <div class="input-group">
@@ -149,7 +153,6 @@ $adminInitials = 'AP';
                             </div>
                         </div>
 
-                        <!-- Ikon Bootstrap -->
                         <div class="mb-3">
                             <label class="form-label-admin">Ikon Bootstrap</label>
                             <select id="addCategoryIcon" class="form-select admin-select">
@@ -162,7 +165,6 @@ $adminInitials = 'AP';
                             </select>
                         </div>
 
-                        <!-- Deskripsi Singkat -->
                         <div class="mb-1">
                             <label class="form-label-admin">Deskripsi Singkat</label>
                             <textarea id="addCategoryDesc" class="form-control admin-search-input" style="padding-left: 12px; height: 90px; resize: none;" placeholder="Uraian singkat kategori..."></textarea>
@@ -179,7 +181,7 @@ $adminInitials = 'AP';
         </div>
     </div>
 
-    <!-- 4. MODAL 2: EDIT KATEGORI (Sesuai Figma image_1ee2de) -->
+    <!-- 4. MODAL 2: EDIT KATEGORI -->
     <div class="modal fade" id="modalEditCategory" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
             <div class="modal-content modal-category-card">
@@ -189,13 +191,11 @@ $adminInitials = 'AP';
                 <form id="formEditCategory" onsubmit="saveEditCategory(event)">
                     <input type="hidden" id="editCategoryId">
                     <div class="modal-category-body">
-                        <!-- Nama Kategori -->
                         <div class="mb-3">
                             <label class="form-label-admin">Nama Kategori *</label>
                             <input type="text" id="editCategoryName" class="form-control admin-search-input" style="padding-left: 12px;" required>
                         </div>
 
-                        <!-- Slug URL -->
                         <div class="mb-3">
                             <label class="form-label-admin">Slug URL *</label>
                             <div class="input-group">
@@ -204,7 +204,6 @@ $adminInitials = 'AP';
                             </div>
                         </div>
 
-                        <!-- Ikon Bootstrap -->
                         <div class="mb-3">
                             <label class="form-label-admin">Ikon Bootstrap</label>
                             <select id="editCategoryIcon" class="form-select admin-select">
@@ -217,7 +216,6 @@ $adminInitials = 'AP';
                             </select>
                         </div>
 
-                        <!-- Deskripsi Singkat -->
                         <div class="mb-1">
                             <label class="form-label-admin">Deskripsi Singkat</label>
                             <textarea id="editCategoryDesc" class="form-control admin-search-input" style="padding-left: 12px; height: 90px; resize: none;"></textarea>
@@ -234,13 +232,12 @@ $adminInitials = 'AP';
         </div>
     </div>
 
-    <!-- 5. MODAL 3: WARNING HAPUS KATEGORI (Sesuai Figma image_1ee2de) -->
+    <!-- 5. MODAL 3: WARNING HAPUS KATEGORI -->
     <div class="modal fade" id="modalDeleteCategory" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" style="max-width: 380px;">
             <div class="modal-content modal-category-card text-center p-4">
                 <input type="hidden" id="deleteCategoryId">
 
-                <!-- Ikon Peringatan Segitiga Merah Figma -->
                 <div class="delete-warning-icon-wrap">
                     <svg width="48" height="42" viewBox="0 0 48 42" fill="none">
                         <path d="M24 2L46 39H2L24 2Z" fill="#C92A2A" stroke="#C92A2A" stroke-width="2" stroke-linejoin="round" />
@@ -276,7 +273,6 @@ $adminInitials = 'AP';
                 <p class="footer-brand-desc-center">
                     Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
                 </p>
-                <!-- Baris Kontak dan Email sesuai desain baru -->
                 <div style="font-size: 0.85rem; color: #1a1a1a; margin-top: 10px;">
                     <strong style="font-weight: 800;">Kontak dan Email:</strong>
                     <span style="margin: 0 16px;">08123456xxxx</span>
@@ -294,38 +290,34 @@ $adminInitials = 'AP';
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // Data Awal Kategori Sesuai Figma image_1ee300
+        // 1. Kategori Bawaan Sistem (Tanpa Angka Statis)
         const defaultCategories = [{
                 id: 1,
                 name: 'Shader',
                 desc: 'Shader Graph & HLSL custom Code',
                 slug: 'shader',
-                icon: 'bi-palette',
-                count: '128 Aset'
+                icon: 'bi-palette'
             },
             {
                 id: 2,
                 name: 'VFX Partikel',
                 desc: 'Visual Effects & Particle Systems',
                 slug: 'vfx-partikel',
-                icon: 'bi-stars',
-                count: '94 Aset'
+                icon: 'bi-stars'
             },
             {
                 id: 3,
                 name: 'Script / Tool',
                 desc: 'Editor Extensions & System Scripts',
                 slug: 'script-tool',
-                icon: 'bi-code-slash',
-                count: '65 Aset'
+                icon: 'bi-code-slash'
             },
             {
                 id: 4,
                 name: '3D Model',
                 desc: 'Environment, Character & Prop 3D',
                 slug: '3d-model',
-                icon: 'bi-box',
-                count: '25 Aset'
+                icon: 'bi-box'
             }
         ];
 
@@ -334,6 +326,99 @@ $adminInitials = 'AP';
         let modalEditInstance = null;
         let modalDeleteInstance = null;
 
+        function slugifyText(text) {
+            return String(text || '')
+                .toLowerCase()
+                .trim()
+                .replace(/[^a-z0-9\s-]/g, '')
+                .replace(/\s+/g, '-');
+        }
+
+        // 2. KUMPULKAN SEMUA ASET RIIL DARI KATALOG & MODERASI (TANPA DUPLIKASI)
+        function getAllUniqueAssets() {
+            const uniqueMap = new Map();
+
+            // A. Katalog Publik (aset yang sudah tayang di Explore)
+            try {
+                const publicCatalog = JSON.parse(localStorage.getItem('indofx_public_catalog')) || [];
+                publicCatalog.forEach(item => {
+                    const key = String(item.id || item.title || '').toLowerCase().trim();
+                    if (key && !uniqueMap.has(key)) {
+                        uniqueMap.set(key, item);
+                    }
+                });
+            } catch (e) {}
+
+            // B. Antrean Moderasi (aset yang berstatus Published / Disetujui)
+            try {
+                const queue = JSON.parse(localStorage.getItem('indofx_moderation_queue')) || [];
+                queue.forEach(item => {
+                    if (item.status === 'Published' || item.status === 'Disetujui') {
+                        const key = String(item.id || item.title || '').toLowerCase().trim();
+                        if (key && !uniqueMap.has(key)) {
+                            uniqueMap.set(key, item);
+                        }
+                    }
+                });
+            } catch (e) {}
+
+            // C. Storage Toko Penjual (aset berstatus Disetujui / Published)
+            Object.keys(localStorage).forEach(storageKey => {
+                if (storageKey.startsWith('indofx_seller_assets_')) {
+                    try {
+                        const sellerAssets = JSON.parse(localStorage.getItem(storageKey)) || [];
+                        sellerAssets.forEach(item => {
+                            if (item.status === 'Disetujui' || item.status === 'Published') {
+                                const key = String(item.id || item.title || '').toLowerCase().trim();
+                                if (key && !uniqueMap.has(key)) {
+                                    uniqueMap.set(key, item);
+                                }
+                            }
+                        });
+                    } catch (e) {}
+                }
+            });
+
+            return Array.from(uniqueMap.values());
+        }
+
+        // 3. HITUNG JUMLAH ASET PER KATEGORI SECARA DINAMIS
+        function countAssetsByCategory(cat, allAssets) {
+            const targetName = String(cat.name || '').toLowerCase().trim();
+            const targetSlug = slugifyText(cat.slug || cat.name);
+
+            return allAssets.filter(asset => {
+                const assetCat = String(asset.category || '').toLowerCase().trim();
+                const assetCatSlug = slugifyText(assetCat);
+
+                // Cocokkan nama persis, slug persis, atau variasi umum (mis. "Model 3D" vs "3D Model")
+                if (assetCat === targetName || assetCatSlug === targetSlug) return true;
+                if ((targetSlug === '3d-model' && assetCatSlug === 'model-3d') ||
+                    (targetSlug === 'model-3d' && assetCatSlug === '3d-model')) {
+                    return true;
+                }
+                return false;
+            }).length;
+        }
+
+        function syncSidebarBadges() {
+            try {
+                const queue = JSON.parse(localStorage.getItem('indofx_moderation_queue')) || [];
+                const pCount = queue.filter(q => q.status === 'Pending' || q.status === 'Pending Review').length;
+                document.getElementById('sidebarModerationBadge').innerText = pCount;
+            } catch (e) {}
+
+            try {
+                const sReqs = JSON.parse(localStorage.getItem('indofx_seller_requests')) || [];
+                const pReqs = sReqs.filter(r => r.status === 'Menunggu').length;
+                document.getElementById('sidebarSellerBadge').innerText = pReqs;
+            } catch (e) {}
+        }
+
+        function persistCategories() {
+            localStorage.setItem('indofx_admin_categories', JSON.stringify(categories));
+        }
+
         function loadCategories() {
             try {
                 const raw = localStorage.getItem('indofx_admin_categories');
@@ -341,16 +426,20 @@ $adminInitials = 'AP';
                     categories = JSON.parse(raw);
                 } else {
                     categories = [...defaultCategories];
-                    localStorage.setItem('indofx_admin_categories', JSON.stringify(categories));
+                    persistCategories();
                 }
             } catch (e) {
                 categories = [...defaultCategories];
             }
+
+            syncSidebarBadges();
             renderCategoryTable();
         }
 
         function renderCategoryTable() {
             const tbody = document.getElementById('categoryTableBody');
+            const allAssets = getAllUniqueAssets();
+
             if (categories.length === 0) {
                 tbody.innerHTML = `
                     <tr>
@@ -363,16 +452,27 @@ $adminInitials = 'AP';
             }
 
             tbody.innerHTML = categories.map((cat, index) => {
+                const totalAssets = countAssetsByCategory(cat, allAssets);
+                const iconClass = cat.icon || 'bi-tags';
+
                 return `
                     <tr>
                         <td class="text-muted fw-bold">${index + 1}</td>
                         <td>
-                            <div class="fw-bold text-dark" style="font-size: 0.88rem;">${cat.name}</div>
-                            <div class="text-muted" style="font-size: 0.74rem;">${cat.desc || '-'}</div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="d-inline-flex align-items-center justify-content-center rounded-2"
+                                      style="width: 30px; height: 30px; background: #FCE8DC; color: #ED6B1D; flex-shrink: 0;">
+                                    <i class="bi ${iconClass}"></i>
+                                </span>
+                                <div>
+                                    <div class="fw-bold text-dark" style="font-size: 0.88rem;">${cat.name}</div>
+                                    <div class="text-muted" style="font-size: 0.74rem;">${cat.desc || '-'}</div>
+                                </div>
+                            </div>
                         </td>
                         <td style="color: #c05e19; font-weight: 500;">/kategori/${cat.slug}</td>
                         <td>
-                            <span class="badge-category-count">${cat.count || '0 Aset'}</span>
+                            <span class="badge-category-count">${totalAssets} Aset</span>
                         </td>
                         <td class="text-end pe-4 text-nowrap">
                             <button type="button" class="btn-category-edit me-1" onclick="openEditCategoryModal(${cat.id})">
@@ -394,32 +494,35 @@ $adminInitials = 'AP';
         }
 
         function autoGenerateAddSlug(val) {
-            const clean = val.toLowerCase().trim()
-                .replace(/[^a-z0-9\s-]/g, '')
-                .replace(/\s+/g, '-');
-            document.getElementById('addCategorySlug').value = clean;
+            document.getElementById('addCategorySlug').value = slugifyText(val);
         }
 
         function saveNewCategory(e) {
             e.preventDefault();
             const name = document.getElementById('addCategoryName').value.trim();
-            const slug = document.getElementById('addCategorySlug').value.trim();
+            const slug = slugifyText(document.getElementById('addCategorySlug').value);
             const icon = document.getElementById('addCategoryIcon').value;
             const desc = document.getElementById('addCategoryDesc').value.trim();
 
             if (!name || !slug) return;
 
-            const newId = Date.now();
+            const isDuplicate = categories.some(c =>
+                c.name.toLowerCase() === name.toLowerCase() || c.slug === slug
+            );
+            if (isDuplicate) {
+                alert('Kategori atau Slug URL tersebut sudah terdaftar.');
+                return;
+            }
+
             categories.push({
-                id: newId,
+                id: Date.now(),
                 name: name,
                 desc: desc,
                 slug: slug,
-                icon: icon,
-                count: '0 Aset'
+                icon: icon
             });
 
-            localStorage.setItem('indofx_admin_categories', JSON.stringify(categories));
+            persistCategories();
             renderCategoryTable();
             modalAddInstance.hide();
         }
@@ -442,9 +545,11 @@ $adminInitials = 'AP';
             e.preventDefault();
             const id = Number(document.getElementById('editCategoryId').value);
             const name = document.getElementById('editCategoryName').value.trim();
-            const slug = document.getElementById('editCategorySlug').value.trim();
+            const slug = slugifyText(document.getElementById('editCategorySlug').value);
             const icon = document.getElementById('editCategoryIcon').value;
             const desc = document.getElementById('editCategoryDesc').value.trim();
+
+            if (!name || !slug) return;
 
             categories = categories.map(cat => {
                 if (Number(cat.id) === id) {
@@ -459,7 +564,7 @@ $adminInitials = 'AP';
                 return cat;
             });
 
-            localStorage.setItem('indofx_admin_categories', JSON.stringify(categories));
+            persistCategories();
             renderCategoryTable();
             modalEditInstance.hide();
         }
@@ -479,7 +584,7 @@ $adminInitials = 'AP';
             const id = Number(document.getElementById('deleteCategoryId').value);
             categories = categories.filter(c => Number(c.id) !== id);
 
-            localStorage.setItem('indofx_admin_categories', JSON.stringify(categories));
+            persistCategories();
             renderCategoryTable();
             modalDeleteInstance.hide();
         }
@@ -490,6 +595,13 @@ $adminInitials = 'AP';
             modalDeleteInstance = new bootstrap.Modal(document.getElementById('modalDeleteCategory'));
 
             loadCategories();
+
+            // Perbarui otomatis jika ada aset baru yang disetujui di tab lain
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'indofx_public_catalog' || e.key === 'indofx_moderation_queue') {
+                    renderCategoryTable();
+                }
+            });
 
             // Dropdown Profil Admin
             const btn = document.getElementById('adminDropdownBtn');

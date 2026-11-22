@@ -173,7 +173,7 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
 
     <!-- Google Fonts & Bootstrap Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -271,7 +271,6 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
             padding: 24px;
         }
 
-        /* Seksi Judul & Konten Dinamis */
         .section-content-title {
             font-size: 1rem;
             font-weight: 800;
@@ -292,7 +291,6 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
             margin: 24px 0;
         }
 
-        /* Kartu Sisi Kanan */
         .asset-purchase-card {
             background-color: #ffffff;
             border: 1.5px solid var(--indofx-border);
@@ -719,9 +717,8 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
 
                     <!-- WADAH TAB KONTEN DINAMIS -->
                     <div class="detail-content-box" id="tabContentArea">
-                        <!-- TAB 1: DESKRIPSI & PANDUAN PENGGUNAAN (MURNI INPUT PENJUAL) -->
+                        <!-- TAB 1: DESKRIPSI & PANDUAN PENGGUNAAN -->
                         <div id="tab-deskripsi" class="tab-pane-detail active">
-                            <!-- Seksi 1: Deskripsi Aset -->
                             <div class="mb-4">
                                 <h6 class="section-content-title">Deskripsi Aset</h6>
                                 <div class="section-text-body" id="displayAssetDescription">
@@ -731,7 +728,6 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
 
                             <hr class="section-divider">
 
-                            <!-- Seksi 2: Panduan Penggunaan Aset -->
                             <div>
                                 <h6 class="section-content-title">Panduan Penggunaan Aset</h6>
                                 <div class="section-text-body" id="displayAssetHowToUse">
@@ -818,18 +814,13 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                 <!-- Kolom Kanan: Card Detail & Pembelian -->
                 <div class="col-12 col-lg-4">
                     <div class="asset-purchase-card">
-                        <!-- Kategori -->
                         <span class="asset-category-tag d-block" id="displayCategoryBadge"><?= htmlspecialchars($assetCategory) ?></span>
-
-                        <!-- Judul Aset -->
                         <h2 class="asset-detail-title" id="displayAssetTitle"><?= htmlspecialchars($assetTitle) ?></h2>
 
-                        <!-- Pembuat Aset -->
                         <div class="detail-creator-line">
-                            Oleh <a href="/creator/profile" id="displayCreatorName"><?= htmlspecialchars($assetCreator) ?></a>
+                            Oleh <a href="/creator/profile?name=<?= urlencode($assetCreator) ?>" id="displayCreatorName"><?= htmlspecialchars($assetCreator) ?></a>
                         </div>
 
-                        <!-- Label & Angka Harga -->
                         <div class="price-label-text">Harga Aset</div>
                         <div class="price-amount-text" id="displayAssetPrice">
                             <?php if ($isGratis): ?>
@@ -890,7 +881,6 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                 <p class="footer-brand-desc-center">
                     Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
                 </p>
-                <!-- Baris Kontak dan Email sesuai desain baru -->
                 <div style="font-size: 0.85rem; color: #1a1a1a; margin-top: 10px;">
                     <strong style="font-weight: 800;">Kontak dan Email:</strong>
                     <span style="margin: 0 16px;">08123456xxxx</span>
@@ -906,11 +896,25 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const userKey = '<?= $userKey ?>';
-        const currentAssetId = '<?= htmlspecialchars((string)$assetId, ENT_QUOTES, 'UTF-8') ?>';
-        const isAssetGratis = <?= $isGratis ? 'true' : 'false' ?>;
-        const assetTitle = '<?= htmlspecialchars($assetTitle, ENT_QUOTES, 'UTF-8') ?>';
-        let assetFormat = '<?= htmlspecialchars($assetFormat, ENT_QUOTES, 'UTF-8') ?>';
+        const isUserLoggedIn = <?= $isLoggedIn ? 'true' : 'false' ?>;
+        const userKey = <?= json_encode($userKey, JSON_UNESCAPED_UNICODE) ?>;
+        const currentAssetId = <?= json_encode((string)$assetId, JSON_UNESCAPED_UNICODE) ?>;
+
+        // State dinamis aset (diperbarui otomatis dari katalog/moderasi/penjual)
+        let activeAssetState = {
+            id: currentAssetId,
+            title: <?= json_encode($assetTitle, JSON_UNESCAPED_UNICODE) ?>,
+            creator: <?= json_encode($assetCreator, JSON_UNESCAPED_UNICODE) ?>,
+            category: <?= json_encode($assetCategory, JSON_UNESCAPED_UNICODE) ?>,
+            price: <?= (float)$numericPrice ?>,
+            isGratis: <?= $isGratis ? 'true' : 'false' ?>,
+            unity_version: <?= json_encode($assetUnity, JSON_UNESCAPED_UNICODE) ?>,
+            pipeline: <?= json_encode($assetPipeline, JSON_UNESCAPED_UNICODE) ?>,
+            pipelines: <?= json_encode(array_values(array_filter(array_map('trim', explode(',', $assetPipeline)))), JSON_UNESCAPED_UNICODE) ?>,
+            format: <?= json_encode($assetFormat, JSON_UNESCAPED_UNICODE) ?>,
+            art: <?= json_encode($assetArt, JSON_UNESCAPED_UNICODE) ?>,
+            image: ''
+        };
 
         function switchDetailTab(evt, tabId) {
             document.querySelectorAll('.detail-nav-tabs .tab-link').forEach(link => link.classList.remove('active'));
@@ -929,46 +933,207 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
             }
         }
 
+        function buildDynamicCheckoutUrl() {
+            const params = new URLSearchParams({
+                asset_id: activeAssetState.id,
+                id: activeAssetState.id,
+                title: activeAssetState.title,
+                creator: activeAssetState.creator,
+                price: String(activeAssetState.price),
+                pipeline: activeAssetState.pipeline
+            });
+            return '/checkout?' + params.toString();
+        }
+
+        function renderActionButtons() {
+            const actionWrapper = document.getElementById('actionButtonWrapper');
+            if (!actionWrapper) return;
+
+            if (isUserLoggedIn && userKey) {
+                const storageKey = 'indofx_library_' + userKey;
+                let currentLibrary = [];
+                try {
+                    currentLibrary = JSON.parse(localStorage.getItem(storageKey)) || [];
+                } catch (e) {
+                    currentLibrary = [];
+                }
+
+                const isOwned = currentLibrary.some(item =>
+                    String(item.id) === String(activeAssetState.id) ||
+                    (item.title && activeAssetState.title && item.title.trim().toLowerCase() === activeAssetState.title.trim().toLowerCase())
+                );
+
+                if (isOwned) {
+                    actionWrapper.innerHTML = `
+                        <div class="owned-badge-card mb-2">
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span>Aset ini sudah Anda miliki di library Anda</span>
+                        </div>
+                        <button type="button" class="btn-download-package" onclick="downloadAssetPackage()">
+                            <i class="bi bi-download"></i>
+                            <span>Unduh Aset (${activeAssetState.format})</span>
+                        </button>
+                    `;
+                    return;
+                }
+            }
+
+            if (activeAssetState.isGratis) {
+                if (isUserLoggedIn) {
+                    actionWrapper.innerHTML = `
+                        <button type="button" id="btnClaimLibrary" class="btn-figma-free-library" onclick="claimAsset()">
+                            Tambahkan ke Library
+                        </button>
+                    `;
+                } else {
+                    actionWrapper.innerHTML = `
+                        <a href="/login" class="btn-figma-guest-login">
+                            <span><span class="link-masuk">Masuk</span> untuk menambahkan ke Library</span>
+                        </a>
+                    `;
+                }
+            } else {
+                const checkoutHref = isUserLoggedIn ? buildDynamicCheckoutUrl() : '/login';
+                actionWrapper.innerHTML = `
+                    <a href="${checkoutHref}" class="btn-figma-buy-orange" id="btnBuyPrimary">
+                        Beli
+                    </a>
+                    <button type="button" class="btn-figma-add-cart-outline" onclick="addToCart()">
+                        Tambahkan ke Keranjang
+                    </button>
+                `;
+            }
+        }
+
         // =========================================================================
-        // SINKRONISASI DINAMIS: MENARIK DESKRIPSI & PANDUAN PENGGUNAAN ASLI PENJUAL
+        // SINKRONISASI DINAMIS PENUH (HARGA, KREATOR, KATEGORI, SPEK, DESKRIPSI, GAMBAR)
         // =========================================================================
         function loadDynamicAssetContent() {
             let assetData = null;
+            const normId = String(currentAssetId || '').trim().toLowerCase();
+            const normTitle = String(activeAssetState.title || '').trim().toLowerCase();
+
+            function matchAsset(item) {
+                if (!item) return false;
+                const itemId = String(item.id || '').trim().toLowerCase();
+                const itemTitle = String(item.title || '').trim().toLowerCase();
+                return (normId && itemId === normId) || (normTitle && itemTitle === normTitle);
+            }
 
             // 1. Cari data di Katalog Publik
             try {
                 const pub = JSON.parse(localStorage.getItem('indofx_public_catalog')) || [];
-                assetData = pub.find(a => String(a.id) === String(currentAssetId) || a.title.trim().toLowerCase() === assetTitle.trim().toLowerCase());
+                const foundPub = pub.find(matchAsset);
+                if (foundPub) assetData = Object.assign({}, foundPub);
             } catch (e) {}
 
-            // 2. Jika belum ditemukan, cari di antrean moderasi Admin
-            if (!assetData || (!assetData.description && !assetData.how_to_use)) {
-                try {
-                    const queue = JSON.parse(localStorage.getItem('indofx_moderation_queue')) || [];
-                    const foundInQueue = queue.find(a => String(a.id) === String(currentAssetId) || a.title.trim().toLowerCase() === assetTitle.trim().toLowerCase());
-                    if (foundInQueue) {
-                        assetData = Object.assign({}, foundInQueue, assetData || {});
-                        if (foundInQueue.description) assetData.description = foundInQueue.description;
-                        if (foundInQueue.how_to_use) assetData.how_to_use = foundInQueue.how_to_use;
-                    }
-                } catch (e) {}
-            }
+            // 2. Lengkapi dari antrean moderasi Admin
+            try {
+                const queue = JSON.parse(localStorage.getItem('indofx_moderation_queue')) || [];
+                const foundInQueue = queue.find(matchAsset);
+                if (foundInQueue) {
+                    assetData = Object.assign({}, foundInQueue, assetData || {});
+                    if (foundInQueue.description && !assetData.description) assetData.description = foundInQueue.description;
+                    if (foundInQueue.how_to_use && !assetData.how_to_use) assetData.how_to_use = foundInQueue.how_to_use;
+                    if (foundInQueue.image && !assetData.image) assetData.image = foundInQueue.image;
+                }
+            } catch (e) {}
 
-            // 3. Jika masih belum lengkap, periksa seluruh daftar aset milik penjual
-            if (!assetData || (!assetData.description && !assetData.how_to_use)) {
-                Object.keys(localStorage).forEach(key => {
-                    if (key.startsWith('indofx_seller_assets_')) {
-                        try {
-                            const sAssets = JSON.parse(localStorage.getItem(key)) || [];
-                            const foundInSeller = sAssets.find(a => String(a.id) === String(currentAssetId) || a.title.trim().toLowerCase() === assetTitle.trim().toLowerCase());
-                            if (foundInSeller) {
-                                assetData = Object.assign({}, foundInSeller, assetData || {});
-                                if (foundInSeller.description) assetData.description = foundInSeller.description;
-                                if (foundInSeller.how_to_use) assetData.how_to_use = foundInSeller.how_to_use;
-                            }
-                        } catch (e) {}
+            // 3. Lengkapi dari seluruh daftar aset milik penjual
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('indofx_seller_assets_')) {
+                    try {
+                        const sAssets = JSON.parse(localStorage.getItem(key)) || [];
+                        const foundInSeller = sAssets.find(matchAsset);
+                        if (foundInSeller) {
+                            assetData = Object.assign({}, foundInSeller, assetData || {});
+                            if (foundInSeller.description && !assetData.description) assetData.description = foundInSeller.description;
+                            if (foundInSeller.how_to_use && !assetData.how_to_use) assetData.how_to_use = foundInSeller.how_to_use;
+                            if (foundInSeller.image && !assetData.image) assetData.image = foundInSeller.image;
+                        }
+                    } catch (e) {}
+                }
+            });
+
+            // Jika ditemukan data riil di storage, sinkronkan seluruh state & tampilan
+            if (assetData) {
+                if (assetData.id) activeAssetState.id = String(assetData.id);
+                if (assetData.title) activeAssetState.title = assetData.title;
+
+                const resolvedCreator = assetData.creator || assetData.studio || assetData.seller || assetData.seller_name;
+                if (resolvedCreator) activeAssetState.creator = resolvedCreator;
+
+                if (assetData.category) activeAssetState.category = assetData.category;
+
+                // Sinkronkan Harga Riil
+                let parsedPrice = null;
+                if (typeof assetData.price_num === 'number') {
+                    parsedPrice = assetData.price_num;
+                } else if (typeof assetData.price === 'number') {
+                    parsedPrice = assetData.price;
+                } else if (typeof assetData.price === 'string') {
+                    if (assetData.price.toLowerCase().trim() === 'gratis') {
+                        parsedPrice = 0;
+                    } else {
+                        const digits = assetData.price.replace(/[^0-9]/g, '');
+                        if (digits !== '') parsedPrice = parseFloat(digits);
                     }
-                });
+                }
+                if (parsedPrice !== null && !isNaN(parsedPrice)) {
+                    activeAssetState.price = parsedPrice;
+                    activeAssetState.isGratis = (parsedPrice <= 0);
+                }
+
+                // Sinkronkan Pipeline
+                if (Array.isArray(assetData.pipelines) && assetData.pipelines.length > 0) {
+                    activeAssetState.pipelines = assetData.pipelines;
+                    activeAssetState.pipeline = assetData.pipelines.join(', ');
+                } else if (assetData.pipeline || assetData.render_pipeline) {
+                    const pStr = assetData.pipeline || assetData.render_pipeline;
+                    activeAssetState.pipeline = pStr;
+                    activeAssetState.pipelines = pStr.split(',').map(s => s.trim()).filter(Boolean);
+                }
+
+                // Sinkronkan Versi Unity & Format
+                if (assetData.unity_ver || assetData.unity_version) {
+                    activeAssetState.unity_version = assetData.unity_ver || assetData.unity_version;
+                }
+                if (assetData.format || assetData.file_info) {
+                    activeAssetState.format = assetData.format || (assetData.file_info.includes('.zip') ? '.zip' : '.unitypackage');
+                }
+                if (assetData.image) {
+                    activeAssetState.image = assetData.image;
+                }
+
+                // Perbarui elemen UI kartu kanan
+                document.title = activeAssetState.title + ' - IndoFX';
+                const catEl = document.getElementById('displayCategoryBadge');
+                if (catEl) catEl.innerText = activeAssetState.category;
+
+                const titleEl = document.getElementById('displayAssetTitle');
+                if (titleEl) titleEl.innerText = activeAssetState.title;
+
+                const creatorEl = document.getElementById('displayCreatorName');
+                if (creatorEl) {
+                    creatorEl.innerText = activeAssetState.creator;
+                    creatorEl.href = '/creator/profile?name=' + encodeURIComponent(activeAssetState.creator);
+                }
+
+                const priceEl = document.getElementById('displayAssetPrice');
+                if (priceEl) {
+                    priceEl.innerText = activeAssetState.isGratis ?
+                        'Gratis' :
+                        ('Rp' + Number(activeAssetState.price).toLocaleString('id-ID'));
+                }
+
+                const verEl = document.getElementById('displayUnityVer');
+                if (verEl) verEl.innerText = activeAssetState.unity_version;
+
+                const pipeEl = document.getElementById('displayPipeline');
+                if (pipeEl) pipeEl.innerText = activeAssetState.pipeline;
+
+                const fmtEl = document.getElementById('displayFormatFile');
+                if (fmtEl) fmtEl.innerText = activeAssetState.format;
             }
 
             // Render Seksi Deskripsi Aset
@@ -977,7 +1142,7 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                 if (assetData && assetData.description && assetData.description.trim() !== '') {
                     descEl.innerText = assetData.description.trim();
                 } else {
-                    descEl.innerText = 'Belum ada deskripsi khusus yang dicantumkan untuk paket aset ' + assetTitle + '.';
+                    descEl.innerText = 'Belum ada deskripsi khusus yang dicantumkan untuk paket aset ' + activeAssetState.title + '.';
                 }
             }
 
@@ -991,40 +1156,30 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                 }
             }
 
-            // Update Format File dan Spek jika ada
-            if (assetData) {
-                if (assetData.format || assetData.file_info) {
-                    const fmt = assetData.format || (assetData.file_info.includes('.zip') ? '.zip' : '.unitypackage');
-                    assetFormat = fmt;
-                    const fmtEl = document.getElementById('displayFormatFile');
-                    if (fmtEl) fmtEl.innerText = fmt;
-                }
-                if (assetData.unity_ver || assetData.unity_version) {
-                    const verEl = document.getElementById('displayUnityVer');
-                    if (verEl) verEl.innerText = assetData.unity_ver || assetData.unity_version;
-                }
-            }
-
             // Render Gambar Asli jika diunggah penjual (Base64 / URL)
-            if (assetData && assetData.image && (assetData.image.startsWith('data:') || assetData.image.includes('/'))) {
+            if (activeAssetState.image && (activeAssetState.image.startsWith('data:') || activeAssetState.image.includes('/'))) {
                 const carouselInner = document.querySelector('.main-preview-card .carousel-inner');
                 if (carouselInner) {
                     carouselInner.innerHTML = `
                         <div class="carousel-item active h-100">
-                            <img src="${assetData.image}" alt="${assetTitle}" style="width: 100%; height: 100%; object-fit: cover;">
+                            <img src="${activeAssetState.image}" alt="${activeAssetState.title}" style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
                     `;
                 }
                 const thumbItems = document.querySelectorAll('.thumb-card-item');
                 thumbItems.forEach(t => {
-                    t.innerHTML = `<img src="${assetData.image}" alt="${assetTitle}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                    t.innerHTML = `<img src="${activeAssetState.image}" alt="${activeAssetState.title}" style="width: 100%; height: 100%; object-fit: cover;">`;
                 });
             }
+
+            // Render ulang tombol aksi sesuai harga & kepemilikan terbaru
+            renderActionButtons();
         }
 
         function downloadAssetPackage() {
-            const fileName = assetTitle.toLowerCase().replace(/[^a-z0-9]/g, '_') + (assetFormat.startsWith('.') ? assetFormat : ('.' + assetFormat));
-            const dummyContent = `=== INDOFX ASSET PACKAGE ===\nJudul: ${assetTitle}\nID: ${currentAssetId}\nFormat: ${assetFormat}\nLisensi: Single Developer Commercial License\nDiunduh oleh: ${userKey}\nTanggal: ${new Date().toLocaleString()}\n`;
+            const fmt = activeAssetState.format || '.unitypackage';
+            const fileName = activeAssetState.title.toLowerCase().replace(/[^a-z0-9]/g, '_') + (fmt.startsWith('.') ? fmt : ('.' + fmt));
+            const dummyContent = `=== INDOFX ASSET PACKAGE ===\nJudul: ${activeAssetState.title}\nID: ${activeAssetState.id}\nFormat: ${fmt}\nLisensi: Single Developer Commercial License\nDiunduh oleh: ${userKey}\nTanggal: ${new Date().toLocaleString()}\n`;
 
             const blob = new Blob([dummyContent], {
                 type: 'application/octet-stream'
@@ -1067,11 +1222,11 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                 ]
             };
 
-            const baseReviews = initialReviewsDatabase[currentAssetId] || [];
+            const baseReviews = initialReviewsDatabase[activeAssetState.id] || [];
 
             let publicReviews = [];
             try {
-                publicReviews = JSON.parse(localStorage.getItem('indofx_public_reviews_' + currentAssetId)) || [];
+                publicReviews = JSON.parse(localStorage.getItem('indofx_public_reviews_' + activeAssetState.id)) || [];
             } catch (e) {
                 publicReviews = [];
             }
@@ -1168,17 +1323,26 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                 currentCart = [];
             }
 
+            const safeImage = (activeAssetState.image && !String(activeAssetState.image).startsWith('data:')) ?
+                activeAssetState.image :
+                '';
+
             const cartItem = {
-                id: currentAssetId,
-                title: '<?= htmlspecialchars($assetTitle, ENT_QUOTES, 'UTF-8') ?>',
-                creator: '<?= htmlspecialchars($assetCreator, ENT_QUOTES, 'UTF-8') ?>',
-                price: <?= (float)$numericPrice ?>,
+                id: activeAssetState.id,
+                title: activeAssetState.title,
+                creator: activeAssetState.creator,
+                category: activeAssetState.category,
+                price: Number(activeAssetState.price) || 0,
                 date: '<?= date("d M Y") ?>',
-                pipelines: <?= json_encode(array_values(array_filter(array_map('trim', explode(',', $assetPipeline))))) ?>,
-                art: '<?= htmlspecialchars($assetArt, ENT_QUOTES, 'UTF-8') ?>'
+                pipelines: activeAssetState.pipelines.length > 0 ? activeAssetState.pipelines : ['URP'],
+                image: safeImage,
+                art: activeAssetState.art || 'castle'
             };
 
-            const exists = currentCart.some(item => String(item.id) === String(cartItem.id));
+            const exists = currentCart.some(item =>
+                String(item.id) === String(cartItem.id) ||
+                (item.title && item.title.trim().toLowerCase() === cartItem.title.trim().toLowerCase())
+            );
             if (!exists) {
                 currentCart.push(cartItem);
                 localStorage.setItem(cartStorageKey, JSON.stringify(currentCart));
@@ -1208,22 +1372,25 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
             }
 
             const newAsset = {
-                id: currentAssetId,
-                title: '<?= htmlspecialchars($assetTitle, ENT_QUOTES, 'UTF-8') ?>',
-                creator: '<?= htmlspecialchars($assetCreator, ENT_QUOTES, 'UTF-8') ?>',
+                id: activeAssetState.id,
+                title: activeAssetState.title,
+                creator: activeAssetState.creator,
                 type: 'Gratis',
                 date: '<?= date("d M Y") ?>',
-                pipelines: <?= json_encode(array_values(array_filter(array_map('trim', explode(',', $assetPipeline))))) ?>,
-                art: '<?= htmlspecialchars($assetArt, ENT_QUOTES, 'UTF-8') ?>'
+                pipelines: activeAssetState.pipelines.length > 0 ? activeAssetState.pipelines : ['URP'],
+                art: activeAssetState.art || 'castle'
             };
 
-            const alreadyExists = currentLibrary.some(item => String(item.id) === String(newAsset.id));
+            const alreadyExists = currentLibrary.some(item =>
+                String(item.id) === String(newAsset.id) ||
+                (item.title && item.title.trim().toLowerCase() === newAsset.title.trim().toLowerCase())
+            );
             if (!alreadyExists) {
                 currentLibrary.unshift(newAsset);
                 localStorage.setItem(storageKey, JSON.stringify(currentLibrary));
             }
 
-            const rawCreator = ('<?= htmlspecialchars($assetCreator, ENT_QUOTES, 'UTF-8') ?>').trim();
+            const rawCreator = String(activeAssetState.creator || '').trim();
             const cleanCreatorKey = rawCreator.toLowerCase().replace(/[^a-z0-9]/g, '');
             const assetKeys = [
                 'indofx_seller_assets_' + cleanCreatorKey,
@@ -1234,7 +1401,7 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                 try {
                     let sAssets = JSON.parse(localStorage.getItem(k)) || [];
                     sAssets = sAssets.map(sa => {
-                        if (String(sa.id) === String(currentAssetId) || sa.title === '<?= htmlspecialchars($assetTitle, ENT_QUOTES, 'UTF-8') ?>') {
+                        if (String(sa.id) === String(activeAssetState.id) || sa.title === activeAssetState.title) {
                             const currentCount = parseInt(String(sa.downloads || '0').replace(/[^0-9]/g, ''), 10) || 0;
                             sa.downloads = (currentCount + 1) + 'x Unduhan';
                         }
@@ -1247,7 +1414,7 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
             try {
                 let pubCatalog = JSON.parse(localStorage.getItem('indofx_public_catalog')) || [];
                 pubCatalog = pubCatalog.map(pa => {
-                    if (String(pa.id) === String(currentAssetId) || pa.title === '<?= htmlspecialchars($assetTitle, ENT_QUOTES, 'UTF-8') ?>') {
+                    if (String(pa.id) === String(activeAssetState.id) || pa.title === activeAssetState.title) {
                         const currentCount = parseInt(String(pa.downloads || '0').replace(/[^0-9]/g, ''), 10) || 0;
                         pa.downloads = (currentCount + 1) + 'x Unduhan';
                     }
@@ -1260,41 +1427,11 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Muat Konten Deskripsi & Panduan Dinamis Asli
             loadDynamicAssetContent();
-
             loadAssetReviews();
 
             if (window.location.hash === '#tab-ulasan' || window.location.hash === '#ulasan') {
                 switchDetailTab(null, 'tab-ulasan');
-            }
-
-            if (!userKey) return;
-
-            const storageKey = 'indofx_library_' + userKey;
-            let currentLibrary = [];
-            try {
-                currentLibrary = JSON.parse(localStorage.getItem(storageKey)) || [];
-            } catch (e) {
-                currentLibrary = [];
-            }
-
-            const isOwned = currentLibrary.some(item => String(item.id) === String(currentAssetId));
-
-            if (isOwned) {
-                const actionWrapper = document.getElementById('actionButtonWrapper');
-                if (actionWrapper) {
-                    actionWrapper.innerHTML = `
-                        <div class="owned-badge-card mb-2">
-                            <i class="bi bi-check-circle-fill"></i>
-                            <span>Aset ini sudah Anda miliki di library Anda</span>
-                        </div>
-                        <button type="button" class="btn-download-package" onclick="downloadAssetPackage()">
-                            <i class="bi bi-download"></i>
-                            <span>Unduh Aset (${assetFormat})</span>
-                        </button>
-                    `;
-                }
             }
         });
     </script>

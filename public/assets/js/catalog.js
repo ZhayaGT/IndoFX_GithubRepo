@@ -35,6 +35,14 @@
       .replace(/'/g, "&#39;");
   }
 
+  function normalizeSlug(text) {
+    return String(text || "")
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-");
+  }
+
   // Mengembalikan string HTML satu kartu mengikuti markup bawaan Figma Anda
   function createCard(item, colClass) {
     var col = colClass || "col-12 col-sm-6 col-lg-3";
@@ -343,9 +351,10 @@
     var resetLink = document.querySelector(".filter-reset-link");
     var searchInput = document.querySelector(".search-input-header");
 
-    // Filter Kategori, Pipeline, Rentang Harga & Versi Unity
-    var catShader = document.getElementById("cat_shader");
-    var catParticle = document.getElementById("cat_particle");
+    // Filter Kategori Dinamis, Pipeline, Rentang Harga & Versi Unity
+    var categoryListContainer = document.getElementById(
+      "dynamicExploreCategoryList",
+    );
     var pipeBuiltin = document.getElementById("pipe_builtin");
     var pipeUrp = document.getElementById("pipe_urp");
     var pipeHdrp = document.getElementById("pipe_hdrp");
@@ -367,17 +376,36 @@
     if (searchInput && currentQuery) {
       searchInput.value = currentQuery;
     }
+
+    function getCategoryCheckboxes() {
+      if (categoryListContainer) {
+        return Array.prototype.slice.call(
+          categoryListContainer.querySelectorAll('input[type="checkbox"]'),
+        );
+      }
+      return [
+        document.getElementById("cat_shader"),
+        document.getElementById("cat_particle"),
+      ].filter(Boolean);
+    }
+
+    // Sinkronkan parameter URL ?kategori=... dengan seluruh checkbox kategori dinamis
     if (initial.category) {
-      if (initial.category.includes("shader") && catShader) {
-        catShader.checked = true;
-      }
-      if (
-        (initial.category.includes("particle") ||
-          initial.category.includes("partikel")) &&
-        catParticle
-      ) {
-        catParticle.checked = true;
-      }
+      var initSlug = normalizeSlug(initial.category);
+      getCategoryCheckboxes().forEach(function (cb) {
+        var cbVal = String(cb.value || "")
+          .toLowerCase()
+          .trim();
+        var cbSlug = normalizeSlug(cb.getAttribute("data-slug") || cbVal);
+        if (
+          cbVal === initial.category ||
+          cbSlug === initSlug ||
+          (initSlug.includes("particle") && cbSlug.includes("vfx")) ||
+          (initSlug.includes("partikel") && cbSlug.includes("vfx"))
+        ) {
+          cb.checked = true;
+        }
+      });
     }
 
     function syncUrl() {
@@ -456,12 +484,63 @@
       paginationEl.innerHTML = html;
     }
 
+    function matchesSelectedCategory(itemCategory, selectedCats) {
+      var itemCatLower = String(itemCategory || "")
+        .toLowerCase()
+        .trim();
+      var itemCatSlug = normalizeSlug(itemCatLower);
+
+      return selectedCats.some(function (sel) {
+        if (itemCatLower === sel.name || itemCatSlug === sel.slug) {
+          return true;
+        }
+        // Toleransi variasi penulisan kategori bawaan di JSON vs Admin
+        if (
+          (sel.slug === "vfx-partikel" || sel.name === "particle") &&
+          (itemCatLower === "particle" ||
+            itemCatLower === "vfx" ||
+            itemCatLower === "vfx partikel")
+        ) {
+          return true;
+        }
+        if (
+          (sel.slug === "3d-model" || sel.slug === "model-3d") &&
+          (itemCatSlug === "3d-model" || itemCatSlug === "model-3d")
+        ) {
+          return true;
+        }
+        return false;
+      });
+    }
+
     function paint() {
       var minVal = minPriceInput ? parseFloat(minPriceInput.value) || 0 : 0;
       var maxVal = maxPriceInput
         ? parseFloat(maxPriceInput.value) || Infinity
         : Infinity;
       var selectedUnity = unitySelect ? unitySelect.value : "Semua Versi";
+
+      // Ambil seluruh kategori yang sedang dicentang secara dinamis
+      var selectedCats = getCategoryCheckboxes()
+        .filter(function (cb) {
+          return cb.checked;
+        })
+        .map(function (cb) {
+          var labelEl = cb.id
+            ? document.querySelector('label[for="' + cb.id + '"]')
+            : null;
+          var rawName =
+            cb.value && cb.value !== "on"
+              ? cb.value
+              : labelEl
+                ? labelEl.textContent
+                : "";
+          var cleanName = String(rawName).toLowerCase().trim();
+          var cleanSlug = normalizeSlug(
+            cb.getAttribute("data-slug") || cleanName,
+          );
+          return { name: cleanName, slug: cleanSlug };
+        });
 
       var visible = allItems.filter(function (item) {
         // 1. Filter Gratis
@@ -474,18 +553,12 @@
           return false;
         }
 
-        // 3. Filter Kategori
-        var checkShader = catShader && catShader.checked;
-        var checkParticle = catParticle && catParticle.checked;
-        if (checkShader || checkParticle) {
-          var itemCat = (item.category || "").toLowerCase();
-          var isShader = itemCat.includes("shader");
-          var isParticle =
-            itemCat.includes("partikel") ||
-            itemCat.includes("vfx") ||
-            itemCat.includes("particle");
-          if (checkShader && !checkParticle && !isShader) return false;
-          if (checkParticle && !checkShader && !isParticle) return false;
+        // 3. Filter Kategori Dinamis
+        if (
+          selectedCats.length > 0 &&
+          !matchesSelectedCategory(item.category, selectedCats)
+        ) {
+          return false;
         }
 
         // 4. Filter Render Pipeline
@@ -616,17 +689,32 @@
       });
     }
 
-    // Event Listener Checkbox & Filter Samping
-    [catShader, catParticle, pipeBuiltin, pipeUrp, pipeHdrp].forEach(
-      function (el) {
-        if (el) {
-          el.addEventListener("change", function () {
-            currentPage = 1;
-            paint();
-          });
+    // Event Delegation untuk Seluruh Checkbox Kategori (Termasuk Kategori Baru dari Admin)
+    if (categoryListContainer) {
+      categoryListContainer.addEventListener("change", function (e) {
+        if (e.target && e.target.matches('input[type="checkbox"]')) {
+          currentPage = 1;
+          paint();
         }
-      },
-    );
+      });
+    } else {
+      getCategoryCheckboxes().forEach(function (el) {
+        el.addEventListener("change", function () {
+          currentPage = 1;
+          paint();
+        });
+      });
+    }
+
+    // Event Listener Checkbox Pipeline
+    [pipeBuiltin, pipeUrp, pipeHdrp].forEach(function (el) {
+      if (el) {
+        el.addEventListener("change", function () {
+          currentPage = 1;
+          paint();
+        });
+      }
+    });
 
     [minPriceInput, maxPriceInput].forEach(function (el) {
       if (el) {
@@ -655,8 +743,9 @@
         currentPage = 1;
 
         if (freeRadio) freeRadio.checked = false;
-        if (catShader) catShader.checked = false;
-        if (catParticle) catParticle.checked = false;
+        getCategoryCheckboxes().forEach(function (cb) {
+          cb.checked = false;
+        });
         if (pipeBuiltin) pipeBuiltin.checked = false;
         if (pipeUrp) pipeUrp.checked = false;
         if (pipeHdrp) pipeHdrp.checked = false;
@@ -670,6 +759,17 @@
         if (searchInput) {
           searchInput.value = "";
         }
+
+        // Hapus parameter kategori di URL jika sebelumnya dibuka dari link kategori
+        var cleanParams = new URLSearchParams(window.location.search);
+        cleanParams.delete("kategori");
+        cleanParams.delete("category");
+        window.history.replaceState(
+          null,
+          "",
+          window.location.pathname +
+            (cleanParams.toString() ? "?" + cleanParams.toString() : ""),
+        );
 
         paint();
         syncUrl();

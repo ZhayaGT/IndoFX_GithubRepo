@@ -26,7 +26,7 @@ if ($initials === '') {
 
     <!-- Google Fonts & Bootstrap Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -59,6 +59,39 @@ if ($initials === '') {
             position: sticky;
             top: 0;
             z-index: 1030;
+        }
+
+        /* Badge Angka Keranjang ala Shopee */
+        .cart-icon-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cart-badge-count {
+            position: absolute;
+            top: -5px;
+            right: -9px;
+            background-color: #ffffff;
+            color: #ED6B1D;
+            border: 1.5px solid #1A1A1A;
+            font-size: 0.68rem;
+            font-weight: 800;
+            line-height: 1;
+            min-width: 19px;
+            height: 19px;
+            padding: 0 5px;
+            border-radius: 999px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
+            pointer-events: none;
+        }
+
+        .cart-badge-count.show {
+            display: inline-flex;
         }
 
         .avatar-circle-header {
@@ -153,7 +186,11 @@ if ($initials === '') {
             gap: 16px;
             box-shadow: 0 4px 12px rgba(60, 42, 33, 0.04);
             margin-bottom: 12px;
-            transition: transform 0.15s ease;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .cart-item-card:hover {
+            box-shadow: 0 6px 16px rgba(60, 42, 33, 0.09);
         }
 
         .cart-item-thumb {
@@ -163,16 +200,27 @@ if ($initials === '') {
             border-radius: 6px;
             overflow: hidden;
             background-color: #241E24;
+            display: block;
+            text-decoration: none;
         }
 
-        .cart-item-thumb svg {
+        .cart-item-thumb svg,
+        .cart-item-thumb img {
             width: 100%;
             height: 100%;
             display: block;
+            object-fit: cover;
+            transition: transform 0.2s ease;
+        }
+
+        .cart-item-thumb:hover img,
+        .cart-item-thumb:hover svg {
+            transform: scale(1.03);
         }
 
         .cart-item-content {
             flex-grow: 1;
+            min-width: 0;
         }
 
         .cart-status-line {
@@ -191,6 +239,14 @@ if ($initials === '') {
             font-size: 1.15rem;
             font-weight: 800;
             color: var(--indofx-text-main);
+            text-decoration: none;
+            transition: color 0.15s ease;
+        }
+
+        .cart-asset-title:hover {
+            color: var(--indofx-orange);
+            text-decoration: underline;
+            text-underline-offset: 3px;
         }
 
         .cart-asset-creator {
@@ -274,6 +330,61 @@ if ($initials === '') {
             justify-content: center;
             text-align: center;
             padding: 40px 20px;
+        }
+
+        /* ========================================================
+           RESPONSIF LAYAR HP (< 768px) TANPA MENGUBAH DESKTOP
+           ======================================================== */
+        @media (max-width: 767.98px) {
+            .navbar-figma-cart .brand-text {
+                display: inline-block !important;
+                font-size: 1rem;
+            }
+
+            .navbar-figma-cart .btn-profile-trigger span.fw-bold {
+                max-width: 105px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                font-size: 0.85rem !important;
+            }
+
+            .cart-page-title {
+                font-size: 1.5rem;
+            }
+
+            .cart-item-card {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 14px;
+                gap: 12px;
+            }
+
+            .cart-item-thumb {
+                width: 100%;
+                height: 150px;
+            }
+
+            .cart-item-content {
+                width: 100%;
+                min-width: 0;
+            }
+
+            .cart-item-actions {
+                width: 100%;
+                justify-content: space-between;
+                padding-top: 10px;
+                border-top: 1px solid #f0e6df;
+            }
+
+            #cartFooterArea {
+                justify-content: stretch !important;
+            }
+
+            .btn-cart-checkout {
+                width: 100%;
+                text-align: center;
+            }
         }
 
         /* ========================================================
@@ -401,7 +512,7 @@ if ($initials === '') {
 
 <body>
 
-    <!-- SVG Gambar Castle Sesuai Figma -->
+    <!-- SVG Gambar Fallback jika Aset Tidak Memiliki Gambar Upload -->
     <svg class="d-none">
         <defs>
             <g id="cart-art-castle">
@@ -431,7 +542,7 @@ if ($initials === '') {
         </defs>
     </svg>
 
-    <!-- Header Navbar Sesuai Figma (Hanya Logo + Cart + Profil) -->
+    <!-- Header Navbar Sesuai Figma (Logo + Cart dengan Badge + Profil) -->
     <nav class="navbar-figma-cart">
         <div class="container-figma d-flex justify-content-between align-items-center w-100">
             <a class="navbar-brand m-0 d-flex align-items-center gap-2 text-decoration-none" href="/">
@@ -447,8 +558,9 @@ if ($initials === '') {
             </a>
 
             <div class="d-flex align-items-center gap-3">
-                <a href="/cart" class="text-white text-decoration-none d-flex align-items-center" title="Keranjang">
+                <a href="/cart" class="text-white text-decoration-none cart-icon-wrapper" title="Keranjang">
                     <i class="bi bi-cart3 fs-4"></i>
+                    <span id="headerCartBadge" class="cart-badge-count">0</span>
                 </a>
 
                 <div class="profile-dropdown-wrapper">
@@ -528,7 +640,6 @@ if ($initials === '') {
                 <p class="footer-brand-desc-center">
                     Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
                 </p>
-                <!-- Baris Kontak dan Email sesuai desain baru -->
                 <div style="font-size: 0.85rem; color: #1a1a1a; margin-top: 10px;">
                     <strong style="font-weight: 800;">Kontak dan Email:</strong>
                     <span style="margin: 0 16px;">08123456xxxx</span>
@@ -541,11 +652,22 @@ if ($initials === '') {
             </div>
         </div>
     </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const userKey = '<?= $userKey ?>';
         const cartStorageKey = 'indofx_cart_' + userKey;
         let itemPendingDeleteId = null;
+        let catalogLookupMap = new Map();
+
+        function escapeHtml(text) {
+            return String(text === null || text === undefined ? '' : text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
 
         function getCartData() {
             try {
@@ -555,12 +677,70 @@ if ($initials === '') {
             }
         }
 
+        // Lengkapi metadata & gambar asli aset dari katalog publik / antrean moderasi / assets.json
+        function enrichCartItem(item) {
+            const idKey = String(item.id || '').toLowerCase().trim();
+            const titleKey = String(item.title || '').toLowerCase().trim();
+            const ref = catalogLookupMap.get(idKey) || catalogLookupMap.get(titleKey) || {};
+
+            const resolvedImage =
+                (item.image && (item.image.includes('/') || item.image.startsWith('data:'))) ?
+                item.image :
+                (ref.image || '');
+
+            const resolvedPipelines =
+                (Array.isArray(item.pipelines) && item.pipelines.length > 0) ?
+                item.pipelines :
+                (Array.isArray(ref.pipelines) && ref.pipelines.length > 0 ?
+                    ref.pipelines : [item.render_pipeline || ref.render_pipeline || 'URP']);
+
+            return {
+                ...ref,
+                ...item,
+                image: resolvedImage,
+                pipelines: resolvedPipelines,
+                category: item.category || ref.category || 'VFX Partikel',
+                creator: item.creator || item.seller_name || ref.creator || ref.seller_name || 'Arga Studio',
+                price: item.price !== undefined ? item.price : (ref.price !== undefined ? ref.price : 0),
+                slug: item.slug || ref.slug || item.id || ''
+            };
+        }
+
+        function buildAssetDetailUrl(item) {
+            const primaryPipeline = (Array.isArray(item.pipelines) && item.pipelines[0]) ? item.pipelines[0] : 'URP';
+            return '/asset/detail?slug=' + encodeURIComponent(item.slug || '') +
+                '&id=' + encodeURIComponent(item.id || '') +
+                '&title=' + encodeURIComponent(item.title || '') +
+                '&category=' + encodeURIComponent(item.category || '') +
+                '&creator=' + encodeURIComponent(item.creator || '') +
+                '&price=' + encodeURIComponent(item.price !== undefined ? item.price : 0) +
+                '&pipeline=' + encodeURIComponent(primaryPipeline);
+        }
+
+        function updateCartBadge(items) {
+            const badge = document.getElementById('headerCartBadge');
+            if (!badge) return;
+
+            const list = Array.isArray(items) ? items : getCartData();
+            const count = list.length;
+
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : String(count);
+                badge.classList.add('show');
+            } else {
+                badge.textContent = '0';
+                badge.classList.remove('show');
+            }
+        }
+
         function renderCart() {
             const listContainer = document.getElementById('cartListContainer');
             const footerArea = document.getElementById('cartFooterArea');
-            const items = getCartData();
+            const rawItems = getCartData();
 
-            if (items.length === 0) {
+            updateCartBadge(rawItems);
+
+            if (rawItems.length === 0) {
                 if (footerArea) footerArea.style.display = 'none';
                 listContainer.innerHTML = `
                     <div class="empty-cart-card">
@@ -577,48 +757,96 @@ if ($initials === '') {
 
             if (footerArea) footerArea.style.display = 'flex';
 
-            listContainer.innerHTML = items.map(item => {
-                const artSvg = item.art ? ('cart-art-' + item.art) : 'cart-art-castle';
-                const pipelines = Array.isArray(item.pipelines) ? item.pipelines : ['URP'];
+            const items = rawItems.map(enrichCartItem);
 
-                const badgesHtml = pipelines.map(p => {
+            listContainer.innerHTML = items.map(item => {
+                const detailUrl = buildAssetDetailUrl(item);
+                const hasRealImage = item.image && typeof item.image === 'string' &&
+                    (item.image.includes('/') || item.image.startsWith('data:'));
+
+                const artSvg = item.art ? ('cart-art-' + item.art) : 'cart-art-castle';
+                const thumbMediaHtml = hasRealImage ?
+                    `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}" loading="lazy">` :
+                    `<svg class="w-100 h-100 d-block" viewBox="0 0 175 98"><use href="#${artSvg}" /></svg>`;
+
+                const badgesHtml = item.pipelines.map(p => {
                     let cls = 'badge-urp';
-                    if (p.toLowerCase().includes('hdrp')) cls = 'badge-hdrp';
-                    if (p.toLowerCase().includes('built')) cls = 'badge-builtin';
-                    return `<span class="badge-tag-custom ${cls}">${p}</span>`;
+                    if (String(p).toLowerCase().includes('hdrp')) cls = 'badge-hdrp';
+                    if (String(p).toLowerCase().includes('built')) cls = 'badge-builtin';
+                    return `<span class="badge-tag-custom ${cls}">${escapeHtml(p)}</span>`;
                 }).join(' ');
 
                 return `
-                    <div class="cart-item-card" id="cart-item-${item.id}">
-                        <div class="cart-item-thumb">
-                            <svg class="w-100 h-100 d-block" viewBox="0 0 175 98">
-                                <use href="#${artSvg}" />
-                            </svg>
-                        </div>
+                    <div class="cart-item-card" id="cart-item-${escapeHtml(item.id)}">
+                        <a href="${detailUrl}" class="cart-item-thumb" title="Lihat detail ${escapeHtml(item.title)}">
+                            ${thumbMediaHtml}
+                        </a>
 
                         <div class="cart-item-content">
                             <div class="cart-status-line">
                                 <span class="cart-status-badge">DIBELI</span>
-                                <span class="text-muted ms-2">Perolehan: ${item.date || '02 Nov 2026'}</span>
+                                <span class="text-muted ms-2">Perolehan: ${escapeHtml(item.date || '02 Nov 2026')}</span>
                             </div>
 
                             <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
-                                <h5 class="cart-asset-title m-0">${item.title}</h5>
+                                <a href="${detailUrl}" class="cart-asset-title m-0">${escapeHtml(item.title)}</a>
                                 <div class="d-flex gap-1">${badgesHtml}</div>
                             </div>
 
-                            <p class="cart-asset-creator m-0">Oleh ${item.creator || 'Arga Studio'}</p>
+                            <p class="cart-asset-creator m-0">Oleh ${escapeHtml(item.creator)}</p>
                         </div>
 
-                        <div class="d-flex align-items-center gap-3">
-                            <input type="checkbox" class="cart-checkbox" checked value="${item.id}">
-                            <button type="button" class="btn-cart-delete" onclick="openDeleteModal('${item.id}')">
+                        <div class="d-flex align-items-center gap-3 cart-item-actions">
+                            <label class="d-inline-flex align-items-center gap-2 m-0" style="cursor: pointer;">
+                                <input type="checkbox" class="cart-checkbox" checked value="${escapeHtml(item.id)}">
+                                <span class="d-md-none small fw-semibold text-dark">Pilih aset</span>
+                            </label>
+                            <button type="button" class="btn-cart-delete" onclick="openDeleteModal('${escapeHtml(item.id)}')">
                                 Hapus
                             </button>
                         </div>
                     </div>
                 `;
             }).join('');
+        }
+
+        // Bangun indeks gambar & metadata aset dari localStorage + assets.json
+        function initCatalogLookup(done) {
+            catalogLookupMap.clear();
+
+            function indexList(list) {
+                if (!Array.isArray(list)) return;
+                list.forEach(entry => {
+                    if (!entry) return;
+                    if (entry.id) catalogLookupMap.set(String(entry.id).toLowerCase().trim(), entry);
+                    if (entry.title) catalogLookupMap.set(String(entry.title).toLowerCase().trim(), entry);
+                });
+            }
+
+            try {
+                indexList(JSON.parse(localStorage.getItem('indofx_moderation_queue')) || []);
+            } catch (e) {}
+
+            try {
+                indexList(JSON.parse(localStorage.getItem('indofx_public_catalog')) || []);
+            } catch (e) {}
+
+            fetch('/assets/data/assets.json')
+                .then(res => res.ok ? res.json() : null)
+                .then(payload => {
+                    if (payload && Array.isArray(payload.data)) {
+                        payload.data.forEach(entry => {
+                            const idKey = String(entry.id || '').toLowerCase().trim();
+                            const titleKey = String(entry.title || '').toLowerCase().trim();
+                            if (idKey && !catalogLookupMap.has(idKey)) catalogLookupMap.set(idKey, entry);
+                            if (titleKey && !catalogLookupMap.has(titleKey)) catalogLookupMap.set(titleKey, entry);
+                        });
+                    }
+                })
+                .catch(() => {})
+                .finally(() => {
+                    if (typeof done === 'function') done();
+                });
         }
 
         function openDeleteModal(assetId) {
@@ -644,7 +872,7 @@ if ($initials === '') {
         }
 
         function proceedCheckout() {
-            const items = getCartData();
+            const items = getCartData().map(enrichCartItem);
             if (items.length === 0) {
                 alert('Keranjang Anda kosong!');
                 return;
@@ -665,6 +893,14 @@ if ($initials === '') {
 
         document.addEventListener('DOMContentLoaded', function() {
             renderCart();
+            initCatalogLookup(renderCart);
+
+            // Sinkronisasi otomatis jika user menambah/menghapus item keranjang dari tab lain
+            window.addEventListener('storage', function(e) {
+                if (e.key === cartStorageKey) {
+                    renderCart();
+                }
+            });
 
             // Dropdown Profil Header
             const dropdownBtn = document.getElementById('profileDropdownBtn');

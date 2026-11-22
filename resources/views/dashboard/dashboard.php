@@ -5,7 +5,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $userKey    = (string) ($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user');
-$userName   = (string) ($_SESSION['username'] ?? $_SESSION['name'] ?? 'naufalhaidarazmi');
+$userName   = (string) ($_SESSION['username'] ?? $_SESSION['name'] ?? 'Pengguna');
 $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
 ?>
 <!DOCTYPE html>
@@ -18,7 +18,7 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
 
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Bootstrap 5 CSS & Bootstrap Icons -->
@@ -55,7 +55,7 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
         </div>
     </nav>
 
-    <!-- 2. Kontainer Utama Dashboard (Menggunakan .dashboard-layout-container agar ukuran/zoom identik dengan main.php) -->
+    <!-- 2. Kontainer Utama Dashboard -->
     <div class="dashboard-layout-container">
 
         <!-- SIDEBAR KIRI -->
@@ -121,11 +121,10 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                     <div class="col-10 col-sm-5 col-md-3">
                         <select class="form-select filter-select" id="filterCategory">
                             <option value="all" selected>Semua Kategori</option>
-                            <option value="VFX Partikel">VFX Partikel</option>
                             <option value="Shader">Shader</option>
-                            <option value="Model 3D">Model 3D</option>
-                            <option value="Tekstur & Material">Tekstur &amp; Material</option>
+                            <option value="VFX Partikel">VFX Partikel</option>
                             <option value="Script / Tool">Script / Tool</option>
+                            <option value="3D Model">3D Model</option>
                         </select>
                     </div>
                     <div class="col-2 col-sm-1 col-md-1 text-end">
@@ -168,7 +167,6 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                 <p class="footer-brand-desc-center">
                     Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
                 </p>
-                <!-- Baris Kontak dan Email sesuai desain baru -->
                 <div style="font-size: 0.85rem; color: #1a1a1a; margin-top: 10px;">
                     <strong style="font-weight: 800;">Kontak dan Email:</strong>
                     <span style="margin: 0 16px;">08123456xxxx</span>
@@ -185,20 +183,43 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- SCRIPT HIDRASI DATA DINAMIS & PENGHITUNG TERJUAL -->
+    <!-- SCRIPT HIDRASI DATA DINAMIS TERISOLASI PER USER -->
     <script>
-        const userKey = '<?= $userKey ?>';
-        const defaultUserName = '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>';
+        const userKey = <?= json_encode($userKey, JSON_UNESCAPED_UNICODE) ?>;
+        const defaultUserName = <?= json_encode($userName, JSON_UNESCAPED_UNICODE) ?>;
         let allAssets = [];
-        let storeName = defaultUserName || 'Arga Studio';
+        let storeName = defaultUserName || 'Studio Kreator';
         let sellerSales = [];
 
+        function syncCategoryFilterOptions() {
+            const selectEl = document.getElementById('filterCategory');
+            if (!selectEl) return;
+
+            let adminCategories = [];
+            try {
+                const stored = JSON.parse(localStorage.getItem('indofx_admin_categories'));
+                if (Array.isArray(stored) && stored.length > 0) {
+                    adminCategories = stored;
+                }
+            } catch (e) {}
+
+            if (adminCategories.length === 0) return;
+
+            const currentVal = selectEl.value;
+            selectEl.innerHTML = '<option value="all">Semua Kategori</option>' +
+                adminCategories.map(cat =>
+                    `<option value="${String(cat.name).replace(/"/g, '&quot;')}">${cat.name}</option>`
+                ).join('');
+            selectEl.value = currentVal || 'all';
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
-            const profileRaw = localStorage.getItem('indofx_seller_profile_' + userKey);
+            const profileRaw = localStorage.getItem('indofx_seller_profile_' + userKey) ||
+                localStorage.getItem('indofx_seller_profile_' + defaultUserName);
             if (profileRaw) {
                 try {
                     const prof = JSON.parse(profileRaw);
-                    if (prof.store_name) storeName = prof.store_name;
+                    if (prof && prof.store_name) storeName = prof.store_name;
                 } catch (e) {}
             }
 
@@ -208,8 +229,9 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
             const words = storeName.trim().split(/\s+/);
             let inits = '';
             words.slice(0, 2).forEach(w => inits += w.charAt(0).toUpperCase());
-            document.getElementById('navDashAvatar').innerText = inits || 'AS';
+            document.getElementById('navDashAvatar').innerText = inits || 'US';
 
+            syncCategoryFilterOptions();
             loadAssets();
 
             document.getElementById('filterKeyword').addEventListener('input', renderTable);
@@ -220,153 +242,121 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
 
         function loadAssets() {
             let combined = [];
-            const seenTitles = new Set();
+            const seenKeys = new Set();
 
-            // 1. Tarik dari antrean moderasi admin (vfx_modern & asset_bagus)
+            // Himpunan identitas sah milik user yang sedang login
+            const ownerIdentifiers = new Set(
+                [userKey, defaultUserName, storeName]
+                .map(v => String(v || '').trim().toLowerCase())
+                .filter(Boolean)
+            );
+            const myStorageKeys = new Set([
+                'indofx_seller_assets_' + userKey,
+                'indofx_seller_assets_' + defaultUserName,
+                'indofx_seller_assets_' + storeName
+            ]);
+
+            function belongsToCurrentSeller(record) {
+                const sKey = String(record.seller_storage_key || record.seller_key || '').trim();
+                if (sKey && myStorageKeys.has(sKey)) return true;
+
+                const ownerFields = [record.studio, record.creator, record.seller]
+                    .map(v => String(v || '').trim().toLowerCase())
+                    .filter(Boolean);
+                return ownerFields.some(f => ownerIdentifiers.has(f));
+            }
+
+            // 1. Tarik dari antrean moderasi admin khusus milik user ini (status terbaru dari admin)
             try {
                 const adminQueue = JSON.parse(localStorage.getItem('indofx_moderation_queue')) || [];
                 adminQueue.forEach(aq => {
-                    const cleanTitle = (aq.title || '').trim().toLowerCase();
-                    if (cleanTitle) {
-                        const studio = (aq.studio || aq.creator || aq.seller || '').toLowerCase();
-                        const isMine = studio.includes('naufal') ||
-                            studio === storeName.toLowerCase() ||
-                            studio === defaultUserName.toLowerCase() ||
-                            studio === '';
+                    if (!belongsToCurrentSeller(aq)) return;
+                    const uniq = String(aq.id || aq.title || '').trim().toLowerCase();
+                    if (!uniq || seenKeys.has(uniq)) return;
+                    seenKeys.add(uniq);
 
-                        if (isMine) {
-                            seenTitles.add(cleanTitle);
-
-                            let mappedStatus = 'Pending';
-                            if (aq.status === 'Published' || aq.status === 'Disetujui') {
-                                mappedStatus = 'Disetujui';
-                            } else if (aq.status === 'Ditolak') {
-                                mappedStatus = 'Ditolak';
-                            } else {
-                                mappedStatus = 'Pending';
-                            }
-
-                            combined.push({
-                                id: aq.id || ('asset-' + Date.now()),
-                                title: aq.title,
-                                category: aq.category || 'VFX Partikel',
-                                pipelines: Array.isArray(aq.pipelines) ? aq.pipelines : [aq.pipeline || 'Built-in'],
-                                price: aq.price_num || parseFloat(String(aq.price).replace(/[^0-9]/g, '')) || 0,
-                                price_text: aq.price || (aq.price_num === 0 ? 'Gratis' : 'Rp' + Number(aq.price_num || 0).toLocaleString('id-ID')),
-                                status: mappedStatus,
-                                downloads: aq.downloads || aq.sales || '0x Terjual',
-                                created_at: aq.date || aq.created_at || '10 Nov 2026',
-                                reject_reason: aq.reject_reason || ''
-                            });
-                        }
+                    let mappedStatus = 'Pending';
+                    if (aq.status === 'Published' || aq.status === 'Disetujui') {
+                        mappedStatus = 'Disetujui';
+                    } else if (aq.status === 'Ditolak') {
+                        mappedStatus = 'Ditolak';
                     }
+
+                    combined.push({
+                        id: aq.id || ('asset-' + Date.now()),
+                        title: aq.title,
+                        category: aq.category || 'VFX Partikel',
+                        pipelines: Array.isArray(aq.pipelines) ? aq.pipelines : [aq.pipeline || 'Built-in'],
+                        price: aq.price_num || parseFloat(String(aq.price).replace(/[^0-9]/g, '')) || 0,
+                        price_text: aq.price || (aq.price_num === 0 ? 'Gratis' : 'Rp' + Number(aq.price_num || 0).toLocaleString('id-ID')),
+                        status: mappedStatus,
+                        downloads: aq.downloads || aq.sales || '0x Terjual',
+                        created_at: aq.date || aq.created_at || 'Hari ini',
+                        reject_reason: aq.reject_reason || ''
+                    });
                 });
             } catch (e) {}
 
-            // 2. Ambil dari penyimpanan toko penjual
-            Object.keys(localStorage).forEach(key => {
-                if (key.startsWith('indofx_seller_assets_')) {
-                    try {
-                        const parsed = JSON.parse(localStorage.getItem(key)) || [];
-                        if (Array.isArray(parsed)) {
-                            parsed.forEach(item => {
-                                const cleanTitle = (item.title || '').trim().toLowerCase();
-                                if (cleanTitle && !seenTitles.has(cleanTitle)) {
-                                    seenTitles.add(cleanTitle);
-                                    let mappedStatus = item.status || 'Pending';
-                                    if (mappedStatus === 'Menunggu') mappedStatus = 'Pending';
+            // 2. Ambil dari penyimpanan toko milik user yang login saja
+            myStorageKeys.forEach(key => {
+                try {
+                    const parsed = JSON.parse(localStorage.getItem(key)) || [];
+                    if (!Array.isArray(parsed)) return;
+                    parsed.forEach(item => {
+                        const uniq = String(item.id || item.title || '').trim().toLowerCase();
+                        if (!uniq || seenKeys.has(uniq)) return;
+                        seenKeys.add(uniq);
 
-                                    combined.push({
-                                        id: item.id || ('asset-' + Date.now()),
-                                        title: item.title,
-                                        category: item.category || 'VFX Partikel',
-                                        pipelines: Array.isArray(item.pipelines) ? item.pipelines : [item.pipeline || 'Built-in'],
-                                        price: item.price_num || parseFloat(String(item.price).replace(/[^0-9]/g, '')) || 0,
-                                        price_text: item.price_text || (typeof item.price === 'string' ? item.price : ('Rp' + Number(item.price || 0).toLocaleString('id-ID'))),
-                                        status: mappedStatus,
-                                        downloads: item.sales || item.downloads || '0x Terjual',
-                                        created_at: item.date || item.created_at || '6 Nov 2026',
-                                        reject_reason: item.reject_reason || ''
-                                    });
-                                }
-                            });
-                        }
-                    } catch (e) {}
-                }
-            });
+                        let mappedStatus = item.status || 'Pending';
+                        if (mappedStatus === 'Menunggu' || mappedStatus === 'Pending Review') mappedStatus = 'Pending';
+                        else if (mappedStatus === 'Published') mappedStatus = 'Disetujui';
 
-            // 3. Fallback 3 aset awal Figma
-            const defaultBase = [{
-                    id: 'asset-vfx-2',
-                    title: 'vfx_test2',
-                    category: 'VFX Partikel',
-                    pipelines: ['Built-in', 'URP'],
-                    price: 200000,
-                    price_text: 'Rp200.000',
-                    status: 'Disetujui',
-                    created_at: '6 Nov 2026',
-                    downloads: '1x Terjual'
-                },
-                {
-                    id: 'asset-vfx-1',
-                    title: 'vfx_test1',
-                    category: 'VFX Partikel',
-                    pipelines: ['Built-in', 'URP'],
-                    price: 300000,
-                    price_text: 'Rp300.000',
-                    status: 'Disetujui',
-                    created_at: '5 Nov 2026',
-                    downloads: '3x Terjual'
-                },
-                {
-                    id: 'asset-black-24',
-                    title: 'black-24dp',
-                    category: 'VFX Partikel',
-                    pipelines: ['Built-in'],
-                    price: 150000,
-                    price_text: 'Rp150.000',
-                    status: 'Disetujui',
-                    created_at: '5 Nov 2026',
-                    downloads: '0x Terjual'
-                }
-            ];
-
-            defaultBase.forEach(dba => {
-                const cleanTitle = dba.title.trim().toLowerCase();
-                if (!seenTitles.has(cleanTitle)) {
-                    seenTitles.add(cleanTitle);
-                    combined.push(dba);
-                }
+                        combined.push({
+                            id: item.id || ('asset-' + Date.now()),
+                            title: item.title,
+                            category: item.category || 'VFX Partikel',
+                            pipelines: Array.isArray(item.pipelines) ? item.pipelines : [item.pipeline || 'Built-in'],
+                            price: item.price_num || parseFloat(String(item.price).replace(/[^0-9]/g, '')) || 0,
+                            price_text: item.price_text || (typeof item.price === 'string' ? item.price : ('Rp' + Number(item.price || 0).toLocaleString('id-ID'))),
+                            status: mappedStatus,
+                            downloads: item.sales || item.downloads || '0x Terjual',
+                            created_at: item.date || item.created_at || 'Hari ini',
+                            reject_reason: item.reject_reason || ''
+                        });
+                    });
+                } catch (e) {}
             });
 
             allAssets = combined;
 
-            // CROSS-CHECK TRANSAKSI PEMBELIAN PEMBELI
+            // 3. Cross-check transaksi pembelian khusus untuk aset milik user ini
             const myTitles = new Set(allAssets.map(a => a.title.trim().toLowerCase()));
             const myIds = new Set(allAssets.map(a => String(a.id)));
             let combinedSales = [];
 
-            Object.keys(localStorage).forEach(key => {
-                if (key.startsWith('indofx_transactions_')) {
-                    try {
-                        const txList = JSON.parse(localStorage.getItem(key)) || [];
-                        txList.forEach(tx => {
-                            if (Array.isArray(tx.items)) {
-                                tx.items.forEach(it => {
-                                    if (myTitles.has((it.title || '').trim().toLowerCase()) || myIds.has(String(it.id))) {
-                                        combinedSales.push({
-                                            invoice_no: tx.invoice_no,
-                                            asset_id: it.id,
-                                            asset_title: it.title,
-                                            price: it.price
-                                        });
-                                    }
-                                });
-                            }
-                        });
-                    } catch (e) {}
-                }
-            });
+            if (myTitles.size > 0 || myIds.size > 0) {
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith('indofx_transactions_')) {
+                        try {
+                            const txList = JSON.parse(localStorage.getItem(key)) || [];
+                            txList.forEach(tx => {
+                                if (Array.isArray(tx.items)) {
+                                    tx.items.forEach(it => {
+                                        if (myTitles.has((it.title || '').trim().toLowerCase()) || myIds.has(String(it.id))) {
+                                            combinedSales.push({
+                                                invoice_no: tx.invoice_no,
+                                                asset_id: it.id,
+                                                asset_title: it.title,
+                                                price: it.price
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+                        } catch (e) {}
+                    }
+                });
+            }
 
             let seen = new Set();
             sellerSales = [];
@@ -390,7 +380,8 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
             const filtered = allAssets.filter(item => {
                 const matchKeyword = !keyword || (item.title && item.title.toLowerCase().includes(keyword));
                 const matchStatus = statusFilter === 'all' || item.status === statusFilter;
-                const matchCategory = categoryFilter === 'all' || item.category === categoryFilter;
+                const matchCategory = categoryFilter === 'all' ||
+                    (item.category && item.category.toLowerCase().trim() === categoryFilter.toLowerCase().trim());
                 return matchKeyword && matchStatus && matchCategory;
             });
 
@@ -432,23 +423,22 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                     isGratis = (item.price.toLowerCase().trim() === 'gratis' || priceNum <= 0);
                 }
 
-                // Hitung Terjual / Unduhan Dinamis
-                let downloadOrSalesText = item.downloads || '0x Terjual';
+                // Hitung Terjual / Unduhan Murni Dinamis
+                let downloadOrSalesText = '-';
                 if (item.status === 'Disetujui') {
                     if (isGratis) {
                         const rawCount = parseInt(String(item.downloads || '0').replace(/[^0-9]/g, ''), 10) || 0;
-                        downloadOrSalesText = `${Math.max(rawCount, 1)}x Unduhan`;
+                        downloadOrSalesText = `${rawCount}x Unduhan`;
                     } else {
                         const salesCount = sellerSales.filter(s =>
-                            String(s.asset_id) === String(item.id) || s.asset_title === item.title
+                            String(s.asset_id) === String(item.id) ||
+                            (s.asset_title && item.title && s.asset_title.trim().toLowerCase() === item.title.trim().toLowerCase())
                         ).length;
 
                         const storedCount = parseInt(String(item.downloads || '0').replace(/[^0-9]/g, ''), 10) || 0;
-                        const finalCount = Math.max(salesCount, storedCount, item.title === 'vfx_test1' ? 3 : (item.title === 'vfx_test2' ? 1 : 0));
+                        const finalCount = Math.max(salesCount, storedCount);
                         downloadOrSalesText = `${finalCount}x Terjual`;
                     }
-                } else {
-                    downloadOrSalesText = '-';
                 }
 
                 const detailUrl = `/asset/detail?id=${encodeURIComponent(item.id || '')}` +
@@ -491,7 +481,7 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                         <td class="fw-bold text-dark">${item.price_text || (isGratis ? 'Gratis' : 'Rp' + priceNum.toLocaleString('id-ID'))}</td>
                         <td>${statusBadge}</td>
                         <td class="text-muted small">${downloadOrSalesText}</td>
-                        <td class="text-muted small">${item.created_at || '15 Jan 2026'}</td>
+                        <td class="text-muted small">${item.created_at || 'Hari ini'}</td>
                         <td class="text-end pe-4 text-nowrap">${actionBtn}</td>
                     </tr>
                 `;

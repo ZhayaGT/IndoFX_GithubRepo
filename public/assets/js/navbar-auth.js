@@ -1,104 +1,163 @@
 /**
- * Pergantian tampilan navbar: guest vs pembeli.
- *
- * Alurnya sederhana:
- *   1. PHP menulis keadaan saat ini pada .navbar-auth[data-auth-state]
- *      ("guest" atau "pembeli").
- *   2. Saat halaman siap, syncNavbarAuth() membaca keadaan itu lalu
- *      memanggil showGuestNav() atau showPembeliNav().
- *   3. showGuestNav()/showPembeliNav() hanya menyembunyikan satu div
- *      dan menampilkan div lainnya.
- *
- * Kalau nanti keadaan berubah tanpa reload (mis. setelah login lewat AJAX),
- * cukup panggil salah satu fungsi ini dari kode Anda:
- *
- *   showPembeliNav();                      // tampilkan menu pembeli
- *   showGuestNav();                        // tampilkan tombol Masuk
- *   syncNavbarAuth('pembeli');             // set keadaan + tampilkan
+ * Pergantian tampilan navbar: guest vs pembeli + sinkronisasi badge keranjang dinamis.
  */
 
 (function () {
-    'use strict';
+  "use strict";
 
-    var guestNav = document.getElementById('nav-guest');
-    var pembeliNav = document.getElementById('nav-pembeli');
+  var guestNav = document.getElementById("nav-guest");
+  var pembeliNav = document.getElementById("nav-pembeli");
 
-    /** Tampilkan tombol Masuk, sembunyikan menu pembeli. */
-    function showGuestNav() {
-        if (guestNav) {
-            guestNav.hidden = false;
-        }
-        if (pembeliNav) {
-            pembeliNav.hidden = true;
-        }
+  /** Ambil userKey aktif dari atribut data-user-key pada .navbar-auth */
+  function getActiveUserKey() {
+    var container = document.querySelector(".navbar-auth");
+    return container
+      ? (container.getAttribute("data-user-key") || "").trim()
+      : "";
+  }
+
+  /** Perbarui angka kecil pada ikon keranjang di navbar sesuai user yang login */
+  function updateGlobalCartBadge() {
+    var badge = document.getElementById("globalCartBadge");
+    if (!badge) return;
+
+    var userKey = getActiveUserKey();
+    if (!userKey) {
+      badge.textContent = "0";
+      badge.classList.remove("show");
+      return;
     }
 
-    /** Tampilkan menu pembeli, sembunyikan tombol Masuk. */
-    function showPembeliNav() {
-        if (guestNav) {
-            guestNav.hidden = true;
-        }
-        if (pembeliNav) {
-            pembeliNav.hidden = false;
-        }
+    var count = 0;
+    try {
+      var raw = localStorage.getItem("indofx_cart_" + userKey);
+      var items = raw ? JSON.parse(raw) : [];
+      if (Array.isArray(items)) {
+        count = items.length;
+      }
+    } catch (e) {
+      count = 0;
     }
 
-    /**
-     * Baca keadaan dari HTML lalu tampilkan div yang sesuai.
-     * @param {string} [state] "guest" atau "pembeli"; kosong = baca dari atribut.
-     */
-    function syncNavbarAuth(state) {
-        var container = document.querySelector('.navbar-auth');
+    if (count > 0) {
+      badge.textContent = count > 99 ? "99+" : String(count);
+      badge.classList.add("show");
+    } else {
+      badge.textContent = "0";
+      badge.classList.remove("show");
+    }
+  }
 
-        if (typeof state === 'string' && container) {
-            container.setAttribute('data-auth-state', state);
-        }
+  /** Tampilkan tombol Masuk, sembunyikan menu pembeli. */
+  function showGuestNav() {
+    if (guestNav) {
+      guestNav.hidden = false;
+    }
+    if (pembeliNav) {
+      pembeliNav.hidden = true;
+    }
+  }
 
-        var current = container ? container.getAttribute('data-auth-state') : 'guest';
+  /** Tampilkan menu pembeli, sembunyikan tombol Masuk. */
+  function showPembeliNav() {
+    if (guestNav) {
+      guestNav.hidden = true;
+    }
+    if (pembeliNav) {
+      pembeliNav.hidden = false;
+    }
+    updateGlobalCartBadge();
+  }
 
-        if (current === 'pembeli') {
-            showPembeliNav();
-        } else {
-            showGuestNav();
-        }
+  /**
+   * Baca keadaan dari HTML lalu tampilkan div yang sesuai.
+   * @param {string} [state] "guest" atau "pembeli"; kosong = baca dari atribut.
+   */
+  function syncNavbarAuth(state) {
+    var container = document.querySelector(".navbar-auth");
+
+    if (typeof state === "string" && container) {
+      container.setAttribute("data-auth-state", state);
     }
 
-    /** Buka/tutup menu kecil di avatar. */
-    function initAvatarMenu() {
-        var button = document.getElementById('navbar-avatar');
-        var menu = document.getElementById('navbar-avatar-menu');
+    var current = container
+      ? container.getAttribute("data-auth-state")
+      : "guest";
 
-        if (!button || !menu) {
-            return;
-        }
+    if (current === "pembeli") {
+      showPembeliNav();
+    } else {
+      showGuestNav();
+    }
+  }
 
-        button.addEventListener('click', function (event) {
-            event.stopPropagation();
-            var isOpen = !menu.hidden;
-            menu.hidden = isOpen;
-            button.setAttribute('aria-expanded', String(!isOpen));
-        });
+  /** Buka/tutup menu kecil di avatar (listener tunggal tanpa bentrok). */
+  function initAvatarMenu() {
+    var button = document.getElementById("navbar-avatar");
+    var menu = document.getElementById("navbar-avatar-menu");
 
-        document.addEventListener('click', function () {
-            menu.hidden = true;
-            button.setAttribute('aria-expanded', 'false');
-        });
-
-        document.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape') {
-                menu.hidden = true;
-                button.setAttribute('aria-expanded', 'false');
-            }
-        });
+    if (!button || !menu) {
+      return;
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        syncNavbarAuth();
-        initAvatarMenu();
+    button.addEventListener("click", function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      var isOpen = !menu.hidden;
+      menu.hidden = isOpen;
+      button.setAttribute("aria-expanded", String(!isOpen));
     });
 
-    // Dipakai juga oleh skrip lain (mis. setelah login tanpa reload).
-    window.showGuestNav = showGuestNav;
-    window.showPembeliNav = showPembeliNav;
-    window.syncNavbarAuth = syncNavbarAuth;
+    document.addEventListener("click", function (event) {
+      if (!menu.contains(event.target) && !button.contains(event.target)) {
+        menu.hidden = true;
+        button.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") {
+        menu.hidden = true;
+        button.setAttribute("aria-expanded", "false");
+      }
+    });
+  }
+
+  /** Deteksi perubahan keranjang secara langsung di tab yang sama maupun antar-tab */
+  function initCartStorageWatcher() {
+    var origSetItem = localStorage.setItem;
+    localStorage.setItem = function (key, value) {
+      origSetItem.apply(this, arguments);
+      if (typeof key === "string" && key.indexOf("indofx_cart_") === 0) {
+        updateGlobalCartBadge();
+      }
+    };
+
+    var origRemoveItem = localStorage.removeItem;
+    localStorage.removeItem = function (key) {
+      origRemoveItem.apply(this, arguments);
+      if (typeof key === "string" && key.indexOf("indofx_cart_") === 0) {
+        updateGlobalCartBadge();
+      }
+    };
+
+    window.addEventListener("storage", function (e) {
+      if (e.key && e.key.indexOf("indofx_cart_") === 0) {
+        updateGlobalCartBadge();
+      }
+    });
+  }
+
+  initCartStorageWatcher();
+
+  document.addEventListener("DOMContentLoaded", function () {
+    syncNavbarAuth();
+    initAvatarMenu();
+    updateGlobalCartBadge();
+  });
+
+  window.showGuestNav = showGuestNav;
+  window.showPembeliNav = showPembeliNav;
+  window.syncNavbarAuth = syncNavbarAuth;
+  window.updateGlobalCartBadge = updateGlobalCartBadge;
 })();

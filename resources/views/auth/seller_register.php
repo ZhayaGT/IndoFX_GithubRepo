@@ -157,6 +157,27 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
             background-color: #D85A0E;
         }
 
+        /* Banner Status Pengajuan Menunggu / Ditolak */
+        .pending-status-banner {
+            background-color: #FFF8EB;
+            border: 1.5px solid #F59E0B;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 20px;
+            color: #78350F;
+            font-size: 0.86rem;
+        }
+
+        .rejected-status-banner {
+            background-color: #FEF2F2;
+            border: 1.5px solid #DC2626;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 20px;
+            color: #7F1D1D;
+            font-size: 0.86rem;
+        }
+
         /* Modal Syarat & Ketentuan */
         .modal-terms-content {
             border: 1.5px solid #4A3B32;
@@ -208,7 +229,6 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
             background-color: #ffffff;
         }
 
-        /* Pastikan footer selalu menempel di bawah */
         .footer-main {
             margin-top: auto;
             width: 100%;
@@ -228,7 +248,7 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
 
 <body>
 
-    <!-- 1. NAVBAR ORANYE INDOFX (SERAGAM DENGAN HALAMAN UTAMA) -->
+    <!-- 1. NAVBAR ORANYE INDOFX -->
     <nav class="navbar navbar-seller-auth sticky-top">
         <div class="container-figma d-flex align-items-center justify-content-between">
             <a class="navbar-brand m-0 d-flex align-items-center gap-2 text-decoration-none" href="/">
@@ -251,13 +271,16 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
             <h2 class="seller-register-title">Daftar Jadi Penjual</h2>
             <p class="seller-register-sub">Upload hasil karyamu agar dikenal semua orang.</p>
 
+            <!-- Info Status Pengajuan Jika Sudah Pernah Mengajukan -->
+            <div id="existingRequestNotice"></div>
+
             <form id="formRegisterSeller">
                 <!-- 1. Nama Lengkap -->
                 <div class="mb-3">
                     <label class="form-label-custom">Nama Lengkap</label>
                     <input type="text" id="regName" class="form-control form-control-custom"
                         value="<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>"
-                        placeholder="Arga Studio" required>
+                        placeholder="" required>
                 </div>
 
                 <!-- 2. Alamat Email -->
@@ -265,7 +288,7 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
                     <label class="form-label-custom">Alamat Email</label>
                     <input type="email" id="regEmail" class="form-control form-control-custom"
                         value="<?= htmlspecialchars($userEmail, ENT_QUOTES, 'UTF-8') ?>"
-                        placeholder="argastudio@mail.com" required <?= $isLoggedIn && !empty($userEmail) ? 'readonly style="background-color: #faf5f0;"' : '' ?>>
+                        placeholder="" required <?= $isLoggedIn && !empty($userEmail) ? 'readonly style="background-color: #faf5f0;"' : '' ?>>
                 </div>
 
                 <!-- 3. Alamat Domisili -->
@@ -323,7 +346,7 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
                 </div>
 
                 <!-- 10. Tombol Daftar Oranye -->
-                <button type="submit" class="btn-register-submit mb-3">Daftar</button>
+                <button type="submit" id="btnRegisterSellerSubmit" class="btn-register-submit mb-3">Daftar</button>
 
                 <!-- 11. Tautan Login -->
                 <div>
@@ -333,7 +356,7 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
         </div>
     </main>
 
-    <!-- 3. FOOTER INDOFX (SESUAI FIGMA) -->
+    <!-- 3. FOOTER INDOFX -->
     <footer class="footer-main">
         <div class="container-figma">
             <div class="footer-center-content">
@@ -358,7 +381,6 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
     <div class="modal fade" id="modalTerms" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" style="max-width: 520px;">
             <div class="modal-content modal-terms-content shadow">
-                <!-- Header Modal -->
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="d-flex align-items-center gap-2">
                         <span class="terms-icon-badge">
@@ -376,7 +398,6 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
                         Mohon perhatikan Syarat dan Ketentuan berikut sebelum memutuskan menjadi Penjual di IndoFX.
                     </h5>
 
-                    <!-- Box Teks Ketentuan Scrollable -->
                     <div class="terms-text-box">
                         <p class="mb-3">
                             Lorem ipsum dolor sit amet consectetur. Tempus pretium quisque tellus rhoncus. Elementum rutrum augue gravida arcu. Porttitor convallis gravida feugiat proin. Vitae a non pulvinar sagittis proin. Feugiat turpis metus sed amet tellus accumsan. Diam tellus id phasellus volutpat augue sit et adipiscing sagittis. Dictum tellus vel eget faucibus mi. Vestibulum ultrices nunc phasellus pellentesque nisl eget. Mauris tincidunt habitant vulputate at donec id adipiscing volutpat diam. Tempor ut blandit nunc elementum nunc in quam congue. Orci mattis massa sed ultrices et. Aliquam adipiscing risus egestas adipiscing urna ac. Quam augue dictum dictumst elit elementum. A sed interdum duis sed ornare arcu tincidunt maecenas.
@@ -403,6 +424,8 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        const currentUserKey = <?= json_encode($userKey, JSON_UNESCAPED_UNICODE) ?>;
+        const currentUserEmail = <?= json_encode($userEmail, JSON_UNESCAPED_UNICODE) ?>;
         let modalTermsInstance = null;
 
         function openTermsModal() {
@@ -412,20 +435,61 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
             modalTermsInstance.show();
         }
 
+        function checkExistingSellerRequest() {
+            const noticeEl = document.getElementById('existingRequestNotice');
+            const submitBtn = document.getElementById('btnRegisterSellerSubmit');
+            if (!noticeEl) return;
+
+            let requests = [];
+            try {
+                requests = JSON.parse(localStorage.getItem('indofx_seller_requests')) || [];
+            } catch (e) {}
+
+            const existing = requests.find(r =>
+                (currentUserKey && String(r.user_key) === String(currentUserKey)) ||
+                (currentUserEmail && r.email && r.email.toLowerCase() === currentUserEmail.toLowerCase())
+            );
+
+            if (!existing) return;
+
+            if (existing.status === 'Menunggu') {
+                noticeEl.innerHTML = `
+                    <div class="pending-status-banner">
+                        <div class="fw-bold mb-1"><i class="bi bi-hourglass-split me-1"></i> Pengajuan Anda Sedang Ditinjau Admin</div>
+                        <div>Data pendaftaran untuk <strong>${existing.name || existing.full_name}</strong> sudah masuk ke antrean verifikasi. Anda akan mendapatkan akses ke Dashboard Penjual setelah disetujui oleh Administrator.</div>
+                    </div>
+                `;
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerText = 'Menunggu Verifikasi Admin';
+                    submitBtn.style.opacity = '0.7';
+                }
+            } else if (existing.status === 'Ditolak') {
+                noticeEl.innerHTML = `
+                    <div class="rejected-status-banner">
+                        <div class="fw-bold mb-1"><i class="bi bi-x-circle-fill me-1"></i> Pengajuan Sebelumnya Ditolak</div>
+                        <div class="mb-1"><strong>Catatan Admin:</strong> ${existing.reject_reason || 'Silakan perbaiki data portofolio Anda.'}</div>
+                        <div class="small">Anda dapat mengisi ulang formulir di bawah ini untuk mengajukan kembali.</div>
+                    </div>
+                `;
+            } else if (existing.status === 'Diterima' || existing.status === 'Aktif') {
+                window.location.href = '/dashboard';
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             modalTermsInstance = new bootstrap.Modal(document.getElementById('modalTerms'));
+            checkExistingSellerRequest();
 
             document.getElementById('formRegisterSeller').addEventListener('submit', function(e) {
                 e.preventDefault();
 
-                // Validasi Checkbox
                 const termsChecked = document.getElementById('checkTerms').checked;
                 if (!termsChecked) {
                     alert('Harap setujui Syarat dan Ketentuan terlebih dahulu untuk mendaftar sebagai Penjual.');
                     return;
                 }
 
-                // Validasi Password jika diisi
                 const pass = document.getElementById('regPassword') ? document.getElementById('regPassword').value : '';
                 const passConfirm = document.getElementById('regPasswordConfirm') ? document.getElementById('regPasswordConfirm').value : '';
                 if (pass && passConfirm && pass !== passConfirm) {
@@ -433,7 +497,7 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
                     return;
                 }
 
-                const sellerName = document.getElementById('regName').value.trim() || 'Arga Studio';
+                const sellerName = document.getElementById('regName').value.trim() || 'Kreator IndoFX';
                 const sellerEmail = document.getElementById('regEmail').value.trim();
                 const sellerAddress = document.getElementById('regAddress').value.trim();
                 const sellerReason = document.getElementById('regReason').value.trim();
@@ -441,26 +505,46 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
                 const fileInput = document.getElementById('regAssetFile');
                 const assetDesc = document.getElementById('regAssetDesc').value.trim();
 
-                const targetKey = '<?= $userKey ?>' || ('user_' + Date.now());
+                const targetKey = currentUserKey || ('user_' + Date.now());
 
-                // Simpan Profil Toko / Penjual
-                const sellerProfile = {
+                // 1. Kunci status akun sebagai PENDING (BELUM aktif sebagai penjual sebelum Admin menyetujui)
+                const pendingProfile = {
                     user_id: targetKey,
                     store_name: sellerName,
-                    is_seller: true,
+                    is_seller: false,
+                    status: 'pending',
                     email: sellerEmail,
                     address: sellerAddress,
                     reason: sellerReason,
                     portfolio: portfolioUrl || '-',
-                    is_active: true
+                    is_active: false
                 };
 
-                localStorage.setItem('indofx_seller_profile_' + targetKey, JSON.stringify(sellerProfile));
-                localStorage.setItem('indofx_is_seller_' + targetKey, 'true');
-                localStorage.setItem('indofx_seller_profile', JSON.stringify(sellerProfile));
-                localStorage.setItem('indofx_is_seller', 'true');
+                localStorage.setItem('indofx_seller_profile_' + targetKey, JSON.stringify(pendingProfile));
+                localStorage.setItem('indofx_is_seller_' + targetKey, 'false');
 
-                // Simpan Pengajuan Penjual ke Antrean Admin
+                // 2. Hitung inisial & format ukuran berkas lampiran agar tampil persis di modal Admin
+                const nameParts = sellerName.split(/\s+/);
+                let inits = '';
+                nameParts.slice(0, 2).forEach(p => inits += p.charAt(0).toUpperCase());
+                if (!inits) inits = 'US';
+
+                let attachmentName = 'sample_asset_pack.unitypackage';
+                let attachmentSize = '12,0 MB';
+                if (fileInput && fileInput.files.length > 0) {
+                    const f = fileInput.files[0];
+                    attachmentName = f.name;
+                    const mb = (f.size / (1024 * 1024)).toFixed(1).replace('.', ',');
+                    attachmentSize = (mb === '0,0' ? '0,5' : mb) + ' MB';
+                }
+
+                const todayStr = new Date().toLocaleDateString('id-ID', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric'
+                });
+
+                // 3. Masukkan ke antrean verifikasi Admin (indofx_seller_requests)
                 let sellerRequests = [];
                 try {
                     sellerRequests = JSON.parse(localStorage.getItem('indofx_seller_requests')) || [];
@@ -468,30 +552,36 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
                     sellerRequests = [];
                 }
 
-                const sampleFileName = (fileInput && fileInput.files.length > 0) ?
-                    fileInput.files[0].name.replace(/\.[^/.]+$/, "") :
-                    'Sample Asset Project';
+                // Hapus pengajuan lama dari user yang sama jika mengajukan ulang setelah ditolak
+                sellerRequests = sellerRequests.filter(r =>
+                    !(String(r.user_key) === String(targetKey) || (r.email && r.email.toLowerCase() === sellerEmail.toLowerCase()))
+                );
 
                 sellerRequests.unshift({
-                    id: 'req-' + Date.now(),
+                    id: 'REQ-' + Date.now(),
+                    user_key: targetKey,
+                    name: sellerName,
+                    full_name: sellerName,
                     store_name: sellerName,
                     email: sellerEmail,
                     address: sellerAddress,
                     reason: sellerReason,
+                    attachment: attachmentName,
+                    attachment_size: attachmentSize,
+                    asset_desc: assetDesc,
                     portfolio: portfolioUrl || '-',
-                    sample_file: sampleFileName,
-                    description: assetDesc,
+                    submission_date: todayStr,
+                    join_date: todayStr,
                     status: 'Menunggu',
-                    created_at: new Date().toLocaleDateString('id-ID', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric'
-                    })
+                    reject_reason: '',
+                    inits: inits,
+                    bg: '#FEEFD8',
+                    color: '#B76E00'
                 });
                 localStorage.setItem('indofx_seller_requests', JSON.stringify(sellerRequests));
 
-                alert('Pendaftaran Penjual berhasil diajukan! Pengajuan Anda akan diverifikasi oleh Admin IndoFX.');
-                window.location.href = '/dashboard/assets';
+                alert('Pengajuan menjadi Penjual berhasil dikirim! Mohon tunggu verifikasi dari Admin IndoFX sebelum mengakses Dashboard Penjual.');
+                window.location.href = '/';
             });
         });
     </script>

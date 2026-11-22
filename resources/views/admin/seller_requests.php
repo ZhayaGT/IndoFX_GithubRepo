@@ -99,7 +99,6 @@ $adminInitials = 'AP';
 
             <!-- 4 Kartu Ringkasan Murni Dinamis Sesuai Data Akun Riil -->
             <div class="row g-3 mb-4">
-                <!-- Card 1: Total Pengguna Riil -->
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="admin-stat-card">
                         <div class="admin-stat-label">Total Pengguna</div>
@@ -108,7 +107,6 @@ $adminInitials = 'AP';
                     </div>
                 </div>
 
-                <!-- Card 2: Penjual / Studio Riil -->
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="admin-stat-card">
                         <div class="admin-stat-label">Penjual / Studio</div>
@@ -117,7 +115,6 @@ $adminInitials = 'AP';
                     </div>
                 </div>
 
-                <!-- Card 3: Pembeli Aktif Riil -->
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="admin-stat-card">
                         <div class="admin-stat-label">Pembeli Aktif</div>
@@ -126,7 +123,6 @@ $adminInitials = 'AP';
                     </div>
                 </div>
 
-                <!-- Card 4: Pengguna Diblokir Riil -->
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="admin-stat-card">
                         <div class="admin-stat-label">Pengguna Diblokir</div>
@@ -136,7 +132,7 @@ $adminInitials = 'AP';
                 </div>
             </div>
 
-            <!-- Bar Filter Sesuai Figma image_1ed3ff -->
+            <!-- Bar Filter -->
             <div class="row g-2 align-items-center admin-filter-bar mb-3">
                 <div class="col-12 col-md-8">
                     <div class="admin-search-wrap">
@@ -145,7 +141,6 @@ $adminInitials = 'AP';
                     </div>
                 </div>
                 <div class="col-12 col-md-4 text-end">
-                    <!-- Dropdown Filter Pilihan Sesuai Desain Samping Figma -->
                     <select class="form-select admin-select d-inline-block w-auto" id="filterStatusSelect" style="min-width: 170px;">
                         <option value="all" selected>Semua Status</option>
                         <option value="Diterima">Diterima</option>
@@ -156,7 +151,7 @@ $adminInitials = 'AP';
                 </div>
             </div>
 
-            <!-- Tabel Pengajuan Penjual Sesuai Figma image_1ed3ff -->
+            <!-- Tabel Pengajuan Penjual -->
             <div class="admin-table-card">
                 <div class="table-responsive">
                     <table class="table table-admin align-middle">
@@ -179,11 +174,10 @@ $adminInitials = 'AP';
         </main>
     </div>
 
-    <!-- 3. MODAL DETAIL PENGAJUAN PENJUAL (PRESISI FIGMA image_1e6ebb) -->
+    <!-- 3. MODAL DETAIL PENGAJUAN PENJUAL -->
     <div class="modal fade" id="modalViewSeller" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" style="max-width: 620px;">
             <div class="modal-content seller-modal-card">
-                <!-- Header Modal -->
                 <div class="seller-modal-header d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center gap-2">
                         <div class="seller-header-icon-box">
@@ -196,14 +190,12 @@ $adminInitials = 'AP';
                     </button>
                 </div>
 
-                <!-- Konten Body Sesuai Desain image_1e6ebb -->
                 <div class="seller-modal-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h4 class="seller-section-title mb-0">Data Pendaftaran</h4>
                         <span id="detailStatusBadgeModal"></span>
                     </div>
 
-                    <!-- Baris 1: Nama Lengkap & Alamat Email -->
                     <div class="seller-data-row">
                         <div class="row">
                             <div class="col-6">
@@ -217,59 +209,46 @@ $adminInitials = 'AP';
                         </div>
                     </div>
 
-                    <!-- Baris 2: Alamat Domisili -->
                     <div class="seller-data-row">
                         <span class="seller-label">Alamat Domisili</span>
-                        <p class="seller-val" id="detailAddress">
-                            Jl. Melati No. 14, RT 03/RW 05, Kel. Lowokwaru, Kec. Lowokwaru, Kota Malang, Jawa Timur 65141
-                        </p>
+                        <p class="seller-val" id="detailAddress">-</p>
                     </div>
 
-                    <!-- Baris 3: Alasan -->
                     <div class="seller-data-row">
                         <span class="seller-label">Alasan</span>
-                        <p class="seller-val" id="detailReason">
-                            Saya sudah lama membuat shader dan tekstur untuk kebutuhan pribadi. Saya ingin mulai menjualnya di IndoFX agar bisa menjangkau lebih banyak pengembang Unity lokal.
-                        </p>
+                        <p class="seller-val" id="detailReason">-</p>
                     </div>
 
-                    <!-- Baris 4: Lampiran File -->
                     <div class="seller-data-row">
                         <span class="seller-label">Lampiran</span>
                         <div class="d-flex align-items-start gap-2 mt-1">
                             <i class="bi bi-file-earmark text-danger fs-5 lh-1"></i>
                             <div>
-                                <a href="javascript:void(0)" class="seller-attachment-link" id="detailAttachmentName">
-                                    rain_shader_pack.unitypackage
-                                </a>
-                                <span class="seller-attachment-size" id="detailAttachmentSize">18,4 MB</span>
+                                <a href="javascript:void(0)" class="seller-attachment-link" id="detailAttachmentName">-</a>
+                                <span class="seller-attachment-size" id="detailAttachmentSize">-</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Baris 5: Deskripsi Aset -->
                     <div class="seller-data-row">
                         <span class="seller-label">Deskripsi Aset</span>
-                        <p class="seller-val" id="detailAssetDesc">
-                            Kumpulan shader stylized untuk pipeline URP beserta material contoh dan demo scene.
-                        </p>
+                        <p class="seller-val" id="detailAssetDesc">-</p>
                     </div>
 
-                    <!-- Baris 6: URL Portofolio & Tanggal Pengajuan -->
                     <div class="seller-data-row">
                         <div class="row">
                             <div class="col-6">
                                 <span class="seller-label">URL Portofolio</span>
-                                <p class="seller-val" id="detailPortfolio">artstation.com/riandevs</p>
+                                <p class="seller-val" id="detailPortfolio">-</p>
                             </div>
                             <div class="col-6">
                                 <span class="seller-label">Tanggal Pengajuan</span>
-                                <p class="seller-val" id="detailSubmissionDate">08 Nov 2026</p>
+                                <p class="seller-val" id="detailSubmissionDate">-</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Wadah Khusus Alasan Ditolak (Tampil Saat Status Ditolak) -->
+                    <!-- Wadah Khusus Alasan Ditolak -->
                     <div class="seller-rejected-box" id="boxRejectedReason" style="display: none;">
                         <div class="seller-rejected-title">
                             <i class="bi bi-x-circle-fill"></i> Alasan Penolakan oleh Administrator:
@@ -277,7 +256,7 @@ $adminInitials = 'AP';
                         <p class="seller-rejected-text" id="displayRejectedReasonText">-</p>
                     </div>
 
-                    <!-- Baris 7: Input Catatan Admin (Tampil Hanya Saat Status Menunggu) -->
+                    <!-- Input Catatan Admin -->
                     <div class="mt-3" id="boxAdminNoteInput">
                         <label class="seller-label mb-2" for="sellerAdminNote">Catatan Admin</label>
                         <textarea id="sellerAdminNote" class="seller-textarea" placeholder="Wajib diisi jika pengajuan ditolak..."></textarea>
@@ -289,10 +268,7 @@ $adminInitials = 'AP';
                     </div>
                 </div>
 
-                <!-- Footer Tombol Keputusan (Dinamis: Setujui/Tolak untuk Menunggu, Tutup untuk Ditolak) -->
-                <div class="seller-modal-footer" id="modalSellerFooter">
-                    <!-- Diisi dinamis oleh JavaScript -->
-                </div>
+                <div class="seller-modal-footer" id="modalSellerFooter"></div>
             </div>
         </div>
     </div>
@@ -304,7 +280,6 @@ $adminInitials = 'AP';
                 <p class="footer-brand-desc-center">
                     Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
                 </p>
-                <!-- Baris Kontak dan Email sesuai desain baru -->
                 <div style="font-size: 0.85rem; color: #1a1a1a; margin-top: 10px;">
                     <strong style="font-weight: 800;">Kontak dan Email:</strong>
                     <span style="margin: 0 16px;">08123456xxxx</span>
@@ -323,7 +298,6 @@ $adminInitials = 'AP';
 
     <!-- ENGINE PENGAJUAN PENJUAL DINAMIS -->
     <script>
-        // Data Awal Cadangan (Figma accurate)
         const fallbackSellerRequests = [{
                 id: 'REQ-1',
                 name: 'CyberNet Studio',
@@ -439,25 +413,20 @@ $adminInitials = 'AP';
                 sellerRequests = [...fallbackSellerRequests];
             }
 
-            // Hitung Badge 'Menunggu' untuk Sidebar Navigasi
             const pendingRequests = sellerRequests.filter(r => r.status === 'Menunggu');
             document.getElementById('sidebarSellerBadge').innerText = pendingRequests.length;
 
-            // Hitung badge antrean moderasi aset dari storage moderasi
             try {
                 const queue = JSON.parse(localStorage.getItem('indofx_moderation_queue')) || [];
                 const pQueue = queue.filter(q => q.status === 'Pending' || q.status === 'Pending Review').length;
                 document.getElementById('sidebarModerationBadge').innerText = pQueue;
             } catch (e) {}
 
-            // Sinkronkan 4 Kartu Metrik Pengguna Murni Dinamis
             syncUsersMetricCards();
-
-            // Render baris tabel
             renderSellerTable();
         }
 
-        // 2. SINKRONISASI KARTU METRIK MURNI DINAMIS (TANPA FALLBACK STATIS 1.284)
+        // 2. SINKRONISASI KARTU METRIK MURNI DINAMIS
         function syncUsersMetricCards() {
             let userList = [];
             try {
@@ -466,7 +435,6 @@ $adminInitials = 'AP';
                 userList = [];
             }
 
-            // Jika belum ada di localStorage, ambil dari default basis
             if (userList.length === 0) {
                 userList = [{
                         id: 1,
@@ -502,7 +470,6 @@ $adminInitials = 'AP';
                 localStorage.setItem('indofx_admin_users', JSON.stringify(userList));
             }
 
-            // Perhitungan murni matematis dari data riil
             const total = userList.length;
             const sellers = userList.filter(u => u.role === 'Penjual').length;
             const buyers = userList.filter(u => u.role === 'Pembeli').length;
@@ -548,7 +515,6 @@ $adminInitials = 'AP';
 
                 if (item.status === 'Aktif' || item.status === 'Diterima') {
                     statusBadge = `<span class="badge-status-active">${item.status}</span>`;
-                    // KETENTUAN 1: JIKA DITERIMA / AKTIF -> GANTI DENGAN CENTANG SAJA
                     actionColumnContent = `
                         <span class="btn-action-check" title="Pengajuan Telah Diterima">
                             <i class="bi bi-check-lg"></i>
@@ -556,7 +522,6 @@ $adminInitials = 'AP';
                     `;
                 } else if (item.status === 'Menunggu') {
                     statusBadge = `<span class="badge-status-waiting">Menunggu</span>`;
-                    // KETENTUAN 2: JIKA MENUNGGU -> TOMBOL LIHAT UNTUK MEMVERIFIKASI
                     actionColumnContent = `
                         <button type="button" class="btn-action-view" onclick="openViewSellerModal('${item.id}')">
                             <i class="bi bi-eye"></i> Lihat
@@ -564,7 +529,6 @@ $adminInitials = 'AP';
                     `;
                 } else {
                     statusBadge = `<span class="badge-status-blocked">Ditolak</span>`;
-                    // KETENTUAN 3: JIKA DITOLAK -> TOMBOL LIHAT BERISI DETAIL & ALASAN DITOLAK ADMIN
                     actionColumnContent = `
                         <button type="button" class="btn-action-view" onclick="openViewSellerModal('${item.id}')">
                             <i class="bi bi-eye"></i> Lihat
@@ -593,14 +557,13 @@ $adminInitials = 'AP';
             }).join('');
         }
 
-        // 4. BUKA MODAL DETAIL PENGAJUAN (SESUAI STATUS: MENUNGGU vs DITOLAK)
+        // 4. BUKA MODAL DETAIL PENGAJUAN
         function openViewSellerModal(id) {
             const item = sellerRequests.find(s => String(s.id) === String(id));
             if (!item) return;
 
             selectedSellerRequestId = id;
 
-            // Isi Data Utama
             document.getElementById('detailFullName').innerText = item.full_name || item.name;
             document.getElementById('detailEmail').innerText = item.email;
             document.getElementById('detailAddress').innerText = item.address || 'Alamat tidak dicantumkan';
@@ -611,7 +574,6 @@ $adminInitials = 'AP';
             document.getElementById('detailPortfolio').innerText = item.portfolio || '-';
             document.getElementById('detailSubmissionDate').innerText = item.submission_date || item.join_date;
 
-            // Status Badge di Modal
             const badgeContainer = document.getElementById('detailStatusBadgeModal');
             if (item.status === 'Ditolak') {
                 badgeContainer.innerHTML = `<span class="badge-status-blocked">Ditolak</span>`;
@@ -621,34 +583,24 @@ $adminInitials = 'AP';
                 badgeContainer.innerHTML = `<span class="badge-status-active">${item.status}</span>`;
             }
 
-            // KONDISI PENAMPILAN ALASAN DITOLAK vs FORM INPUT ADMIN
             const boxRejected = document.getElementById('boxRejectedReason');
             const boxNoteInput = document.getElementById('boxAdminNoteInput');
             const footerEl = document.getElementById('modalSellerFooter');
 
             if (item.status === 'Ditolak') {
-                // Tampilkan Kotak Alasan Penolakan
                 boxRejected.style.display = 'block';
                 document.getElementById('displayRejectedReasonText').innerText = item.reject_reason || 'Alasan penolakan tidak dicantumkan oleh administrator.';
-
-                // Sembunyikan Input Catatan
                 boxNoteInput.style.display = 'none';
-
-                // Footer Hanya Tombol Tutup
                 footerEl.innerHTML = `
                     <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Tutup</button>
                 `;
             } else {
-                // Sembunyikan Kotak Alasan Penolakan
                 boxRejected.style.display = 'none';
-
-                // Tampilkan Input Catatan Admin untuk Menolak
                 boxNoteInput.style.display = 'block';
                 const noteEl = document.getElementById('sellerAdminNote');
                 noteEl.value = '';
                 noteEl.classList.remove('is-invalid-note');
 
-                // Footer Tombol Keputusan (Tolak & Setujui)
                 footerEl.innerHTML = `
                     <button type="button" class="btn-seller-reject" onclick="handleRejectSeller()">
                         <i class="bi bi-x-lg"></i> Tolak
@@ -660,6 +612,42 @@ $adminInitials = 'AP';
             }
 
             modalViewInstance.show();
+        }
+
+        // Helper untuk menyinkronkan flag & profil penjual pada akun user yang bersangkutan
+        function syncTargetSellerAccountState(targetReq, isApproved) {
+            if (!targetReq) return;
+
+            const matchedKeys = new Set();
+            if (targetReq.user_key) {
+                matchedKeys.add(String(targetReq.user_key));
+            }
+
+            // Cari juga kunci profil penjual lain yang cocok berdasarkan email pendaftar
+            Object.keys(localStorage).forEach(k => {
+                if (k.startsWith('indofx_seller_profile_')) {
+                    try {
+                        const prof = JSON.parse(localStorage.getItem(k)) || {};
+                        if (targetReq.email && prof.email && prof.email.toLowerCase() === targetReq.email.toLowerCase()) {
+                            matchedKeys.add(k.replace('indofx_seller_profile_', ''));
+                        }
+                    } catch (e) {}
+                }
+            });
+
+            matchedKeys.forEach(uKey => {
+                localStorage.setItem('indofx_is_seller_' + uKey, isApproved ? 'true' : 'false');
+                try {
+                    const existingProf = JSON.parse(localStorage.getItem('indofx_seller_profile_' + uKey)) || {};
+                    existingProf.user_id = uKey;
+                    existingProf.is_seller = isApproved;
+                    existingProf.is_active = isApproved;
+                    existingProf.status = isApproved ? 'approved' : 'rejected';
+                    existingProf.store_name = existingProf.store_name || targetReq.store_name || targetReq.name || targetReq.full_name;
+                    if (targetReq.email) existingProf.email = targetReq.email;
+                    localStorage.setItem('indofx_seller_profile_' + uKey, JSON.stringify(existingProf));
+                } catch (e) {}
+            });
         }
 
         // 5. AKSI SETUJUI PENGAJUAN PENJUAL
@@ -683,7 +671,10 @@ $adminInitials = 'AP';
             if (approvedUser) {
                 try {
                     let userList = JSON.parse(localStorage.getItem('indofx_admin_users')) || [];
-                    const userIdx = userList.findIndex(u => u.email === approvedUser.email);
+                    const userIdx = userList.findIndex(u =>
+                        (approvedUser.user_key && String(u.id) === String(approvedUser.user_key)) ||
+                        (approvedUser.email && u.email && u.email.toLowerCase() === approvedUser.email.toLowerCase())
+                    );
 
                     if (userIdx !== -1) {
                         userList[userIdx].role = 'Penjual';
@@ -691,7 +682,7 @@ $adminInitials = 'AP';
                         userList[userIdx].verified = true;
                     } else {
                         userList.push({
-                            id: Date.now(),
+                            id: approvedUser.user_key || Date.now(),
                             name: approvedUser.name || approvedUser.full_name,
                             verified: true,
                             email: approvedUser.email,
@@ -703,10 +694,13 @@ $adminInitials = 'AP';
                     }
                     localStorage.setItem('indofx_admin_users', JSON.stringify(userList));
                 } catch (e) {}
+
+                // C. Aktifkan Akses Dashboard Penjual di Sisi User
+                syncTargetSellerAccountState(approvedUser, true);
             }
 
             modalViewInstance.hide();
-            loadSellerRequestsData(); // Muat ulang tabel, tombol centang otomatis muncul!
+            loadSellerRequestsData();
         }
 
         // 6. AKSI TOLAK PENGAJUAN (WAJIB ISI CATATAN ALASAN SECARA DINAMIS)
@@ -722,15 +716,22 @@ $adminInitials = 'AP';
                 return;
             }
 
+            let rejectedUser = null;
             sellerRequests = sellerRequests.map(s => {
                 if (String(s.id) === String(selectedSellerRequestId)) {
                     s.status = 'Ditolak';
-                    s.reject_reason = noteVal; // Simpan alasan penolakan secara dinamis
+                    s.reject_reason = noteVal;
+                    rejectedUser = s;
                 }
                 return s;
             });
 
             localStorage.setItem('indofx_seller_requests', JSON.stringify(sellerRequests));
+
+            if (rejectedUser) {
+                syncTargetSellerAccountState(rejectedUser, false);
+            }
+
             modalViewInstance.hide();
             loadSellerRequestsData();
         }
@@ -738,20 +739,17 @@ $adminInitials = 'AP';
         document.addEventListener('DOMContentLoaded', function() {
             modalViewInstance = new bootstrap.Modal(document.getElementById('modalViewSeller'));
 
-            // Inisialisasi data dinamis
             loadSellerRequestsData();
 
             document.getElementById('sellerSearchInput').addEventListener('input', renderSellerTable);
             document.getElementById('filterStatusSelect').addEventListener('change', renderSellerTable);
 
-            // Hilangkan outline merah saat admin mulai mengetik
             document.getElementById('sellerAdminNote').addEventListener('input', function() {
                 if (this.value.trim()) {
                     this.classList.remove('is-invalid-note');
                 }
             });
 
-            // Dropdown Profil Admin
             const btn = document.getElementById('adminDropdownBtn');
             const menu = document.getElementById('adminDropdownMenu');
             if (btn && menu) {

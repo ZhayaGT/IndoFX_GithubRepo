@@ -173,7 +173,7 @@
         <div class="container-figma">
             <div class="row g-4 align-items-start">
 
-                <!-- SISI KIRI: Card Filter Pencarian (Digeser sedikit ke kiri & ramping) -->
+                <!-- SISI KIRI: Card Filter Pencarian -->
                 <div class="col-12 col-lg-3 filter-col-left">
                     <div class="filter-search-card p-3">
                         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -181,16 +181,26 @@
                             <a href="javascript:void(0)" class="filter-reset-link">Reset</a>
                         </div>
 
-                        <!-- 1. Kategori -->
+                        <!-- 1. Kategori (Dinamis dari Pengelolaan Kategori Admin) -->
                         <div class="filter-group mb-3">
                             <label class="filter-group-label d-block mb-2">Kategori</label>
-                            <div class="form-check mb-1">
-                                <input class="form-check-input filter-checkbox" type="checkbox" id="cat_shader">
-                                <label class="form-check-label filter-check-text" for="cat_shader">Shader</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input filter-checkbox" type="checkbox" id="cat_particle">
-                                <label class="form-check-label filter-check-text" for="cat_particle">Particle</label>
+                            <div id="dynamicExploreCategoryList">
+                                <div class="form-check mb-1">
+                                    <input class="form-check-input filter-checkbox" type="checkbox" id="cat_shader" value="Shader" data-slug="shader">
+                                    <label class="form-check-label filter-check-text" for="cat_shader">Shader</label>
+                                </div>
+                                <div class="form-check mb-1">
+                                    <input class="form-check-input filter-checkbox" type="checkbox" id="cat_vfx_partikel" value="VFX Partikel" data-slug="vfx-partikel">
+                                    <label class="form-check-label filter-check-text" for="cat_vfx_partikel">VFX Partikel</label>
+                                </div>
+                                <div class="form-check mb-1">
+                                    <input class="form-check-input filter-checkbox" type="checkbox" id="cat_script_tool" value="Script / Tool" data-slug="script-tool">
+                                    <label class="form-check-label filter-check-text" for="cat_script_tool">Script / Tool</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input filter-checkbox" type="checkbox" id="cat_3d_model" value="3D Model" data-slug="3d-model">
+                                    <label class="form-check-label filter-check-text" for="cat_3d_model">3D Model</label>
+                                </div>
                             </div>
                         </div>
 
@@ -289,7 +299,6 @@
                 <p class="footer-brand-desc-center">
                     Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
                 </p>
-                <!-- Baris Kontak dan Email sesuai desain baru -->
                 <div style="font-size: 0.85rem; color: #1a1a1a; margin-top: 10px;">
                     <strong style="font-weight: 800;">Kontak dan Email:</strong>
                     <span style="margin: 0 16px;">08123456xxxx</span>
@@ -306,6 +315,100 @@
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/assets/js/navbar-auth.js"></script>
+
+    <!-- Sinkronisasi Daftar Filter Kategori dari Admin sebelum catalog.js berjalan -->
+    <script>
+        (function() {
+            const fallbackExploreCategories = [{
+                    id: 1,
+                    name: 'Shader',
+                    slug: 'shader'
+                },
+                {
+                    id: 2,
+                    name: 'VFX Partikel',
+                    slug: 'vfx-partikel'
+                },
+                {
+                    id: 3,
+                    name: 'Script / Tool',
+                    slug: 'script-tool'
+                },
+                {
+                    id: 4,
+                    name: '3D Model',
+                    slug: '3d-model'
+                }
+            ];
+
+            function renderExploreCategoryFilters() {
+                const container = document.getElementById('dynamicExploreCategoryList');
+                if (!container) return;
+
+                // Simpan pilihan yang sedang tercentang sebelum dirender ulang
+                const previouslyChecked = new Set(
+                    Array.from(container.querySelectorAll('input[type="checkbox"]:checked'))
+                    .map(cb => cb.value.toLowerCase())
+                );
+
+                let adminCategories = [];
+                try {
+                    const stored = JSON.parse(localStorage.getItem('indofx_admin_categories'));
+                    if (Array.isArray(stored) && stored.length > 0) {
+                        adminCategories = stored;
+                    } else {
+                        adminCategories = fallbackExploreCategories;
+                    }
+                } catch (e) {
+                    adminCategories = fallbackExploreCategories;
+                }
+
+                // Cek jika ada parameter URL ?kategori=... atau ?category=...
+                const urlParams = new URLSearchParams(window.location.search);
+                const queryCat = (urlParams.get('kategori') || urlParams.get('category') || '').toLowerCase().trim();
+
+                container.innerHTML = adminCategories.map((cat, idx) => {
+                    const cleanSlug = String(cat.slug || cat.name || '')
+                        .toLowerCase()
+                        .trim()
+                        .replace(/[^a-z0-9\s-]/g, '')
+                        .replace(/\s+/g, '-');
+                    const inputId = 'cat_' + cleanSlug.replace(/-/g, '_');
+                    const isLast = idx === adminCategories.length - 1;
+                    const isChecked = previouslyChecked.has(String(cat.name).toLowerCase()) ||
+                        (queryCat && (queryCat === cleanSlug || queryCat === String(cat.name).toLowerCase()));
+
+                    return `
+                        <div class="form-check ${isLast ? '' : 'mb-1'}">
+                            <input class="form-check-input filter-checkbox"
+                                   type="checkbox"
+                                   id="${inputId}"
+                                   value="${String(cat.name).replace(/"/g, '&quot;')}"
+                                   data-slug="${cleanSlug}"
+                                   ${isChecked ? 'checked' : ''}>
+                            <label class="form-check-label filter-check-text" for="${inputId}">${cat.name}</label>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            renderExploreCategoryFilters();
+
+            // Jika admin menambah/edit/hapus kategori di tab lain, perbarui otomatis & picu filter ulang
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'indofx_admin_categories') {
+                    renderExploreCategoryFilters();
+                    const firstCheck = document.querySelector('#dynamicExploreCategoryList input[type="checkbox"]');
+                    if (firstCheck) {
+                        firstCheck.dispatchEvent(new Event('change', {
+                            bubbles: true
+                        }));
+                    }
+                }
+            });
+        })();
+    </script>
+
     <script src="/assets/js/catalog.js" defer></script>
 </body>
 

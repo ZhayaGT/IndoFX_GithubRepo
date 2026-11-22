@@ -4,8 +4,14 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
     exit;
 }
 
-$adminName = 'Super Admin IndoFX';
+$adminName = (string) ($_SESSION['name'] ?? 'Super Admin IndoFX');
 $adminInitials = 'AP';
+$words = preg_split('/\s+/', trim($adminName)) ?: [];
+if (count($words) >= 2) {
+    $adminInitials = mb_strtoupper(mb_substr($words[0], 0, 1) . mb_substr($words[1], 0, 1));
+} elseif (!empty($words[0])) {
+    $adminInitials = mb_strtoupper(mb_substr($words[0], 0, 2));
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -119,7 +125,7 @@ $adminInitials = 'AP';
                 </div>
             </div>
 
-            <!-- Tabel Antrean Moderasi -->
+            <!-- Tabel Antrean Moderasi Berpaginasi 5 Aset per Halaman -->
             <div class="admin-table-card">
                 <div class="table-responsive">
                     <table class="table table-admin align-middle">
@@ -139,6 +145,14 @@ $adminInitials = 'AP';
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Footer Navigasi Paginasi Dinamis (Seragam dengan Kelola Pengguna) -->
+                <div class="admin-pagination-bar" id="assetPaginationBar">
+                    <span id="assetPaginationInfoText">Menampilkan 0 dari 0 aset</span>
+                    <div class="admin-pagination-btns" id="assetPaginationBtnsContainer">
+                        <!-- Tombol Halaman Digenerate Dinamis -->
+                    </div>
+                </div>
             </div>
         </main>
     </div>
@@ -150,7 +164,6 @@ $adminInitials = 'AP';
                 <p class="footer-brand-desc-center">
                     Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
                 </p>
-                <!-- Baris Kontak dan Email sesuai desain baru -->
                 <div style="font-size: 0.85rem; color: #1a1a1a; margin-top: 10px;">
                     <strong style="font-weight: 800;">Kontak dan Email:</strong>
                     <span style="margin: 0 16px;">08123456xxxx</span>
@@ -167,7 +180,7 @@ $adminInitials = 'AP';
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- ENGINE TABEL MODERASI ASET (MENGARAH KE SUBPAGE PENINJAUAN) -->
+    <!-- ENGINE TABEL MODERASI ASET + PAGINASI 5 DATA PER HALAMAN -->
     <script>
         const initialQueue = [{
                 id: 'mod-1',
@@ -215,6 +228,27 @@ $adminInitials = 'AP';
 
         let moderationAssets = [];
 
+        // Konfigurasi Paginasi: 5 aset per tabel
+        const itemsPerPage = 5;
+        let currentPage = 1;
+
+        function syncCategoryFilterOptions() {
+            const selectEl = document.getElementById('filterModerationCategory');
+            if (!selectEl) return;
+
+            try {
+                const adminCats = JSON.parse(localStorage.getItem('indofx_admin_categories'));
+                if (Array.isArray(adminCats) && adminCats.length > 0) {
+                    const currentVal = selectEl.value;
+                    selectEl.innerHTML = '<option value="all">Semua Kategori</option>' +
+                        adminCats.map(cat =>
+                            `<option value="${String(cat.name).replace(/"/g, '&quot;')}">${cat.name}</option>`
+                        ).join('');
+                    selectEl.value = currentVal || 'all';
+                }
+            } catch (e) {}
+        }
+
         function loadModerationData() {
             try {
                 const stored = localStorage.getItem('indofx_moderation_queue');
@@ -241,9 +275,9 @@ $adminInitials = 'AP';
                                     title: sa.title,
                                     pipeline: Array.isArray(sa.pipelines) ? (sa.pipelines[0] || 'Built-in') : (sa.pipelines || 'Built-in'),
                                     category: sa.category || 'VFX Partikel',
-                                    file_info: 'File: ' + sa.title.toLowerCase().replace(/[^a-z0-9]/g, '_') + '.unitypackage (24 MB)',
+                                    file_info: sa.file_info || ('File: ' + sa.title.toLowerCase().replace(/[^a-z0-9]/g, '_') + '.unitypackage (24 MB)'),
                                     studio: sa.creator || sa.seller || 'Studio Kreator',
-                                    unity_ver: 'Unity 2022.3 LTS',
+                                    unity_ver: sa.unity_version ? ('Unity ' + sa.unity_version + ' LTS') : 'Unity 2022.3 LTS',
                                     price: typeof sa.price === 'number' ? ('Rp' + sa.price.toLocaleString('id-ID')) : (sa.price || 'Gratis'),
                                     price_num: parseFloat(String(sa.price).replace(/[^0-9]/g, '')) || 0,
                                     date: sa.created_at || sa.date || 'Hari ini',
@@ -259,9 +293,15 @@ $adminInitials = 'AP';
 
             localStorage.setItem('indofx_moderation_queue', JSON.stringify(moderationAssets));
 
-            // Perbarui badge sidebar
+            // Perbarui badge sidebar Moderasi Aset & Pengajuan Penjual
             const pendingCount = moderationAssets.filter(a => a.status === 'Pending' || a.status === 'Pending Review').length;
             document.getElementById('sidebarModerationBadge').innerText = pendingCount;
+
+            try {
+                const sReqs = JSON.parse(localStorage.getItem('indofx_seller_requests')) || [];
+                const pReqs = sReqs.filter(r => r.status === 'Menunggu').length;
+                document.getElementById('sidebarSellerBadge').innerText = pReqs;
+            } catch (e) {}
 
             renderModerationTable();
         }
@@ -274,17 +314,24 @@ $adminInitials = 'AP';
 
             const filtered = moderationAssets.filter(item => {
                 const matchKeyword = !keyword ||
-                    item.title.toLowerCase().includes(keyword) ||
-                    item.studio.toLowerCase().includes(keyword);
+                    (item.title && item.title.toLowerCase().includes(keyword)) ||
+                    (item.studio && item.studio.toLowerCase().includes(keyword));
 
                 const itemStatusNormalized = (item.status === 'Disetujui' ? 'Published' : (item.status === 'Pending' ? 'Pending Review' : item.status));
                 const matchStatus = statusFilter === 'all' || itemStatusNormalized === statusFilter;
-                const matchCategory = categoryFilter === 'all' || item.category === categoryFilter;
+                const matchCategory = categoryFilter === 'all' ||
+                    (item.category && item.category.toLowerCase().trim() === categoryFilter.toLowerCase().trim());
 
                 return matchKeyword && matchStatus && matchCategory;
             });
 
-            if (filtered.length === 0) {
+            const totalItems = filtered.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            if (totalItems === 0) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="7" class="text-center py-4 text-muted small">
@@ -292,10 +339,17 @@ $adminInitials = 'AP';
                         </td>
                     </tr>
                 `;
+                document.getElementById('assetPaginationInfoText').innerText = 'Menampilkan 0 dari 0 aset';
+                document.getElementById('assetPaginationBtnsContainer').innerHTML = '';
                 return;
             }
 
-            tbody.innerHTML = filtered.map(item => {
+            // Ambil tepat 5 aset untuk halaman aktif
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+            const pageData = filtered.slice(startIndex, endIndex);
+
+            tbody.innerHTML = pageData.map(item => {
                 const pipe = item.pipeline || 'URP';
                 let pipeClass = 'badge-pipe-urp';
                 if (pipe.toLowerCase().includes('hdrp')) pipeClass = 'badge-pipe-hdrp';
@@ -311,7 +365,7 @@ $adminInitials = 'AP';
                     statusBadge = `<span class="badge-status-blocked">Ditolak</span>`;
                 }
 
-                // Tombol Detail langsung membuka SUBPAGE REVIEW FIGMA (bukan modal popup)
+                // Tombol Detail membuka subpage review, Halaman Publik membuka detail aset
                 const actionBtn = isPublished ?
                     `
                         <a href="/asset/detail?id=${encodeURIComponent(item.id)}&title=${encodeURIComponent(item.title)}" class="btn-admin-public">
@@ -354,14 +408,62 @@ $adminInitials = 'AP';
                     </tr>
                 `;
             }).join('');
+
+            document.getElementById('assetPaginationInfoText').innerText =
+                `Menampilkan ${startIndex + 1}-${endIndex} dari ${totalItems} aset`;
+            renderAssetPaginationControls(totalPages);
+        }
+
+        function renderAssetPaginationControls(totalPages) {
+            const container = document.getElementById('assetPaginationBtnsContainer');
+            let btnsHtml = '';
+
+            btnsHtml += `
+                <button type="button" class="btn-page-admin" ${currentPage === 1 ? 'disabled' : ''} onclick="goToAssetPage(${currentPage - 1})">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+            `;
+
+            for (let i = 1; i <= totalPages; i++) {
+                btnsHtml += `
+                    <button type="button" class="btn-page-admin ${i === currentPage ? 'active' : ''}" onclick="goToAssetPage(${i})">
+                        ${i}
+                    </button>
+                `;
+            }
+
+            btnsHtml += `
+                <button type="button" class="btn-page-admin ${currentPage === totalPages ? 'disabled' : ''} onclick="goToAssetPage(${currentPage + 1})">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            `;
+
+            container.innerHTML = btnsHtml;
+        }
+
+        function goToAssetPage(page) {
+            currentPage = page;
+            renderModerationTable();
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            syncCategoryFilterOptions();
             loadModerationData();
 
-            document.getElementById('adminFilterAssetInput').addEventListener('input', renderModerationTable);
-            document.getElementById('filterModerationStatus').addEventListener('change', renderModerationTable);
-            document.getElementById('filterModerationCategory').addEventListener('change', renderModerationTable);
+            document.getElementById('adminFilterAssetInput').addEventListener('input', function() {
+                currentPage = 1;
+                renderModerationTable();
+            });
+
+            document.getElementById('filterModerationStatus').addEventListener('change', function() {
+                currentPage = 1;
+                renderModerationTable();
+            });
+
+            document.getElementById('filterModerationCategory').addEventListener('change', function() {
+                currentPage = 1;
+                renderModerationTable();
+            });
 
             // Dropdown Profil Admin
             const btn = document.getElementById('adminDropdownBtn');

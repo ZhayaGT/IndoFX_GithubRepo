@@ -4,9 +4,8 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$userKey    = (string) ($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user');
-$userName   = (string) ($_SESSION['username'] ?? $_SESSION['name'] ?? 'naufalhaidarazmi');
-$sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
+$userKey  = (string) ($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user');
+$userName = (string) ($_SESSION['username'] ?? $_SESSION['name'] ?? 'naufalhaidarazmi');
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -18,21 +17,21 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
 
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Bootstrap 5 CSS & Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    <!-- Stylesheets Asli Dashboard Figma (Tanpa admin.css agar tidak merusak layout) -->
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/dashboard.css">
 </head>
 
 <body class="dashboard-body">
 
-    <!-- 1. Header Navbar Oranye Dashboard -->
+    <!-- 1. Header Navbar Oranye (Hanya Logo & Nama IndoFX) -->
     <nav class="navbar navbar-orange sticky-top">
         <div class="container-fluid px-4 d-flex justify-content-between align-items-center">
             <a class="navbar-brand m-0 d-flex align-items-center gap-2 text-decoration-none" href="/">
@@ -46,20 +45,14 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                 </svg>
                 <span class="brand-text">IndoFX</span>
             </a>
-
-            <!-- Profil Penjual Kanan -->
-            <a href="/dashboard/assets" class="d-flex align-items-center gap-2 text-white text-decoration-none" title="Semua Aset Saya">
-                <span class="avatar-circle" id="navDashAvatar"><?= htmlspecialchars($sellerInitials) ?></span>
-                <span class="fw-bold fs-7 tracking-wide text-uppercase" id="navDashStoreName"><?= htmlspecialchars($userName) ?></span>
-            </a>
         </div>
     </nav>
 
-    <!-- 2. Konten Form Utama Bersih Sesuai Desain Figma -->
+    <!-- 2. Konten Form Utama -->
     <main class="py-4 form-page-wrapper">
         <div class="container-form">
 
-            <!-- Judul Halaman & Tombol Kembali -->
+            <!-- Judul Halaman -->
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                 <h2 class="dash-page-title mb-0">Tambah Aset Baru</h2>
                 <a href="/dashboard/assets" class="btn btn-outline-secondary btn-sm px-3 fw-bold">Kembali ke Semua Aset Saya</a>
@@ -145,13 +138,13 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
 
                     <div id="priceInputFieldWrapper">
                         <label for="price" class="form-label form-field-label">Harga Jual (Rupiah) *</label>
-                        <div class="input-group" id="priceInputGroup">
+                        <div class="input-group">
                             <span class="input-group-text form-addon-rp">Rp</span>
-                            <input type="number" class="form-control form-field-input" id="price" value="150000" placeholder="150000" min="5000" step="1000" required>
+                            <input type="number" class="form-control form-field-input" id="price" value="150000" placeholder="150000" min="5000" step="1000">
                         </div>
                         <small class="text-muted mt-1 d-block" id="priceMinHint">Minimal harga jual untuk aset berbayar adalah Rp5.000.</small>
                         <div id="priceWarningAlert" class="d-none mt-2 px-3 py-2 rounded-2 small fw-semibold" style="background-color: #fef2f2; border: 1px solid #fecaca; color: #b91c1c;">
-                            <i class="bi bi-exclamation-triangle-fill me-1"></i> Peringatan: Harga aset berbayar tidak boleh kurang dari Rp5.000.
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> Peringatan: Harga jual aset berbayar tidak boleh kurang dari Rp5.000.
                         </div>
                     </div>
                 </div>
@@ -162,9 +155,10 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
 
                     <div class="mb-3">
                         <label class="form-label form-field-label">Gambar Pratinjau Utama (16:9) *</label>
-                        <div class="dropzone-box text-center p-4" onclick="document.getElementById('imageFileInput').click()" style="cursor: pointer;">
-                            <input type="file" id="imageFileInput" class="d-none" accept="image/png, image/jpeg">
-                            <div class="dropzone-icon mb-2">
+                        <div class="dropzone-box text-center p-4" id="imageDropzone" onclick="document.getElementById('imageFileInput').click()" style="cursor: pointer;">
+                            <input type="file" id="imageFileInput" class="d-none" accept="image/png, image/jpeg, image/webp">
+                            <img id="imagePreviewThumb" src="" alt="Preview" class="d-none mx-auto mb-2 rounded" style="max-height: 160px; object-fit: cover;">
+                            <div class="dropzone-icon mb-2" id="imagePlaceholderIcon">
                                 <i class="bi bi-card-image fs-3 text-secondary"></i>
                             </div>
                             <div class="dropzone-title fw-bold mb-1" id="imageNameLabel">Tarik &amp; lepas gambar pratinjau di sini</div>
@@ -200,7 +194,7 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                     </div>
                 </div>
 
-                <!-- TOMBOL SUBMIT -->
+                <!-- TOMBOL SUBMIT KANAN -->
                 <div class="d-flex justify-content-end mb-5">
                     <button type="submit" class="btn btn-submit-upload" id="btnSubmitAsset">
                         <i class="bi bi-upload me-1"></i> Ajukan Pengunggahan
@@ -219,7 +213,6 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                 <p class="footer-brand-desc-center">
                     Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
                 </p>
-                <!-- Baris Kontak dan Email sesuai desain baru -->
                 <div style="font-size: 0.85rem; color: #1a1a1a; margin-top: 10px;">
                     <strong style="font-weight: 800;">Kontak dan Email:</strong>
                     <span style="margin: 0 16px;">08123456xxxx</span>
@@ -238,9 +231,12 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
 
     <!-- Script Form Pengajuan & Sinkronisasi Antrean Admin -->
     <script>
-        const sellerUsername = '<?= $userName ?>';
+        const userKey = '<?= htmlspecialchars($userKey, ENT_QUOTES, 'UTF-8') ?>';
+        const sellerUsername = '<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>';
         let uploadedImageBase64 = '';
         let uploadedPackageName = '';
+        let uploadedPackageSize = '18 MB';
+        let isProcessingImage = false;
 
         function validatePriceWarning() {
             const isFree = document.getElementById('price_free').checked;
@@ -255,8 +251,8 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                 return true;
             }
 
-            const val = parseFloat(priceInput.value);
-            if (isNaN(val) || val < 5000) {
+            const val = Number(priceInput.value);
+            if (priceInput.value.trim() === '' || isNaN(val) || val < 5000) {
                 warningEl.classList.remove('d-none');
                 hintEl.classList.add('d-none');
                 priceInput.style.borderColor = '#dc2626';
@@ -275,172 +271,218 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
             if (isPaid) {
                 wrapper.classList.remove('opacity-50');
                 priceInput.removeAttribute('disabled');
-                priceInput.setAttribute('min', '5000');
-                priceInput.setAttribute('required', 'true');
                 if ((parseFloat(priceInput.value) || 0) < 5000) {
                     priceInput.value = '150000';
                 }
             } else {
                 wrapper.classList.add('opacity-50');
-                priceInput.setAttribute('min', '0');
-                priceInput.removeAttribute('required');
                 priceInput.value = '0';
                 priceInput.setAttribute('disabled', 'true');
             }
             validatePriceWarning();
         }
 
+        // Kompresi gambar ringan (lebar maks 640px, JPEG 0.7) agar tidak pernah melebihi batas kuota localStorage
+        function compressImage(file, callback) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const maxW = 640;
+                    const scale = img.width > maxW ? (maxW / img.width) : 1;
+                    canvas.width = Math.round(img.width * scale);
+                    canvas.height = Math.round(img.height * scale);
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    callback(canvas.toDataURL('image/jpeg', 0.7));
+                };
+                img.onerror = function() {
+                    callback('');
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Helper simpan aman agar QuotaExceededError tidak pernah menghentikan tombol Submit
+        function safeSetLocalStorage(key, valueObj) {
+            try {
+                localStorage.setItem(key, JSON.stringify(valueObj));
+                return true;
+            } catch (e) {
+                if (Array.isArray(valueObj) && valueObj.length > 1) {
+                    const trimmed = valueObj.slice(0, 5);
+                    try {
+                        localStorage.setItem(key, JSON.stringify(trimmed));
+                        return true;
+                    } catch (e2) {}
+                }
+                return false;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
-            // Ambil Nama Studio jika ada
-            const profileRaw = localStorage.getItem('indofx_seller_profile_' + sellerUsername);
-            let storeName = sellerUsername;
+            // Ambil Nama Studio dari profil penjual
+            const profileRaw = localStorage.getItem('indofx_seller_profile_' + userKey) ||
+                localStorage.getItem('indofx_seller_profile');
+            let storeName = sellerUsername || 'Studio Kreator';
             if (profileRaw) {
                 try {
                     const prof = JSON.parse(profileRaw);
-                    if (prof.store_name) storeName = prof.store_name;
+                    if (prof && prof.store_name) storeName = prof.store_name;
                 } catch (e) {}
             }
-            document.getElementById('navDashStoreName').innerText = storeName.toUpperCase();
-            const words = storeName.trim().split(/\s+/);
-            let inits = '';
-            words.slice(0, 2).forEach(w => inits += w.charAt(0).toUpperCase());
-            document.getElementById('navDashAvatar').innerText = inits || 'NH';
 
-            // Validasi Real-Time Saat Harga Diketik
+            // Peringatan real-time jika harga diinput di bawah Rp5.000
             const priceInput = document.getElementById('price');
             priceInput.addEventListener('input', validatePriceWarning);
+            priceInput.addEventListener('change', validatePriceWarning);
             priceInput.addEventListener('blur', validatePriceWarning);
 
-            // Nama File Indikator Gambar
+            // Indikator & Kompresi Gambar Pratinjau
             const imgInput = document.getElementById('imageFileInput');
             imgInput.addEventListener('change', function() {
-                if (this.files && this.files[0]) {
+                if (this.files && this.files.length > 0) {
                     const file = this.files[0];
                     document.getElementById('imageNameLabel').innerText = file.name;
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        uploadedImageBase64 = e.target.result;
-                    };
-                    reader.readAsDataURL(file);
+                    isProcessingImage = true;
+                    compressImage(file, function(dataUrl) {
+                        uploadedImageBase64 = dataUrl;
+                        isProcessingImage = false;
+                        if (dataUrl) {
+                            const thumb = document.getElementById('imagePreviewThumb');
+                            thumb.src = dataUrl;
+                            thumb.classList.remove('d-none');
+                            document.getElementById('imagePlaceholderIcon').classList.add('d-none');
+                        }
+                    });
                 }
             });
 
-            // Nama File Indikator Package
+            // Indikator Berkas Package
             const pkgInput = document.getElementById('packageFileInput');
             pkgInput.addEventListener('change', function() {
-                if (this.files && this.files[0]) {
-                    uploadedPackageName = this.files[0].name;
+                if (this.files && this.files.length > 0) {
+                    const file = this.files[0];
+                    uploadedPackageName = file.name;
+                    const mb = (file.size / (1024 * 1024)).toFixed(1);
+                    uploadedPackageSize = (mb > 0 ? mb : '0.5') + ' MB';
                     document.getElementById('packageNameLabel').innerText = uploadedPackageName;
                 }
             });
 
-            // SUBMIT: MENYIMPAN KE ANTREAN MODERASI SECARA OTOMATIS
+            // Form Submit Logic
             document.getElementById('formAddAsset').addEventListener('submit', function(e) {
                 e.preventDefault();
 
-                const titleInput = document.getElementById('asset_title');
-                const categoryInput = document.getElementById('category_id');
-                const descInput = document.getElementById('description');
-                const unityInput = document.getElementById('unity_version');
-                const howToUseInput = document.getElementById('how_to_use');
+                const title = document.getElementById('asset_title').value.trim();
+                const category = document.getElementById('category_id').value;
+                const description = document.getElementById('description').value.trim();
+                const unityVer = document.getElementById('unity_version').value;
+                const howToUse = document.getElementById('how_to_use').value.trim();
+                const videoUrl = document.getElementById('preview_video_url').value.trim();
 
-                if (!titleInput.value.trim()) {
+                if (!title) {
                     alert('Judul Aset wajib diisi.');
-                    titleInput.focus();
+                    document.getElementById('asset_title').focus();
                     return;
                 }
-                if (!categoryInput.value) {
+                if (!category) {
                     alert('Silakan pilih Kategori Aset.');
-                    categoryInput.focus();
+                    document.getElementById('category_id').focus();
                     return;
                 }
-                if (!descInput.value.trim()) {
+                if (!description) {
                     alert('Deskripsi Aset wajib diisi.');
-                    descInput.focus();
+                    document.getElementById('description').focus();
                     return;
                 }
-                if (!unityInput.value) {
+                if (!unityVer) {
                     alert('Silakan pilih Versi Unity Minimum.');
-                    unityInput.focus();
+                    document.getElementById('unity_version').focus();
                     return;
                 }
 
                 const isFree = document.getElementById('price_free').checked;
-                const rawPrice = isFree ? 0 : (parseFloat(priceInput.value) || 0);
-
+                const rawPrice = isFree ? 0 : (Number(document.getElementById('price').value) || 0);
                 if (!validatePriceWarning()) {
-                    priceInput.scrollIntoView({
+                    document.getElementById('price').scrollIntoView({
                         behavior: 'smooth',
                         block: 'center'
                     });
-                    priceInput.focus();
+                    document.getElementById('price').focus();
                     alert('Peringatan: Harga jual aset berbayar minimal Rp5.000.');
                     return;
                 }
 
-                if (!howToUseInput.value.trim()) {
+                if (isProcessingImage) {
+                    alert('Gambar sedang diproses, silakan klik Ajukan Pengunggahan sekali lagi.');
+                    return;
+                }
+
+                if (!uploadedImageBase64) {
+                    alert('Silakan pilih Gambar Pratinjau Utama (16:9) terlebih dahulu.');
+                    return;
+                }
+
+                if (!howToUse) {
                     alert('Panduan Penggunaan Aset wajib diisi.');
-                    howToUseInput.focus();
+                    document.getElementById('how_to_use').focus();
                     return;
                 }
 
                 const priceFormatted = isFree ? 'Gratis' : ('Rp' + rawPrice.toLocaleString('id-ID'));
-
                 const selectedPipes = [];
                 document.querySelectorAll('input[name="render_pipeline"]:checked').forEach(cb => {
                     selectedPipes.push(cb.value);
                 });
-                if (selectedPipes.length === 0) selectedPipes.push('URP');
+                const finalPipes = selectedPipes.length > 0 ? selectedPipes : ['URP'];
 
-                const title = titleInput.value.trim();
-                const category = categoryInput.value;
-                const description = descInput.value.trim();
-                const howToUse = howToUseInput.value.trim();
-                const unityVer = unityInput.value;
-                const videoUrl = document.getElementById('preview_video_url').value.trim();
-
-                const now = new Date();
-                const dateStr = now.toLocaleDateString('id-ID', {
+                const assetId = 'asset-' + Date.now();
+                const dateStr = new Date().toLocaleDateString('id-ID', {
                     day: 'numeric',
                     month: 'short',
                     year: 'numeric'
                 });
-                const assetId = 'asset-' + Date.now();
                 const fileName = uploadedPackageName || (title.toLowerCase().replace(/[^a-z0-9]/g, '_') + '.unitypackage');
 
-                // 1. Simpan ke ruang aset toko penjual
-                const sellerAssetObj = {
+                // 1. Simpan ke daftar aset toko pengguna
+                const newAsset = {
                     id: assetId,
                     title: title,
                     category: category,
                     description: description,
                     how_to_use: howToUse,
-                    price: rawPrice,
-                    price_text: priceFormatted,
-                    pipelines: selectedPipes,
+                    price: priceFormatted,
+                    price_num: rawPrice,
+                    pipelines: finalPipes,
                     unity_version: unityVer,
-                    status: 'Menunggu',
+                    status: 'Pending',
+                    downloads: '0x Unduhan',
                     sales: '0x Terjual',
-                    date: dateStr,
                     created_at: dateStr,
-                    file_info: 'File: ' + fileName + ' (18 MB)',
-                    image: uploadedImageBase64 || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80',
+                    date: dateStr,
+                    file_name: fileName,
+                    file_info: 'File: ' + fileName + ' (' + uploadedPackageSize + ')',
+                    image: uploadedImageBase64,
+                    preview_image: uploadedImageBase64,
+                    images: [uploadedImageBase64],
                     video_url: videoUrl,
                     seller: storeName,
                     creator: storeName
                 };
 
-                const sellerStorageKey = 'indofx_seller_assets_' + storeName;
-                let sellerAssets = [];
+                let assets = [];
                 try {
-                    sellerAssets = JSON.parse(localStorage.getItem(sellerStorageKey)) || [];
+                    assets = JSON.parse(localStorage.getItem('indofx_seller_assets_' + userKey)) || [];
                 } catch (err) {
-                    sellerAssets = [];
+                    assets = [];
                 }
-                sellerAssets.unshift(sellerAssetObj);
-                localStorage.setItem(sellerStorageKey, JSON.stringify(sellerAssets));
+                assets.unshift(newAsset);
+                safeSetLocalStorage('indofx_seller_assets_' + userKey, assets);
 
-                // 2. Suntikkan ke antrean moderasi admin (indofx_moderation_queue)
+                // 2. Sinkronkan ke antrean moderasi admin
                 let adminQueue = [];
                 try {
                     adminQueue = JSON.parse(localStorage.getItem('indofx_moderation_queue')) || [];
@@ -451,10 +493,11 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                 adminQueue.unshift({
                     id: assetId,
                     title: title,
-                    pipeline: selectedPipes[0] || 'URP',
-                    pipelines: selectedPipes,
+                    pipeline: finalPipes[0],
+                    pipelines: finalPipes,
                     category: category,
-                    file_info: 'File: ' + fileName + ' (18 MB)',
+                    file_name: fileName,
+                    file_info: 'File: ' + fileName + ' (' + uploadedPackageSize + ')',
                     studio: storeName,
                     creator: storeName,
                     seller: storeName,
@@ -464,15 +507,18 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                     date: dateStr,
                     created_at: dateStr,
                     time: 'Baru saja',
-                    status: 'Pending Review',
-                    seller_storage_key: sellerStorageKey,
-                    seller_key: sellerStorageKey,
+                    status: 'Pending',
+                    is_read: false,
+                    seller_storage_key: 'indofx_seller_assets_' + userKey,
+                    seller_key: 'indofx_seller_assets_' + userKey,
                     description: description,
                     how_to_use: howToUse,
                     video_url: videoUrl,
-                    image: uploadedImageBase64 || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80'
+                    image: uploadedImageBase64,
+                    preview_image: uploadedImageBase64,
+                    images: [uploadedImageBase64]
                 });
-                localStorage.setItem('indofx_moderation_queue', JSON.stringify(adminQueue));
+                safeSetLocalStorage('indofx_moderation_queue', adminQueue);
 
                 alert('Aset berhasil diajukan! Status saat ini: "Menunggu" verifikasi Administrator.');
                 window.location.href = '/dashboard/assets';

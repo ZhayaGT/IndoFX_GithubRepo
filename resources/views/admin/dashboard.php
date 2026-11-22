@@ -34,7 +34,6 @@ $adminInitials = 'AP';
     <!-- 1. Header Navbar Oranye Admin Sesuai Figma -->
     <nav class="navbar navbar-admin sticky-top">
         <div class="navbar-admin-container">
-            <!-- Brand Logo Kiri -->
             <a class="navbar-brand m-0 d-flex align-items-center gap-2 text-decoration-none" href="/admin/dashboard">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                     <path d="M12 2L20.66 7V17L12 22L3.34 17V7L12 2Z" fill="#ED6B1D" stroke="#1A1A1A" stroke-width="1.8" stroke-linejoin="round" />
@@ -47,7 +46,6 @@ $adminInitials = 'AP';
                 <span class="brand-text text-white fw-bold fs-6">IndoFX</span>
             </a>
 
-            <!-- Profil Admin Kanan & Dropdown Menu Figma (Hanya Logout) -->
             <div class="admin-dropdown-wrap">
                 <button type="button" class="btn-admin-profile" id="adminDropdownBtn">
                     <span class="avatar-admin-badge"><?= htmlspecialchars($adminInitials) ?></span>
@@ -66,7 +64,7 @@ $adminInitials = 'AP';
     <!-- 2. Kontainer Layout Utama -->
     <div class="admin-layout-container">
 
-        <!-- Sidebar Kiri Sesuai Figma image_45fee9 -->
+        <!-- Sidebar Kiri -->
         <aside class="admin-sidebar">
             <nav class="nav flex-column">
                 <a href="/admin/dashboard" class="admin-sidebar-link active">
@@ -99,7 +97,6 @@ $adminInitials = 'AP';
 
             <!-- 4 Kartu Ringkasan Murni Dinamis Sesuai Data Riil -->
             <div class="row g-3 mb-4">
-                <!-- Card 1: Total Pengguna Riil -->
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="admin-stat-card">
                         <div class="admin-stat-label">Total Pengguna</div>
@@ -108,7 +105,6 @@ $adminInitials = 'AP';
                     </div>
                 </div>
 
-                <!-- Card 2: Antrean Moderasi Riil -->
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="admin-stat-card">
                         <div class="admin-stat-label">Antrean Moderasi</div>
@@ -117,7 +113,6 @@ $adminInitials = 'AP';
                     </div>
                 </div>
 
-                <!-- Card 3: Aset Terpublikasi Riil -->
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="admin-stat-card">
                         <div class="admin-stat-label">Aset Terpublikasi</div>
@@ -126,7 +121,6 @@ $adminInitials = 'AP';
                     </div>
                 </div>
 
-                <!-- Card 4: Total Omset Platform Riil -->
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="admin-stat-card">
                         <div class="admin-stat-label">Total Omset Platform</div>
@@ -247,7 +241,6 @@ $adminInitials = 'AP';
                 <p class="footer-brand-desc-center">
                     Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
                 </p>
-                <!-- Baris Kontak dan Email sesuai desain baru -->
                 <div style="font-size: 0.85rem; color: #1a1a1a; margin-top: 10px;">
                     <strong style="font-weight: 800;">Kontak dan Email:</strong>
                     <span style="margin: 0 16px;">08123456xxxx</span>
@@ -265,7 +258,6 @@ $adminInitials = 'AP';
 
     <!-- ENGINE DATA DINAMIS ADMIN INDOFX -->
     <script>
-        // Data Basis Pengguna Awal
         const defaultUsers = [{
                 id: 1,
                 name: 'CyberNet Studio',
@@ -303,7 +295,6 @@ $adminInitials = 'AP';
             }
         ];
 
-        // Data Basis Antrean Moderasi Awal
         const defaultModerationQueue = [{
                 id: 'mod-1',
                 title: 'Sci-Fi Holo UI Shader Package',
@@ -351,11 +342,104 @@ $adminInitials = 'AP';
         let allModerationAssets = [];
         let modalReviewInstance = null;
 
-        // 1. SINKRONISASI DATA DINAMIS PENUH (TANPA NILAI HARDCODED)
+        // ============================================================
+        // HELPER SELISIH HARI REAL-TIME (SATUAN HARI SAJA)
+        // ============================================================
+        function parseIndoDateToObj(dateStr, fallbackId) {
+            if (dateStr) {
+                const raw = String(dateStr).trim();
+                const lower = raw.toLowerCase();
+
+                if (lower === 'hari ini') {
+                    return new Date();
+                }
+                if (lower === 'kemarin') {
+                    const d = new Date();
+                    d.setDate(d.getDate() - 1);
+                    return d;
+                }
+
+                const monthMap = {
+                    jan: 0,
+                    januari: 0,
+                    feb: 1,
+                    februari: 1,
+                    mar: 2,
+                    maret: 2,
+                    apr: 3,
+                    april: 3,
+                    mei: 4,
+                    may: 4,
+                    jun: 5,
+                    juni: 5,
+                    jul: 6,
+                    juli: 6,
+                    agu: 7,
+                    agt: 7,
+                    agustus: 7,
+                    aug: 7,
+                    sep: 8,
+                    sept: 8,
+                    september: 8,
+                    okt: 9,
+                    oktober: 9,
+                    oct: 9,
+                    nov: 10,
+                    november: 10,
+                    des: 11,
+                    desember: 11,
+                    dec: 11
+                };
+
+                const indoMatch = lower.match(/^(\d{1,2})\s+([a-z]+)\s+(\d{4})/);
+                if (indoMatch) {
+                    const day = parseInt(indoMatch[1], 10);
+                    const monIdx = monthMap[indoMatch[2]];
+                    const year = parseInt(indoMatch[3], 10);
+                    if (monIdx !== undefined && !isNaN(day) && !isNaN(year)) {
+                        return new Date(year, monIdx, day);
+                    }
+                }
+
+                const parsedDirect = new Date(raw);
+                if (!isNaN(parsedDirect.getTime())) {
+                    return parsedDirect;
+                }
+            }
+
+            if (fallbackId) {
+                const tsMatch = String(fallbackId).match(/(\d{13})/);
+                if (tsMatch) {
+                    const fromTs = new Date(parseInt(tsMatch[1], 10));
+                    if (!isNaN(fromTs.getTime())) return fromTs;
+                }
+            }
+
+            return null;
+        }
+
+        function formatDaysAgoRealTime(dateStr, fallbackId, storedTime) {
+            const targetDate = parseIndoDateToObj(dateStr, fallbackId);
+            if (!targetDate) {
+                return (storedTime && storedTime !== 'Baru saja' && storedTime !== 'WIB') ? storedTime : 'Hari ini';
+            }
+
+            const now = new Date();
+            const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const startTarget = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
+            const diffDays = Math.floor((startToday - startTarget) / (1000 * 60 * 60 * 24));
+
+            if (diffDays <= 0) {
+                return 'Hari ini';
+            }
+            if (diffDays === 1) {
+                return 'Kemarin';
+            }
+            return `${diffDays} hari yang lalu`;
+        }
+
+        // 1. SINKRONISASI DATA DINAMIS PENUH
         function syncAdminDashboardData() {
-            // ==========================================
-            // A. TOTAL PENGGUNA DINAMIS (MURNI DATA RIIL)
-            // ==========================================
             let userList = [];
             try {
                 userList = JSON.parse(localStorage.getItem('indofx_admin_users')) || [];
@@ -368,7 +452,6 @@ $adminInitials = 'AP';
                 localStorage.setItem('indofx_admin_users', JSON.stringify(userList));
             }
 
-            // Pindai juga jika ada pendaftaran user baru dari auth web
             ['indofx_users', 'indofx_registered_users', 'users'].forEach(key => {
                 try {
                     const extra = JSON.parse(localStorage.getItem(key)) || [];
@@ -391,7 +474,6 @@ $adminInitials = 'AP';
             });
             localStorage.setItem('indofx_admin_users', JSON.stringify(userList));
 
-            // Hitung eksak tanpa angka buatan
             const sellerCount = userList.filter(u => u.role === 'Penjual').length;
             const buyerCount = userList.filter(u => u.role === 'Pembeli').length;
             const totalUserCount = userList.length;
@@ -399,9 +481,7 @@ $adminInitials = 'AP';
             document.getElementById('statTotalUsers').innerText = totalUserCount.toLocaleString('id-ID');
             document.getElementById('statUserBreakdown').innerText = `${sellerCount} Penjual | ${buyerCount} Pembeli`;
 
-            // ==========================================
-            // B. ANTREAN MODERASI DINAMIS
-            // ==========================================
+            // ANTREAN MODERASI DINAMIS
             let queue = [];
             try {
                 const storedQueue = localStorage.getItem('indofx_moderation_queue');
@@ -415,7 +495,6 @@ $adminInitials = 'AP';
                 queue = [...defaultModerationQueue];
             }
 
-            // Pindai aset yang baru diunggah kreator
             Object.keys(localStorage).forEach(key => {
                 if (key.startsWith('indofx_seller_assets_')) {
                     try {
@@ -423,18 +502,30 @@ $adminInitials = 'AP';
                         sellerAssets.forEach(sa => {
                             const exists = queue.some(q => String(q.id) === String(sa.id) || q.title === sa.title);
                             if (!exists) {
+                                const entryDate = sa.created_at || sa.date || 'Hari ini';
+                                const unityVerText = sa.unity_version ?
+                                    (String(sa.unity_version).toLowerCase().includes('unity') ? sa.unity_version : ('Unity ' + sa.unity_version + ' LTS')) :
+                                    'Unity 2022.3 LTS';
+                                const cleanPrice = typeof sa.price_num === 'number' ?
+                                    sa.price_num :
+                                    (parseFloat(String(sa.price).replace(/[^0-9]/g, '')) || 0);
+
                                 queue.unshift({
                                     id: sa.id || ('asset-' + Date.now()),
                                     title: sa.title,
                                     pipeline: Array.isArray(sa.pipelines) ? (sa.pipelines[0] || 'Built-in') : (sa.pipelines || 'Built-in'),
+                                    pipelines: Array.isArray(sa.pipelines) ? sa.pipelines : [sa.pipelines || 'Built-in'],
                                     category: sa.category || 'VFX Partikel',
-                                    file_info: 'File: ' + (sa.title.toLowerCase().replace(/[^a-z0-9]/g, '_')) + '.unitypackage (24 MB)',
+                                    file_info: sa.file_info || ('File: ' + (sa.title.toLowerCase().replace(/[^a-z0-9]/g, '_')) + '.unitypackage (24 MB)'),
                                     studio: sa.creator || sa.seller || 'Studio Kreator',
-                                    unity_ver: 'Unity 2022.3 LTS',
-                                    price: typeof sa.price === 'number' ? ('Rp' + sa.price.toLocaleString('id-ID')) : (sa.price || 'Gratis'),
-                                    price_num: parseFloat(String(sa.price).replace(/[^0-9]/g, '')) || 0,
-                                    created_at: sa.created_at || 'Hari ini',
-                                    time: 'Baru saja',
+                                    unity_ver: unityVerText,
+                                    price: cleanPrice === 0 ? 'Gratis' : ('Rp' + cleanPrice.toLocaleString('id-ID')),
+                                    price_num: cleanPrice,
+                                    created_at: entryDate,
+                                    date: entryDate,
+                                    description: sa.description || '',
+                                    how_to_use: sa.how_to_use || '',
+                                    image: sa.image || '',
                                     status: sa.status === 'Disetujui' ? 'Published' : (sa.status || 'Pending Review'),
                                     seller_storage_key: key
                                 });
@@ -447,14 +538,11 @@ $adminInitials = 'AP';
             allModerationAssets = queue;
             localStorage.setItem('indofx_moderation_queue', JSON.stringify(allModerationAssets));
 
-            // Hitung eksak aset pending
             const pendingList = allModerationAssets.filter(a => a.status === 'Pending' || a.status === 'Pending Review');
             document.getElementById('statPendingModeration').innerText = pendingList.length + ' Aset';
             document.getElementById('sidebarModerationBadge').innerText = pendingList.length;
 
-            // ==========================================
-            // C. ASET TERPUBLIKASI DINAMIS (KATALOG RIIL)
-            // ==========================================
+            // ASET TERPUBLIKASI DINAMIS
             let publicCatalog = [];
             try {
                 publicCatalog = JSON.parse(localStorage.getItem('indofx_public_catalog')) || [];
@@ -464,7 +552,6 @@ $adminInitials = 'AP';
 
             const publishedInQueue = allModerationAssets.filter(a => a.status === 'Published' || a.status === 'Disetujui');
 
-            // Himpunan ID unik yang terpublikasi
             const publishedAssetIds = new Set();
             publicCatalog.forEach(c => publishedAssetIds.add(String(c.id || c.title)));
             publishedInQueue.forEach(q => publishedAssetIds.add(String(q.id || q.title)));
@@ -472,9 +559,7 @@ $adminInitials = 'AP';
             const totalPublishedCount = publishedAssetIds.size;
             document.getElementById('statPublishedAssets').innerText = totalPublishedCount.toLocaleString('id-ID');
 
-            // ==========================================
-            // D. TOTAL OMSET PLATFORM DINAMIS (TRANSAKSI RIIL)
-            // ==========================================
+            // TOTAL OMSET PLATFORM DINAMIS
             let totalGrossRevenue = 0;
             let successTrxCount = 0;
 
@@ -501,7 +586,6 @@ $adminInitials = 'AP';
                 }
             });
 
-            // Akumulasi transaksi berstatus Settlement
             trxList.forEach(t => {
                 if (t.status === 'Settlement' || t.status === 'Berhasil') {
                     totalGrossRevenue += (parseFloat(t.total_bayar) || 0);
@@ -516,9 +600,7 @@ $adminInitials = 'AP';
             }
             document.getElementById('statRevenueSub').innerText = `${successTrxCount} Transaksi Berhasil`;
 
-            // ==========================================
-            // E. BADGE PENGAJUAN PENJUAL
-            // ==========================================
+            // BADGE PENGAJUAN PENJUAL
             let sellerReqs = [];
             try {
                 sellerReqs = JSON.parse(localStorage.getItem('indofx_seller_requests')) || [];
@@ -526,11 +608,10 @@ $adminInitials = 'AP';
             const pendingReqCount = sellerReqs.filter(r => r.status === 'Menunggu').length;
             document.getElementById('sidebarSellerReqBadge').innerText = pendingReqCount;
 
-            // Render tabel
             renderModerationTable();
         }
 
-        // 2. RENDER TABEL ANTREAN TERBARU
+        // 2. RENDER TABEL ANTREAN TERBARU DENGAN HITUNGAN HARI REAL-TIME
         function renderModerationTable() {
             const tbody = document.getElementById('adminModerationTableBody');
             if (allModerationAssets.length === 0) {
@@ -547,7 +628,7 @@ $adminInitials = 'AP';
             const displayItems = allModerationAssets.slice(0, 5);
 
             tbody.innerHTML = displayItems.map(item => {
-                const pipe = item.pipeline || 'URP';
+                const pipe = item.pipeline || (Array.isArray(item.pipelines) ? item.pipelines[0] : 'URP');
                 let pipeClass = 'badge-pipe-urp';
                 if (pipe.toLowerCase().includes('hdrp')) pipeClass = 'badge-pipe-hdrp';
                 if (pipe.toLowerCase().includes('built')) pipeClass = 'badge-pipe-builtin';
@@ -562,9 +643,23 @@ $adminInitials = 'AP';
                     statusBadge = `<span class="badge-status-blocked">Ditolak</span>`;
                 }
 
+                const rawPriceNum = (typeof item.price_num === 'number') ?
+                    item.price_num :
+                    (parseFloat(String(item.price || '0').replace(/[^0-9]/g, '')) || 0);
+                const allPipesParam = Array.isArray(item.pipelines) && item.pipelines.length > 0 ?
+                    item.pipelines.join(', ') :
+                    pipe;
+
+                const publicDetailUrl = `/asset/detail?id=${encodeURIComponent(item.id)}` +
+                    `&title=${encodeURIComponent(item.title)}` +
+                    `&category=${encodeURIComponent(item.category || 'VFX Partikel')}` +
+                    `&creator=${encodeURIComponent(item.studio || 'Studio Kreator')}` +
+                    `&price=${encodeURIComponent(rawPriceNum)}` +
+                    `&pipeline=${encodeURIComponent(allPipesParam)}`;
+
                 const actionBtn = isPublished ?
                     `
-                        <a href="/asset/detail?id=${encodeURIComponent(item.id)}&title=${encodeURIComponent(item.title)}" class="btn-admin-public">
+                        <a href="${publicDetailUrl}" class="btn-admin-public">
                             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0">
                                 <rect x="2" y="2" width="12" height="12" rx="2.5" />
                                 <line x1="5.5" y1="5.5" x2="10.5" y2="5.5" />
@@ -580,6 +675,9 @@ $adminInitials = 'AP';
                         </button>
                     `;
 
+                const displayDate = item.date || item.created_at || 'Hari ini';
+                const relativeDayLabel = formatDaysAgoRealTime(displayDate, item.id, item.time);
+
                 return `
                     <tr>
                         <td>
@@ -593,8 +691,8 @@ $adminInitials = 'AP';
                         <td class="text-dark cell-nowrap">${item.unity_ver || 'Unity 2022.3 LTS'}</td>
                         <td class="fw-bold text-dark cell-nowrap">${item.price || 'Gratis'}</td>
                         <td class="cell-nowrap">
-                            <div class="text-dark">${item.created_at || 'Hari ini'}</div>
-                            <div class="text-muted small" style="font-size: 0.72rem;">${item.time || 'WIB'}</div>
+                            <div class="text-dark">${displayDate}</div>
+                            <div class="text-muted small" style="font-size: 0.72rem;">${relativeDayLabel}</div>
                         </td>
                         <td class="cell-nowrap">${statusBadge}</td>
                         <td class="text-end pe-3 cell-nowrap">${actionBtn}</td>
@@ -640,15 +738,28 @@ $adminInitials = 'AP';
                 try {
                     publicCatalog = JSON.parse(localStorage.getItem('indofx_public_catalog')) || [];
                 } catch (e) {}
-                publicCatalog = publicCatalog.filter(c => String(c.id) !== String(targetAsset.id));
+                publicCatalog = publicCatalog.filter(c => String(c.id) !== String(targetAsset.id) && c.title !== targetAsset.title);
+
+                const rawPrice = (typeof targetAsset.price_num === 'number') ?
+                    targetAsset.price_num :
+                    (parseFloat(String(targetAsset.price).replace(/[^0-9]/g, '')) || 0);
+                const pipelinesArr = Array.isArray(targetAsset.pipelines) && targetAsset.pipelines.length > 0 ?
+                    targetAsset.pipelines : [targetAsset.pipeline || 'Built-in'];
+
                 publicCatalog.unshift({
                     id: targetAsset.id,
                     title: targetAsset.title,
                     creator: targetAsset.studio,
-                    price: targetAsset.price_num || 0,
+                    price: rawPrice,
+                    price_text: rawPrice === 0 ? 'Gratis' : ('Rp' + rawPrice.toLocaleString('id-ID')),
                     category: targetAsset.category || 'VFX Partikel',
-                    pipelines: [targetAsset.pipeline || 'Built-in'],
-                    downloads: '0x Terjual'
+                    pipelines: pipelinesArr,
+                    unity_version: targetAsset.unity_ver || 'Unity 2022.3 LTS',
+                    format: targetAsset.file_info && targetAsset.file_info.includes('.zip') ? '.zip' : '.unitypackage',
+                    downloads: '0x Terjual',
+                    image: targetAsset.image || '',
+                    description: targetAsset.description || '',
+                    how_to_use: targetAsset.how_to_use || ''
                 });
                 localStorage.setItem('indofx_public_catalog', JSON.stringify(publicCatalog));
 
@@ -710,7 +821,6 @@ $adminInitials = 'AP';
             modalReviewInstance = new bootstrap.Modal(document.getElementById('modalReviewAsset'));
             syncAdminDashboardData();
 
-            // Dropdown Profil Admin
             const btn = document.getElementById('adminDropdownBtn');
             const menu = document.getElementById('adminDropdownMenu');
             if (btn && menu) {
