@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS users (
     role          VARCHAR(50)  NOT NULL DEFAULT 'buyer'
                   CHECK (role IN ('buyer', 'seller', 'admin')),
     avatar_url    VARCHAR(255),
+    bio           TEXT,
     is_active     BOOLEAN NOT NULL DEFAULT TRUE,
     created_at    TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at    TIMESTAMP NOT NULL DEFAULT NOW()

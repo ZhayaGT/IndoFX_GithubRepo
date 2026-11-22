@@ -24,6 +24,7 @@ $router->add('POST', '/register', 'AuthController', 'processRegister');
 $router->add('GET', '/logout', 'AuthController', 'logout');
 
 // Registrasi Penjual
+$router->add('POST', '/seller/register', 'AuthController', 'processSellerRegister');
 $router->get('/seller/register', function () {
     require BASE_PATH . '/resources/views/auth/seller_register.php';
 });

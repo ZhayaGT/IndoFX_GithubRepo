@@ -58,7 +58,7 @@ class User extends Model {
 
     // Mencari user berdasarkan token yang ada di cookie
     public function findByRememberToken($token) {
-        $sql = "SELECT * FROM users WHERE remember_token = :token LIMIT 1";
+        $sql = "SELECT u.*, p.name, p.bio, s.store_name FROM users u LEFT JOIN user_profiles p ON p.user_id = u.id LEFT JOIN seller_profiles s ON s.user_id = u.id WHERE u.remember_token = :token LIMIT 1";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':token' => $token]);
         return $stmt->fetch(PDO::FETCH_ASSOC); 

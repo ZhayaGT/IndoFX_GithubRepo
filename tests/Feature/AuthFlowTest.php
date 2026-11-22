@@ -49,11 +49,13 @@ class AuthFlowTest extends TestCase
             'SESSION_NAME' => 'indofx_test_session',
         ]);
 
+        $nullDevice = PHP_OS_FAMILY === 'Windows' ? 'NUL' : '/dev/null';
+
         $command = [PHP_BINARY, '-S', "127.0.0.1:{$appPort}", '-t', BASE_PATH . '/public'];
         self::$server = proc_open($command, [
             0 => ['pipe', 'r'],
-            1 => ['file', '/dev/null', 'w'],
-            2 => ['file', '/dev/null', 'w'],
+            1 => ['file', $nullDevice, 'w'],
+            2 => ['file', $nullDevice, 'w'],
         ], $pipes, BASE_PATH, $env);
 
         self::waitForServer();

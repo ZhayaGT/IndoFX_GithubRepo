@@ -259,7 +259,7 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
             <!-- 7. URL Portofolio (Opsional) -->
             <div class="mb-3">
                 <label class="form-label-custom">URL Portofolio (Opsional)</label>
-                <input type="url" name="portofolio_url" id="regPortfolio" class="form-control form-control-custom"
+                <input type="url" name="portfolio_url" id="regPortfolio" class="form-control form-control-custom"
                     placeholder="https://www.argastudio.com">
             </div>
 
