@@ -174,7 +174,26 @@ class LibraryController extends Controller {
         }
 
         $latestFile = $files[0];
-        $libModel->recordDownload($asset['entitlement_id'], $assetId, $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1');
+        $filePath = $latestFile['file_path'];
+        $relative = ltrim($filePath, '/');
+        if (str_starts_with($relative, 'uploads/')) $relative = 'public/' . $relative;
+        $local = realpath(BASE_PATH . '/' . $relative);
+        foreach (['public/uploads/asset_files', 'storage/uploads/assets'] as $folder) {
+            $root = realpath(BASE_PATH . '/' . $folder);
+            if ($root && $local && str_starts_with($local, $root . DIRECTORY_SEPARATOR) && is_file($local)) {
+                $libModel->recordDownload($asset['entitlement_id'], $assetId, $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1');
+                header('Content-Type: application/octet-stream');
+                header('X-Content-Type-Options: nosniff');
+                header('Content-Disposition: attachment; filename="' . rawurlencode(basename($latestFile['original_name'])) . '"');
+                header('Content-Length: ' . filesize($local));
+                readfile($local);
+                exit;
+            }
+        }
+        if (str_starts_with($relative, 'public/uploads/') || str_starts_with($relative, 'storage/uploads/')) {
+            http_response_code(404);
+            exit('Berkas unggahan belum tersedia pada server hosting.');
+        }
 
         // Arahkan ke URL file di Supabase Storage (sesuaikan nama bucket file aset Anda)
         $supabaseUrl = rtrim($_ENV['SUPABASE_URL'] ?? getenv('SUPABASE_URL') ?? '', '/');
@@ -183,6 +202,11 @@ class LibraryController extends Controller {
             ? $filePath
             : $supabaseUrl . '/storage/v1/object/public/asset-files/' . ltrim($filePath, '/');
 
+        if (!preg_match('~^https?://~i', $downloadUrl)) {
+            http_response_code(503);
+            exit('Penyimpanan berkas belum dikonfigurasi.');
+        }
+        $libModel->recordDownload($asset['entitlement_id'], $assetId, $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1');
         header('Location: ' . $downloadUrl);
         exit;
     }

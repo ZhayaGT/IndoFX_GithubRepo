@@ -72,9 +72,6 @@ class CheckoutController extends Controller {
         Config::$isProduction = ($_ENV['MIDTRANS_IS_PRODUCTION'] ?? getenv('MIDTRANS_IS_PRODUCTION')) === 'true';
         Config::$isSanitized = true;
         Config::$is3ds = true;
-        // Menonaktifkan verifikasi cURL SSL untuk menghindari Error 20 (Hapus ketika sudah menggunakan vps)
-        Config::$curlOptions[CURLOPT_SSL_VERIFYPEER] = false;
-        Config::$curlOptions[CURLOPT_SSL_VERIFYHOST] = 0;
 
         $assetIds = $_POST['asset_ids'] ?? [];
         if (empty($assetIds)) {

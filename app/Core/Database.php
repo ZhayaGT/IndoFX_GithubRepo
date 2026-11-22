@@ -33,7 +33,11 @@ class Database {
             $this->connection = new PDO($dsn, $user, $pass, $options);
         } catch (PDOException $e) {
             // Dalam mode production pesan error ini dilog
-            die("Koneksi database gagal: " . $e->getMessage());
+            error_log('Database connection failed: ' . $e->getMessage());
+            http_response_code(503);
+            exit(Env::bool('APP_DEBUG', false)
+                ? 'Koneksi database gagal: ' . $e->getMessage()
+                : 'Database sedang tidak tersedia. Silakan coba kembali.');
         }
     }
 

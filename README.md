@@ -266,6 +266,75 @@ bergantung pada skema UUID lama.
 
 ---
 
+## Deployment Azure App Service Linux
+
+Konfigurasi hosting ada di `deploy/azure/`. Gunakan runtime PHP 8.3 atau versi
+kompatibel yang tersedia pada subscription. Server memakai Nginx dan PHP-FPM,
+dengan document root `/home/site/wwwroot/public`.
+
+Set Startup Command pada App Service ke:
+
+```sh
+sh /home/site/wwwroot/deploy/azure/startup.sh
+```
+
+Set environment variables pada App Service melalui Azure Portal, bukan dengan
+mengunggah `.env` ke GitHub:
+
+| Nama | Nilai |
+|---|---|
+| `APP_ENV` | `production` |
+| `APP_DEBUG` | `false` |
+| `APP_URL` | URL HTTPS Default domain dari App Service |
+| `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` | Koneksi Supabase yang sekarang |
+| `DB_SSLMODE` | `require` |
+| `SUPABASE_URL` | URL proyek Supabase |
+| `STORAGE_BASE_URL` | URL bucket pratinjau bila gambar menggunakan path relatif |
+| `MIDTRANS_SERVER_KEY`, `MIDTRANS_CLIENT_KEY` | Key Sandbox, untuk demo |
+| `MIDTRANS_IS_PRODUCTION` | `false` untuk demo |
+| `PHP_INI_SCAN_DIR` | `:/home/site/wwwroot/deploy/azure/ini` |
+| `SCM_DO_BUILD_DURING_DEPLOYMENT` | `false` (vendor dibangun sebelum ZIP dibuat) |
+
+Aktifkan **HTTPS Only**. Jangan aktifkan `WEBSITE_RUN_FROM_PACKAGE`: startup
+membuat tautan direktori upload pada document root yang harus dapat ditulis.
+Upload dan sesi disimpan di `/home/indofx`, di luar folder source deployment.
+Saat migrasi dari lokal, pindahkan juga berkas upload lama yang masih digunakan
+oleh record database; berkas ini tidak dikirim lewat Git.
+
+Buat paket dari commit yang akan dirilis:
+
+```sh
+sh deploy/azure/package.sh /tmp/indofx-azure.zip
+```
+
+Paket hanya memuat source aplikasi dan dependency produksi. `.env`, `.mcp.json`,
+riwayat Git, data unggahan, dan test tidak termasuk.
+
+Workflow **Deploy IndoFX to Azure** dijalankan manual dari branch `develop`.
+Gunakan environment GitHub `azure-production`, konfigurasi OIDC Azure, dan
+repository/environment variables berikut:
+
+- `AZURE_CLIENT_ID`
+- `AZURE_TENANT_ID`
+- `AZURE_SUBSCRIPTION_ID`
+- `AZURE_RESOURCE_GROUP`
+- `AZURE_WEBAPP_NAME`
+
+Federated credential Azure untuk workflow ini menggunakan subject
+`repo:ZhayaGT/IndoFX_GithubRepo:environment:azure-production`. Batasi role
+identitas deployment pada App Service yang dituju. Workflow tidak membuat atau
+mengubah paket biaya App Service.
+
+Setelah deploy, periksa beranda, login admin, katalog, upload, dan unduhan dari
+library. URL notifikasi pembayaran Midtrans adalah
+`https://<default-domain-aplikasi>/webhook/midtrans`. Pastikan key Midtrans dan
+mode pada dashboard Midtrans sesuai environment yang diuji.
+
+Panduan Azure: [konfigurasi PHP](https://learn.microsoft.com/en-us/azure/app-service/configure-language-php)
+dan [GitHub Actions dengan OIDC](https://learn.microsoft.com/en-us/azure/app-service/deploy-github-actions?tabs=openid).
+
+---
+
 ## Alur Kerja Harian
 
 ```bash

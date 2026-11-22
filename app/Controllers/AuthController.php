@@ -55,7 +55,11 @@ class AuthController extends Controller {
                 // Simpan token ke PostgreSQL
                 $userModel->updateRememberToken($user['id'], $token);    
                 // Tanam cookie di browser pengguna selama 30 hari
-                setcookie('remember_token', $token, time() + (86400 * 30), "/", "", false, true);
+                setcookie('remember_token', $token, [
+                    'expires' => time() + (86400 * 30), 'path' => '/',
+                    'secure' => \IndoFX\Core\Env::get('APP_ENV') === 'production',
+                    'httponly' => true, 'samesite' => 'Lax',
+                ]);
             }
 
             $this->redirect(($_SESSION['role'] ?? '') === 'admin' ? '/admin/dashboard' : '/');

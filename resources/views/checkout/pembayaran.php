@@ -24,6 +24,10 @@ $storageBasePath = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/asset-p
 // Menangkap Client Key Midtrans dari Controller/Env untuk Script Pop-Up
 $midtransClientKey = $midtransClientKey ?? $_ENV['MIDTRANS_CLIENT_KEY'] ?? getenv('MIDTRANS_CLIENT_KEY') ?? '';
 
+$midtransScriptUrl = \IndoFX\Core\Env::bool('MIDTRANS_IS_PRODUCTION', false)
+    ? 'https://app.midtrans.com/snap/snap.js'
+    : 'https://app.sandbox.midtrans.com/snap/snap.js';
+
 // 4. Data Checkout (Harus dikirim dari CheckoutController)
 // Bisa berisi satu item (Beli Langsung) atau banyak item (Dari Keranjang)
 $checkoutItems = $checkoutItems ?? []; 
@@ -268,7 +272,7 @@ $grandTotal = $subtotal > 0 ? ($subtotal + $feeAdmin) : 0;
 
     <!-- Library Pop-Up Midtrans Snap (Sandbox) -->
     <script type="text/javascript"
-      src="https://app.sandbox.midtrans.com/snap/snap.js"
+      src="<?= htmlspecialchars($midtransScriptUrl, ENT_QUOTES, 'UTF-8') ?>"
       data-client-key="<?= htmlspecialchars($midtransClientKey, ENT_QUOTES, 'UTF-8') ?>"></script>
 </head>
 
