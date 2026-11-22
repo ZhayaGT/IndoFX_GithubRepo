@@ -9,7 +9,7 @@ class User extends Model {
     // Mencari pengguna berdasarkan email.
     // Digunakan saat validasi Login atau mengecek duplikasi email saat Register.
     public function findByEmail($email) {
-        $sql = "SELECT u.*, p.name, p.bio, s.store_name 
+        $sql = "SELECT u.*, COALESCE(p.name, u.email) AS name, p.bio, s.store_name
                 FROM users u
                 LEFT JOIN user_profiles p ON u.id = p.user_id
                 LEFT JOIN seller_profiles s ON u.id = s.user_id
@@ -58,7 +58,7 @@ class User extends Model {
 
     // Mencari user berdasarkan token yang ada di cookie
     public function findByRememberToken($token) {
-        $sql = "SELECT u.*, p.name, p.bio, s.store_name FROM users u LEFT JOIN user_profiles p ON p.user_id = u.id LEFT JOIN seller_profiles s ON s.user_id = u.id WHERE u.remember_token = :token LIMIT 1";
+        $sql = "SELECT u.*, COALESCE(p.name, u.email) AS name, p.bio, s.store_name FROM users u LEFT JOIN user_profiles p ON p.user_id = u.id LEFT JOIN seller_profiles s ON s.user_id = u.id WHERE u.remember_token = :token LIMIT 1";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':token' => $token]);
         return $stmt->fetch(PDO::FETCH_ASSOC); 
@@ -66,7 +66,7 @@ class User extends Model {
 
     // Mengambil user berdasarkan ID Internal (Untuk Session/Dashboard)
     public function getUserById($id) {
-        $sql = "SELECT u.id, u.public_id, u.email, u.role, p.name, p.bio, 
+        $sql = "SELECT u.id, u.public_id, u.email, u.role, u.is_active, COALESCE(p.name, u.email) AS name, p.bio,
                        s.store_name, s.portfolio_url, s.website_url, 
                        s.payout_number, s.payout_account_name
                 FROM users u
@@ -82,7 +82,7 @@ class User extends Model {
 
     // Mengambil user berdasarkan UUID Publik (Untuk URL Publik)
     public function getUserByPublicId($publicId) {
-        $sql = "SELECT u.id, u.public_id, u.email, u.role, p.name, p.bio, s.store_name, s.portfolio_url, s.website_url
+        $sql = "SELECT u.id, u.public_id, u.email, u.role, u.is_active, COALESCE(p.name, u.email) AS name, p.bio, s.store_name, s.portfolio_url, s.website_url
                 FROM users u
                 LEFT JOIN user_profiles p ON u.id = p.user_id
                 LEFT JOIN seller_profiles s ON u.id = s.user_id
@@ -166,6 +166,9 @@ class User extends Model {
                               sample_asset_path = EXCLUDED.sample_asset_path,
                               sample_asset_desc = EXCLUDED.sample_asset_desc,
                               status            = 'pending',
+                              reject_reason     = NULL,
+                              reviewed_by       = NULL,
+                              reviewed_at       = NULL,
                               updated_at        = NOW()";
 
             $stmtSeller = $this->db->prepare($sqlSeller);

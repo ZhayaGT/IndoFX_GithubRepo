@@ -16,7 +16,7 @@ class Cart extends Model {
                 LEFT JOIN asset_images ai ON a.id = ai.asset_id AND ai.sort_order = 1
                 LEFT JOIN users u ON a.seller_id = u.id
                 LEFT JOIN user_profiles p ON u.id = p.user_id
-                WHERE ci.user_id = :user_id
+                WHERE ci.user_id = :user_id AND a.status = 'published' AND a.deleted_at IS NULL AND u.is_active
                 ORDER BY ci.added_at DESC";
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
@@ -39,7 +39,8 @@ class Cart extends Model {
     public function addToCart($userId, $assetId) {
         // ON CONFLICT DO NOTHING: Jika aset sudah ada di keranjang, diamkan saja tanpa menyebabkan error
         $sql = "INSERT INTO cart_items (user_id, asset_id) 
-                VALUES (:user_id, :asset_id) 
+                SELECT :user_id, a.id FROM assets a JOIN users u ON u.id=a.seller_id
+                WHERE a.id=:asset_id AND a.status='published' AND a.deleted_at IS NULL AND u.is_active
                 ON CONFLICT (user_id, asset_id) DO NOTHING";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([

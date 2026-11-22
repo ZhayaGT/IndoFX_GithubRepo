@@ -4,7 +4,7 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
     exit;
 }
 
-$adminName = 'Super Admin IndoFX';
+$adminName = (string) ($_SESSION['name'] ?? 'Admin IndoFX');
 $adminInitials = 'AP';
 ?>
 <!DOCTYPE html>
@@ -12,6 +12,7 @@ $adminInitials = 'AP';
 
 <head>
     <meta charset="UTF-8">
+    <meta name="admin-csrf" content="<?= htmlspecialchars($_SESSION['admin_csrf'], ENT_QUOTES, 'UTF-8') ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daftar Antrean Moderasi Aset - IndoFX</title>
 
@@ -170,107 +171,23 @@ $adminInitials = 'AP';
     <!-- Helper escape output HTML -->
     <script src="/assets/js/indofx-utils.js"></script>
 
-    <!-- Helper penyimpanan lokal (kunci berbasis user_id) -->
-    <script src="/assets/js/indofx-storage.js"></script>
+    <!-- Koneksi data admin -->
+    <script src="/assets/js/admin-api.js"></script>
 
     <!-- ENGINE TABEL MODERASI ASET (MENGARAH KE SUBPAGE PENINJAUAN) -->
     <script>
-        const initialQueue = [{
-                id: 'mod-1',
-                title: 'Sci-Fi Holo UI Shader Package',
-                pipeline: 'HDRP',
-                category: 'Shader',
-                file_info: 'File: scifi_holo_v1.zip (32 MB)',
-                studio: 'CyberNet Studio',
-                unity_ver: 'Unity 2022.3 LTS',
-                price: 'Rp150.000',
-                price_num: 150000,
-                date: '15 Okt 2026',
-                time: '09:15 WIB',
-                status: 'Pending Review'
-            },
-            {
-                id: 'mod-2',
-                title: 'Procedural Stylized Grass System',
-                pipeline: 'URP',
-                category: 'VFX Partikel',
-                file_info: 'File: stylized_grass_v2.unitypackage (14 MB)',
-                studio: 'Nusantara Devs',
-                unity_ver: 'Unity 2021.3 LTS',
-                price: 'Gratis',
-                price_num: 0,
-                date: '16 Okt 2026',
-                time: '14:20 WIB',
-                status: 'Pending Review'
-            },
-            {
-                id: 'mod-3',
-                title: 'Volumetric Rain & Storm URP',
-                pipeline: 'URP',
-                category: 'VFX Partikel',
-                file_info: 'File: volumetric_rain_v1.2.unitypackage (48 MB)',
-                studio: 'Arga Studio',
-                unity_ver: 'Unity 2021.3 LTS',
-                price: 'Rp150.000',
-                price_num: 150000,
-                date: '14 Okt 2026',
-                time: '11:00 WIB',
-                status: 'Published'
-            }
-        ];
-
         let moderationAssets = [];
 
-        function loadModerationData() {
+        async function loadModerationData() {
             try {
-                const stored = localStorage.getItem('indofx_moderation_queue');
-                if (stored) {
-                    moderationAssets = JSON.parse(stored);
-                } else {
-                    moderationAssets = [...initialQueue];
-                    localStorage.setItem('indofx_moderation_queue', JSON.stringify(moderationAssets));
-                }
-            } catch (e) {
-                moderationAssets = [...initialQueue];
-            }
-
-            // Pindai aset dari penjual yang baru diunggah
-            Object.keys(localStorage).forEach(key => {
-                if (key.startsWith('indofx_seller_assets_')) {
-                    try {
-                        const sAssets = JSON.parse(localStorage.getItem(key)) || [];
-                        sAssets.forEach(sa => {
-                            const exists = moderationAssets.some(m => String(m.id) === String(sa.id) || m.title === sa.title);
-                            if (!exists) {
-                                moderationAssets.unshift({
-                                    id: sa.id || ('asset-' + Date.now()),
-                                    title: sa.title,
-                                    pipeline: Array.isArray(sa.pipelines) ? (sa.pipelines[0] || 'Built-in') : (sa.pipelines || 'Built-in'),
-                                    category: sa.category || 'VFX Partikel',
-                                    file_info: 'File: ' + sa.title.toLowerCase().replace(/[^a-z0-9]/g, '_') + '.unitypackage (24 MB)',
-                                    studio: sa.creator || sa.seller || 'Studio Kreator',
-                                    unity_ver: 'Unity 2022.3 LTS',
-                                    price: typeof sa.price === 'number' ? ('Rp' + sa.price.toLocaleString('id-ID')) : (sa.price || 'Gratis'),
-                                    price_num: parseFloat(String(sa.price).replace(/[^0-9]/g, '')) || 0,
-                                    date: sa.created_at || sa.date || 'Hari ini',
-                                    time: 'Baru saja',
-                                    status: IndoFXStorage.normalizeStatus(sa.status),
-                                    seller_key: key,
-                                    seller_user_id: sa.seller_user_id || key.replace('indofx_seller_assets_', '')
-                                });
-                            }
-                        });
-                    } catch (e) {}
-                }
-            });
-
-            localStorage.setItem('indofx_moderation_queue', JSON.stringify(moderationAssets));
-
-            // Perbarui badge sidebar
-            const pendingCount = moderationAssets.filter(a => IndoFXStorage.normalizeStatus(a.status) === 'Menunggu').length;
-            document.getElementById('sidebarModerationBadge').innerText = pendingCount;
-
-            renderModerationTable();
+                moderationAssets = (await AdminApi.data()).assets;
+                const select = document.getElementById('filterModerationCategory');
+                const selected = select.value;
+                select.innerHTML = '<option value="all">Semua Kategori</option>';
+                (await AdminApi.data()).categories.forEach(c => select.add(new Option(c.name, c.name)));
+                select.value = [...select.options].some(o => o.value === selected) ? selected : 'all';
+                renderModerationTable();
+            } catch (error) { AdminApi.showError(error); }
         }
 
         function renderModerationTable() {
@@ -284,7 +201,7 @@ $adminInitials = 'AP';
                     item.title.toLowerCase().includes(keyword) ||
                     item.studio.toLowerCase().includes(keyword);
 
-                const itemStatusNormalized = IndoFXStorage.normalizeStatus(item.status);
+                const itemStatusNormalized = AdminApi.status(item.status);
                 const matchStatus = statusFilter === 'all' || itemStatusNormalized === statusFilter;
                 const matchCategory = categoryFilter === 'all' || item.category === categoryFilter;
 
@@ -308,8 +225,8 @@ $adminInitials = 'AP';
                 if (pipe.toLowerCase().includes('hdrp')) pipeClass = 'badge-pipe-hdrp';
                 if (pipe.toLowerCase().includes('built')) pipeClass = 'badge-pipe-builtin';
 
-                const isPublished = IndoFXStorage.normalizeStatus(item.status) === 'Published';
-                const isRejected = IndoFXStorage.normalizeStatus(item.status) === 'Ditolak';
+                const isPublished = AdminApi.status(item.status) === 'Published';
+                const isRejected = AdminApi.status(item.status) === 'Ditolak';
 
                 let statusBadge = `<span class="badge-status-review">Pending Review</span>`;
                 if (isPublished) {
@@ -321,7 +238,7 @@ $adminInitials = 'AP';
                 // Tombol Detail langsung membuka SUBPAGE REVIEW FIGMA (bukan modal popup)
                 const actionBtn = isPublished ?
                     `
-                        <a href="/asset/detail?id=${encodeURIComponent(item.id)}&title=${encodeURIComponent(item.title)}&category=${encodeURIComponent(item.category || '')}&creator=${encodeURIComponent(item.studio || '')}&price=${encodeURIComponent(item.price_num || 0)}&pipeline=${encodeURIComponent(item.pipeline || '')}" class="btn-admin-public">
+                        <a href="/asset/detail?id=${encodeURIComponent(item.public_id)}&title=${encodeURIComponent(item.title)}&category=${encodeURIComponent(item.category || '')}&creator=${encodeURIComponent(item.studio || '')}&price=${encodeURIComponent(item.price_num || 0)}&pipeline=${encodeURIComponent(item.pipeline || '')}" class="btn-admin-public">
                             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0">
                                 <rect x="2" y="2" width="12" height="12" rx="2.5" />
                                 <line x1="5.5" y1="5.5" x2="10.5" y2="5.5" />

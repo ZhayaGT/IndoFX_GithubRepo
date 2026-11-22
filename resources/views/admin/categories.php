@@ -4,7 +4,7 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
     exit;
 }
 
-$adminName = 'Super Admin IndoFX';
+$adminName = (string) ($_SESSION['name'] ?? 'Admin IndoFX');
 $adminInitials = 'AP';
 ?>
 <!DOCTYPE html>
@@ -12,6 +12,7 @@ $adminInitials = 'AP';
 
 <head>
     <meta charset="UTF-8">
+    <meta name="admin-csrf" content="<?= htmlspecialchars($_SESSION['admin_csrf'], ENT_QUOTES, 'UTF-8') ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pengelolaan Kategori Aset - IndoFX</title>
 
@@ -296,63 +297,21 @@ $adminInitials = 'AP';
     <!-- Helper escape output HTML -->
     <script src="/assets/js/indofx-utils.js"></script>
 
-    <!-- Helper penyimpanan lokal (kunci berbasis user_id) -->
-    <script src="/assets/js/indofx-storage.js"></script>
+    <!-- Koneksi data admin -->
+    <script src="/assets/js/admin-api.js"></script>
 
     <script>
         // Data Awal Kategori Sesuai Figma image_1ee300
-        const defaultCategories = [{
-                id: 1,
-                name: 'Shader',
-                desc: 'Shader Graph & HLSL custom Code',
-                slug: 'shader',
-                icon: 'bi-palette',
-                count: '128 Aset'
-            },
-            {
-                id: 2,
-                name: 'VFX Partikel',
-                desc: 'Visual Effects & Particle Systems',
-                slug: 'vfx-partikel',
-                icon: 'bi-stars',
-                count: '94 Aset'
-            },
-            {
-                id: 3,
-                name: 'Script / Tool',
-                desc: 'Editor Extensions & System Scripts',
-                slug: 'script-tool',
-                icon: 'bi-code-slash',
-                count: '65 Aset'
-            },
-            {
-                id: 4,
-                name: '3D Model',
-                desc: 'Environment, Character & Prop 3D',
-                slug: '3d-model',
-                icon: 'bi-box',
-                count: '25 Aset'
-            }
-        ];
-
         let categories = [];
         let modalAddInstance = null;
         let modalEditInstance = null;
         let modalDeleteInstance = null;
 
-        function loadCategories() {
+        async function loadCategories() {
             try {
-                const raw = localStorage.getItem('indofx_admin_categories');
-                if (raw) {
-                    categories = JSON.parse(raw);
-                } else {
-                    categories = [...defaultCategories];
-                    localStorage.setItem('indofx_admin_categories', JSON.stringify(categories));
-                }
-            } catch (e) {
-                categories = [...defaultCategories];
-            }
-            renderCategoryTable();
+                categories = (await AdminApi.data()).categories;
+                renderCategoryTable();
+            } catch (error) { AdminApi.showError(error); }
         }
 
         function renderCategoryTable() {
@@ -406,28 +365,18 @@ $adminInitials = 'AP';
             document.getElementById('addCategorySlug').value = clean;
         }
 
-        function saveNewCategory(e) {
-            e.preventDefault();
-            const name = document.getElementById('addCategoryName').value.trim();
-            const slug = document.getElementById('addCategorySlug').value.trim();
-            const icon = document.getElementById('addCategoryIcon').value;
-            const desc = document.getElementById('addCategoryDesc').value.trim();
-
-            if (!name || !slug) return;
-
-            const newId = Date.now();
-            categories.push({
-                id: newId,
-                name: name,
-                desc: desc,
-                slug: slug,
-                icon: icon,
-                count: '0 Aset'
-            });
-
-            localStorage.setItem('indofx_admin_categories', JSON.stringify(categories));
-            renderCategoryTable();
-            modalAddInstance.hide();
+        async function saveNewCategory(e) {
+            try {
+                e.preventDefault();
+                await AdminApi.save('category.save', {
+                    name: document.getElementById('addCategoryName').value.trim(),
+                    slug: document.getElementById('addCategorySlug').value.trim(),
+                    icon: document.getElementById('addCategoryIcon').value,
+                    desc: document.getElementById('addCategoryDesc').value.trim()
+                });
+                modalAddInstance.hide();
+                await loadCategories();
+            } catch (error) { AdminApi.showError(error); }
         }
 
         // AKSI 2: Buka Modal Edit
@@ -444,30 +393,19 @@ $adminInitials = 'AP';
             modalEditInstance.show();
         }
 
-        function saveEditCategory(e) {
-            e.preventDefault();
-            const id = Number(document.getElementById('editCategoryId').value);
-            const name = document.getElementById('editCategoryName').value.trim();
-            const slug = document.getElementById('editCategorySlug').value.trim();
-            const icon = document.getElementById('editCategoryIcon').value;
-            const desc = document.getElementById('editCategoryDesc').value.trim();
-
-            categories = categories.map(cat => {
-                if (Number(cat.id) === id) {
-                    return {
-                        ...cat,
-                        name: name,
-                        slug: slug,
-                        icon: icon,
-                        desc: desc
-                    };
-                }
-                return cat;
-            });
-
-            localStorage.setItem('indofx_admin_categories', JSON.stringify(categories));
-            renderCategoryTable();
-            modalEditInstance.hide();
+        async function saveEditCategory(e) {
+            try {
+                e.preventDefault();
+                await AdminApi.save('category.save', {
+                    id: document.getElementById('editCategoryId').value,
+                    name: document.getElementById('editCategoryName').value.trim(),
+                    slug: document.getElementById('editCategorySlug').value.trim(),
+                    icon: document.getElementById('editCategoryIcon').value,
+                    desc: document.getElementById('editCategoryDesc').value.trim()
+                });
+                modalEditInstance.hide();
+                await loadCategories();
+            } catch (error) { AdminApi.showError(error); }
         }
 
         // AKSI 3: Buka Modal Hapus
@@ -481,26 +419,19 @@ $adminInitials = 'AP';
             modalDeleteInstance.show();
         }
 
-        function confirmDeleteCategory() {
-            const id = Number(document.getElementById('deleteCategoryId').value);
-            categories = categories.filter(c => Number(c.id) !== id);
-
-            localStorage.setItem('indofx_admin_categories', JSON.stringify(categories));
-            renderCategoryTable();
-            modalDeleteInstance.hide();
+        async function confirmDeleteCategory() {
+            try {
+                await AdminApi.save('category.delete', {id: document.getElementById('deleteCategoryId').value});
+                modalDeleteInstance.hide();
+                await loadCategories();
+            } catch (error) { AdminApi.showError(error); }
         }
 
         // Badge sidebar mengikuti antrean moderasi & pengajuan penjual
-        function updateSidebarBadges() {
-            const moderationBadge = document.getElementById('sidebarModerationBadge');
-            const sellerBadge = document.getElementById('sidebarSellerBadge');
-
-            if (moderationBadge && window.IndoFXStorage) {
-                moderationBadge.innerText = IndoFXStorage.countPendingModeration();
-            }
-            if (sellerBadge && window.IndoFXStorage) {
-                sellerBadge.innerText = IndoFXStorage.countPendingSellerRequests();
-            }
+        async function updateSidebarBadges() {
+            try {
+                await AdminApi.data();
+            } catch (error) { AdminApi.showError(error); }
         }
 
         document.addEventListener('DOMContentLoaded', function() {

@@ -4,7 +4,7 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
     exit;
 }
 
-$adminName = 'Super Admin IndoFX';
+$adminName = (string) ($_SESSION['name'] ?? 'Admin IndoFX');
 $adminInitials = 'AP';
 ?>
 <!DOCTYPE html>
@@ -12,6 +12,7 @@ $adminInitials = 'AP';
 
 <head>
     <meta charset="UTF-8">
+    <meta name="admin-csrf" content="<?= htmlspecialchars($_SESSION['admin_csrf'], ENT_QUOTES, 'UTF-8') ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ringkasan Platform IndoFX - Admin</title>
 
@@ -131,7 +132,7 @@ $adminInitials = 'AP';
                     <div class="admin-stat-card">
                         <div class="admin-stat-label">Total Omset Platform</div>
                         <div class="admin-stat-val" id="statTotalRevenue">Rp 0</div>
-                        <div class="admin-stat-sub" id="statRevenueSub">Simulasi Midtrans</div>
+                        <div class="admin-stat-sub" id="statRevenueSub">Transaksi berhasil</div>
                     </div>
                 </div>
             </div>
@@ -247,276 +248,29 @@ $adminInitials = 'AP';
     <!-- Helper escape output HTML -->
     <script src="/assets/js/indofx-utils.js"></script>
 
-    <!-- Helper penyimpanan lokal (kunci berbasis user_id) -->
-    <script src="/assets/js/indofx-storage.js"></script>
+    <!-- Koneksi data admin -->
+    <script src="/assets/js/admin-api.js"></script>
 
     <!-- ENGINE DATA DINAMIS ADMIN INDOFX -->
     <script>
         // Data Basis Pengguna Awal
-        const defaultUsers = [{
-                id: 1,
-                name: 'CyberNet Studio',
-                email: 'contact@cybernet.id',
-                role: 'Penjual',
-                status: 'Aktif'
-            },
-            {
-                id: 2,
-                name: 'Nusantara Devs',
-                email: 'dev@nusantara.id',
-                role: 'Penjual',
-                status: 'Aktif'
-            },
-            {
-                id: 3,
-                name: 'Arga Studio',
-                email: 'support@argastudio.com',
-                role: 'Penjual',
-                status: 'Aktif'
-            },
-            {
-                id: 4,
-                name: 'Rian_Devs Studio',
-                email: 'rian.prasetya@gmail.com',
-                role: 'Pembeli',
-                status: 'Aktif'
-            },
-            {
-                id: 5,
-                name: 'Super Administrator',
-                email: 'admin@indofx.id',
-                role: 'Admin',
-                status: 'Aktif'
-            }
-        ];
-
-        // Data Basis Antrean Moderasi Awal
-        const defaultModerationQueue = [{
-                id: 'mod-1',
-                title: 'Sci-Fi Holo UI Shader Package',
-                pipeline: 'HDRP',
-                category: 'Shader',
-                file_info: 'File: scifi_holo_v1.zip (32 MB)',
-                studio: 'CyberNet Studio',
-                unity_ver: 'Unity 2022.3 LTS',
-                price: 'Rp150.000',
-                price_num: 150000,
-                created_at: '15 Okt 2026',
-                time: '09:15 WIB',
-                status: 'Pending Review'
-            },
-            {
-                id: 'mod-2',
-                title: 'Procedural Stylized Grass System',
-                pipeline: 'URP',
-                category: 'VFX Partikel',
-                file_info: 'File: stylized_grass_v2.unitypackage (14 MB)',
-                studio: 'Nusantara Devs',
-                unity_ver: 'Unity 2021.3 LTS',
-                price: 'Gratis',
-                price_num: 0,
-                created_at: '16 Okt 2026',
-                time: '14:20 WIB',
-                status: 'Pending Review'
-            },
-            {
-                id: 'mod-3',
-                title: 'Volumetric Rain & Storm URP',
-                pipeline: 'URP',
-                category: 'VFX Partikel',
-                file_info: 'File: volumetric_rain_v1.2.unitypackage (48 MB)',
-                studio: 'Arga Studio',
-                unity_ver: 'Unity 2021.3 LTS',
-                price: 'Rp150.000',
-                price_num: 150000,
-                created_at: '14 Okt 2026',
-                time: '11:00 WIB',
-                status: 'Published'
-            }
-        ];
-
         let allModerationAssets = [];
         let modalReviewInstance = null;
 
         // 1. SINKRONISASI DATA DINAMIS PENUH (TANPA NILAI HARDCODED)
-        function syncAdminDashboardData() {
-            // ==========================================
-            // A. TOTAL PENGGUNA DINAMIS (MURNI DATA RIIL)
-            // ==========================================
-            let userList = [];
+        async function syncAdminDashboardData() {
             try {
-                userList = JSON.parse(localStorage.getItem('indofx_admin_users')) || [];
-            } catch (e) {
-                userList = [];
-            }
-
-            if (userList.length === 0) {
-                userList = [...defaultUsers];
-                localStorage.setItem('indofx_admin_users', JSON.stringify(userList));
-            }
-
-            // Pindai juga jika ada pendaftaran user baru dari auth web
-            ['indofx_users', 'indofx_registered_users', 'users'].forEach(key => {
-                try {
-                    const extra = JSON.parse(localStorage.getItem(key)) || [];
-                    if (Array.isArray(extra)) {
-                        extra.forEach(eu => {
-                            if (eu.email && !userList.some(u => u.email === eu.email)) {
-                                userList.push({
-                                    id: eu.id || Date.now(),
-                                    name: eu.name || 'Pengguna Baru',
-                                    email: eu.email,
-                                    role: eu.role || 'Pembeli',
-                                    status: 'Aktif',
-                                    join_date: 'Hari ini',
-                                    stats: '0 Aset'
-                                });
-                            }
-                        });
-                    }
-                } catch (e) {}
-            });
-            localStorage.setItem('indofx_admin_users', JSON.stringify(userList));
-
-            // Hitung eksak tanpa angka buatan
-            const sellerCount = userList.filter(u => u.role === 'Penjual').length;
-            const buyerCount = userList.filter(u => u.role === 'Pembeli').length;
-            const totalUserCount = userList.length;
-
-            document.getElementById('statTotalUsers').innerText = totalUserCount.toLocaleString('id-ID');
-            document.getElementById('statUserBreakdown').innerText = `${sellerCount} Penjual | ${buyerCount} Pembeli`;
-
-            // ==========================================
-            // B. ANTREAN MODERASI DINAMIS
-            // ==========================================
-            let queue = [];
-            try {
-                const storedQueue = localStorage.getItem('indofx_moderation_queue');
-                if (storedQueue) {
-                    queue = JSON.parse(storedQueue);
-                } else {
-                    queue = [...defaultModerationQueue];
-                    localStorage.setItem('indofx_moderation_queue', JSON.stringify(queue));
-                }
-            } catch (e) {
-                queue = [...defaultModerationQueue];
-            }
-
-            // Pindai aset yang baru diunggah kreator
-            Object.keys(localStorage).forEach(key => {
-                if (key.startsWith('indofx_seller_assets_')) {
-                    try {
-                        const sellerAssets = JSON.parse(localStorage.getItem(key)) || [];
-                        sellerAssets.forEach(sa => {
-                            const exists = queue.some(q => String(q.id) === String(sa.id) || q.title === sa.title);
-                            if (!exists) {
-                                queue.unshift({
-                                    id: sa.id || ('asset-' + Date.now()),
-                                    title: sa.title,
-                                    pipeline: Array.isArray(sa.pipelines) ? (sa.pipelines[0] || 'Built-in') : (sa.pipelines || 'Built-in'),
-                                    category: sa.category || 'VFX Partikel',
-                                    file_info: 'File: ' + (sa.title.toLowerCase().replace(/[^a-z0-9]/g, '_')) + '.unitypackage (24 MB)',
-                                    studio: sa.creator || sa.seller || 'Studio Kreator',
-                                    unity_ver: 'Unity 2022.3 LTS',
-                                    price: typeof sa.price === 'number' ? ('Rp' + sa.price.toLocaleString('id-ID')) : (sa.price || 'Gratis'),
-                                    price_num: parseFloat(String(sa.price).replace(/[^0-9]/g, '')) || 0,
-                                    created_at: sa.created_at || 'Hari ini',
-                                    time: 'Baru saja',
-                                    status: IndoFXStorage.normalizeStatus(sa.status),
-                                    description: sa.description || '',
-                                    seller_storage_key: key,
-                                    seller_user_id: sa.seller_user_id || key.replace('indofx_seller_assets_', '')
-                                });
-                            }
-                        });
-                    } catch (e) {}
-                }
-            });
-
-            allModerationAssets = queue;
-            localStorage.setItem('indofx_moderation_queue', JSON.stringify(allModerationAssets));
-
-            // Hitung eksak aset pending
-            const pendingList = allModerationAssets.filter(a => IndoFXStorage.normalizeStatus(a.status) === 'Menunggu');
-            document.getElementById('statPendingModeration').innerText = pendingList.length + ' Aset';
-            document.getElementById('sidebarModerationBadge').innerText = pendingList.length;
-
-            // ==========================================
-            // C. ASET TERPUBLIKASI DINAMIS (KATALOG RIIL)
-            // ==========================================
-            let publicCatalog = [];
-            try {
-                publicCatalog = JSON.parse(localStorage.getItem('indofx_public_catalog')) || [];
-            } catch (e) {
-                publicCatalog = [];
-            }
-
-            const publishedInQueue = allModerationAssets.filter(a => IndoFXStorage.normalizeStatus(a.status) === 'Published');
-
-            // Himpunan ID unik yang terpublikasi
-            const publishedAssetIds = new Set();
-            publicCatalog.forEach(c => publishedAssetIds.add(String(c.id || c.title)));
-            publishedInQueue.forEach(q => publishedAssetIds.add(String(q.id || q.title)));
-
-            const totalPublishedCount = publishedAssetIds.size;
-            document.getElementById('statPublishedAssets').innerText = totalPublishedCount.toLocaleString('id-ID');
-
-            // ==========================================
-            // D. TOTAL OMSET PLATFORM DINAMIS (TRANSAKSI RIIL)
-            // ==========================================
-            let totalGrossRevenue = 0;
-            let successTrxCount = 0;
-
-            let trxList = [];
-            try {
-                trxList = JSON.parse(localStorage.getItem('indofx_admin_transactions')) || [];
-            } catch (e) {}
-
-            Object.keys(localStorage).forEach(key => {
-                if (key.startsWith('indofx_transactions_') || key.startsWith('indofx_seller_sales_')) {
-                    try {
-                        const txs = JSON.parse(localStorage.getItem(key)) || [];
-                        txs.forEach(t => {
-                            const orderId = t.invoice_no || t.order_id;
-                            if (orderId && !trxList.some(item => item.order_id === orderId)) {
-                                trxList.push({
-                                    order_id: orderId,
-                                    total_bayar: parseFloat(t.subtotal || t.price || t.total) || 0,
-                                    status: (t.status === 'Berhasil' || t.status === 'Settlement') ? 'Settlement' : t.status
-                                });
-                            }
-                        });
-                    } catch (e) {}
-                }
-            });
-
-            // Akumulasi transaksi berstatus Settlement
-            trxList.forEach(t => {
-                if (t.status === 'Settlement' || t.status === 'Berhasil') {
-                    totalGrossRevenue += (parseFloat(t.total_bayar) || 0);
-                    successTrxCount++;
-                }
-            });
-
-            if (totalGrossRevenue >= 1000000) {
-                document.getElementById('statTotalRevenue').innerText = `Rp ${(totalGrossRevenue / 1000000).toFixed(2)}jt`;
-            } else {
-                document.getElementById('statTotalRevenue').innerText = `Rp ${totalGrossRevenue.toLocaleString('id-ID')}`;
-            }
-            document.getElementById('statRevenueSub').innerText = `${successTrxCount} Transaksi Berhasil`;
-
-            // ==========================================
-            // E. BADGE PENGAJUAN PENJUAL
-            // ==========================================
-            let sellerReqs = [];
-            try {
-                sellerReqs = JSON.parse(localStorage.getItem('indofx_seller_requests')) || [];
-            } catch (e) {}
-            const pendingReqCount = sellerReqs.filter(r => r.status === 'Menunggu').length;
-            document.getElementById('sidebarSellerReqBadge').innerText = pendingReqCount;
-
-            // Render tabel
-            renderModerationTable();
+                const data = await AdminApi.data();
+                allModerationAssets = data.assets.filter(a => a.status === 'Menunggu');
+                document.getElementById('statTotalUsers').textContent = data.users.length;
+                document.getElementById('statUserBreakdown').textContent = `${data.users.filter(u => u.role === 'Penjual').length} Penjual | ${data.users.filter(u => u.role === 'Pembeli').length} Pembeli`;
+                document.getElementById('statPendingModeration').textContent = allModerationAssets.length + ' Aset';
+                document.getElementById('statPublishedAssets').textContent = data.assets.filter(a => a.status === 'Published').length;
+                const paid = data.transactions.filter(t => t.status === 'Settlement');
+                document.getElementById('statTotalRevenue').textContent = 'Rp ' + paid.reduce((sum, t) => sum + t.total_bayar, 0).toLocaleString('id-ID');
+                document.getElementById('statRevenueSub').textContent = paid.length + ' Transaksi Berhasil';
+                renderModerationTable();
+            } catch (error) { AdminApi.showError(error); }
         }
 
         // 2. RENDER TABEL ANTREAN TERBARU
@@ -541,8 +295,8 @@ $adminInitials = 'AP';
                 if (pipe.toLowerCase().includes('hdrp')) pipeClass = 'badge-pipe-hdrp';
                 if (pipe.toLowerCase().includes('built')) pipeClass = 'badge-pipe-builtin';
 
-                const isPublished = IndoFXStorage.normalizeStatus(item.status) === 'Published';
-                const isRejected = IndoFXStorage.normalizeStatus(item.status) === 'Ditolak';
+                const isPublished = AdminApi.status(item.status) === 'Published';
+                const isRejected = AdminApi.status(item.status) === 'Ditolak';
 
                 let statusBadge = `<span class="badge-status-review">Pending Review</span>`;
                 if (isPublished) {
@@ -553,7 +307,7 @@ $adminInitials = 'AP';
 
                 const actionBtn = isPublished ?
                     `
-                        <a href="/asset/detail?id=${encodeURIComponent(item.id)}&title=${encodeURIComponent(item.title)}&category=${encodeURIComponent(item.category || '')}&creator=${encodeURIComponent(item.studio || '')}&price=${encodeURIComponent(item.price_num || 0)}&pipeline=${encodeURIComponent(item.pipeline || '')}" class="btn-admin-public">
+                        <a href="/asset/detail?id=${encodeURIComponent(item.public_id)}&title=${encodeURIComponent(item.title)}&category=${encodeURIComponent(item.category || '')}&creator=${encodeURIComponent(item.studio || '')}&price=${encodeURIComponent(item.price_num || 0)}&pipeline=${encodeURIComponent(item.pipeline || '')}" class="btn-admin-public">
                             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0">
                                 <rect x="2" y="2" width="12" height="12" rx="2.5" />
                                 <line x1="5.5" y1="5.5" x2="10.5" y2="5.5" />

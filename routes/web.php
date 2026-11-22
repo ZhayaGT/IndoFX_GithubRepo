@@ -25,9 +25,7 @@ $router->add('GET', '/logout', 'AuthController', 'logout');
 
 // Registrasi Penjual
 $router->add('POST', '/seller/register', 'AuthController', 'processSellerRegister');
-$router->get('/seller/register', function () {
-    require BASE_PATH . '/resources/views/auth/seller_register.php';
-});
+$router->add('GET', '/seller/register', 'AuthController', 'sellerRegister');
 
 // ==========================================
 // 3. PROFIL & KELOLA PROFIL
@@ -118,50 +116,10 @@ $router->post('/api/reviews/add', function () {
 // 6. DASHBOARD ADMINISTRATOR (PROTEKSI ROLE)
 // ==========================================
 
-$checkAdminAccess = function () {
-    if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
-        header('Location: /login');
-        exit;
-    }
-};
-
-$router->add('GET', '/admin', function () use ($checkAdminAccess) {
-    $checkAdminAccess();
-    require __DIR__ . '/../resources/views/admin/dashboard.php';
-});
-
-$router->add('GET', '/admin/dashboard', function () use ($checkAdminAccess) {
-    $checkAdminAccess();
-    require __DIR__ . '/../resources/views/admin/dashboard.php';
-});
-
-$router->add('GET', '/admin/users', function () use ($checkAdminAccess) {
-    $checkAdminAccess();
-    require __DIR__ . '/../resources/views/admin/users.php';
-});
-
-$router->add('GET', '/admin/assets', function () use ($checkAdminAccess) {
-    $checkAdminAccess();
-    require __DIR__ . '/../resources/views/admin/assets.php';
-});
-
-$router->add('GET', '/admin/assets/review', function () use ($checkAdminAccess) {
-    $checkAdminAccess();
-    require __DIR__ . '/../resources/views/admin/asset_review.php';
-});
-
-$router->add('GET', '/admin/categories', function () use ($checkAdminAccess) {
-    $checkAdminAccess();
-    require __DIR__ . '/../resources/views/admin/categories.php';
-});
-
-$router->add('GET', '/admin/seller-requests', function () use ($checkAdminAccess) {
-    $checkAdminAccess();
-    require __DIR__ . '/../resources/views/admin/seller_requests.php';
-});
-
-$router->add('GET', '/admin/transactions', function () use ($checkAdminAccess) {
-    $checkAdminAccess();
-    require __DIR__ . '/../resources/views/admin/transactions.php';
-});
-
+foreach (['/admin', '/admin/dashboard', '/admin/users', '/admin/assets', '/admin/assets/review',
+    '/admin/categories', '/admin/seller-requests', '/admin/transactions'] as $path) {
+    $router->add('GET', $path, 'AdminController', 'page');
+}
+$router->add('GET', '/api/admin/data', 'AdminController', 'data');
+$router->add('POST', '/api/admin/save', 'AdminController', 'save');
+$router->add('GET', '/admin/download', 'AdminController', 'download');

@@ -4,7 +4,7 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
     exit;
 }
 
-$adminName = 'Super Admin IndoFX';
+$adminName = (string) ($_SESSION['name'] ?? 'Admin IndoFX');
 $adminInitials = 'AP';
 ?>
 <!DOCTYPE html>
@@ -12,6 +12,7 @@ $adminInitials = 'AP';
 
 <head>
     <meta charset="UTF-8">
+    <meta name="admin-csrf" content="<?= htmlspecialchars($_SESSION['admin_csrf'], ENT_QUOTES, 'UTF-8') ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detail Review Aset - IndoFX</title>
 
@@ -113,20 +114,21 @@ $adminInitials = 'AP';
                         </div>
 
                         <!-- Gambar Utama 16:9 -->
+                        <p class="text-muted small" id="previewMessage">Memuat pratinjau…</p>
                         <div class="review-main-preview">
-                            <img id="mainPreviewImg" src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80" alt="Preview Aset">
+                            <img id="mainPreviewImg" hidden alt="Preview Aset">
                         </div>
 
                         <!-- 3 Gambar Thumbnail Galeri -->
                         <div class="review-thumb-grid">
                             <div class="review-thumb-item">
-                                <img id="thumbImg1" src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80" alt="Thumb 1">
+                                <img id="thumbImg1" hidden alt="Thumb 1">
                             </div>
                             <div class="review-thumb-item">
-                                <img id="thumbImg2" src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=400&q=80" alt="Thumb 2">
+                                <img id="thumbImg2" hidden alt="Thumb 2">
                             </div>
                             <div class="review-thumb-item">
-                                <img id="thumbImg3" src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80" alt="Thumb 3">
+                                <img id="thumbImg3" hidden alt="Thumb 3">
                             </div>
                         </div>
 
@@ -170,11 +172,11 @@ $adminInitials = 'AP';
                                     <i class="bi bi-box-seam"></i>
                                 </div>
                                 <div>
-                                    <div class="fw-bold text-dark" id="reviewFileNameDisplay">package_asset.unitypackage</div>
-                                    <div class="text-muted small" id="reviewFileSizeDate">Ukuran: 18.5 MB | Diunggah: Hari ini</div>
+                                    <div class="fw-bold text-dark" id="reviewFileNameDisplay">—</div>
+                                    <div class="text-muted small" id="reviewFileSizeDate">—</div>
                                 </div>
                             </div>
-                            <button type="button" class="btn-review-download" onclick="simulateDownloadPackage()">
+                            <button type="button" class="btn-review-download" onclick="downloadPackage()">
                                 <i class="bi bi-download"></i> Unduh &amp; Periksa Berkas
                             </button>
                         </div>
@@ -188,20 +190,20 @@ $adminInitials = 'AP';
                         <div class="text-muted small mb-3" id="sidebarCreatorName">Oleh Kreator</div>
 
                         <div class="review-price-label text-muted small">Harga Aset:</div>
-                        <div class="review-price-val" id="sidebarPriceVal">Rp 150.000</div>
+                        <div class="review-price-val" id="sidebarPriceVal">—</div>
 
                         <table class="review-spec-table">
                             <tr>
                                 <td>Versi Unity Minimum:</td>
-                                <td id="sidebarUnityVer">2022.3 LTS</td>
+                                <td id="sidebarUnityVer">—</td>
                             </tr>
                             <tr>
                                 <td>Render Pipeline:</td>
-                                <td id="sidebarPipeline">URP</td>
+                                <td id="sidebarPipeline">—</td>
                             </tr>
                             <tr>
                                 <td>Tanggal Pengajuan:</td>
-                                <td id="sidebarSubmissionDate">Hari ini</td>
+                                <td id="sidebarSubmissionDate">—</td>
                             </tr>
                         </table>
 
@@ -274,8 +276,8 @@ $adminInitials = 'AP';
     <!-- Helper escape output HTML -->
     <script src="/assets/js/indofx-utils.js"></script>
 
-    <!-- Helper penyimpanan lokal (kunci berbasis user_id) -->
-    <script src="/assets/js/indofx-storage.js"></script>
+    <!-- Koneksi data admin -->
+    <script src="/assets/js/admin-api.js"></script>
 
     <!-- ENGINE PENINJAUAN ASET: 100% DINAMIS MENGGUNAKAN TEKS ASLI PENJUAL -->
     <script>
@@ -288,59 +290,13 @@ $adminInitials = 'AP';
             return params.get('id');
         }
 
-        function loadAssetDetail() {
-            const assetId = getAssetIdFromUrl();
-
+        async function loadAssetDetail() {
             try {
-                allQueue = JSON.parse(localStorage.getItem('indofx_moderation_queue')) || [];
-            } catch (e) {
-                allQueue = [];
-            }
-
-            // Temukan aset spesifik dari antrean moderasi
-            if (assetId) {
-                currentAsset = allQueue.find(a => String(a.id) === String(assetId) || a.title === assetId);
-            }
-
-            if (!currentAsset && allQueue.length > 0) {
-                currentAsset = allQueue[0];
-            }
-
-            if (!currentAsset) {
-                currentAsset = {
-                    id: 'mod-demo',
-                    title: 'Asset Tanpa Judul',
-                    pipeline: 'URP',
-                    pipelines: ['URP'],
-                    category: 'VFX Partikel',
-                    file_info: 'File: asset_package.unitypackage (14 MB)',
-                    studio: 'naufalhaidarazmi',
-                    creator: 'naufalhaidarazmi',
-                    unity_ver: '2022.3 LTS',
-                    price: 'Gratis',
-                    price_num: 0,
-                    date: 'Hari ini',
-                    status: 'Pending Review',
-                    description: '',
-                    how_to_use: ''
-                };
-            }
-
-            // Cross-check jika description / how_to_use tersimpan di storage toko penjual
-            if (!currentAsset.description || !currentAsset.how_to_use) {
-                const sKey = currentAsset.seller_storage_key || IndoFXStorage.sellerAssetsKey(currentAsset.seller_user_id || currentAsset.studio || currentAsset.creator || '');
-                try {
-                    const sAssets = JSON.parse(localStorage.getItem(sKey)) || [];
-                    const foundInSeller = sAssets.find(s => String(s.id) === String(currentAsset.id) || s.title === currentAsset.title);
-                    if (foundInSeller) {
-                        if (!currentAsset.description && foundInSeller.description) currentAsset.description = foundInSeller.description;
-                        if (!currentAsset.how_to_use && foundInSeller.how_to_use) currentAsset.how_to_use = foundInSeller.how_to_use;
-                        if (!currentAsset.image && foundInSeller.image) currentAsset.image = foundInSeller.image;
-                        if (!currentAsset.video_url && foundInSeller.video_url) currentAsset.video_url = foundInSeller.video_url;
-                    }
-                } catch (e) {}
-            }
-
+            const assetId = getAssetIdFromUrl();
+            allQueue = (await AdminApi.data()).assets;
+            currentAsset = allQueue.find(a => String(a.id) === String(assetId));
+            if (!currentAsset) throw new Error('Aset tidak ditemukan. Kembali ke daftar moderasi.');
+            document.querySelectorAll('[onclick="approveAndPublishAsset()"], [onclick="openRejectDialog()"]').forEach(button => button.disabled = currentAsset.status !== 'Menunggu');
             // Tampilkan Judul & Meta Informasi
             document.getElementById('reviewHeaderTitle').innerText = 'Detail Review: ' + currentAsset.title;
             document.getElementById('sidebarAssetTitle').innerText = currentAsset.title;
@@ -366,11 +322,21 @@ $adminInitials = 'AP';
                 howToUseEl.innerText = 'Penjual tidak mencantumkan langkah panduan penggunaan khusus.';
             }
 
-            // Preview Gambar
-            if (currentAsset.image && (currentAsset.image.startsWith('data:') || currentAsset.image.includes('/'))) {
-                document.getElementById('mainPreviewImg').src = currentAsset.image;
-                document.getElementById('thumbImg1').src = currentAsset.image;
-            }
+            const preview = document.getElementById('mainPreviewImg');
+            preview.hidden = !currentAsset.image;
+            if (currentAsset.image) preview.src = currentAsset.image;
+            document.getElementById('previewMessage').textContent = currentAsset.image ? '' : 'Gambar pratinjau belum tersedia.';
+            [1, 2, 3].forEach((number, index) => {
+                const thumb = document.getElementById('thumbImg' + number);
+                const source = currentAsset.images[index];
+                thumb.parentElement.hidden = !source;
+                thumb.hidden = !source;
+                if (source) {
+                    thumb.src = source;
+                    thumb.alt = currentAsset.title;
+                    thumb.parentElement.onclick = () => { preview.src = source; };
+                }
+            });
 
             // Pipeline Badge
             const pipe = currentAsset.pipeline || (Array.isArray(currentAsset.pipelines) ? currentAsset.pipelines[0] : 'URP');
@@ -379,8 +345,8 @@ $adminInitials = 'AP';
             pipeBadge.className = 'badge-pipe-admin ' + (pipe.toLowerCase().includes('hdrp') ? 'badge-pipe-hdrp' : (pipe.toLowerCase().includes('built') ? 'badge-pipe-builtin' : 'badge-pipe-urp'));
 
             // Status Badge
-            const isPublished = IndoFXStorage.normalizeStatus(currentAsset.status) === 'Published';
-            const isRejected = IndoFXStorage.normalizeStatus(currentAsset.status) === 'Ditolak';
+            const isPublished = AdminApi.status(currentAsset.status) === 'Published';
+            const isRejected = AdminApi.status(currentAsset.status) === 'Ditolak';
             let statusBadgeHtml = `<span class="badge-status-review">Pending Review</span>`;
             if (isPublished) statusBadgeHtml = `<span class="badge-status-published">Published</span>`;
             if (isRejected) statusBadgeHtml = `<span class="badge-status-blocked">Ditolak</span>`;
@@ -389,7 +355,7 @@ $adminInitials = 'AP';
             // Berkas Unity
             const cleanFileName = currentAsset.file_info ? currentAsset.file_info.replace(/^File:\s*/i, '') : ((currentAsset.title.toLowerCase().replace(/[^a-z0-9]/g, '_')) + '.unitypackage');
             document.getElementById('reviewFileNameDisplay').innerText = cleanFileName;
-            document.getElementById('reviewFileSizeDate').innerText = 'Ukuran: 18.5 MB | Diunggah: ' + (currentAsset.date || currentAsset.created_at || 'Hari ini');
+            document.getElementById('reviewFileSizeDate').innerText = 'Ukuran: ' + currentAsset.file_size + ' | Diunggah: ' + (currentAsset.date || currentAsset.created_at || 'Hari ini');
 
             // Video Link
             const videoEl = document.getElementById('reviewVideoLink');
@@ -404,88 +370,19 @@ $adminInitials = 'AP';
             }
 
             // Update Badge Sidebar
-            const pCount = allQueue.filter(q => IndoFXStorage.normalizeStatus(q.status) === 'Menunggu').length;
+            const pCount = allQueue.filter(q => AdminApi.status(q.status) === 'Menunggu').length;
             document.getElementById('sidebarModerationBadge').innerText = pCount;
+
+            } catch (error) { AdminApi.showError(error); }
         }
 
         // AKSI 1: ADMIN SETUJUI & PUBLIKASIKAN (TERUSKAN DESKRIPSI & PANDUAN KE KATALOG PUBLIK)
-        function approveAndPublishAsset() {
-            if (!currentAsset) return;
-
-            // Update Antrean Moderasi Admin
-            allQueue = allQueue.map(item => {
-                if (String(item.id) === String(currentAsset.id) || item.title === currentAsset.title) {
-                    item.status = 'Published';
-                }
-                return item;
-            });
-            localStorage.setItem('indofx_moderation_queue', JSON.stringify(allQueue));
-
-            // Update Status di Ruang Penjual
-            const creatorUsername = currentAsset.studio || currentAsset.creator || currentAsset.seller || '';
-            const sellerUserId = currentAsset.seller_user_id || '';
-            const sellerStorageKey = currentAsset.seller_storage_key ||
-                IndoFXStorage.sellerAssetsKey(sellerUserId || creatorUsername);
+        async function approveAndPublishAsset() {
             try {
-                let sellerAssets = JSON.parse(localStorage.getItem(sellerStorageKey)) || [];
-                sellerAssets = sellerAssets.map(sa => {
-                    if (String(sa.id) === String(currentAsset.id) || sa.title === currentAsset.title) {
-                        return {
-                            ...sa,
-                            status: 'Disetujui'
-                        };
-                    }
-                    return sa;
-                });
-                localStorage.setItem(sellerStorageKey, JSON.stringify(sellerAssets));
-            } catch (e) {}
-
-            // Masukkan Lengkap ke indofx_public_catalog
-            let publicCatalog = [];
-            try {
-                publicCatalog = JSON.parse(localStorage.getItem('indofx_public_catalog')) || [];
-            } catch (e) {
-                publicCatalog = [];
-            }
-
-            publicCatalog = publicCatalog.filter(c => String(c.id) !== String(currentAsset.id) && c.title !== currentAsset.title);
-
-            const rawPrice = (typeof currentAsset.price_num === 'number') ?
-                currentAsset.price_num :
-                (parseFloat(String(currentAsset.price).replace(/[^0-9]/g, '')) || 0);
-
-            const pipelinesArray = Array.isArray(currentAsset.pipelines) && currentAsset.pipelines.length > 0 ?
-                currentAsset.pipelines : [currentAsset.pipeline || 'URP'];
-
-            publicCatalog.unshift({
-                id: currentAsset.id,
-                title: currentAsset.title,
-                creator: creatorUsername,
-                seller_user_id: sellerUserId,
-                seller_key: sellerStorageKey,
-                price: rawPrice,
-                price_text: rawPrice === 0 ? 'Gratis' : ('Rp' + rawPrice.toLocaleString('id-ID')),
-                category: currentAsset.category || 'VFX Partikel',
-                pipelines: pipelinesArray,
-                unity_version: currentAsset.unity_ver || currentAsset.unity_version || '2022.3 LTS',
-                format: currentAsset.file_info ? (currentAsset.file_info.includes('.zip') ? '.zip' : '.unitypackage') : '.unitypackage',
-                downloads: '0x Terjual',
-                image: currentAsset.image || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80',
-                rating: 5.0,
-                reviews_count: 0,
-                published_at: new Date().toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric'
-                }),
-                // KUNCI PENTING: DITERUSKAN ASLI DARI INPUT PENJUAL
-                description: currentAsset.description || '',
-                how_to_use: currentAsset.how_to_use || ''
-            });
-            localStorage.setItem('indofx_public_catalog', JSON.stringify(publicCatalog));
-
-            alert('Sukses! Aset "' + currentAsset.title + '" telah disetujui dan kartu aset kini sudah tayang di Katalog & Explore!');
-            window.location.href = '/admin/assets';
+                if (!currentAsset) return;
+                await AdminApi.save('asset.review', {id: currentAsset.id, decision: 'approve', reason: document.getElementById('rejectAssetReasonInput').value.trim()});
+                window.location.href = '/admin/assets';
+            } catch (error) { AdminApi.showError(error); }
         }
 
         // AKSI 2: ADMIN TOLAK PENGAJUAN
@@ -494,54 +391,17 @@ $adminInitials = 'AP';
             modalReject.show();
         }
 
-        function confirmRejectAsset() {
-            const reason = document.getElementById('rejectAssetReasonInput').value.trim();
-            if (!reason) {
-                alert('Silakan tuliskan alasan penolakan terlebih dahulu.');
-                document.getElementById('rejectAssetReasonInput').focus();
-                return;
-            }
-
-            allQueue = allQueue.map(item => {
-                if (String(item.id) === String(currentAsset.id) || item.title === currentAsset.title) {
-                    item.status = 'Ditolak';
-                    item.reject_reason = reason;
-                }
-                return item;
-            });
-            localStorage.setItem('indofx_moderation_queue', JSON.stringify(allQueue));
-
-            const creatorUsername = currentAsset.studio || currentAsset.creator || currentAsset.seller || '';
-            const sellerStorageKey = currentAsset.seller_storage_key ||
-                IndoFXStorage.sellerAssetsKey(currentAsset.seller_user_id || creatorUsername);
+        async function confirmRejectAsset() {
             try {
-                let sellerAssets = JSON.parse(localStorage.getItem(sellerStorageKey)) || [];
-                sellerAssets = sellerAssets.map(sa => {
-                    if (String(sa.id) === String(currentAsset.id) || sa.title === currentAsset.title) {
-                        return {
-                            ...sa,
-                            status: 'Ditolak',
-                            reject_reason: reason
-                        };
-                    }
-                    return sa;
-                });
-                localStorage.setItem(sellerStorageKey, JSON.stringify(sellerAssets));
-            } catch (e) {}
-
-            try {
-                let publicCatalog = JSON.parse(localStorage.getItem('indofx_public_catalog')) || [];
-                publicCatalog = publicCatalog.filter(c => String(c.id) !== String(currentAsset.id) && c.title !== currentAsset.title);
-                localStorage.setItem('indofx_public_catalog', JSON.stringify(publicCatalog));
-            } catch (e) {}
-
-            modalReject.hide();
-            alert('Pengajuan aset ditolak. Catatan perbaikan telah dikirimkan ke penjual.');
-            window.location.href = '/admin/assets';
+                if (!currentAsset) return;
+                await AdminApi.save('asset.review', {id: currentAsset.id, decision: 'reject', reason: document.getElementById('rejectAssetReasonInput').value.trim()});
+                window.location.href = '/admin/assets';
+            } catch (error) { AdminApi.showError(error); }
         }
 
-        function simulateDownloadPackage() {
-            alert('Memulai unduhan berkas package ' + document.getElementById('reviewFileNameDisplay').innerText + ' untuk verifikasi...');
+        function downloadPackage() {
+            if (!currentAsset?.file_id) { AdminApi.showError(new Error('Berkas belum tersedia.')); return; }
+            window.location.href = '/admin/download?id=' + encodeURIComponent(currentAsset.file_id);
         }
 
         document.addEventListener('DOMContentLoaded', function() {

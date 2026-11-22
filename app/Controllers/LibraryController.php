@@ -105,6 +105,12 @@ class LibraryController extends Controller {
             return;
         }
 
+        $asset = (new \IndoFX\Models\Asset())->getAssetByInternalId($assetId);
+        if (!$asset || (int) $asset['price'] !== 0) {
+            http_response_code(422);
+            echo json_encode(['success' => false, 'message' => 'Aset gratis yang sudah diterbitkan tidak ditemukan.']);
+            return;
+        }
         $libModel = new Library();
         $libModel->grantEntitlement($_SESSION['user_id'], $assetId, 'free', null);
 

@@ -4,7 +4,7 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
     exit;
 }
 
-$adminName = 'Super Admin IndoFX';
+$adminName = (string) ($_SESSION['name'] ?? 'Admin IndoFX');
 $adminInitials = 'AP';
 ?>
 <!DOCTYPE html>
@@ -12,6 +12,7 @@ $adminInitials = 'AP';
 
 <head>
     <meta charset="UTF-8">
+    <meta name="admin-csrf" content="<?= htmlspecialchars($_SESSION['admin_csrf'], ENT_QUOTES, 'UTF-8') ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verifikasi Penjual - IndoFX</title>
 
@@ -323,199 +324,37 @@ $adminInitials = 'AP';
 
     <!-- Helper escape output HTML -->
     <script src="/assets/js/indofx-utils.js"></script>
+    <script src="/assets/js/admin-api.js"></script>
 
     <!-- ENGINE PENGAJUAN PENJUAL DINAMIS -->
     <script>
         // Data Awal Cadangan (Figma accurate)
-        const fallbackSellerRequests = [{
-                id: 'REQ-1',
-                name: 'CyberNet Studio',
-                full_name: 'David Surya (CyberNet)',
-                email: 'contact@cybernet.id',
-                address: 'Jl. Sudirman No. 88, Menteng, Jakarta Pusat 10310',
-                reason: 'Kami studio 3D asset indie yang ingin memasarkan pack environment futuristik Unity ke komunitas game developer lokal.',
-                attachment: 'cyber_holo_pack_v1.unitypackage',
-                attachment_size: '32,1 MB',
-                asset_desc: 'Asset UI holografis interaktif siap pakai untuk pipeline HDRP dan Built-in.',
-                portfolio: 'artstation.com/cybernetstudio',
-                submission_date: '10 Jan 2026',
-                status: 'Aktif',
-                join_date: '10 Jan 2026',
-                reject_reason: '',
-                inits: 'CN',
-                bg: '#FCE8DC',
-                color: '#ED6B1D'
-            },
-            {
-                id: 'REQ-2',
-                name: 'Nusantara Devs',
-                full_name: 'Budi Santoso',
-                email: 'contact@cybernet.id',
-                address: 'Jl. Pemuda No. 12, Surabaya, Jawa Timur 60271',
-                reason: 'Ingin berkontribusi menyediakan rumput prosedural dan shader vegetasi bergaya stylized untuk pengembang game Unity lokal.',
-                attachment: 'stylized_grass_pack.unitypackage',
-                attachment_size: '14,0 MB',
-                asset_desc: 'Sistem rumput interaktif URP dengan LOD dan wind gust shader.',
-                portfolio: 'artstation.com/nusantaradevs',
-                submission_date: '04 Feb 2026',
-                status: 'Menunggu',
-                join_date: '04 Feb 2026',
-                reject_reason: '',
-                inits: 'ND',
-                bg: '#FEEFD8',
-                color: '#B76E00'
-            },
-            {
-                id: 'REQ-3',
-                name: 'Rian_Devs Studio',
-                full_name: 'Rian Prasetya',
-                email: 'rian.prasetya@gmail.com',
-                address: 'Jl. Melati No. 14, RT 03/RW 05, Kel. Lowokwaru, Kec. Lowokwaru, Kota Malang, Jawa Timur 65141',
-                reason: 'Saya sudah lama membuat shader dan tekstur untuk kebutuhan pribadi. Saya ingin mulai menjualnya di IndoFX agar bisa menjangkau lebih banyak pengembang Unity lokal.',
-                attachment: 'rain_shader_pack.unitypackage',
-                attachment_size: '18,4 MB',
-                asset_desc: 'Kumpulan shader stylized untuk pipeline URP beserta material contoh dan demo scene.',
-                portfolio: 'artstation.com/riandevs',
-                submission_date: '08 Nov 2026',
-                status: 'Diterima',
-                join_date: '18 Mar 2026',
-                reject_reason: '',
-                inits: 'RD',
-                bg: '#FCE4D6',
-                color: '#C55A11'
-            },
-            {
-                id: 'REQ-4',
-                name: 'Super Administrator',
-                full_name: 'IndoFX Root Admin',
-                email: 'contact@cybernet.id',
-                address: 'Graha IndoFX Lt. 3, Malang, Jawa Timur',
-                reason: 'Akun pengujian verifikasi sistem marketplace internal.',
-                attachment: 'system_core_sample.unitypackage',
-                attachment_size: '5,2 MB',
-                asset_desc: 'Asset template demonstrasi sistem.',
-                portfolio: 'indofx.id/admin',
-                submission_date: '01 Jan 2026',
-                status: 'Diterima',
-                join_date: '01 Jan 2026',
-                reject_reason: '',
-                inits: 'AD',
-                bg: '#FADBD8',
-                color: '#C0392B'
-            },
-            {
-                id: 'REQ-5',
-                name: 'Fake Asset Spammer',
-                full_name: 'Unknown User',
-                email: 'contact@cybernet.id',
-                address: 'Alamat anonim',
-                reason: 'Spamming konten tidak berlisensi.',
-                attachment: 'corrupted_archive.zip',
-                attachment_size: '1,1 MB',
-                asset_desc: 'Berkas tanpa dokumentasi lengkap dan melanggar hak cipta.',
-                portfolio: 'none',
-                submission_date: '12 Mei 2026',
-                status: 'Ditolak',
-                join_date: '12 Mei 2026',
-                reject_reason: 'Lampiran berkas rusak dan melanggar ketentuan lisensi hak cipta aset IndoFX.',
-                inits: 'FX',
-                bg: '#F5CBA7',
-                color: '#B9770E'
-            }
-        ];
-
         let sellerRequests = [];
         let modalViewInstance = null;
         let selectedSellerRequestId = null;
 
         // 1. SINKRONISASI DATA DINAMIS DARI LOCALSTORAGE
-        function loadSellerRequestsData() {
+        async function loadSellerRequestsData() {
             try {
-                const stored = localStorage.getItem('indofx_seller_requests');
-                if (stored) {
-                    sellerRequests = JSON.parse(stored);
-                } else {
-                    sellerRequests = [...fallbackSellerRequests];
-                    localStorage.setItem('indofx_seller_requests', JSON.stringify(sellerRequests));
-                }
-            } catch (e) {
-                sellerRequests = [...fallbackSellerRequests];
-            }
-
-            // Hitung Badge 'Menunggu' untuk Sidebar Navigasi
-            const pendingRequests = sellerRequests.filter(r => r.status === 'Menunggu');
-            document.getElementById('sidebarSellerBadge').innerText = pendingRequests.length;
-
-            // Hitung badge antrean moderasi aset dari storage moderasi
-            try {
-                const queue = JSON.parse(localStorage.getItem('indofx_moderation_queue')) || [];
-                const pQueue = queue.filter(q => q.status === 'Pending' || q.status === 'Pending Review').length;
-                document.getElementById('sidebarModerationBadge').innerText = pQueue;
-            } catch (e) {}
-
-            // Sinkronkan 4 Kartu Metrik Pengguna Murni Dinamis
-            syncUsersMetricCards();
-
-            // Render baris tabel
-            renderSellerTable();
+                sellerRequests = (await AdminApi.data()).sellers;
+                await syncUsersMetricCards();
+                renderSellerTable();
+            } catch (error) { AdminApi.showError(error); }
         }
 
         // 2. SINKRONISASI KARTU METRIK MURNI DINAMIS (TANPA FALLBACK STATIS 1.284)
-        function syncUsersMetricCards() {
-            let userList = [];
+        async function syncUsersMetricCards() {
             try {
-                userList = JSON.parse(localStorage.getItem('indofx_admin_users')) || [];
-            } catch (e) {
-                userList = [];
-            }
-
-            // Jika belum ada di localStorage, ambil dari default basis
-            if (userList.length === 0) {
-                userList = [{
-                        id: 1,
-                        name: 'CyberNet Studio',
-                        role: 'Penjual',
-                        status: 'Aktif'
-                    },
-                    {
-                        id: 2,
-                        name: 'Nusantara Devs',
-                        role: 'Penjual',
-                        status: 'Aktif'
-                    },
-                    {
-                        id: 3,
-                        name: 'Arga Studio',
-                        role: 'Penjual',
-                        status: 'Aktif'
-                    },
-                    {
-                        id: 4,
-                        name: 'Rian_Devs Studio',
-                        role: 'Pembeli',
-                        status: 'Aktif'
-                    },
-                    {
-                        id: 5,
-                        name: 'Super Administrator',
-                        role: 'Admin',
-                        status: 'Aktif'
-                    }
-                ];
-                localStorage.setItem('indofx_admin_users', JSON.stringify(userList));
-            }
-
-            // Perhitungan murni matematis dari data riil
-            const total = userList.length;
-            const sellers = userList.filter(u => u.role === 'Penjual').length;
-            const buyers = userList.filter(u => u.role === 'Pembeli').length;
-            const blocked = userList.filter(u => u.status === 'Diblokir').length;
-
-            document.getElementById('statTotalUsers').innerText = total.toLocaleString('id-ID');
-            document.getElementById('statUsersSub').innerText = `${sellers} Penjual | ${buyers} Pembeli`;
-            document.getElementById('statSellers').innerText = sellers;
-            document.getElementById('statBuyers').innerText = buyers;
-            document.getElementById('statBlocked').innerText = blocked;
+                const userList = (await AdminApi.data()).users;
+                const total = userList.length;
+                const sellers = userList.filter(u => u.role === 'Penjual').length;
+                const buyers = userList.filter(u => u.role === 'Pembeli').length;
+                document.getElementById('statTotalUsers').textContent = total;
+                document.getElementById('statUsersSub').textContent = `${sellers} Penjual | ${buyers} Pembeli`;
+                document.getElementById('statSellers').textContent = sellers;
+                document.getElementById('statBuyers').textContent = buyers;
+                document.getElementById('statBlocked').textContent = userList.filter(u => u.status === 'Diblokir').length;
+            } catch (error) { AdminApi.showError(error); }
         }
 
         // 3. RENDER TABEL DENGAN LOGIKA TOMBOL AKSI CERDAS
@@ -608,9 +447,16 @@ $adminInitials = 'AP';
             document.getElementById('detailEmail').innerText = item.email;
             document.getElementById('detailAddress').innerText = item.address || 'Alamat tidak dicantumkan';
             document.getElementById('detailReason').innerText = item.reason || 'Tidak ada alasan yang dicantumkan';
-            document.getElementById('detailAttachmentName').innerText = item.attachment || 'portofolio_file.unitypackage';
-            document.getElementById('detailAttachmentSize').innerText = item.attachment_size || '12,0 MB';
-            document.getElementById('detailAssetDesc').innerText = item.asset_desc || 'Kumpulan aset buatan pengembang lokal.';
+            const attachment = document.getElementById('detailAttachmentName');
+            attachment.innerHTML = '';
+            if (item.attachment) {
+                const link = document.createElement('a');
+                link.href = '/admin/download?type=sample&id=' + encodeURIComponent(item.id);
+                link.textContent = item.attachment;
+                attachment.append(link);
+            } else { attachment.textContent = 'Tidak ada berkas'; }
+            document.getElementById('detailAttachmentSize').innerText = item.attachment_size || '-';
+            document.getElementById('detailAssetDesc').innerText = item.asset_desc || '-';
             document.getElementById('detailPortfolio').innerText = item.portfolio || '-';
             document.getElementById('detailSubmissionDate').innerText = item.submission_date || item.join_date;
 
@@ -641,6 +487,10 @@ $adminInitials = 'AP';
                 footerEl.innerHTML = `
                     <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Tutup</button>
                 `;
+            } else if (item.status === 'Diterima') {
+                boxRejected.style.display = 'none';
+                boxNoteInput.style.display = 'none';
+                footerEl.innerHTML = '<button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Tutup</button>';
             } else {
                 // Sembunyikan Kotak Alasan Penolakan
                 boxRejected.style.display = 'none';
@@ -666,76 +516,23 @@ $adminInitials = 'AP';
         }
 
         // 5. AKSI SETUJUI PENGAJUAN PENJUAL
-        function handleApproveSeller() {
-            if (!selectedSellerRequestId) return;
-
-            let approvedUser = null;
-
-            // A. Perbarui Status di Daftar Pengajuan Menjadi 'Diterima'
-            sellerRequests = sellerRequests.map(s => {
-                if (String(s.id) === String(selectedSellerRequestId)) {
-                    s.status = 'Diterima';
-                    s.reject_reason = '';
-                    approvedUser = s;
-                }
-                return s;
-            });
-            localStorage.setItem('indofx_seller_requests', JSON.stringify(sellerRequests));
-
-            // B. Sinkronkan ke 'indofx_admin_users' (Ubah Peran menjadi 'Penjual')
-            if (approvedUser) {
-                try {
-                    let userList = JSON.parse(localStorage.getItem('indofx_admin_users')) || [];
-                    const userIdx = userList.findIndex(u => u.email === approvedUser.email);
-
-                    if (userIdx !== -1) {
-                        userList[userIdx].role = 'Penjual';
-                        userList[userIdx].status = 'Aktif';
-                        userList[userIdx].verified = true;
-                    } else {
-                        userList.push({
-                            id: Date.now(),
-                            name: approvedUser.name || approvedUser.full_name,
-                            verified: true,
-                            email: approvedUser.email,
-                            role: 'Penjual',
-                            status: 'Aktif',
-                            join_date: approvedUser.join_date || 'Hari ini',
-                            stats: '0 Aset (Baru)'
-                        });
-                    }
-                    localStorage.setItem('indofx_admin_users', JSON.stringify(userList));
-                } catch (e) {}
-            }
-
-            modalViewInstance.hide();
-            loadSellerRequestsData(); // Muat ulang tabel, tombol centang otomatis muncul!
+        async function handleApproveSeller() {
+            try {
+                if (!selectedSellerRequestId) return;
+                await AdminApi.save('seller.review', {id: selectedSellerRequestId, decision: 'approve', reason: document.getElementById('sellerAdminNote').value.trim()});
+                modalViewInstance.hide();
+                await loadSellerRequestsData();
+            } catch (error) { AdminApi.showError(error); }
         }
 
         // 6. AKSI TOLAK PENGAJUAN (WAJIB ISI CATATAN ALASAN SECARA DINAMIS)
-        function handleRejectSeller() {
-            if (!selectedSellerRequestId) return;
-
-            const noteEl = document.getElementById('sellerAdminNote');
-            const noteVal = noteEl.value.trim();
-
-            if (!noteVal) {
-                noteEl.classList.add('is-invalid-note');
-                noteEl.focus();
-                return;
-            }
-
-            sellerRequests = sellerRequests.map(s => {
-                if (String(s.id) === String(selectedSellerRequestId)) {
-                    s.status = 'Ditolak';
-                    s.reject_reason = noteVal; // Simpan alasan penolakan secara dinamis
-                }
-                return s;
-            });
-
-            localStorage.setItem('indofx_seller_requests', JSON.stringify(sellerRequests));
-            modalViewInstance.hide();
-            loadSellerRequestsData();
+        async function handleRejectSeller() {
+            try {
+                if (!selectedSellerRequestId) return;
+                await AdminApi.save('seller.review', {id: selectedSellerRequestId, decision: 'reject', reason: document.getElementById('sellerAdminNote').value.trim()});
+                modalViewInstance.hide();
+                await loadSellerRequestsData();
+            } catch (error) { AdminApi.showError(error); }
         }
 
         document.addEventListener('DOMContentLoaded', function() {

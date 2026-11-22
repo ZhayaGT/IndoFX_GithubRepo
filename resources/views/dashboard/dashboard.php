@@ -270,6 +270,7 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
                     <tr>
                         <td>
                             <div class="fw-bold text-dark item-asset-title">${esc(item.title)}</div>
+                            ${item.reject_reason ? `<div class="small text-danger">Catatan admin: ${esc(item.reject_reason)}</div>` : ''}
                             <div class="d-flex flex-wrap gap-1 mt-1">${pipeHtml}</div>
                         </td>
                         <td class="text-muted small">${esc(item.category)}</td>

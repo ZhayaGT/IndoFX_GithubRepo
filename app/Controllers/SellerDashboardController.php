@@ -436,7 +436,7 @@ class SellerDashboardController extends Controller {
                 a.slug,
                 a.price,
                 a.render_pipeline,
-                a.status,
+                a.status, a.reject_reason,
                 COALESCE(a.download_count, 0) AS download_count,
                 a.created_at,
                 COALESCE(c.name, 'VFX Partikel') AS category_name,
@@ -481,6 +481,7 @@ class SellerDashboardController extends Controller {
                 'price'          => $price,
                 'price_text'     => $price <= 0 ? 'Gratis' : 'Rp' . number_format($price, 0, ',', '.'),
                 'status'         => $mappedStatus,
+                'reject_reason'  => $row['reject_reason'] ?? '',
                 'sold_count'     => (int) $row['sold_count'],
                 'download_count' => (int) $row['download_count'],
                 'created_at'     => date('d M Y', strtotime($row['created_at']))

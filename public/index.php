@@ -23,7 +23,7 @@ session_start();
 if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
     $user = (new \IndoFX\Models\User())->findByRememberToken($_COOKIE['remember_token']);
 
-    if ($user) {
+    if ($user && $user['is_active']) {
         session_regenerate_id(true);
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['public_id'] = $user['public_id'];
@@ -34,6 +34,27 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
         $_SESSION['bio'] = $user['bio'] ?? '';
     } else {
         setcookie('remember_token', '', time() - 3600, '/');
+    }
+}
+// Refresh permissions so blocking or changing a role also affects existing sessions.
+if (isset($_SESSION['user_id'])) {
+    $currentUser = (new \IndoFX\Models\User())->getUserById($_SESSION['user_id']);
+    if (!$currentUser || !$currentUser['is_active']) {
+        $_SESSION = [];
+        session_regenerate_id(true);
+        setcookie('remember_token', '', time() - 3600, '/');
+        if (str_starts_with($_SERVER['REQUEST_URI'], '/api/')) {
+            http_response_code(403);
+            header('Content-Type: application/json');
+            echo json_encode(['message' => 'Akun tidak aktif. Silakan hubungi admin.']);
+            exit;
+        }
+        header('Location: /login');
+        exit;
+    }
+    $_SESSION['is_seller'] = $currentUser['role'] === 'seller';
+    foreach (['role', 'name', 'email', 'public_id', 'bio', 'store_name'] as $field) {
+        $_SESSION[$field] = $currentUser[$field] ?? '';
     }
 }
 $router = new Router();

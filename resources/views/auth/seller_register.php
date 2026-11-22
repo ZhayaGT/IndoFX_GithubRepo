@@ -212,6 +212,12 @@ $userEmail  = $isLoggedIn ? (string)($_SESSION['email'] ?? '') : '';
             <?php unset($_SESSION['success_msg']); ?>
         <?php endif; ?>
 
+        <?php if (!empty($sellerApplication)): ?>
+            <div class="alert alert-info" role="status">
+                Status pengajuan: <?= htmlspecialchars($sellerApplication['status'], ENT_QUOTES, 'UTF-8') ?>.
+                <?= htmlspecialchars($sellerApplication['reject_reason'] ?? '', ENT_QUOTES, 'UTF-8') ?>
+            </div>
+        <?php endif; ?>
         <form id="formRegisterSeller" action="/seller/register" method="POST" enctype="multipart/form-data">
             <!-- 1. Nama Lengkap / Nama Toko -->
             <div class="mb-3">

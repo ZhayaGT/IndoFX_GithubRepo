@@ -4,7 +4,7 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
     exit;
 }
 
-$adminName = 'Super Admin IndoFX';
+$adminName = (string) ($_SESSION['name'] ?? 'Admin IndoFX');
 $adminInitials = 'AP';
 ?>
 <!DOCTYPE html>
@@ -12,6 +12,7 @@ $adminInitials = 'AP';
 
 <head>
     <meta charset="UTF-8">
+    <meta name="admin-csrf" content="<?= htmlspecialchars($_SESSION['admin_csrf'], ENT_QUOTES, 'UTF-8') ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monitoring Transaksi &amp; Midtrans Gateway - IndoFX</title>
 
@@ -105,9 +106,9 @@ $adminInitials = 'AP';
                 </div>
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="admin-stat-card">
-                        <div class="admin-stat-label">Bagi Hasil Platform (10%)</div>
+                        <div class="admin-stat-label">Biaya Layanan Tercatat</div>
                         <div class="admin-stat-val val-green" id="statPlatformFee">Rp 0</div>
-                        <div class="admin-stat-sub">Nett Fee IndoFX</div>
+                        <div class="admin-stat-sub">Selisih total bayar dan harga aset</div>
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 col-xl-3">
@@ -119,9 +120,9 @@ $adminInitials = 'AP';
                 </div>
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="admin-stat-card">
-                        <div class="admin-stat-label">Gagal / Kadaluarsa</div>
+                        <div class="admin-stat-label">Status Lainnya</div>
                         <div class="admin-stat-val val-red" id="statFailedCount">0 Transaksi</div>
-                        <div class="admin-stat-sub">Expired / Cancelled</div>
+                        <div class="admin-stat-sub">Termasuk kedaluwarsa, pembatalan, dan refund</div>
                     </div>
                 </div>
             </div>
@@ -250,7 +251,7 @@ $adminInitials = 'AP';
                             <span class="fw-bold text-dark" id="modalGrossVal">Rp 0</span>
                         </div>
                         <div class="trx-split-row">
-                            <span class="text-muted">Potongan Fee Platform IndoFX (10%)</span>
+                            <span class="text-muted">Biaya Layanan Tercatat</span>
                             <span class="fw-bold text-danger" id="modalFeeVal">Rp 0</span>
                         </div>
                         <div class="trx-split-row total-row">
@@ -263,7 +264,7 @@ $adminInitials = 'AP';
                     <div>
                         <button type="button" class="trx-raw-toggle" onclick="toggleJsonViewer()">
                             <i class="bi bi-code-slash"></i>
-                            <span id="jsonToggleText">Lihat Payload Raw JSON Response Midtrans Sandbox &or;</span>
+                            <span id="jsonToggleText">Lihat Data Transaksi Tersimpan &or;</span>
                         </button>
                         <pre class="trx-json-viewer" id="trxJsonViewer"><code></code></pre>
                     </div>
@@ -304,6 +305,7 @@ $adminInitials = 'AP';
 
     <!-- Helper escape output HTML -->
     <script src="/assets/js/indofx-utils.js"></script>
+    <script src="/assets/js/admin-api.js"></script>
 
     <!-- ENGINE MONITORING TRANSAKSI DINAMIS 100% -->
     <script>
@@ -312,112 +314,20 @@ $adminInitials = 'AP';
         let currentActiveTrx = null;
 
         // 1. MUAT SELURUH TRANSAKSI RIIL WEBSITE
-        function loadTransactionsData() {
-            let collected = [];
-
-            // A. Ambil transaksi dari storage log admin
+        async function loadTransactionsData() {
             try {
-                const stored = localStorage.getItem('indofx_admin_transactions');
-                if (stored) {
-                    collected = JSON.parse(stored);
-                }
-            } catch (e) {}
-
-            // B. Pindai seluruh transaksi riil yang dihasilkan proses checkout pengguna
-            Object.keys(localStorage).forEach(key => {
-                if (key.startsWith('indofx_transactions_')) {
-                    try {
-                        const userTxs = JSON.parse(localStorage.getItem(key)) || [];
-                        userTxs.forEach(tx => {
-                            const orderId = tx.invoice_no || tx.order_id;
-                            if (orderId && !collected.some(t => t.order_id === orderId)) {
-                                const gross = parseFloat(tx.subtotal || tx.total || 0) || 0;
-                                const fee = Math.round(gross * 0.1);
-                                const firstItem = (tx.items && tx.items[0]) ? (tx.items[0].title || tx.items[0].name) : 'Paket Aset Game';
-
-                                collected.unshift({
-                                    order_id: orderId,
-                                    time: tx.date || tx.short_date || 'Hari ini',
-                                    asset_title: firstItem,
-                                    seller: tx.seller || (tx.items && tx.items[0] && tx.items[0].creator) || 'Studio Kreator',
-                                    buyer: tx.buyer_name || 'Pembeli Terdaftar',
-                                    buyer_email: tx.buyer_email || 'user@indofx.id',
-                                    method: tx.payment_method || 'QRIS / GoPay',
-                                    total_bayar: gross,
-                                    fee: fee,
-                                    status: (tx.status === 'Berhasil' || tx.status === 'Settlement') ? 'Settlement' : (tx.status || 'Settlement'),
-                                    ref_id: 'midtrans-' + orderId.toLowerCase().replace(/[^a-z0-9]/g, '')
-                                });
-                            }
-                        });
-                    } catch (e) {}
-                }
-            });
-
-            // C. Jika belum ada transaksi sama sekali, sediakan 1 transaksi riil sampel
-            if (collected.length === 0) {
-                collected = [{
-                    order_id: 'INV-20261109-3170',
-                    time: '9 Nov 2026, 11:41',
-                    asset_title: 'vfx_test1',
-                    seller: 'Studio Kreator',
-                    buyer: 'jonathan',
-                    buyer_email: 'jonathan@gmail.com',
-                    method: 'QRIS / GoPay',
-                    total_bayar: 300000,
-                    fee: 30000,
-                    status: 'Settlement',
-                    ref_id: 'midtrans-inv202611093170'
-                }];
-            }
-
-            transactions = collected;
-            localStorage.setItem('indofx_admin_transactions', JSON.stringify(transactions));
-
-            // ==========================================
-            // D. HITUNG METRIK KEUANGAN 100% DINAMIS
-            // ==========================================
-            let grossTotal = 0;
-            let successCount = 0;
-            let pendingCount = 0;
-            let failedCount = 0;
-
-            transactions.forEach(t => {
-                if (t.status === 'Settlement' || t.status === 'Berhasil') {
-                    grossTotal += (parseFloat(t.total_bayar) || 0);
-                    successCount++;
-                } else if (t.status === 'Pending') {
-                    pendingCount++;
-                } else if (t.status === 'Expire' || t.status === 'Cancelled' || t.status === 'Dibatalkan') {
-                    failedCount++;
-                }
-            });
-
-            const platformFee = Math.round(grossTotal * 0.1);
-
-            // Tampilkan angka riil tanpa baseline 48 juta
-            document.getElementById('statGrossOmset').innerText = 'Rp ' + grossTotal.toLocaleString('id-ID');
-            document.getElementById('statPlatformFee').innerText = 'Rp ' + platformFee.toLocaleString('id-ID');
-            document.getElementById('statTrxSuccessCount').innerText = `${successCount} Transaksi Berhasil`;
-            document.getElementById('statPendingCount').innerText = `${pendingCount} Transaksi`;
-            document.getElementById('statFailedCount').innerText = `${failedCount} Transaksi`;
-
-            // ==========================================
-            // E. SINKRONKAN BADGE SIDEBAR
-            // ==========================================
-            try {
-                const queue = JSON.parse(localStorage.getItem('indofx_moderation_queue')) || [];
-                const pQueue = queue.filter(q => q.status === 'Pending' || q.status === 'Pending Review').length;
-                document.getElementById('sidebarModerationBadge').innerText = pQueue;
-            } catch (e) {}
-
-            try {
-                const sReqs = JSON.parse(localStorage.getItem('indofx_seller_requests')) || [];
-                const pReqs = sReqs.filter(r => r.status === 'Menunggu').length;
-                document.getElementById('sidebarSellerBadge').innerText = pReqs;
-            } catch (e) {}
-
-            renderTransactionsTable();
+                transactions = (await AdminApi.data()).transactions;
+                const paid = transactions.filter(t => t.status === 'Settlement');
+                document.getElementById('statGrossOmset').textContent = 'Rp ' + paid.reduce((s,t) => s+t.total_bayar,0).toLocaleString('id-ID');
+                document.getElementById('statPlatformFee').textContent = 'Rp ' + paid.reduce((s,t) => s+t.fee,0).toLocaleString('id-ID');
+                document.getElementById('statTrxSuccessCount').textContent = paid.length + ' Transaksi Berhasil';
+                document.getElementById('statPendingCount').textContent = transactions.filter(t => t.status === 'Pending').length + ' Transaksi';
+                document.getElementById('statFailedCount').textContent = transactions.filter(t => !['Pending','Settlement'].includes(t.status)).length + ' Transaksi';
+                const select = document.getElementById('filterStatusMidtrans');
+                select.innerHTML = '<option value="all">Semua Status</option>';
+                [...new Set(transactions.map(t => t.status))].forEach(status => select.add(new Option(status, status)));
+                renderTransactionsTable();
+            } catch (error) { AdminApi.showError(error); }
         }
 
         // 2. RENDER TABEL TRANSAKSI
@@ -463,7 +373,7 @@ $adminInitials = 'AP';
                 } else if (item.status === 'Pending') {
                     statusBadge = `<span class="badge-midtrans-pending"><i class="bi bi-clock"></i> Pending</span>`;
                 } else {
-                    statusBadge = `<span class="badge-midtrans-expire"><i class="bi bi-x-circle"></i> Expire</span>`;
+                    statusBadge = `<span class="badge-midtrans-expire"><i class="bi bi-x-circle"></i> ${esc(item.database_status)}</span>`;
                 }
 
                 return `
@@ -483,7 +393,7 @@ $adminInitials = 'AP';
                         <td class="fw-bold text-dark cell-nowrap">${esc(item.method)}</td>
                         <td class="cell-nowrap">
                             <div class="fw-bold text-dark">Rp ${(item.total_bayar || 0).toLocaleString('id-ID')}</div>
-                            <div class="text-muted small" style="font-size: 0.72rem;">Fee (10%): Rp ${(item.fee || Math.round(item.total_bayar * 0.1)).toLocaleString('id-ID')}</div>
+                            <div class="text-muted small" style="font-size: 0.72rem;">Biaya Layanan: ${item.fee === null ? 'Belum diketahui' : 'Rp ' + item.fee.toLocaleString('id-ID')}</div>
                         </td>
                         <td>${statusBadge}</td>
                         <td class="text-end pe-4 cell-nowrap">
@@ -518,34 +428,23 @@ $adminInitials = 'AP';
             } else if (item.status === 'Pending') {
                 badgeHtml = `<span class="badge-midtrans-pending"><i class="bi bi-clock"></i> Pending</span>`;
             } else {
-                badgeHtml = `<span class="badge-midtrans-expire"><i class="bi bi-x-circle"></i> Expire</span>`;
+                badgeHtml = `<span class="badge-midtrans-expire"><i class="bi bi-x-circle"></i> ${esc(item.database_status)}</span>`;
             }
             document.getElementById('modalStatusBadge').innerHTML = badgeHtml;
 
             const gross = item.total_bayar || 0;
-            const fee = item.fee || Math.round(gross * 0.1);
+            const fee = item.fee ?? 0;
             const nett = gross - fee;
 
             document.getElementById('modalGrossVal').innerText = 'Rp ' + gross.toLocaleString('id-ID');
-            document.getElementById('modalFeeVal').innerText = 'Rp ' + fee.toLocaleString('id-ID');
-            document.getElementById('modalNettVal').innerText = 'Rp ' + nett.toLocaleString('id-ID');
+            document.getElementById('modalFeeVal').innerText = item.fee === null ? 'Belum diketahui' : 'Rp ' + fee.toLocaleString('id-ID');
+            document.getElementById('modalNettVal').innerText = item.fee === null ? 'Belum diketahui' : 'Rp ' + nett.toLocaleString('id-ID');
 
             const jsonBox = document.getElementById('trxJsonViewer');
             jsonBox.classList.remove('show');
-            document.getElementById('jsonToggleText').innerText = 'Lihat Payload Raw JSON Response Midtrans Sandbox \u2228';
+            document.getElementById('jsonToggleText').innerText = 'Lihat Data Transaksi Tersimpan \u2228';
 
-            jsonBox.innerHTML = `<code>${JSON.stringify({
-                status_code: (item.status === 'Settlement' || item.status === 'Berhasil') ? "200" : (item.status === 'Pending' ? "201" : "407"),
-                status_message: "Midtrans payment notification",
-                transaction_id: "93da7e43-85f2-4bc3-96b0-" + item.order_id.replace(/[^0-9]/g, '').slice(-12),
-                order_id: item.order_id,
-                gross_amount: gross + ".00",
-                currency: "IDR",
-                payment_type: item.method.toLowerCase().includes('qris') ? "gopay" : (item.method.toLowerCase().includes('card') ? "credit_card" : "bank_transfer"),
-                transaction_time: item.time,
-                transaction_status: item.status.toLowerCase(),
-                fraud_status: "accept"
-            }, null, 2)}</code>`;
+            jsonBox.textContent = JSON.stringify(item.record, null, 2);
 
             modalTrxInstance.show();
         }
@@ -556,10 +455,10 @@ $adminInitials = 'AP';
             const txt = document.getElementById('jsonToggleText');
             if (viewer.classList.contains('show')) {
                 viewer.classList.remove('show');
-                txt.innerText = 'Lihat Payload Raw JSON Response Midtrans Sandbox \u2228';
+                txt.innerText = 'Lihat Data Transaksi Tersimpan \u2228';
             } else {
                 viewer.classList.add('show');
-                txt.innerText = 'Sembunyikan Payload Raw JSON Response Midtrans Sandbox \u2227';
+                txt.innerText = 'Sembunyikan Data Transaksi Tersimpan \u2227';
             }
         }
 
@@ -616,33 +515,19 @@ $adminInitials = 'AP';
 
         // 6. EKSPOR LAPORAN CSV
         function exportTransactionsCSV() {
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Order ID,Waktu,Aset,Penjual,Pembeli,Email Pembeli,Metode,Total Bayar,Fee Platform (10%),Status Midtrans,Ref ID\r\n";
-
-            transactions.forEach(t => {
-                const row = [
-                    `"${t.order_id}"`,
-                    `"${t.time}"`,
-                    `"${t.asset_title}"`,
-                    `"${t.seller}"`,
-                    `"${t.buyer}"`,
-                    `"${t.buyer_email}"`,
-                    `"${t.method}"`,
-                    `"${t.total_bayar}"`,
-                    `"${t.fee || Math.round(t.total_bayar * 0.1)}"`,
-                    `"${t.status}"`,
-                    `"${t.ref_id}"`
-                ].join(",");
-                csvContent += row + "\r\n";
-            });
-
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Laporan_Transaksi_IndoFX_${new Date().toISOString().slice(0, 10)}.csv`);
-            document.body.appendChild(link);
+            const cell = value => {
+                let text = String(value ?? '');
+                if (/^[=+@\-\t\r]/.test(text)) text = "'" + text;
+                return '"' + text.replace(/"/g, '""') + '"';
+            };
+            const rows = [['Order ID','Waktu','Aset','Penjual','Pembeli','Email','Metode','Total Bayar','Biaya Layanan','Status','Ref ID']];
+            transactions.forEach(t => rows.push([t.order_id,t.time,t.asset_title,t.seller,t.buyer,t.buyer_email,t.method,t.total_bayar,t.fee,t.database_status,t.ref_id]));
+            const url = URL.createObjectURL(new Blob(['\uFEFF' + rows.map(r => r.map(cell).join(',')).join('\r\n')], {type:'text/csv;charset=utf-8'}));
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'Laporan_Transaksi_IndoFX.csv';
             link.click();
-            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
         }
 
         document.addEventListener('DOMContentLoaded', function() {

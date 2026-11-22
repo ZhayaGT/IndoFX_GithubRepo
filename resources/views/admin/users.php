@@ -13,77 +13,13 @@ if (count($words) >= 2) {
     $adminInitials = mb_strtoupper(mb_substr($words[0], 0, 2));
 }
 
-// =========================================================================
-// 1. QUERY DATA PENGGUNA RIIL DARI POSTGRESQL (JIKA KONEKSI AKTIF)
-// =========================================================================
-$serverPgUsers = [];
-
-$dbHost = 'localhost';
-$dbPort = '5432';
-$dbName = 'indofx';
-$dbUser = 'postgres';
-$dbPass = 'postgres';
-
-try {
-    $dsn = "pgsql:host={$dbHost};port={$dbPort};dbname={$dbName};";
-    $pdo = new PDO($dsn, $dbUser, $dbPass, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-    ]);
-
-    $stmt = $pdo->query("SELECT * FROM users");
-    $dbRows = $stmt->fetchAll();
-
-    foreach ($dbRows as $row) {
-        $name = $row['name'] ?? 'User Tanpa Nama';
-        $email = $row['email'] ?? '-';
-
-        $role = $row['role'] ?? null;
-        if (!$role) {
-            if (stripos($email, 'admin') !== false || stripos($name, 'administrator') !== false) {
-                $role = 'Admin';
-            } elseif (stripos($name, 'jonathan') !== false || stripos($email, 'jonathan') !== false) {
-                $role = 'Penjual';
-            } else {
-                $role = 'Pembeli';
-            }
-        }
-
-        $status = $row['status'] ?? 'Aktif';
-        $joinDate = isset($row['created_at'])
-            ? date('d M Y', strtotime($row['created_at']))
-            : '08 Nov 2026';
-
-        $nameParts = preg_split('/\s+/', trim($name));
-        $inits = '';
-        foreach (array_slice($nameParts, 0, 2) as $p) {
-            $inits .= mb_strtoupper(mb_substr($p, 0, 1));
-        }
-        if (empty($inits)) $inits = 'US';
-
-        $serverPgUsers[] = [
-            'id' => (string)$row['id'],
-            'name' => $name,
-            'email' => $email,
-            'role' => $role,
-            'status' => $status,
-            'join_date' => $joinDate,
-            'stats' => $role === 'Admin' ? 'System Root' : ($role === 'Penjual' ? '1 Aset (Terverifikasi)' : '0 Transaksi'),
-            'inits' => $inits,
-            'badge_bg' => '#FCE8DC',
-            'badge_color' => '#ED6B1D',
-            'verified' => ($role === 'Penjual')
-        ];
-    }
-} catch (PDOException $e) {
-    $serverPgUsers = [];
-}
 ?>
 <!DOCTYPE html>
 <html lang="id">
 
 <head>
     <meta charset="UTF-8">
+    <meta name="admin-csrf" content="<?= htmlspecialchars($_SESSION['admin_csrf'], ENT_QUOTES, 'UTF-8') ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pengelolaan Pengguna Platform - IndoFX</title>
 
@@ -325,150 +261,11 @@ try {
 
     <!-- Helper escape output HTML -->
     <script src="/assets/js/indofx-utils.js"></script>
+    <script src="/assets/js/admin-api.js"></script>
 
     <!-- ENGINE PENGGABUNGAN DATA PENJUAL + AKUN PGADMIN -->
     <script>
         // 1. DATA PENJUAL & STUDIO SEBELUMNYA LENGKAP
-        const dummySellers = [{
-                id: 'seller-1',
-                name: 'CyberNet Studio',
-                verified: true,
-                email: 'contact@cybernet.id',
-                role: 'Penjual',
-                status: 'Aktif',
-                join_date: '10 Jan 2026',
-                stats: '12 Aset (Rp18.5jt)',
-                badge_bg: '#FCE8DC',
-                badge_color: '#ED6B1D',
-                inits: 'CN'
-            },
-            {
-                id: 'seller-2',
-                name: 'Nusantara Devs',
-                verified: true,
-                email: 'dev@nusantara.id',
-                role: 'Penjual',
-                status: 'Aktif',
-                join_date: '04 Feb 2026',
-                stats: '8 Aset (Rp9.2jt)',
-                badge_bg: '#FEEFD8',
-                badge_color: '#B76E00',
-                inits: 'ND'
-            },
-            {
-                id: 'seller-3',
-                name: 'Rian_Devs Studio',
-                verified: true,
-                email: 'rian.prasetya@gmail.com',
-                role: 'Penjual',
-                status: 'Aktif',
-                join_date: '18 Mar 2026',
-                stats: '5 Pembelian (Rp750rb)',
-                badge_bg: '#FCE4D6',
-                badge_color: '#C55A11',
-                inits: 'RD'
-            },
-            {
-                id: 'seller-4',
-                name: 'Fake Asset Spammer',
-                verified: false,
-                email: 'spammer@temp.mail',
-                role: 'Penjual',
-                status: 'Diblokir',
-                join_date: '12 Mei 2026',
-                stats: '0 Aset (Spamming)',
-                badge_bg: '#F5CBA7',
-                badge_color: '#B9770E',
-                inits: 'FX'
-            }
-        ];
-
-        // 2. DATA USER DARI PGADMIN / DATABASE SESUAI GAMBAR
-        const rawPgUsers = <?= json_encode($serverPgUsers, JSON_UNESCAPED_UNICODE) ?>;
-
-        const fallbackPgUsers = [{
-                id: '188f0dc9-7a97-4d5e-b8b8-4c363d76d',
-                name: 'naufalhaidarazmi',
-                email: 'naufal@gmail.com',
-                role: 'Pembeli',
-                status: 'Aktif',
-                join_date: '08 Nov 2026',
-                stats: '0 Transaksi',
-                inits: 'NH'
-            },
-            {
-                id: '2a83aad1-9d50-47c2-bc21-853152d36',
-                name: 'naufal haidar azmi',
-                email: 'naufal889@gmail.com',
-                role: 'Pembeli',
-                status: 'Aktif',
-                join_date: '08 Nov 2026',
-                stats: '0 Transaksi',
-                inits: 'NH'
-            },
-            {
-                id: '5a3f3057-338a-48e3-b6b6-dc6f47162',
-                name: 'naufalhaidar',
-                email: 'naufal2@gmail.com',
-                role: 'Pembeli',
-                status: 'Aktif',
-                join_date: '08 Nov 2026',
-                stats: '0 Transaksi',
-                inits: 'NH'
-            },
-            {
-                id: '5e400795-9bd0-4269-81a5-94ca4136d',
-                name: 'Administrator',
-                email: 'admin@gmail.com',
-                role: 'Admin',
-                status: 'Aktif',
-                join_date: '01 Jan 2026',
-                stats: 'System Root',
-                inits: 'AD'
-            },
-            {
-                id: '650f1c63-c0d7-451a-8f2b-88996cc568',
-                name: 'andrapratama',
-                email: 'andripratama@gmail.com',
-                role: 'Pembeli',
-                status: 'Aktif',
-                join_date: '09 Nov 2026',
-                stats: '0 Transaksi',
-                inits: 'AP'
-            },
-            {
-                id: '6979575c-a095-4f37-8f73-4a4be8b00',
-                name: 'naufalhaidar',
-                email: 'naufaloo@gmail.com',
-                role: 'Pembeli',
-                status: 'Aktif',
-                join_date: '09 Nov 2026',
-                stats: '0 Transaksi',
-                inits: 'NH'
-            },
-            {
-                id: '9dd09047-5d03-40f5-9781-54fab88be',
-                name: 'jonathan',
-                email: 'jonathan@gmail.com',
-                role: 'Penjual',
-                status: 'Aktif',
-                join_date: '09 Nov 2026',
-                stats: '1 Aset (Terverifikasi)',
-                inits: 'JO',
-                verified: true
-            },
-            {
-                id: 'f4837456-17ed-45ed-8e22-6b6bcafd4e',
-                name: 'lena',
-                email: 'lena@gmail.com',
-                role: 'Pembeli',
-                status: 'Aktif',
-                join_date: '10 Nov 2026',
-                stats: '0 Transaksi',
-                inits: 'LE'
-            }
-        ];
-
         let users = [];
         let modalEditUserInstance = null;
 
@@ -477,87 +274,20 @@ try {
         let currentPage = 1;
 
         // 3. FUNGSI PENGGABUNGAN DATA (MERGE PENJUAL + USER PGADMIN)
-        function loadUsersData() {
-            let combined = [];
-
-            // A. Masukkan seluruh data penjual dummy terlebih dahulu
-            dummySellers.forEach(ds => {
-                combined.push({
-                    ...ds
-                });
-            });
-
-            // B. Tentukan sumber data pgAdmin (dari query PHP atau fallback riil)
-            const activePgList = (rawPgUsers && rawPgUsers.length > 0) ? rawPgUsers : fallbackPgUsers;
-
-            // C. Masukkan akun dari pgAdmin tanpa duplikasi email
-            activePgList.forEach(pu => {
-                const alreadyExists = combined.some(u => u.email.toLowerCase() === pu.email.toLowerCase());
-                if (!alreadyExists) {
-                    combined.push({
-                        id: pu.id,
-                        name: pu.name,
-                        email: pu.email,
-                        role: pu.role || 'Pembeli',
-                        status: pu.status || 'Aktif',
-                        join_date: pu.join_date || 'Hari ini',
-                        stats: pu.stats || '0 Transaksi',
-                        inits: pu.inits || 'US',
-                        badge_bg: pu.badge_bg || '#FCE8DC',
-                        badge_color: pu.badge_color || '#ED6B1D',
-                        verified: pu.verified || (pu.role === 'Penjual')
-                    });
-                }
-            });
-
-            // D. Cek apakah ada modifikasi status/role yang pernah disimpan di localStorage
+        async function loadUsersData() {
             try {
-                const savedEdits = JSON.parse(localStorage.getItem('indofx_admin_user_overrides')) || {};
-                combined = combined.map(u => {
-                    const override = savedEdits[u.id] || savedEdits[u.email];
-                    if (override) {
-                        return {
-                            ...u,
-                            role: override.role || u.role,
-                            status: override.status || u.status,
-                            verified: typeof override.verified === 'boolean' ? override.verified : (override.role === 'Penjual')
-                        };
-                    }
-                    return u;
-                });
-            } catch (e) {}
-
-            users = combined;
-            localStorage.setItem('indofx_admin_users', JSON.stringify(users));
-
-            // ==========================================
-            // HITUNG 4 METRIK MURNI DARI KESELURUHAN DATA
-            // ==========================================
-            const total = users.length;
-            const sellers = users.filter(u => u.role === 'Penjual').length;
-            const buyers = users.filter(u => u.role === 'Pembeli').length;
-            const blocked = users.filter(u => u.status === 'Diblokir').length;
-
-            document.getElementById('statTotalUsers').innerText = total;
-            document.getElementById('statUsersSub').innerText = `${sellers} Penjual | ${buyers} Pembeli`;
-            document.getElementById('statSellers').innerText = sellers;
-            document.getElementById('statBuyers').innerText = buyers;
-            document.getElementById('statBlocked').innerText = blocked;
-
-            // Update badge sidebar
-            try {
-                const queue = JSON.parse(localStorage.getItem('indofx_moderation_queue')) || [];
-                const pCount = queue.filter(q => q.status === 'Pending' || q.status === 'Pending Review').length;
-                document.getElementById('sidebarModerationBadge').innerText = pCount;
-            } catch (e) {}
-
-            try {
-                const sReqs = JSON.parse(localStorage.getItem('indofx_seller_requests')) || [];
-                const pReqs = sReqs.filter(r => r.status === 'Menunggu').length;
-                document.getElementById('sidebarSellerBadge').innerText = pReqs;
-            } catch (e) {}
-
-            renderUsersTable();
+                const userList = (await AdminApi.data()).users;
+                users = userList;
+                const total = userList.length;
+                const sellers = userList.filter(u => u.role === 'Penjual').length;
+                const buyers = userList.filter(u => u.role === 'Pembeli').length;
+                document.getElementById('statTotalUsers').textContent = total;
+                document.getElementById('statUsersSub').textContent = `${sellers} Penjual | ${buyers} Pembeli`;
+                document.getElementById('statSellers').textContent = sellers;
+                document.getElementById('statBuyers').textContent = buyers;
+                document.getElementById('statBlocked').textContent = userList.filter(u => u.status === 'Diblokir').length;
+                renderUsersTable();
+            } catch (error) { AdminApi.showError(error); }
         }
 
         // 4. RENDER TABEL & PAGINASI 5 AKUN PER TABEL
@@ -700,28 +430,17 @@ try {
         }
 
         // 6. SIMPAN EDIT USER (HANYA PERAN & STATUS AKUN)
-        function saveUserEdit(e) {
-            e.preventDefault();
-            const id = document.getElementById('editUserId').value;
-            const role = document.getElementById('editUserRole').value;
-            const status = document.getElementById('editUserStatus').value;
-
-            if (role !== 'Penjual' && role !== 'Pembeli') return;
-
-            let overrides = {};
+        async function saveUserEdit(e) {
             try {
-                overrides = JSON.parse(localStorage.getItem('indofx_admin_user_overrides')) || {};
-            } catch (e) {}
-
-            overrides[id] = {
-                role: role,
-                status: status,
-                verified: (role === 'Penjual')
-            };
-
-            localStorage.setItem('indofx_admin_user_overrides', JSON.stringify(overrides));
-            modalEditUserInstance.hide();
-            loadUsersData();
+                e.preventDefault();
+                await AdminApi.save('user.update', {
+                    id: document.getElementById('editUserId').value,
+                    role: document.getElementById('editUserRole').value === 'Penjual' ? 'seller' : 'buyer',
+                    status: document.getElementById('editUserStatus').value === 'Aktif' ? 'active' : 'blocked'
+                });
+                modalEditUserInstance.hide();
+                await loadUsersData();
+            } catch (error) { AdminApi.showError(error); }
         }
 
         document.addEventListener('DOMContentLoaded', function() {

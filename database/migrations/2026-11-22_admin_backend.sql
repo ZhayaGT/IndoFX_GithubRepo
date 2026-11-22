@@ -1,0 +1,11 @@
+BEGIN;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE public.categories ADD COLUMN IF NOT EXISTS description TEXT NOT NULL DEFAULT '';
+ALTER TABLE public.categories ADD COLUMN IF NOT EXISTS icon VARCHAR(50) NOT NULL DEFAULT 'bi-tags';
+ALTER TABLE public.assets ADD COLUMN IF NOT EXISTS reject_reason TEXT;
+ALTER TABLE public.assets ADD COLUMN IF NOT EXISTS reviewed_by BIGINT REFERENCES public.users(id);
+ALTER TABLE public.assets ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMPTZ;
+ALTER TABLE public.seller_profiles ADD COLUMN IF NOT EXISTS reject_reason TEXT;
+ALTER TABLE public.seller_profiles ADD COLUMN IF NOT EXISTS reviewed_by BIGINT REFERENCES public.users(id);
+ALTER TABLE public.seller_profiles ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMPTZ;
+COMMIT;

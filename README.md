@@ -221,6 +221,51 @@ Panduan lengkap konfigurasi Supabase: **[docs/panduan-supabase.md](docs/panduan-
 
 ---
 
+## Backend admin
+
+Halaman `/admin` dan `/admin/dashboard` hanya dapat dibuka oleh akun aktif dengan
+`users.role = 'admin'`. Login admin langsung menuju `/admin/dashboard`.
+
+Data halaman admin dibaca melalui `GET /api/admin/data`. Perubahan dikirim ke
+`POST /api/admin/save` dengan token CSRF dari sesi admin. Pengajuan penjual yang
+disetujui mendapat status `approved` dan role pengguna berubah menjadi `seller`.
+Aset yang disetujui mendapat status `published`; penolakan wajib disertai alasan.
+Akun admin tidak dapat diblokir atau diubah rolenya dari panel pengguna.
+
+Kolom pendukung ada di `database/migrations/2026-11-22_admin_backend.sql`.
+Migrasi ini ditujukan untuk skema Supabase yang menggunakan ID pengguna BIGINT,
+`users.password`, `user_profiles`, dan `seller_profiles`. Jangan menjalankan
+`database/schema.sql` yang masih memakai struktur UUID lama untuk mengganti
+skema Supabase tersebut. Migrasi admin sudah diterapkan ke proyek Supabase pada
+22 November 2026 dan aman dijalankan ulang.
+
+Untuk mencoba di lokal, jalankan dari worktree `develop`:
+
+```bash
+php -S localhost:8000 -t public
+```
+
+Login admin, lalu coba tambah/edit/hapus kategori, tinjau pengajuan penjual,
+setujui atau tolak aset, dan blokir/buka blokir akun pembeli. Muat ulang halaman
+untuk memastikan hasilnya tersimpan. Kategori yang masih digunakan aset tidak
+bisa dihapus. Catatan transaksi mengikuti data database; biaya layanan dihitung
+dari selisih total bayar dan jumlah harga aset, bukan persentase contoh.
+Berkas unggahan untuk review harus tersedia pada server yang menjalankan PHP.
+
+Pengujian model admin memakai database PostgreSQL lokal dan membuat schema uji
+sementara yang dihapus setelah pengujian. Contoh untuk database lokal yang sudah
+tersedia (sesuaikan nama database dan pengguna):
+
+```bash
+ADMIN_TEST_DSN='pgsql:host=127.0.0.1;port=5432;dbname=indofx_admin_test' \
+ADMIN_TEST_USER=postgres vendor/bin/phpunit tests/Feature/AdminBackendTest.php
+```
+
+Pengujian tersebut tidak menjalankan `tests/Feature/AuthFlowTest.php`, yang masih
+bergantung pada skema UUID lama.
+
+---
+
 ## Alur Kerja Harian
 
 ```bash

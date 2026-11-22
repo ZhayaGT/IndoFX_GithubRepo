@@ -14,6 +14,7 @@ class Asset extends Model {
                 LEFT JOIN asset_images ai ON a.id = ai.asset_id AND ai.sort_order = 1 
                 LEFT JOIN user_profiles p ON a.seller_id = p.user_id
                 LEFT JOIN users u ON a.seller_id = u.id
+                WHERE a.status = 'published' AND a.deleted_at IS NULL AND u.is_active
                 ORDER BY a.created_at DESC LIMIT :limit";
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
@@ -28,7 +29,7 @@ class Asset extends Model {
                 LEFT JOIN asset_images ai ON a.id = ai.asset_id AND ai.sort_order = 1 
                 LEFT JOIN user_profiles p ON a.seller_id = p.user_id
                 LEFT JOIN users u ON a.seller_id = u.id
-                WHERE a.price = 0 
+                WHERE a.price = 0 AND a.status = 'published' AND a.deleted_at IS NULL AND u.is_active
                 ORDER BY a.created_at DESC LIMIT :limit";
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
@@ -44,6 +45,7 @@ class Asset extends Model {
                 LEFT JOIN asset_images ai ON a.id = ai.asset_id AND ai.sort_order = 1 
                 LEFT JOIN user_profiles p ON a.seller_id = p.user_id
                 LEFT JOIN users u ON a.seller_id = u.id
+                WHERE a.status = 'published' AND a.deleted_at IS NULL AND u.is_active
                 ORDER BY a.created_at DESC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
@@ -111,7 +113,8 @@ class Asset extends Model {
 
     // Mengembalikan [klausa WHERE, parameter] untuk filter katalog.
     private function buildFilterWhere(array $filters): array {
-        $where = '';
+        $where = " AND a.status = 'published' AND a.deleted_at IS NULL
+            AND EXISTS (SELECT 1 FROM users seller WHERE seller.id=a.seller_id AND seller.is_active)";
         $params = [];
 
         // 1. Pencarian Kata Kunci (Berdasarkan title)
@@ -177,7 +180,7 @@ class Asset extends Model {
                 LEFT JOIN user_profiles p ON a.seller_id = p.user_id
                 LEFT JOIN seller_profiles s ON a.seller_id = s.user_id
                 LEFT JOIN categories c ON a.category_id = c.id
-                WHERE a.public_id = :public_id::uuid
+                WHERE a.public_id = :public_id::uuid AND a.status = 'published' AND a.deleted_at IS NULL AND u.is_active
                 LIMIT 1";
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(':public_id', $publicId, PDO::PARAM_STR);
@@ -248,7 +251,8 @@ class Asset extends Model {
                 FROM assets a
                 LEFT JOIN seller_profiles sp ON a.seller_id = sp.user_id
                 LEFT JOIN user_profiles up ON a.seller_id = up.user_id
-                WHERE a.seller_id = :seller_id 
+                WHERE a.seller_id = :seller_id AND a.status = 'published'
+                  AND EXISTS (SELECT 1 FROM users seller WHERE seller.id=a.seller_id AND seller.is_active)
                   AND a.deleted_at IS NULL
                 ORDER BY a.created_at DESC";
 
@@ -274,7 +278,7 @@ class Asset extends Model {
                 LEFT JOIN user_profiles p ON u.id = p.user_id
                 LEFT JOIN seller_profiles s ON u.id = s.user_id
                 LEFT JOIN categories c ON a.category_id = c.id
-                WHERE a.id = :id
+                WHERE a.id = :id AND a.status = 'published' AND a.deleted_at IS NULL AND u.is_active
                 LIMIT 1";
         $stmt = $this->db->prepare($sql);
         // Bind sebagai integer

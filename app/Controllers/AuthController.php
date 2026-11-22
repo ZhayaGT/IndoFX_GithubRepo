@@ -34,7 +34,9 @@ class AuthController extends Controller {
         $user = $userModel->findByEmail($email);
 
         // Verifikasi keberadaan user dan kecocokan password hash
-        if ($user && password_verify($password, $user['password'])) {
+        if ($user && $user['is_active'] && password_verify($password, $user['password'])) {
+            session_regenerate_id(true);
+            unset($_SESSION['admin_csrf']);
             // Daftarkan sesi pengguna
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['public_id'] = $user['public_id'];
@@ -127,7 +129,16 @@ class AuthController extends Controller {
         $this->redirect('/login');
     }
 
+    public function sellerRegister() {
+        $application = isset($_SESSION['user_id'])
+            ? (new \IndoFX\Models\SellerProfile())->find((int) $_SESSION['user_id']) : null;
+        $this->view('auth/seller_register', ['sellerApplication' => $application]);
+    }
+
     public function processSellerRegister() {
+        if (in_array($_SESSION['role'] ?? '', ['admin', 'seller'], true)) {
+            $this->redirect($_SESSION['role'] === 'admin' ? '/admin/dashboard' : '/dashboard');
+        }
         $isLoggedIn = isset($_SESSION['user_id']);
         $userModel  = new \IndoFX\Models\User();
 

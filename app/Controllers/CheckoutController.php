@@ -89,6 +89,11 @@ class CheckoutController extends Controller {
         
         foreach ($assetIds as $id) {
             $item = $assetModel->getAssetByInternalId($id);
+            if (!$item) {
+                http_response_code(422);
+                echo json_encode(['error' => 'Ada aset yang belum diterbitkan atau sudah tidak tersedia.']);
+                return;
+            }
             if ($item) {
                 $price = (int) $item['price'];
                 $itemDetails[] = [
