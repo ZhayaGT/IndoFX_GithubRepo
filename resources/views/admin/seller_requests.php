@@ -66,7 +66,7 @@ $adminInitials = 'AP';
     <!-- 2. Kontainer Layout Utama -->
     <div class="admin-layout-container">
 
-        <!-- Sidebar Kiri Sesuai Figma image_1ed3ff -->
+        <!-- Sidebar Kiri -->
         <aside class="admin-sidebar">
             <nav class="nav flex-column">
                 <a href="/admin/dashboard" class="admin-sidebar-link">
@@ -151,7 +151,7 @@ $adminInitials = 'AP';
                 </div>
             </div>
 
-            <!-- Tabel Pengajuan Penjual -->
+            <!-- Tabel Pengajuan Penjual (Paginasi 5 Baris per Halaman) -->
             <div class="admin-table-card">
                 <div class="table-responsive">
                     <table class="table table-admin align-middle">
@@ -168,6 +168,14 @@ $adminInitials = 'AP';
                             <!-- Diisi dinamis oleh JavaScript -->
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Footer Navigasi Paginasi Dinamis -->
+                <div class="admin-pagination-bar" id="sellerPaginationBar">
+                    <span id="sellerPaginationInfoText">Menampilkan 0 dari 0 pengajuan</span>
+                    <div class="admin-pagination-btns" id="sellerPaginationBtnsContainer">
+                        <!-- Tombol Halaman Digenerate Dinamis -->
+                    </div>
                 </div>
             </div>
 
@@ -296,7 +304,7 @@ $adminInitials = 'AP';
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- ENGINE PENGAJUAN PENJUAL DINAMIS -->
+    <!-- ENGINE PENGAJUAN PENJUAL DINAMIS + PAGINASI 5 PER TABEL -->
     <script>
         const fallbackSellerRequests = [{
                 id: 'REQ-1',
@@ -399,6 +407,20 @@ $adminInitials = 'AP';
         let modalViewInstance = null;
         let selectedSellerRequestId = null;
 
+        // Konfigurasi Paginasi: 5 baris per halaman
+        const itemsPerPage = 5;
+        let currentPage = 1;
+
+        function resolveDisplayName(item) {
+            const raw = item.name || item.full_name || item.store_name || (item.email ? item.email.split('@')[0] : 'Pengguna');
+            return (!raw || raw === 'undefined') ? 'Pengguna' : raw;
+        }
+
+        function resolveDisplayDate(item) {
+            const raw = item.join_date || item.submission_date || item.created_at || '-';
+            return (!raw || raw === 'undefined') ? '-' : raw;
+        }
+
         // 1. SINKRONISASI DATA DINAMIS DARI LOCALSTORAGE
         function loadSellerRequestsData() {
             try {
@@ -482,23 +504,29 @@ $adminInitials = 'AP';
             document.getElementById('statBlocked').innerText = blocked;
         }
 
-        // 3. RENDER TABEL DENGAN LOGIKA TOMBOL AKSI CERDAS
+        // 3. RENDER TABEL DENGAN PAGINASI 5 DATA PER HALAMAN
         function renderSellerTable() {
             const tbody = document.getElementById('sellerTableBody');
             const keyword = document.getElementById('sellerSearchInput').value.toLowerCase().trim();
             const statusFilter = document.getElementById('filterStatusSelect').value;
 
             const filtered = sellerRequests.filter(item => {
+                const dispName = resolveDisplayName(item).toLowerCase();
                 const matchKeyword = !keyword ||
-                    (item.name && item.name.toLowerCase().includes(keyword)) ||
-                    (item.full_name && item.full_name.toLowerCase().includes(keyword)) ||
+                    dispName.includes(keyword) ||
                     (item.email && item.email.toLowerCase().includes(keyword));
 
                 const matchStatus = statusFilter === 'all' || item.status === statusFilter;
                 return matchKeyword && matchStatus;
             });
 
-            if (filtered.length === 0) {
+            const totalItems = filtered.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            if (totalItems === 0) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="5" class="text-center py-4 text-muted small">
@@ -506,10 +534,18 @@ $adminInitials = 'AP';
                         </td>
                     </tr>
                 `;
+                document.getElementById('sellerPaginationInfoText').innerText = 'Menampilkan 0 dari 0 pengajuan';
+                document.getElementById('sellerPaginationBtnsContainer').innerHTML = '';
                 return;
             }
 
-            tbody.innerHTML = filtered.map(item => {
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+            const pageData = filtered.slice(startIndex, endIndex);
+
+            tbody.innerHTML = pageData.map(item => {
+                const dispName = resolveDisplayName(item);
+                const dispDate = resolveDisplayDate(item);
                 let statusBadge = '';
                 let actionColumnContent = '';
 
@@ -543,18 +579,54 @@ $adminInitials = 'AP';
                                 <span class="user-avatar-tag" style="background-color: ${item.bg || '#FEEFD8'}; color: ${item.color || '#B76E00'};">
                                     ${item.inits || 'US'}
                                 </span>
-                                <span class="fw-bold text-dark">${item.name || item.full_name}</span>
+                                <span class="fw-bold text-dark">${dispName}</span>
                             </div>
                         </td>
-                        <td class="text-muted">${item.email}</td>
+                        <td class="text-muted">${item.email || '-'}</td>
                         <td>${statusBadge}</td>
-                        <td class="text-muted">${item.join_date || item.submission_date}</td>
+                        <td class="text-muted">${dispDate}</td>
                         <td class="text-end pe-4">
                             ${actionColumnContent}
                         </td>
                     </tr>
                 `;
             }).join('');
+
+            document.getElementById('sellerPaginationInfoText').innerText =
+                `Menampilkan ${startIndex + 1}-${endIndex} dari ${totalItems} pengajuan`;
+            renderSellerPaginationControls(totalPages);
+        }
+
+        function renderSellerPaginationControls(totalPages) {
+            const container = document.getElementById('sellerPaginationBtnsContainer');
+            let btnsHtml = '';
+
+            btnsHtml += `
+                <button type="button" class="btn-page-admin" ${currentPage === 1 ? 'disabled' : ''} onclick="goToSellerPage(${currentPage - 1})">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+            `;
+
+            for (let i = 1; i <= totalPages; i++) {
+                btnsHtml += `
+                    <button type="button" class="btn-page-admin ${i === currentPage ? 'active' : ''}" onclick="goToSellerPage(${i})">
+                        ${i}
+                    </button>
+                `;
+            }
+
+            btnsHtml += `
+                <button type="button" class="btn-page-admin" ${currentPage === totalPages ? 'disabled' : ''} onclick="goToSellerPage(${currentPage + 1})">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            `;
+
+            container.innerHTML = btnsHtml;
+        }
+
+        function goToSellerPage(page) {
+            currentPage = page;
+            renderSellerTable();
         }
 
         // 4. BUKA MODAL DETAIL PENGAJUAN
@@ -564,15 +636,15 @@ $adminInitials = 'AP';
 
             selectedSellerRequestId = id;
 
-            document.getElementById('detailFullName').innerText = item.full_name || item.name;
-            document.getElementById('detailEmail').innerText = item.email;
+            document.getElementById('detailFullName').innerText = resolveDisplayName(item);
+            document.getElementById('detailEmail').innerText = item.email || '-';
             document.getElementById('detailAddress').innerText = item.address || 'Alamat tidak dicantumkan';
             document.getElementById('detailReason').innerText = item.reason || 'Tidak ada alasan yang dicantumkan';
             document.getElementById('detailAttachmentName').innerText = item.attachment || 'portofolio_file.unitypackage';
             document.getElementById('detailAttachmentSize').innerText = item.attachment_size || '12,0 MB';
             document.getElementById('detailAssetDesc').innerText = item.asset_desc || 'Kumpulan aset buatan pengembang lokal.';
             document.getElementById('detailPortfolio').innerText = item.portfolio || '-';
-            document.getElementById('detailSubmissionDate').innerText = item.submission_date || item.join_date;
+            document.getElementById('detailSubmissionDate').innerText = resolveDisplayDate(item);
 
             const badgeContainer = document.getElementById('detailStatusBadgeModal');
             if (item.status === 'Ditolak') {
@@ -614,7 +686,6 @@ $adminInitials = 'AP';
             modalViewInstance.show();
         }
 
-        // Helper untuk menyinkronkan flag & profil penjual pada akun user yang bersangkutan
         function syncTargetSellerAccountState(targetReq, isApproved) {
             if (!targetReq) return;
 
@@ -623,7 +694,6 @@ $adminInitials = 'AP';
                 matchedKeys.add(String(targetReq.user_key));
             }
 
-            // Cari juga kunci profil penjual lain yang cocok berdasarkan email pendaftar
             Object.keys(localStorage).forEach(k => {
                 if (k.startsWith('indofx_seller_profile_')) {
                     try {
@@ -656,7 +726,6 @@ $adminInitials = 'AP';
 
             let approvedUser = null;
 
-            // A. Perbarui Status di Daftar Pengajuan Menjadi 'Diterima'
             sellerRequests = sellerRequests.map(s => {
                 if (String(s.id) === String(selectedSellerRequestId)) {
                     s.status = 'Diterima';
@@ -667,7 +736,6 @@ $adminInitials = 'AP';
             });
             localStorage.setItem('indofx_seller_requests', JSON.stringify(sellerRequests));
 
-            // B. Sinkronkan ke 'indofx_admin_users' (Ubah Peran menjadi 'Penjual')
             if (approvedUser) {
                 try {
                     let userList = JSON.parse(localStorage.getItem('indofx_admin_users')) || [];
@@ -683,19 +751,18 @@ $adminInitials = 'AP';
                     } else {
                         userList.push({
                             id: approvedUser.user_key || Date.now(),
-                            name: approvedUser.name || approvedUser.full_name,
+                            name: resolveDisplayName(approvedUser),
                             verified: true,
                             email: approvedUser.email,
                             role: 'Penjual',
                             status: 'Aktif',
-                            join_date: approvedUser.join_date || 'Hari ini',
+                            join_date: resolveDisplayDate(approvedUser),
                             stats: '0 Aset (Baru)'
                         });
                     }
                     localStorage.setItem('indofx_admin_users', JSON.stringify(userList));
                 } catch (e) {}
 
-                // C. Aktifkan Akses Dashboard Penjual di Sisi User
                 syncTargetSellerAccountState(approvedUser, true);
             }
 
@@ -703,7 +770,7 @@ $adminInitials = 'AP';
             loadSellerRequestsData();
         }
 
-        // 6. AKSI TOLAK PENGAJUAN (WAJIB ISI CATATAN ALASAN SECARA DINAMIS)
+        // 6. AKSI TOLAK PENGAJUAN
         function handleRejectSeller() {
             if (!selectedSellerRequestId) return;
 
@@ -741,8 +808,14 @@ $adminInitials = 'AP';
 
             loadSellerRequestsData();
 
-            document.getElementById('sellerSearchInput').addEventListener('input', renderSellerTable);
-            document.getElementById('filterStatusSelect').addEventListener('change', renderSellerTable);
+            document.getElementById('sellerSearchInput').addEventListener('input', function() {
+                currentPage = 1;
+                renderSellerTable();
+            });
+            document.getElementById('filterStatusSelect').addEventListener('change', function() {
+                currentPage = 1;
+                renderSellerTable();
+            });
 
             document.getElementById('sellerAdminNote').addEventListener('input', function() {
                 if (this.value.trim()) {

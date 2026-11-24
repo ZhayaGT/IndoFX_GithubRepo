@@ -32,6 +32,15 @@ $adminInitials = 'AP';
             color: #2b2623;
             font-size: 0.88rem;
         }
+
+        .review-thumb-item {
+            cursor: pointer;
+            transition: border-color 0.15s ease, transform 0.12s ease;
+        }
+
+        .review-thumb-item.active {
+            border: 2.5px solid #ED6B1D !important;
+        }
     </style>
 </head>
 
@@ -95,7 +104,6 @@ $adminInitials = 'AP';
 
         <!-- Konten Peninjauan Dinamis -->
         <main class="admin-main-content">
-            <!-- Breadcrumb -->
             <div class="review-breadcrumb">
                 <a href="/admin/dashboard">Dashboard</a> / <a href="/admin/assets">Moderasi Aset</a> / <span>Detail Review</span>
             </div>
@@ -117,18 +125,8 @@ $adminInitials = 'AP';
                             <img id="mainPreviewImg" src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80" alt="Preview Aset">
                         </div>
 
-                        <!-- 3 Gambar Thumbnail Galeri -->
-                        <div class="review-thumb-grid">
-                            <div class="review-thumb-item">
-                                <img id="thumbImg1" src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80" alt="Thumb 1">
-                            </div>
-                            <div class="review-thumb-item">
-                                <img id="thumbImg2" src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=400&q=80" alt="Thumb 2">
-                            </div>
-                            <div class="review-thumb-item">
-                                <img id="thumbImg3" src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80" alt="Thumb 3">
-                            </div>
-                        </div>
+                        <!-- Galeri Thumbnail Dinamis (Sesuai Jumlah Gambar Unggahan) -->
+                        <div class="review-thumb-grid" id="reviewThumbGrid"></div>
 
                         <!-- Link Video Preview URL -->
                         <div class="review-video-box">
@@ -137,7 +135,7 @@ $adminInitials = 'AP';
                         </div>
                     </div>
 
-                    <!-- Kartu 2: Deskripsi & Panduan Penggunaan Dinamis (Murni Input Penjual) -->
+                    <!-- Kartu 2: Deskripsi & Panduan Penggunaan Dinamis -->
                     <div class="review-card">
                         <h5 class="review-card-title">Deskripsi &amp; Panduan Penggunaan</h5>
 
@@ -181,7 +179,7 @@ $adminInitials = 'AP';
                     </div>
                 </div>
 
-                <!-- Kolom Kanan: Ringkasan Harga, Spek & Tombol Keputusan -->
+                <!-- Kolom Kanan: Ringkasan Harga, Spek, Lisensi & Tombol Keputusan -->
                 <div class="col-12 col-xl-4">
                     <div class="review-card">
                         <h4 class="fw-bold text-dark mb-1 fs-5" id="sidebarAssetTitle">Nama Aset</h4>
@@ -198,6 +196,10 @@ $adminInitials = 'AP';
                             <tr>
                                 <td>Render Pipeline:</td>
                                 <td id="sidebarPipeline">URP</td>
+                            </tr>
+                            <tr>
+                                <td>Lisensi:</td>
+                                <td id="sidebarLicense">Komersial</td>
                             </tr>
                             <tr>
                                 <td>Tanggal Pengajuan:</td>
@@ -255,7 +257,6 @@ $adminInitials = 'AP';
                 <p class="footer-brand-desc-center">
                     Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
                 </p>
-                <!-- Baris Kontak dan Email sesuai desain baru -->
                 <div style="font-size: 0.85rem; color: #1a1a1a; margin-top: 10px;">
                     <strong style="font-weight: 800;">Kontak dan Email:</strong>
                     <span style="margin: 0 16px;">08123456xxxx</span>
@@ -271,7 +272,7 @@ $adminInitials = 'AP';
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- ENGINE PENINJAUAN ASET: 100% DINAMIS MENGGUNAKAN TEKS ASLI PENJUAL -->
+    <!-- ENGINE PENINJAUAN ASET: DINAMIS MULTI-FOTO, VIDEO, LISENSI & KATALOG PUBLIK -->
     <script>
         let currentAsset = null;
         let allQueue = [];
@@ -280,6 +281,13 @@ $adminInitials = 'AP';
         function getAssetIdFromUrl() {
             const params = new URLSearchParams(window.location.search);
             return params.get('id');
+        }
+
+        function switchAdminReviewThumb(el, srcUrl) {
+            const mainImg = document.getElementById('mainPreviewImg');
+            if (mainImg && srcUrl) mainImg.src = srcUrl;
+            document.querySelectorAll('#reviewThumbGrid .review-thumb-item').forEach(t => t.classList.remove('active'));
+            if (el) el.classList.add('active');
         }
 
         function loadAssetDetail() {
@@ -291,7 +299,6 @@ $adminInitials = 'AP';
                 allQueue = [];
             }
 
-            // Temukan aset spesifik dari antrean moderasi
             if (assetId) {
                 currentAsset = allQueue.find(a => String(a.id) === String(assetId) || a.title === assetId);
             }
@@ -307,33 +314,45 @@ $adminInitials = 'AP';
                     pipeline: 'URP',
                     pipelines: ['URP'],
                     category: 'VFX Partikel',
+                    license: 'Komersial',
                     file_info: 'File: asset_package.unitypackage (14 MB)',
-                    studio: 'naufalhaidarazmi',
-                    creator: 'naufalhaidarazmi',
+                    studio: 'Studio Kreator',
+                    creator: 'Studio Kreator',
                     unity_ver: '2022.3 LTS',
                     price: 'Gratis',
                     price_num: 0,
                     date: 'Hari ini',
                     status: 'Pending Review',
                     description: '',
-                    how_to_use: ''
+                    how_to_use: '',
+                    images: []
                 };
             }
 
-            // Cross-check jika description / how_to_use tersimpan di storage toko penjual
-            if (!currentAsset.description || !currentAsset.how_to_use) {
-                const sKey = currentAsset.seller_storage_key || ('indofx_seller_assets_' + (currentAsset.studio || currentAsset.creator || 'naufalhaidarazmi'));
+            // Cross-check lengkap dari storage penjual jika ada field tambahan
+            const searchKeys = new Set();
+            if (currentAsset.seller_storage_key) searchKeys.add(currentAsset.seller_storage_key);
+            if (currentAsset.seller_key) searchKeys.add(currentAsset.seller_key);
+            Object.keys(localStorage).forEach(k => {
+                if (k.startsWith('indofx_seller_assets_')) searchKeys.add(k);
+            });
+
+            searchKeys.forEach(sKey => {
                 try {
                     const sAssets = JSON.parse(localStorage.getItem(sKey)) || [];
                     const foundInSeller = sAssets.find(s => String(s.id) === String(currentAsset.id) || s.title === currentAsset.title);
                     if (foundInSeller) {
                         if (!currentAsset.description && foundInSeller.description) currentAsset.description = foundInSeller.description;
                         if (!currentAsset.how_to_use && foundInSeller.how_to_use) currentAsset.how_to_use = foundInSeller.how_to_use;
+                        if (!currentAsset.license && foundInSeller.license) currentAsset.license = foundInSeller.license;
                         if (!currentAsset.image && foundInSeller.image) currentAsset.image = foundInSeller.image;
+                        if ((!Array.isArray(currentAsset.images) || currentAsset.images.length === 0) && Array.isArray(foundInSeller.images)) {
+                            currentAsset.images = foundInSeller.images;
+                        }
                         if (!currentAsset.video_url && foundInSeller.video_url) currentAsset.video_url = foundInSeller.video_url;
                     }
                 } catch (e) {}
-            }
+            });
 
             // Tampilkan Judul & Meta Informasi
             document.getElementById('reviewHeaderTitle').innerText = 'Detail Review: ' + currentAsset.title;
@@ -341,29 +360,43 @@ $adminInitials = 'AP';
             document.getElementById('sidebarCreatorName').innerText = 'Oleh ' + (currentAsset.studio || currentAsset.creator || 'Studio Kreator');
             document.getElementById('sidebarPriceVal').innerText = currentAsset.price || (currentAsset.price_num === 0 ? 'Gratis' : 'Rp' + Number(currentAsset.price_num).toLocaleString('id-ID'));
             document.getElementById('sidebarUnityVer').innerText = currentAsset.unity_ver || currentAsset.unity_version || '2022.3 LTS';
-            document.getElementById('sidebarPipeline').innerText = currentAsset.pipeline || (Array.isArray(currentAsset.pipelines) ? currentAsset.pipelines.join(', ') : 'URP');
+            document.getElementById('sidebarPipeline').innerText = Array.isArray(currentAsset.pipelines) ? currentAsset.pipelines.join(', ') : (currentAsset.pipeline || 'URP');
+            document.getElementById('sidebarLicense').innerText = currentAsset.license || 'Komersial';
             document.getElementById('sidebarSubmissionDate').innerText = currentAsset.date || currentAsset.created_at || 'Hari ini';
 
-            // 1. TAMPILKAN DESKRIPSI ASLI DARI INPUT PENJUAL
+            // 1. Deskripsi & Panduan Penggunaan
             const descEl = document.getElementById('reviewAssetDescription');
-            if (currentAsset.description && currentAsset.description.trim() !== '') {
-                descEl.innerText = currentAsset.description.trim();
-            } else {
-                descEl.innerText = 'Penjual tidak mencantumkan deskripsi khusus.';
-            }
+            descEl.innerText = (currentAsset.description && currentAsset.description.trim() !== '') ?
+                currentAsset.description.trim() :
+                'Penjual tidak mencantumkan deskripsi khusus.';
 
-            // 2. TAMPILKAN PANDUAN PENGGUNAAN ASLI DARI INPUT PENJUAL (BUKAN TEMPLATE LAGI)
             const howToUseEl = document.getElementById('reviewAssetHowToUse');
-            if (currentAsset.how_to_use && currentAsset.how_to_use.trim() !== '') {
-                howToUseEl.innerText = currentAsset.how_to_use.trim();
-            } else {
-                howToUseEl.innerText = 'Penjual tidak mencantumkan langkah panduan penggunaan khusus.';
+            howToUseEl.innerText = (currentAsset.how_to_use && currentAsset.how_to_use.trim() !== '') ?
+                currentAsset.how_to_use.trim() :
+                'Penjual tidak mencantumkan langkah panduan penggunaan khusus.';
+
+            // 2. Galeri Multi-Gambar Dinamis
+            let galleryImages = [];
+            if (Array.isArray(currentAsset.images) && currentAsset.images.length > 0) {
+                galleryImages = currentAsset.images.filter(u => u && (String(u).startsWith('data:') || String(u).includes('/')));
+            }
+            if (galleryImages.length === 0 && currentAsset.image && (String(currentAsset.image).startsWith('data:') || String(currentAsset.image).includes('/'))) {
+                galleryImages = [currentAsset.image];
+            }
+            if (galleryImages.length === 0) {
+                galleryImages = [
+                    'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80'
+                ];
             }
 
-            // Preview Gambar
-            if (currentAsset.image && (currentAsset.image.startsWith('data:') || currentAsset.image.includes('/'))) {
-                document.getElementById('mainPreviewImg').src = currentAsset.image;
-                document.getElementById('thumbImg1').src = currentAsset.image;
+            document.getElementById('mainPreviewImg').src = galleryImages[0];
+            const thumbGrid = document.getElementById('reviewThumbGrid');
+            if (thumbGrid) {
+                thumbGrid.innerHTML = galleryImages.map((srcUrl, idx) => `
+                    <div class="review-thumb-item ${idx === 0 ? 'active' : ''}" onclick="switchAdminReviewThumb(this, '${srcUrl.replace(/'/g, "\\'")}')">
+                        <img src="${srcUrl}" alt="Thumb ${idx + 1}">
+                    </div>
+                `).join('');
             }
 
             // Pipeline Badge
@@ -400,13 +433,16 @@ $adminInitials = 'AP';
             // Update Badge Sidebar
             const pCount = allQueue.filter(q => q.status === 'Pending' || q.status === 'Pending Review').length;
             document.getElementById('sidebarModerationBadge').innerText = pCount;
+            try {
+                const sReqs = JSON.parse(localStorage.getItem('indofx_seller_requests')) || [];
+                document.getElementById('sidebarSellerBadge').innerText = sReqs.filter(r => r.status === 'Menunggu').length;
+            } catch (e) {}
         }
 
-        // AKSI 1: ADMIN SETUJUI & PUBLIKASIKAN (TERUSKAN DESKRIPSI & PANDUAN KE KATALOG PUBLIK)
+        // AKSI 1: ADMIN SETUJUI & PUBLIKASIKAN (TERUSKAN MULTI-GAMBAR, VIDEO & LISENSI KE KATALOG PUBLIK)
         function approveAndPublishAsset() {
             if (!currentAsset) return;
 
-            // Update Antrean Moderasi Admin
             allQueue = allQueue.map(item => {
                 if (String(item.id) === String(currentAsset.id) || item.title === currentAsset.title) {
                     item.status = 'Published';
@@ -415,8 +451,7 @@ $adminInitials = 'AP';
             });
             localStorage.setItem('indofx_moderation_queue', JSON.stringify(allQueue));
 
-            // Update Status di Ruang Penjual
-            const creatorUsername = currentAsset.studio || currentAsset.creator || currentAsset.seller || 'naufalhaidarazmi';
+            const creatorUsername = currentAsset.studio || currentAsset.creator || currentAsset.seller || 'Studio Kreator';
             const sellerStorageKey = currentAsset.seller_storage_key || ('indofx_seller_assets_' + creatorUsername);
             try {
                 let sellerAssets = JSON.parse(localStorage.getItem(sellerStorageKey)) || [];
@@ -449,30 +484,47 @@ $adminInitials = 'AP';
             const pipelinesArray = Array.isArray(currentAsset.pipelines) && currentAsset.pipelines.length > 0 ?
                 currentAsset.pipelines : [currentAsset.pipeline || 'URP'];
 
-            publicCatalog.unshift({
+            const allImages = Array.isArray(currentAsset.images) && currentAsset.images.length > 0 ?
+                currentAsset.images :
+                (currentAsset.image ? [currentAsset.image] : []);
+
+            const coverImage = allImages[0] || currentAsset.image || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80';
+
+            const newCatalogEntry = {
                 id: currentAsset.id,
+                slug: String(currentAsset.title || currentAsset.id).toLowerCase().replace(/[^a-z0-9]+/g, '-'),
                 title: currentAsset.title,
                 creator: creatorUsername,
+                seller_name: creatorUsername,
                 price: rawPrice,
                 price_text: rawPrice === 0 ? 'Gratis' : ('Rp' + rawPrice.toLocaleString('id-ID')),
                 category: currentAsset.category || 'VFX Partikel',
+                license: currentAsset.license || 'Komersial',
                 pipelines: pipelinesArray,
                 unity_version: currentAsset.unity_ver || currentAsset.unity_version || '2022.3 LTS',
                 format: currentAsset.file_info ? (currentAsset.file_info.includes('.zip') ? '.zip' : '.unitypackage') : '.unitypackage',
                 downloads: '0x Terjual',
-                image: currentAsset.image || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80',
+                image: coverImage,
+                images: allImages,
+                video_url: currentAsset.video_url || '',
                 rating: 5.0,
                 reviews_count: 0,
-                published_at: new Date().toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric'
-                }),
-                // KUNCI PENTING: DITERUSKAN ASLI DARI INPUT PENJUAL
+                published_at: new Date().toISOString(),
                 description: currentAsset.description || '',
                 how_to_use: currentAsset.how_to_use || ''
-            });
-            localStorage.setItem('indofx_public_catalog', JSON.stringify(publicCatalog));
+            };
+
+            publicCatalog.unshift(newCatalogEntry);
+            try {
+                localStorage.setItem('indofx_public_catalog', JSON.stringify(publicCatalog));
+            } catch (e) {
+                // Fallback jika kuota penuh: simpan maksimal 1 foto untuk aset lama
+                const compacted = publicCatalog.map((entry, idx) => idx > 0 && Array.isArray(entry.images) ? {
+                    ...entry,
+                    images: entry.images.slice(0, 1)
+                } : entry);
+                localStorage.setItem('indofx_public_catalog', JSON.stringify(compacted));
+            }
 
             alert('Sukses! Aset "' + currentAsset.title + '" telah disetujui dan kartu aset kini sudah tayang di Katalog & Explore!');
             window.location.href = '/admin/assets';
@@ -501,7 +553,7 @@ $adminInitials = 'AP';
             });
             localStorage.setItem('indofx_moderation_queue', JSON.stringify(allQueue));
 
-            const creatorUsername = currentAsset.studio || currentAsset.creator || currentAsset.seller || 'naufalhaidarazmi';
+            const creatorUsername = currentAsset.studio || currentAsset.creator || currentAsset.seller || 'Studio Kreator';
             const sellerStorageKey = currentAsset.seller_storage_key || ('indofx_seller_assets_' + creatorUsername);
             try {
                 let sellerAssets = JSON.parse(localStorage.getItem(sellerStorageKey)) || [];
@@ -537,7 +589,6 @@ $adminInitials = 'AP';
             modalReject = new bootstrap.Modal(document.getElementById('modalRejectAsset'));
             loadAssetDetail();
 
-            // Dropdown Profil Admin
             const btn = document.getElementById('adminDropdownBtn');
             const menu = document.getElementById('adminDropdownMenu');
             if (btn && menu) {

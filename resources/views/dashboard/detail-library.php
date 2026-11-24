@@ -4,7 +4,6 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-// 1. Database Katalog IndoFX
 $catalogDB = [
     '1' => [
         'title' => 'Volumetric Rain & Storm URP',
@@ -12,6 +11,7 @@ $catalogDB = [
         'category' => 'VFX PARTIKEL',
         'unity_version' => '2021.3+ / 2022.3 LTS',
         'pipeline' => 'URP, HDRP, Built-In',
+        'license' => 'Komersial',
         'format' => '.unitypackage',
         'art' => 'castle'
     ],
@@ -21,6 +21,7 @@ $catalogDB = [
         'category' => 'SHADER',
         'unity_version' => '2021.3+ / 2022.3 LTS',
         'pipeline' => 'URP, Built-In',
+        'license' => 'Komersial',
         'format' => '.unitypackage',
         'art' => 'water'
     ],
@@ -30,6 +31,7 @@ $catalogDB = [
         'category' => 'VFX PARTIKEL',
         'unity_version' => '2022.3 LTS',
         'pipeline' => 'HDRP',
+        'license' => 'Komersial',
         'format' => '.unitypackage',
         'art' => 'fire'
     ],
@@ -39,80 +41,9 @@ $catalogDB = [
         'category' => 'MODEL 3D',
         'unity_version' => '2021.3+ / 2022.3 LTS',
         'pipeline' => 'URP, HDRP, Built-In',
+        'license' => 'Komersial',
         'format' => '.fbx, .blend, .unitypackage',
         'art' => 'castle'
-    ],
-    '5' => [
-        'title' => 'Stylized Fire Starter Kit',
-        'creator' => 'VFX Kampoeng',
-        'category' => 'VFX PARTIKEL',
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'URP',
-        'format' => '.unitypackage',
-        'art' => 'fire'
-    ],
-    '6' => [
-        'title' => 'Indonesian Road Texture Pack',
-        'creator' => 'Bumi Tekstur',
-        'category' => 'TEKSTUR',
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'Built-In, URP',
-        'format' => '.png, .tga, .mat',
-        'art' => 'castle'
-    ],
-    '7' => [
-        'title' => 'Simple UI SFX & VFX Overlay',
-        'creator' => 'Andi Dev',
-        'category' => 'VFX PARTIKEL',
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'URP, HDRP',
-        'format' => '.unitypackage',
-        'art' => 'water'
-    ],
-    '8' => [
-        'title' => 'Basic Hologram Shader Helper',
-        'creator' => 'Arga Studio',
-        'category' => 'VFX PARTIKEL',
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'URP, HDRP',
-        'format' => '.unitypackage',
-        'art' => 'castle'
-    ],
-    'free-forest-mist' => [
-        'title' => 'Forest Mist & Fog Volume',
-        'creator' => 'Rimba Digital',
-        'category' => 'PARTICLE',
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'Built-In',
-        'format' => '.unitypackage',
-        'art' => 'forest'
-    ],
-    'free-desert-dune' => [
-        'title' => 'Desert Dune Terrain Pack',
-        'creator' => 'Pasir Labs',
-        'category' => 'MODEL',
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'URP',
-        'format' => '.unitypackage',
-        'art' => 'castle'
-    ],
-    'neon-city' => [
-        'title' => 'Neon City Wet Surface Shader',
-        'creator' => 'Studio Neon',
-        'category' => 'SHADER',
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'HDRP',
-        'format' => '.unitypackage',
-        'art' => 'water'
-    ],
-    'ocean-depth' => [
-        'title' => 'Ocean Depth Water Shader',
-        'creator' => 'Biru Nusantara',
-        'category' => 'SHADER',
-        'unity_version' => '2021.3+ / 2022.3 LTS',
-        'pipeline' => 'HDRP',
-        'format' => '.unitypackage',
-        'art' => 'water'
     ]
 ];
 
@@ -124,9 +55,10 @@ $assetTitle    = $_GET['title'] ?? ($matched['title'] ?? 'Volumetric Rain & Stor
 $assetCreator  = $_GET['creator'] ?? ($matched['creator'] ?? 'Arga Studio');
 $assetCategory = $_GET['category'] ?? ($matched['category'] ?? 'SHADER');
 $assetUnity    = $matched['unity_version'] ?? '2021.3+ / 2022.3 LTS';
-$assetPipeline = $_GET['pipeline'] ?? ($matched['pipeline'] ?? 'HDRP');
+$assetPipeline = $_GET['pipeline'] ?? ($matched['pipeline'] ?? 'URP');
+$assetLicense  = $matched['license'] ?? 'Komersial';
 $assetFormat   = $matched['format'] ?? '.unitypackage';
-$assetArt      = $matched['art'] ?? 'water';
+$assetArt      = $_GET['art'] ?? ($matched['art'] ?? 'castle');
 
 $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user');
 ?>
@@ -138,9 +70,8 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($assetTitle) ?> - IndoFX</title>
 
-    <!-- Google Fonts & Bootstrap Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -150,11 +81,9 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
         :root {
             --indofx-cream-bg: #FAF0E6;
             --indofx-text-main: #3C2A21;
-            /* Cokelat Tua Figma */
             --indofx-text-muted: #7A685D;
             --indofx-border: #4A3B32;
             --indofx-orange: #ED6B1D;
-            /* Oranye IndoFX */
         }
 
         body {
@@ -174,29 +103,57 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
             border-radius: 8px;
             overflow: hidden;
             border: 1.5px solid var(--indofx-border);
-            background-color: #2b2129;
+            background-color: #181418;
             height: 420px;
+            width: 100%;
         }
 
         .thumb-gallery-row {
             display: flex;
             gap: 12px;
             margin-bottom: 28px;
+            flex-wrap: wrap;
         }
 
         .thumb-card-item {
-            width: 76px;
-            height: 52px;
+            position: relative;
+            width: 84px;
+            height: 54px;
             border-radius: 6px;
             overflow: hidden;
             border: 1.5px solid var(--indofx-border);
             cursor: pointer;
             background-color: #2b2129;
             flex-shrink: 0;
+            transition: all 0.15s ease;
         }
 
         .thumb-card-item.active {
-            border: 2px solid var(--indofx-orange);
+            border: 2.5px solid var(--indofx-orange);
+            box-shadow: 0 0 0 2px rgba(237, 107, 29, 0.25);
+        }
+
+        .thumb-video-play-badge {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.35);
+            pointer-events: none;
+        }
+
+        .thumb-video-play-badge i {
+            font-size: 1.35rem;
+            color: #FF0000;
+            background: #ffffff;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
         }
 
         .detail-nav-tabs {
@@ -232,7 +189,26 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
             padding: 24px;
         }
 
-        /* Kartu Kanan Khusus Unduh */
+        .section-content-title {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .section-text-body {
+            white-space: pre-line;
+            line-height: 1.7;
+            color: #2b2623;
+            font-size: 0.88rem;
+        }
+
+        .section-divider {
+            border: none;
+            border-top: 1px solid #ebdcd1;
+            margin: 24px 0;
+        }
+
         .asset-library-card {
             background-color: #ffffff;
             border: 1.5px solid var(--indofx-border);
@@ -319,9 +295,6 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
             transform: translateY(-1px);
         }
 
-        /* ========================================================
-           RINGKASAN ULASAN & PROGRES BAR BINTANG DINAMIS
-           ======================================================== */
         .rating-summary-box {
             background-color: #fdf5ef;
             border: 1px solid #ebdcd1;
@@ -399,6 +372,12 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
 
         .review-item-block:last-child {
             border-bottom: none;
+        }
+
+        @media (max-width: 767.98px) {
+            .main-preview-card {
+                height: 240px;
+            }
         }
     </style>
 </head>
@@ -482,77 +461,56 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
 
                 <!-- Kolom Kiri: Galeri & Tab Deskripsi -->
                 <div class="col-12 col-lg-8">
-                    <div id="assetDetailCarousel" class="carousel slide main-preview-card mb-3" data-bs-ride="carousel">
-                        <div class="carousel-inner h-100">
-                            <div class="carousel-item active h-100">
-                                <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
-                                    <use href="#art-<?= htmlspecialchars($assetArt) ?>" />
-                                </svg>
-                            </div>
-                        </div>
+                    <div id="libDetailMediaStage" class="main-preview-card mb-3">
+                        <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
+                            <use href="#art-<?= htmlspecialchars($assetArt) ?>" />
+                        </svg>
                     </div>
 
-                    <div class="thumb-gallery-row">
-                        <div class="thumb-card-item active">
-                            <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
-                                <use href="#art-<?= htmlspecialchars($assetArt) ?>" />
-                            </svg>
-                        </div>
-                        <div class="thumb-card-item">
-                            <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
-                                <use href="#art-<?= htmlspecialchars($assetArt) ?>" />
-                            </svg>
-                        </div>
-                        <div class="thumb-card-item">
-                            <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
-                                <use href="#art-<?= htmlspecialchars($assetArt) ?>" />
-                            </svg>
-                        </div>
-                        <div class="thumb-card-item">
-                            <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
-                                <use href="#art-<?= htmlspecialchars($assetArt) ?>" />
-                            </svg>
-                        </div>
-                    </div>
+                    <div class="thumb-gallery-row" id="libThumbGalleryRow"></div>
 
                     <div class="detail-nav-tabs">
-                        <a href="javascript:void(0)" class="tab-link" onclick="switchDetailTab(event, 'tab-deskripsi')">Deskripsi</a>
+                        <a href="javascript:void(0)" class="tab-link active" onclick="switchDetailTab(event, 'tab-deskripsi')">Deskripsi</a>
                         <a href="javascript:void(0)" class="tab-link" onclick="switchDetailTab(event, 'tab-changelog')">Changelog</a>
-                        <a href="javascript:void(0)" class="tab-link active" onclick="switchDetailTab(event, 'tab-ulasan')">Ulasan</a>
+                        <a href="javascript:void(0)" class="tab-link" onclick="switchDetailTab(event, 'tab-ulasan')">Ulasan</a>
                     </div>
 
                     <div class="detail-content-box" id="tabContentArea">
-                        <div id="tab-deskripsi" class="tab-pane-detail d-none">
-                            <p class="mb-3">
-                                Paket aset visual <strong><?= htmlspecialchars($assetTitle) ?></strong> dirancang khusus oleh <strong><?= htmlspecialchars($assetCreator) ?></strong> untuk mewujudkan sistem visual berkualitas tinggi dalam pipeline rendering <?= htmlspecialchars($assetPipeline) ?> di engine Unity[cite: 26].
-                            </p>
-                            <p class="mb-0">
-                                Dilengkapi dengan kontrol parameter material, tekstur resolusi tinggi, dan pengoptimalan menyeluruh untuk performa game[cite: 26].
-                            </p>
+                        <div id="tab-deskripsi" class="tab-pane-detail active">
+                            <div class="mb-4">
+                                <h6 class="section-content-title">Deskripsi Aset</h6>
+                                <div class="section-text-body" id="displayLibAssetDescription">
+                                    Memuat deskripsi aset...
+                                </div>
+                            </div>
+
+                            <hr class="section-divider">
+
+                            <div>
+                                <h6 class="section-content-title">Panduan Penggunaan Aset</h6>
+                                <div class="section-text-body" id="displayLibAssetHowToUse">
+                                    Memuat panduan penggunaan...
+                                </div>
+                            </div>
                         </div>
 
                         <div id="tab-changelog" class="tab-pane-detail d-none">
                             <h6 class="fw-bold mb-2">Versi 1.2.0</h6>
-                            <p class="text-muted small">Pembaruan performa dan dukungan Unity 2022 LTS[cite: 26].</p>
+                            <p class="text-muted small">Pembaruan performa dan dukungan Unity 2022 LTS.</p>
                         </div>
 
-                        <!-- TAB ULASAN DINAMIS -->
-                        <div id="tab-ulasan" class="tab-pane-detail active">
+                        <div id="tab-ulasan" class="tab-pane-detail d-none">
                             <div id="ratingSummaryWrapper" class="rating-summary-box p-3 mb-4">
                                 <div class="row align-items-center g-3">
-                                    <!-- Sisi Kiri: Nilai Rata-Rata & Bintang -->
                                     <div class="col-12 col-sm-4 text-center text-sm-start ps-sm-3">
                                         <div class="d-flex align-items-baseline justify-content-center justify-content-sm-start gap-1">
                                             <span class="rating-big-score" id="ratingBigScore">0,0</span>
                                             <span class="rating-out-of">/ 5</span>
                                         </div>
-                                        <div class="rating-stars-gold my-1" id="ratingSummaryStars">
-                                            <!-- Diisi oleh JavaScript -->
-                                        </div>
+                                        <div class="rating-stars-gold my-1" id="ratingSummaryStars"></div>
                                         <span class="d-block text-muted small" id="totalReviewsSummaryText">Dari 0 ulasan</span>
                                     </div>
 
-                                    <!-- Sisi Kanan: Progres Bar 5 Bintang Hingga 1 Bintang -->
                                     <div class="col-12 col-sm-8 pe-sm-3">
                                         <div class="rating-bar-row">
                                             <span class="rating-bar-label">5 ★</span>
@@ -606,25 +564,29 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
                 <!-- Kolom Kanan: Card Download -->
                 <div class="col-12 col-lg-4">
                     <div class="asset-library-card">
-                        <span class="asset-category-tag d-block"><?= htmlspecialchars($assetCategory) ?></span>
-                        <h2 class="asset-detail-title"><?= htmlspecialchars($assetTitle) ?></h2>
+                        <span class="asset-category-tag d-block" id="displayLibCategoryBadge"><?= htmlspecialchars($assetCategory) ?></span>
+                        <h2 class="asset-detail-title" id="displayLibAssetTitle"><?= htmlspecialchars($assetTitle) ?></h2>
 
                         <div class="detail-creator-line">
-                            Oleh <a href="/creator/profile"><?= htmlspecialchars($assetCreator) ?></a>
+                            Oleh <a href="/creator/profile?name=<?= urlencode($assetCreator) ?>" id="displayLibCreatorName"><?= htmlspecialchars($assetCreator) ?></a>
                         </div>
 
                         <div class="specs-table-box">
                             <div class="spec-item-row">
                                 <span class="label-col">Versi Unity</span>
-                                <span class="val-col"><?= htmlspecialchars($assetUnity) ?></span>
+                                <span class="val-col" id="displayLibUnityVer"><?= htmlspecialchars($assetUnity) ?></span>
                             </div>
                             <div class="spec-item-row">
                                 <span class="label-col">Render Pipeline</span>
-                                <span class="val-col"><?= htmlspecialchars($assetPipeline) ?></span>
+                                <span class="val-col" id="displayLibPipeline"><?= htmlspecialchars($assetPipeline) ?></span>
+                            </div>
+                            <div class="spec-item-row">
+                                <span class="label-col">Lisensi</span>
+                                <span class="val-col" id="displayLibLicense"><?= htmlspecialchars($assetLicense) ?></span>
                             </div>
                             <div class="spec-item-row">
                                 <span class="label-col">Format File</span>
-                                <span class="val-col"><?= htmlspecialchars($assetFormat) ?></span>
+                                <span class="val-col" id="displayLibFormatFile"><?= htmlspecialchars($assetFormat) ?></span>
                             </div>
                         </div>
 
@@ -638,6 +600,7 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
             </div>
         </div>
     </main>
+
     <footer class="footer-main">
         <div class="container-figma">
             <div class="footer-center-content">
@@ -645,7 +608,6 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
                 <p class="footer-brand-desc-center">
                     Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
                 </p>
-                <!-- Baris Kontak dan Email sesuai desain baru -->
                 <div style="font-size: 0.85rem; color: #1a1a1a; margin-top: 10px;">
                     <strong style="font-weight: 800;">Kontak dan Email:</strong>
                     <span style="margin: 0 16px;">08123456xxxx</span>
@@ -662,10 +624,273 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/assets/js/navbar-auth.js"></script>
     <script>
-        const userKey = '<?= $userKey ?>';
-        const currentAssetId = '<?= htmlspecialchars((string)$assetId, ENT_QUOTES, 'UTF-8') ?>';
-        const assetTitle = '<?= htmlspecialchars($assetTitle, ENT_QUOTES, 'UTF-8') ?>';
-        const assetFormat = '<?= htmlspecialchars($assetFormat, ENT_QUOTES, 'UTF-8') ?>';
+        const userKey = <?= json_encode($userKey, JSON_UNESCAPED_UNICODE) ?>;
+        const currentAssetId = <?= json_encode((string)$assetId, JSON_UNESCAPED_UNICODE) ?>;
+
+        let activeLibState = {
+            id: currentAssetId,
+            title: <?= json_encode($assetTitle, JSON_UNESCAPED_UNICODE) ?>,
+            creator: <?= json_encode($assetCreator, JSON_UNESCAPED_UNICODE) ?>,
+            category: <?= json_encode($assetCategory, JSON_UNESCAPED_UNICODE) ?>,
+            unity_version: <?= json_encode($assetUnity, JSON_UNESCAPED_UNICODE) ?>,
+            pipeline: <?= json_encode($assetPipeline, JSON_UNESCAPED_UNICODE) ?>,
+            license: <?= json_encode($assetLicense, JSON_UNESCAPED_UNICODE) ?>,
+            format: <?= json_encode($assetFormat, JSON_UNESCAPED_UNICODE) ?>,
+            art: <?= json_encode($assetArt, JSON_UNESCAPED_UNICODE) ?>,
+            image: '',
+            images: [],
+            video_url: ''
+        };
+
+        let libGalleryItems = [];
+
+        function extractYouTubeId(url) {
+            if (!url || typeof url !== 'string') return null;
+            const trimmed = url.trim();
+            const patterns = [
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+                /[?&]v=([a-zA-Z0-9_-]{11})/
+            ];
+            for (let i = 0; i < patterns.length; i++) {
+                const match = trimmed.match(patterns[i]);
+                if (match && match[1]) return match[1];
+            }
+            return null;
+        }
+
+        function selectLibGallerySlide(index) {
+            const stage = document.getElementById('libDetailMediaStage');
+            const slide = libGalleryItems[index];
+            if (!stage || !slide) return;
+
+            document.querySelectorAll('#libThumbGalleryRow .thumb-card-item').forEach((el, idx) => {
+                el.classList.toggle('active', idx === index);
+            });
+
+            if (slide.type === 'youtube') {
+                stage.innerHTML = `
+                    <iframe
+                        width="100%"
+                        height="100%"
+                        src="https://www.youtube.com/embed/${slide.youtubeId}?rel=0"
+                        title="${String(activeLibState.title || '').replace(/"/g, '&quot;')}"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowfullscreen
+                        style="display: block; width: 100%; height: 100%;">
+                    </iframe>
+                `;
+            } else if (slide.type === 'image') {
+                stage.innerHTML = `
+                    <img src="${slide.src}" alt="${String(activeLibState.title || '').replace(/"/g, '&quot;')}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                `;
+            } else {
+                stage.innerHTML = `
+                    <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
+                        <use href="#art-${activeLibState.art || 'castle'}" />
+                    </svg>
+                `;
+            }
+        }
+
+        function buildLibMediaGallery() {
+            const thumbRow = document.getElementById('libThumbGalleryRow');
+            if (!thumbRow) return;
+
+            libGalleryItems = [];
+            const ytId = extractYouTubeId(activeLibState.video_url);
+
+            if (ytId) {
+                libGalleryItems.push({
+                    type: 'youtube',
+                    youtubeId: ytId,
+                    thumbSrc: `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
+                });
+            }
+
+            const imgs = Array.isArray(activeLibState.images) && activeLibState.images.length > 0 ?
+                activeLibState.images :
+                (activeLibState.image ? [activeLibState.image] : []);
+
+            imgs.forEach(src => {
+                if (src && (String(src).startsWith('data:') || String(src).includes('/'))) {
+                    libGalleryItems.push({
+                        type: 'image',
+                        src: src,
+                        thumbSrc: src
+                    });
+                }
+            });
+
+            if (libGalleryItems.length === 0) {
+                libGalleryItems.push({
+                    type: 'svg',
+                    thumbSrc: ''
+                });
+            }
+
+            thumbRow.innerHTML = libGalleryItems.map((item, idx) => {
+                const activeCls = idx === 0 ? 'active' : '';
+                if (item.type === 'youtube') {
+                    return `
+                        <div class="thumb-card-item ${activeCls}" onclick="selectLibGallerySlide(${idx})" title="Putar Video Pratinjau YouTube">
+                            <img src="${item.thumbSrc}" alt="Video YouTube" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                            <span class="thumb-video-play-badge">
+                                <i class="bi bi-play-fill"></i>
+                            </span>
+                        </div>
+                    `;
+                }
+                if (item.type === 'image') {
+                    return `
+                        <div class="thumb-card-item ${activeCls}" onclick="selectLibGallerySlide(${idx})" title="Gambar ${idx + 1}">
+                            <img src="${item.thumbSrc}" alt="Preview ${idx + 1}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                        </div>
+                    `;
+                }
+                return `
+                    <div class="thumb-card-item ${activeCls}" onclick="selectLibGallerySlide(${idx})">
+                        <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
+                            <use href="#art-${activeLibState.art || 'castle'}" />
+                        </svg>
+                    </div>
+                `;
+            }).join('');
+
+            selectLibGallerySlide(0);
+        }
+
+        function applyAssetDataToUI(assetData) {
+            if (assetData) {
+                if (assetData.id) activeLibState.id = String(assetData.id);
+                if (assetData.title) activeLibState.title = assetData.title;
+
+                const resolvedCreator = assetData.creator || assetData.studio || assetData.seller || assetData.seller_name;
+                if (resolvedCreator) activeLibState.creator = resolvedCreator;
+                if (assetData.category) activeLibState.category = assetData.category;
+                if (assetData.license) activeLibState.license = assetData.license;
+
+                if (Array.isArray(assetData.pipelines) && assetData.pipelines.length > 0) {
+                    activeLibState.pipeline = assetData.pipelines.join(', ');
+                } else if (assetData.pipeline || assetData.render_pipeline) {
+                    activeLibState.pipeline = assetData.pipeline || assetData.render_pipeline;
+                }
+
+                if (assetData.unity_ver || assetData.unity_version) {
+                    activeLibState.unity_version = assetData.unity_ver || assetData.unity_version;
+                }
+                if (assetData.format || assetData.file_info) {
+                    activeLibState.format = assetData.format || (assetData.file_info.includes('.zip') ? '.zip' : '.unitypackage');
+                }
+                if (assetData.image) activeLibState.image = assetData.image;
+                if (Array.isArray(assetData.images) && assetData.images.length > 0) activeLibState.images = assetData.images;
+                if (assetData.video_url) activeLibState.video_url = assetData.video_url;
+
+                document.title = activeLibState.title + ' - IndoFX';
+                document.getElementById('displayLibCategoryBadge').innerText = activeLibState.category;
+                document.getElementById('displayLibAssetTitle').innerText = activeLibState.title;
+
+                const creatorEl = document.getElementById('displayLibCreatorName');
+                creatorEl.innerText = activeLibState.creator;
+                creatorEl.href = '/creator/profile?name=' + encodeURIComponent(activeLibState.creator);
+
+                document.getElementById('displayLibUnityVer').innerText = activeLibState.unity_version;
+                document.getElementById('displayLibPipeline').innerText = activeLibState.pipeline;
+                document.getElementById('displayLibLicense').innerText = activeLibState.license;
+                document.getElementById('displayLibFormatFile').innerText = activeLibState.format;
+            }
+
+            const descEl = document.getElementById('displayLibAssetDescription');
+            if (descEl) {
+                const rawDesc = assetData && (assetData.description || assetData.short_description);
+                descEl.innerText = (rawDesc && rawDesc.trim() !== '') ?
+                    rawDesc.trim() :
+                    ('Paket aset visual ' + activeLibState.title + ' oleh ' + activeLibState.creator + ' untuk pipeline ' + activeLibState.pipeline + '.');
+            }
+
+            const howToUseEl = document.getElementById('displayLibAssetHowToUse');
+            if (howToUseEl) {
+                if (assetData && assetData.how_to_use && assetData.how_to_use.trim() !== '') {
+                    howToUseEl.innerText = assetData.how_to_use.trim();
+                } else {
+                    howToUseEl.innerHTML = '1. Klik tombol Unduh untuk mendapatkan berkas aset.\n2. Impor berkas package ke project Unity Anda.\n3. Buka demo scene atau masukkan prefab ke hierarchy.';
+                }
+            }
+
+            buildLibMediaGallery();
+        }
+
+        function loadDynamicLibraryAssetDetail() {
+            let assetData = null;
+            const normId = String(currentAssetId || '').trim().toLowerCase();
+            const normTitle = String(activeLibState.title || '').trim().toLowerCase();
+
+            function matchAsset(item) {
+                if (!item) return false;
+                const itemId = String(item.id || '').trim().toLowerCase();
+                const itemTitle = String(item.title || '').trim().toLowerCase();
+                return (normId && itemId === normId) || (normTitle && itemTitle === normTitle);
+            }
+
+            try {
+                const pub = JSON.parse(localStorage.getItem('indofx_public_catalog')) || [];
+                const foundPub = pub.find(matchAsset);
+                if (foundPub) assetData = Object.assign({}, foundPub);
+            } catch (e) {}
+
+            try {
+                const queue = JSON.parse(localStorage.getItem('indofx_moderation_queue')) || [];
+                const foundInQueue = queue.find(matchAsset);
+                if (foundInQueue) {
+                    assetData = Object.assign({}, foundInQueue, assetData || {});
+                    if (foundInQueue.description && !assetData.description) assetData.description = foundInQueue.description;
+                    if (foundInQueue.how_to_use && !assetData.how_to_use) assetData.how_to_use = foundInQueue.how_to_use;
+                    if (foundInQueue.license && !assetData.license) assetData.license = foundInQueue.license;
+                    if (foundInQueue.image && !assetData.image) assetData.image = foundInQueue.image;
+                    if ((!Array.isArray(assetData.images) || assetData.images.length === 0) && Array.isArray(foundInQueue.images)) {
+                        assetData.images = foundInQueue.images;
+                    }
+                    if (foundInQueue.video_url && !assetData.video_url) assetData.video_url = foundInQueue.video_url;
+                }
+            } catch (e) {}
+
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('indofx_seller_assets_')) {
+                    try {
+                        const sAssets = JSON.parse(localStorage.getItem(key)) || [];
+                        const foundInSeller = sAssets.find(matchAsset);
+                        if (foundInSeller) {
+                            assetData = Object.assign({}, foundInSeller, assetData || {});
+                            if (foundInSeller.description && !assetData.description) assetData.description = foundInSeller.description;
+                            if (foundInSeller.how_to_use && !assetData.how_to_use) assetData.how_to_use = foundInSeller.how_to_use;
+                            if (foundInSeller.license && !assetData.license) assetData.license = foundInSeller.license;
+                            if (foundInSeller.image && !assetData.image) assetData.image = foundInSeller.image;
+                            if ((!Array.isArray(assetData.images) || assetData.images.length === 0) && Array.isArray(foundInSeller.images)) {
+                                assetData.images = foundInSeller.images;
+                            }
+                            if (foundInSeller.video_url && !assetData.video_url) assetData.video_url = foundInSeller.video_url;
+                        }
+                    } catch (e) {}
+                }
+            });
+
+            applyAssetDataToUI(assetData);
+
+            // Lengkapi juga dari /assets/data/assets.json untuk aset katalog bawaan
+            fetch('/assets/data/assets.json')
+                .then(res => res.ok ? res.json() : null)
+                .then(payload => {
+                    if (payload && Array.isArray(payload.data)) {
+                        const foundJson = payload.data.find(matchAsset);
+                        if (foundJson) {
+                            const merged = Object.assign({}, foundJson, assetData || {});
+                            if (!merged.image && foundJson.image) merged.image = foundJson.image;
+                            applyAssetDataToUI(merged);
+                        }
+                    }
+                })
+                .catch(() => {});
+        }
 
         function switchDetailTab(evt, tabId) {
             document.querySelectorAll('.detail-nav-tabs .tab-link').forEach(link => link.classList.remove('active'));
@@ -679,8 +904,9 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
         }
 
         function downloadFile() {
-            const fileName = assetTitle.toLowerCase().replace(/[^a-z0-9]/g, '_') + (assetFormat.startsWith('.') ? assetFormat : ('.' + assetFormat));
-            const dummyPackage = `=== INDOFX ASSET FILE ===\nNama Aset: ${assetTitle}\nID: ${currentAssetId}\nFormat: ${assetFormat}\nLisensi: Full Commercial Project License\nDiunduh oleh: ${userKey}\nTanggal: ${new Date().toLocaleString()}\n`;
+            const fmt = activeLibState.format || '.unitypackage';
+            const fileName = activeLibState.title.toLowerCase().replace(/[^a-z0-9]/g, '_') + (fmt.startsWith('.') ? fmt : ('.' + fmt));
+            const dummyPackage = `=== INDOFX ASSET FILE ===\nNama Aset: ${activeLibState.title}\nID: ${activeLibState.id}\nFormat: ${fmt}\nLisensi: ${activeLibState.license}\nDiunduh oleh: ${userKey}\nTanggal: ${new Date().toLocaleString()}\n`;
 
             const blob = new Blob([dummyPackage], {
                 type: 'application/octet-stream'
@@ -695,16 +921,13 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
             URL.revokeObjectURL(url);
         }
 
-        // ========================================================
-        // KALKULASI RATA-RATA & DIAGRAM BINTANG 100% DINAMIS
-        // ========================================================
         function loadReviews() {
             const listContainer = document.getElementById('reviewsListContainer');
             if (!listContainer) return;
 
             let reviews = [];
             try {
-                reviews = JSON.parse(localStorage.getItem('indofx_public_reviews_' + currentAssetId)) || [];
+                reviews = JSON.parse(localStorage.getItem('indofx_public_reviews_' + activeLibState.id)) || [];
             } catch (e) {
                 reviews = [];
             }
@@ -729,7 +952,6 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
 
             if (summaryBox) summaryBox.style.display = 'block';
 
-            // 1. Hitung total skor bintang dan frekuensi masing-masing bintang (1 - 5)
             let sumRating = 0;
             const starCounts = {
                 5: 0,
@@ -745,31 +967,25 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
                 sumRating += star;
             });
 
-            // 2. Hitung Rata-Rata Sebenarnya
             const avgRatingFloat = sumRating / total;
             const avgScoreFormatted = avgRatingFloat.toFixed(1).replace('.', ',');
 
-            // Pasang angka rata-rata ke elemen skor besar
             const bigScoreEl = document.getElementById('ratingBigScore');
             if (bigScoreEl) bigScoreEl.innerText = avgScoreFormatted;
             if (summaryText) summaryText.innerText = `Dari ${total} ulasan`;
 
-            // 3. Render Deretan Bintang di Bawah Nilai Rata-rata
             const starsSummaryContainer = document.getElementById('ratingSummaryStars');
             if (starsSummaryContainer) {
                 let starsSummaryHtml = '';
                 const roundedStar = Math.round(avgRatingFloat);
                 for (let s = 1; s <= 5; s++) {
-                    if (s <= roundedStar) {
-                        starsSummaryHtml += '<i class="bi bi-star-fill me-1"></i>';
-                    } else {
-                        starsSummaryHtml += '<i class="bi bi-star me-1" style="color: #eeddd2;"></i>';
-                    }
+                    starsSummaryHtml += s <= roundedStar ?
+                        '<i class="bi bi-star-fill me-1"></i>' :
+                        '<i class="bi bi-star me-1" style="color: #eeddd2;"></i>';
                 }
                 starsSummaryContainer.innerHTML = starsSummaryHtml;
             }
 
-            // 4. Perbarui Nilai Angka dan Lebar Bar (Persentase) untuk 5 Bintang sampai 1 Bintang
             for (let s = 1; s <= 5; s++) {
                 const count = starCounts[s] || 0;
                 const percentage = Math.round((count / total) * 100);
@@ -781,7 +997,6 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
                 if (numEl) numEl.innerText = count;
             }
 
-            // 5. Render Daftar Ulasan Pembeli
             listContainer.innerHTML = reviews.map(r => {
                 const rating = Math.min(5, Math.max(1, parseInt(r.rating, 10) || 5));
                 let starIcons = '';
@@ -808,7 +1023,10 @@ $userKey = (string)($_SESSION['user_id'] ?? $_SESSION['name'] ?? 'default_user')
             }).join('');
         }
 
-        document.addEventListener('DOMContentLoaded', loadReviews);
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDynamicLibraryAssetDetail();
+            loadReviews();
+        });
     </script>
 </body>
 

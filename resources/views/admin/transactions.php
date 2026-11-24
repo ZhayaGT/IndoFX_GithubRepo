@@ -152,7 +152,7 @@ $adminInitials = 'AP';
                 </div>
             </div>
 
-            <!-- Tabel Monitoring Transaksi -->
+            <!-- Tabel Monitoring Transaksi (Paginasi 5 Baris per Halaman) -->
             <div class="admin-table-card">
                 <div class="table-responsive">
                     <table class="table table-admin align-middle">
@@ -171,6 +171,14 @@ $adminInitials = 'AP';
                             <!-- Diisi dinamis -->
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Footer Navigasi Paginasi Dinamis -->
+                <div class="admin-pagination-bar" id="trxPaginationBar">
+                    <span id="trxPaginationInfoText">Menampilkan 0 dari 0 transaksi</span>
+                    <div class="admin-pagination-btns" id="trxPaginationBtnsContainer">
+                        <!-- Tombol Halaman Digenerate Dinamis -->
+                    </div>
                 </div>
             </div>
         </main>
@@ -286,7 +294,6 @@ $adminInitials = 'AP';
                 <p class="footer-brand-desc-center">
                     Portal distribusi dan marketplace aset CG &amp; VFX berkualitas tinggi buatan lokal, dioptimalkan sepenuhnya untuk industri game Indonesia.
                 </p>
-                <!-- Baris Kontak dan Email sesuai desain baru -->
                 <div style="font-size: 0.85rem; color: #1a1a1a; margin-top: 10px;">
                     <strong style="font-weight: 800;">Kontak dan Email:</strong>
                     <span style="margin: 0 16px;">08123456xxxx</span>
@@ -302,17 +309,20 @@ $adminInitials = 'AP';
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- ENGINE MONITORING TRANSAKSI DINAMIS 100% -->
+    <!-- ENGINE MONITORING TRANSAKSI DINAMIS + PAGINASI 5 PER TABEL -->
     <script>
         let transactions = [];
         let modalTrxInstance = null;
         let currentActiveTrx = null;
 
+        // Konfigurasi Paginasi: 5 transaksi per halaman
+        const itemsPerPage = 5;
+        let currentPage = 1;
+
         // 1. MUAT SELURUH TRANSAKSI RIIL WEBSITE
         function loadTransactionsData() {
             let collected = [];
 
-            // A. Ambil transaksi dari storage log admin
             try {
                 const stored = localStorage.getItem('indofx_admin_transactions');
                 if (stored) {
@@ -320,7 +330,6 @@ $adminInitials = 'AP';
                 }
             } catch (e) {}
 
-            // B. Pindai seluruh transaksi riil yang dihasilkan proses checkout pengguna
             Object.keys(localStorage).forEach(key => {
                 if (key.startsWith('indofx_transactions_')) {
                     try {
@@ -351,7 +360,6 @@ $adminInitials = 'AP';
                 }
             });
 
-            // C. Jika belum ada transaksi sama sekali, sediakan 1 transaksi riil sampel
             if (collected.length === 0) {
                 collected = [{
                     order_id: 'INV-20261109-3170',
@@ -371,9 +379,6 @@ $adminInitials = 'AP';
             transactions = collected;
             localStorage.setItem('indofx_admin_transactions', JSON.stringify(transactions));
 
-            // ==========================================
-            // D. HITUNG METRIK KEUANGAN 100% DINAMIS
-            // ==========================================
             let grossTotal = 0;
             let successCount = 0;
             let pendingCount = 0;
@@ -392,16 +397,12 @@ $adminInitials = 'AP';
 
             const platformFee = Math.round(grossTotal * 0.1);
 
-            // Tampilkan angka riil tanpa baseline 48 juta
             document.getElementById('statGrossOmset').innerText = 'Rp ' + grossTotal.toLocaleString('id-ID');
             document.getElementById('statPlatformFee').innerText = 'Rp ' + platformFee.toLocaleString('id-ID');
             document.getElementById('statTrxSuccessCount').innerText = `${successCount} Transaksi Berhasil`;
             document.getElementById('statPendingCount').innerText = `${pendingCount} Transaksi`;
             document.getElementById('statFailedCount').innerText = `${failedCount} Transaksi`;
 
-            // ==========================================
-            // E. SINKRONKAN BADGE SIDEBAR
-            // ==========================================
             try {
                 const queue = JSON.parse(localStorage.getItem('indofx_moderation_queue')) || [];
                 const pQueue = queue.filter(q => q.status === 'Pending' || q.status === 'Pending Review').length;
@@ -417,7 +418,7 @@ $adminInitials = 'AP';
             renderTransactionsTable();
         }
 
-        // 2. RENDER TABEL TRANSAKSI
+        // 2. RENDER TABEL TRANSAKSI DENGAN PAGINASI 5 DATA PER HALAMAN
         function renderTransactionsTable() {
             const tbody = document.getElementById('trxTableBody');
             const keyword = document.getElementById('trxSearchInput').value.toLowerCase().trim();
@@ -442,7 +443,13 @@ $adminInitials = 'AP';
                 return matchKeyword && matchStatus && matchMethod;
             });
 
-            if (filtered.length === 0) {
+            const totalItems = filtered.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            if (totalItems === 0) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="7" class="text-center py-4 text-muted small">
@@ -450,10 +457,16 @@ $adminInitials = 'AP';
                         </td>
                     </tr>
                 `;
+                document.getElementById('trxPaginationInfoText').innerText = 'Menampilkan 0 dari 0 transaksi';
+                document.getElementById('trxPaginationBtnsContainer').innerHTML = '';
                 return;
             }
 
-            tbody.innerHTML = filtered.map(item => {
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+            const pageData = filtered.slice(startIndex, endIndex);
+
+            tbody.innerHTML = pageData.map(item => {
                 let statusBadge = '';
                 if (item.status === 'Settlement' || item.status === 'Berhasil') {
                     statusBadge = `<span class="badge-midtrans-settlement"><i class="bi bi-check-circle"></i> Settlement</span>`;
@@ -491,6 +504,42 @@ $adminInitials = 'AP';
                     </tr>
                 `;
             }).join('');
+
+            document.getElementById('trxPaginationInfoText').innerText =
+                `Menampilkan ${startIndex + 1}-${endIndex} dari ${totalItems} transaksi`;
+            renderTrxPaginationControls(totalPages);
+        }
+
+        function renderTrxPaginationControls(totalPages) {
+            const container = document.getElementById('trxPaginationBtnsContainer');
+            let btnsHtml = '';
+
+            btnsHtml += `
+                <button type="button" class="btn-page-admin" ${currentPage === 1 ? 'disabled' : ''} onclick="goToTrxPage(${currentPage - 1})">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+            `;
+
+            for (let i = 1; i <= totalPages; i++) {
+                btnsHtml += `
+                    <button type="button" class="btn-page-admin ${i === currentPage ? 'active' : ''}" onclick="goToTrxPage(${i})">
+                        ${i}
+                    </button>
+                `;
+            }
+
+            btnsHtml += `
+                <button type="button" class="btn-page-admin" ${currentPage === totalPages ? 'disabled' : ''} onclick="goToTrxPage(${currentPage + 1})">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            `;
+
+            container.innerHTML = btnsHtml;
+        }
+
+        function goToTrxPage(page) {
+            currentPage = page;
+            renderTransactionsTable();
         }
 
         // 3. BUKA MODAL DETAIL LOG TRANSAKSI
@@ -646,9 +695,18 @@ $adminInitials = 'AP';
             modalTrxInstance = new bootstrap.Modal(document.getElementById('modalTrxDetail'));
             loadTransactionsData();
 
-            document.getElementById('trxSearchInput').addEventListener('input', renderTransactionsTable);
-            document.getElementById('filterStatusMidtrans').addEventListener('change', renderTransactionsTable);
-            document.getElementById('filterPaymentMethod').addEventListener('change', renderTransactionsTable);
+            document.getElementById('trxSearchInput').addEventListener('input', function() {
+                currentPage = 1;
+                renderTransactionsTable();
+            });
+            document.getElementById('filterStatusMidtrans').addEventListener('change', function() {
+                currentPage = 1;
+                renderTransactionsTable();
+            });
+            document.getElementById('filterPaymentMethod').addEventListener('change', function() {
+                currentPage = 1;
+                renderTransactionsTable();
+            });
 
             // Dropdown Profil Admin
             const btn = document.getElementById('adminDropdownBtn');

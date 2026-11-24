@@ -43,11 +43,10 @@
       .replace(/\s+/g, "-");
   }
 
-  // Mengembalikan string HTML satu kartu mengikuti markup bawaan Figma Anda
+  // Mengembalikan string HTML satu kartu mengikuti markup bawaan Figma
   function createCard(item, colClass) {
     var col = colClass || "col-12 col-sm-6 col-lg-3";
 
-    // Tangani pipeline baik jika berbentuk string maupun array
     var pipelines = Array.isArray(item.pipelines)
       ? item.pipelines
       : item.render_pipeline
@@ -67,16 +66,25 @@
       })
       .join(" ");
 
-    // Thumbnail: Dukung file gambar nyata (URL / Base64) maupun SVG helper fallback
-    var thumbHtml = "";
-    if (
+    // Thumbnail: Ambil foto utama (image atau images[0])
+    var coverImg =
       item.image &&
       typeof item.image === "string" &&
       (item.image.includes("/") || item.image.startsWith("data:"))
+        ? item.image
+        : Array.isArray(item.images) && item.images.length > 0
+          ? item.images[0]
+          : "";
+
+    var thumbHtml = "";
+    if (
+      coverImg &&
+      typeof coverImg === "string" &&
+      (coverImg.includes("/") || coverImg.startsWith("data:"))
     ) {
       thumbHtml =
         '<img class="asset-thumb-img" src="' +
-        escapeHtml(item.image) +
+        escapeHtml(coverImg) +
         '" alt="' +
         escapeHtml(item.title) +
         '" loading="lazy">';
@@ -92,7 +100,6 @@
         "</svg>";
     }
 
-    // Parameter dinamis agar halaman detail langsung mengenali identitas aset
     var detailUrl =
       "/asset/detail?slug=" +
       encodeURIComponent(item.slug || "") +
@@ -155,7 +162,7 @@
       if (rawPublic) {
         var parsed = JSON.parse(rawPublic);
         if (Array.isArray(parsed)) {
-          approvedSellerAssets = parsed.map(function (item) {
+          approvedSellerAssets = parsed.map(function (item, idx) {
             var numericPrice = 0;
             if (typeof item.price === "number") {
               numericPrice = item.price;
@@ -167,6 +174,14 @@
             var pipelines = Array.isArray(item.pipelines)
               ? item.pipelines
               : [item.render_pipeline || item.pipeline || "URP"];
+
+            var coverImage =
+              item.image ||
+              (Array.isArray(item.images) && item.images[0]) ||
+              "";
+
+            // Pastikan aset yang baru dipublikasikan Admin selalu memiliki timestamp terbaru agar muncul di paling depan
+            var sortTimestamp = Date.now() + (parsed.length - idx) * 1000;
 
             return {
               id: item.id || "asset-" + Date.now(),
@@ -185,14 +200,28 @@
               render_pipeline: pipelines[0] || "URP",
               pipelines: pipelines,
               unity_version: item.unity_version || "2022.3",
-              image: item.image || "",
+              image: coverImage,
+              images: Array.isArray(item.images)
+                ? item.images
+                : coverImage
+                  ? [coverImage]
+                  : [],
+              video_url: item.video_url || "",
               download_count:
-                parseInt(item.downloads || item.sales || 0, 10) || 0,
+                parseInt(
+                  String(item.downloads || item.sales || "0").replace(
+                    /[^0-9]/g,
+                    "",
+                  ),
+                  10,
+                ) || 0,
               created_at:
                 item.published_at ||
                 item.created_at ||
                 item.date ||
-                new Date().toISOString().split("T")[0],
+                new Date().toISOString(),
+              _sortOrder: sortTimestamp,
+              _isDynamicApproved: true,
             };
           });
         }
@@ -201,7 +230,6 @@
       approvedSellerAssets = [];
     }
 
-    // Ambil aset statis awal dari assets.json
     fetch(DATA_URL)
       .then(function (res) {
         if (!res.ok) {
@@ -210,8 +238,13 @@
         return res.json();
       })
       .then(function (payload) {
-        var baseItems = payload.data || [];
-        // Hindari duplikasi ID atau judul antara aset dinamis vs file JSON bawaan
+        var baseItems = (payload.data || []).map(function (b, idx) {
+          return Object.assign({}, b, {
+            _sortOrder: 1000000 - idx,
+            _isDynamicApproved: false,
+          });
+        });
+
         var filteredBase = baseItems.filter(function (base) {
           return !approvedSellerAssets.some(function (app) {
             return (
@@ -258,6 +291,11 @@
   }
 
   function byCreatedDesc(a, b) {
+    if (a._sortOrder !== undefined && b._sortOrder !== undefined) {
+      if (a._sortOrder !== b._sortOrder) {
+        return b._sortOrder - a._sortOrder;
+      }
+    }
     if (a.created_at === b.created_at) return 0;
     return a.created_at < b.created_at ? 1 : -1;
   }
@@ -299,7 +337,6 @@
 
   var SORT_VALUES = ["terbaru", "populer", "harga_rendah", "harga_tinggi"];
 
-  // Membaca URL Query String untuk Keadaan Filter Awal
   function readExploreParams() {
     var params = new URLSearchParams(window.location.search);
     var sort = params.get("sort");
@@ -351,7 +388,6 @@
     var resetLink = document.querySelector(".filter-reset-link");
     var searchInput = document.querySelector(".search-input-header");
 
-    // Filter Kategori Dinamis, Pipeline, Rentang Harga & Versi Unity
     var categoryListContainer = document.getElementById(
       "dynamicExploreCategoryList",
     );
@@ -372,7 +408,6 @@
     var currentPage = 1;
     var colClass = "col-12 col-sm-6 col-md-4";
 
-    // Set nilai awal dari query URL jika ada
     if (searchInput && currentQuery) {
       searchInput.value = currentQuery;
     }
@@ -389,7 +424,6 @@
       ].filter(Boolean);
     }
 
-    // Sinkronkan parameter URL ?kategori=... dengan seluruh checkbox kategori dinamis
     if (initial.category) {
       var initSlug = normalizeSlug(initial.category);
       getCategoryCheckboxes().forEach(function (cb) {
@@ -494,7 +528,6 @@
         if (itemCatLower === sel.name || itemCatSlug === sel.slug) {
           return true;
         }
-        // Toleransi variasi penulisan kategori bawaan di JSON vs Admin
         if (
           (sel.slug === "vfx-partikel" || sel.name === "particle") &&
           (itemCatLower === "particle" ||
@@ -520,7 +553,6 @@
         : Infinity;
       var selectedUnity = unitySelect ? unitySelect.value : "Semua Versi";
 
-      // Ambil seluruh kategori yang sedang dicentang secara dinamis
       var selectedCats = getCategoryCheckboxes()
         .filter(function (cb) {
           return cb.checked;
@@ -543,17 +575,14 @@
         });
 
       var visible = allItems.filter(function (item) {
-        // 1. Filter Gratis
         if (freeOnly && item.price !== 0) {
           return false;
         }
 
-        // 2. Filter Rentang Harga (Min - Max)
         if (!freeOnly && (item.price < minVal || item.price > maxVal)) {
           return false;
         }
 
-        // 3. Filter Kategori Dinamis
         if (
           selectedCats.length > 0 &&
           !matchesSelectedCategory(item.category, selectedCats)
@@ -561,7 +590,6 @@
           return false;
         }
 
-        // 4. Filter Render Pipeline
         var chkBuiltin = pipeBuiltin && pipeBuiltin.checked;
         var chkUrp = pipeUrp && pipeUrp.checked;
         var chkHdrp = pipeHdrp && pipeHdrp.checked;
@@ -600,7 +628,6 @@
           if (!match) return false;
         }
 
-        // 5. Filter Versi Unity
         if (selectedUnity && selectedUnity !== "Semua Versi") {
           var itemVer = String(item.unity_version || "");
           if (!itemVer.includes(selectedUnity)) {
@@ -608,7 +635,6 @@
           }
         }
 
-        // 6. Filter Pencarian Teks
         return matchesQuery(item, currentQuery);
       });
 
@@ -635,7 +661,6 @@
       buildPagination(totalPages);
     }
 
-    // Event Listener Paginasi
     if (paginationEl) {
       paginationEl.addEventListener("click", function (event) {
         var link = event.target.closest("a");
@@ -657,7 +682,6 @@
       });
     }
 
-    // Event Listener Urutkan (Sorting)
     if (sortSelect) {
       sortSelect.value = currentSort;
       sortSelect.addEventListener("change", function () {
@@ -668,7 +692,6 @@
       });
     }
 
-    // Event Listener Radio Gratis
     if (freeRadio) {
       freeRadio.checked = freeOnly;
       freeRadio.addEventListener("change", function () {
@@ -679,7 +702,6 @@
       });
     }
 
-    // Event Listener Real-Time Input Pencarian Header
     if (searchInput) {
       searchInput.addEventListener("input", function () {
         currentQuery = searchInput.value.trim();
@@ -689,7 +711,6 @@
       });
     }
 
-    // Event Delegation untuk Seluruh Checkbox Kategori (Termasuk Kategori Baru dari Admin)
     if (categoryListContainer) {
       categoryListContainer.addEventListener("change", function (e) {
         if (e.target && e.target.matches('input[type="checkbox"]')) {
@@ -706,7 +727,6 @@
       });
     }
 
-    // Event Listener Checkbox Pipeline
     [pipeBuiltin, pipeUrp, pipeHdrp].forEach(function (el) {
       if (el) {
         el.addEventListener("change", function () {
@@ -732,7 +752,6 @@
       });
     }
 
-    // Event Listener Tombol Reset Filter
     if (resetLink) {
       resetLink.addEventListener("click", function (event) {
         event.preventDefault();
@@ -760,7 +779,6 @@
           searchInput.value = "";
         }
 
-        // Hapus parameter kategori di URL jika sebelumnya dibuka dari link kategori
         var cleanParams = new URLSearchParams(window.location.search);
         cleanParams.delete("kategori");
         cleanParams.delete("category");
@@ -776,14 +794,24 @@
       });
     }
 
-    // Muat data awal
-    loadCatalog(function (err, items) {
-      if (err) {
-        showMessage(listEl, "Gagal memuat katalog. Muat ulang halaman.");
-        return;
+    function refreshExploreData() {
+      loadCatalog(function (err, items) {
+        if (err) {
+          showMessage(listEl, "Gagal memuat katalog. Muat ulang halaman.");
+          return;
+        }
+        allItems = items;
+        paint();
+      });
+    }
+
+    refreshExploreData();
+
+    // Otomatis perbarui jika Admin menyetujui aset baru di tab lain
+    window.addEventListener("storage", function (e) {
+      if (e.key === "indofx_public_catalog") {
+        refreshExploreData();
       }
-      allItems = items;
-      paint();
     });
   }
 
@@ -801,7 +829,6 @@
       }
     });
 
-    // Dukungan Enter pada input pencarian header jika berada di Home
     var isExplorePage = !!document.querySelector(
       '[data-catalog-list="explore"]',
     );
@@ -831,5 +858,14 @@
       renderExplore();
     }
     initCategoryPills();
+
+    // Sinkronisasi otomatis Beranda jika Admin baru saja mempublikasikan aset
+    window.addEventListener("storage", function (e) {
+      if (e.key === "indofx_public_catalog") {
+        if (document.querySelector('[data-catalog-list="latest"]'))
+          renderLatest();
+        if (document.querySelector('[data-catalog-list="free"]')) renderFree();
+      }
+    });
   });
 })();

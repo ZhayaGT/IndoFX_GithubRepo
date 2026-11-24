@@ -8,6 +8,7 @@ $catalogDB = [
         'price' => 150000,
         'unity_version' => '2021.3+ / 2022.3 LTS',
         'pipeline' => 'URP',
+        'license' => 'Komersial',
         'format' => '.unitypackage',
         'art' => 'castle'
     ],
@@ -18,6 +19,7 @@ $catalogDB = [
         'price' => 75000,
         'unity_version' => '2021.3+ / 2022.3 LTS',
         'pipeline' => 'URP, Built-In',
+        'license' => 'Komersial',
         'format' => '.unitypackage',
         'art' => 'water'
     ],
@@ -28,6 +30,7 @@ $catalogDB = [
         'price' => 200000,
         'unity_version' => '2022.3 LTS',
         'pipeline' => 'HDRP',
+        'license' => 'Komersial',
         'format' => '.unitypackage',
         'art' => 'fire'
     ],
@@ -38,6 +41,7 @@ $catalogDB = [
         'price' => 350000,
         'unity_version' => '2021.3+ / 2022.3 LTS',
         'pipeline' => 'URP, HDRP, Built-In',
+        'license' => 'Komersial',
         'format' => '.fbx, .blend, .unitypackage',
         'art' => 'castle'
     ],
@@ -48,6 +52,7 @@ $catalogDB = [
         'price' => 0,
         'unity_version' => '2021.3+ / 2022.3 LTS',
         'pipeline' => 'URP',
+        'license' => 'Free',
         'format' => '.unitypackage',
         'art' => 'fire'
     ],
@@ -58,6 +63,7 @@ $catalogDB = [
         'price' => 0,
         'unity_version' => '2021.3+ / 2022.3 LTS',
         'pipeline' => 'Built-In, URP',
+        'license' => 'Free',
         'format' => '.png, .tga, .mat',
         'art' => 'castle'
     ],
@@ -68,6 +74,7 @@ $catalogDB = [
         'price' => 0,
         'unity_version' => '2021.3+ / 2022.3 LTS',
         'pipeline' => 'URP, HDRP',
+        'license' => 'Free',
         'format' => '.unitypackage',
         'art' => 'water'
     ],
@@ -78,6 +85,7 @@ $catalogDB = [
         'price' => 0,
         'unity_version' => '2021.3+ / 2022.3 LTS',
         'pipeline' => 'URP, HDRP',
+        'license' => 'Free',
         'format' => '.unitypackage',
         'art' => 'castle'
     ],
@@ -88,6 +96,7 @@ $catalogDB = [
         'price' => 0,
         'unity_version' => '2021.3+ / 2022.3 LTS',
         'pipeline' => 'Built-In',
+        'license' => 'Free',
         'format' => '.unitypackage',
         'art' => 'forest'
     ],
@@ -98,6 +107,7 @@ $catalogDB = [
         'price' => 0,
         'unity_version' => '2021.3+ / 2022.3 LTS',
         'pipeline' => 'URP',
+        'license' => 'Free',
         'format' => '.unitypackage',
         'art' => 'castle'
     ],
@@ -108,6 +118,7 @@ $catalogDB = [
         'price' => 225000,
         'unity_version' => '2021.3+ / 2022.3 LTS',
         'pipeline' => 'HDRP',
+        'license' => 'Komersial',
         'format' => '.unitypackage',
         'art' => 'water'
     ],
@@ -118,6 +129,7 @@ $catalogDB = [
         'price' => 180000,
         'unity_version' => '2021.3+ / 2022.3 LTS',
         'pipeline' => 'HDRP',
+        'license' => 'Komersial',
         'format' => '.unitypackage',
         'art' => 'water'
     ]
@@ -134,6 +146,7 @@ $assetCategory = $_GET['category'] ?? ($matched['category'] ?? 'SHADER');
 $assetPriceRaw = isset($_GET['price']) ? $_GET['price'] : ($matched['price'] ?? 150000);
 $assetUnity    = $matched['unity_version'] ?? '2021.3+ / 2022.3 LTS';
 $assetPipeline = $_GET['pipeline'] ?? ($matched['pipeline'] ?? 'URP');
+$assetLicense  = $_GET['license'] ?? ($matched['license'] ?? 'Komersial');
 $assetFormat   = $matched['format'] ?? '.unitypackage';
 $assetArt      = $matched['art'] ?? 'castle';
 
@@ -207,7 +220,7 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
             border-radius: 8px;
             overflow: hidden;
             border: 1.5px solid var(--indofx-border);
-            background-color: #2b2129;
+            background-color: #181418;
             height: 420px;
             width: 100%;
         }
@@ -216,11 +229,13 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
             display: flex;
             gap: 12px;
             margin-bottom: 28px;
+            flex-wrap: wrap;
         }
 
         .thumb-card-item {
-            width: 76px;
-            height: 52px;
+            position: relative;
+            width: 84px;
+            height: 54px;
             border-radius: 6px;
             overflow: hidden;
             border: 1.5px solid var(--indofx-border);
@@ -231,11 +246,36 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
         }
 
         .thumb-card-item.active {
-            border: 2px solid var(--indofx-orange);
+            border: 2.5px solid var(--indofx-orange);
+            box-shadow: 0 0 0 2px rgba(237, 107, 29, 0.25);
         }
 
         .thumb-card-item:hover {
-            opacity: 0.9;
+            opacity: 0.92;
+        }
+
+        /* Ikon Play di atas Thumbnail Video YouTube */
+        .thumb-video-play-badge {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.35);
+            pointer-events: none;
+        }
+
+        .thumb-video-play-badge i {
+            font-size: 1.35rem;
+            color: #FF0000;
+            background: #ffffff;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
         }
 
         .detail-nav-tabs {
@@ -583,14 +623,6 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
         .review-item-block:last-child {
             border-bottom: none;
         }
-
-        .footer-figma-white {
-            background-color: #ffffff !important;
-            width: 100%;
-            padding: 42px 0 24px 0;
-            margin-top: auto;
-            border-top: 1px solid #efe0d5;
-        }
     </style>
 </head>
 
@@ -672,36 +704,17 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
         <div class="container-figma">
             <div class="row g-4 align-items-start">
 
-                <!-- Kolom Kiri: Galeri & Tab Deskripsi -->
+                <!-- Kolom Kiri: Galeri Video + Foto Dinamis & Tab Deskripsi -->
                 <div class="col-12 col-lg-8">
-                    <div id="assetDetailCarousel" class="carousel slide main-preview-card mb-3" data-bs-ride="carousel">
-                        <div class="carousel-inner h-100">
-                            <div class="carousel-item active h-100">
-                                <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
-                                    <use href="#art-<?= htmlspecialchars($assetArt) ?>" />
-                                </svg>
-                            </div>
-                        </div>
+                    <div id="assetDetailMediaStage" class="main-preview-card mb-3">
+                        <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
+                            <use href="#art-<?= htmlspecialchars($assetArt) ?>" />
+                        </svg>
                     </div>
 
-                    <!-- 4 Thumbnail Galeri -->
-                    <div class="thumb-gallery-row">
+                    <!-- Baris Thumbnail Galeri Dinamis (YouTube + Seluruh Foto Unggahan) -->
+                    <div class="thumb-gallery-row" id="thumbGalleryRow">
                         <div class="thumb-card-item active">
-                            <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
-                                <use href="#art-<?= htmlspecialchars($assetArt) ?>" />
-                            </svg>
-                        </div>
-                        <div class="thumb-card-item">
-                            <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
-                                <use href="#art-<?= htmlspecialchars($assetArt) ?>" />
-                            </svg>
-                        </div>
-                        <div class="thumb-card-item">
-                            <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
-                                <use href="#art-<?= htmlspecialchars($assetArt) ?>" />
-                            </svg>
-                        </div>
-                        <div class="thumb-card-item">
                             <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
                                 <use href="#art-<?= htmlspecialchars($assetArt) ?>" />
                             </svg>
@@ -717,7 +730,6 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
 
                     <!-- WADAH TAB KONTEN DINAMIS -->
                     <div class="detail-content-box" id="tabContentArea">
-                        <!-- TAB 1: DESKRIPSI & PANDUAN PENGGUNAAN -->
                         <div id="tab-deskripsi" class="tab-pane-detail active">
                             <div class="mb-4">
                                 <h6 class="section-content-title">Deskripsi Aset</h6>
@@ -736,13 +748,11 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                             </div>
                         </div>
 
-                        <!-- TAB 2: CHANGELOG -->
                         <div id="tab-changelog" class="tab-pane-detail d-none">
                             <h6 class="fw-bold mb-2">Versi 1.2.0</h6>
                             <p class="text-muted small">Pembaruan shader dan optimasi performa partikel untuk rilis Unity 2022 LTS</p>
                         </div>
 
-                        <!-- TAB 3: ULASAN -->
                         <div id="tab-ulasan" class="tab-pane-detail d-none">
                             <div id="ratingSummaryWrapper" class="rating-summary-box p-3 mb-4">
                                 <div class="row align-items-center g-3">
@@ -841,6 +851,10 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                                 <span class="val-col" id="displayPipeline"><?= htmlspecialchars($assetPipeline) ?></span>
                             </div>
                             <div class="spec-item-row">
+                                <span class="label-col">Lisensi</span>
+                                <span class="val-col" id="displayLicense"><?= htmlspecialchars($assetLicense) ?></span>
+                            </div>
+                            <div class="spec-item-row">
                                 <span class="label-col">Format File</span>
                                 <span class="val-col" id="displayFormatFile"><?= htmlspecialchars($assetFormat) ?></span>
                             </div>
@@ -900,7 +914,6 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
         const userKey = <?= json_encode($userKey, JSON_UNESCAPED_UNICODE) ?>;
         const currentAssetId = <?= json_encode((string)$assetId, JSON_UNESCAPED_UNICODE) ?>;
 
-        // State dinamis aset (diperbarui otomatis dari katalog/moderasi/penjual)
         let activeAssetState = {
             id: currentAssetId,
             title: <?= json_encode($assetTitle, JSON_UNESCAPED_UNICODE) ?>,
@@ -911,10 +924,134 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
             unity_version: <?= json_encode($assetUnity, JSON_UNESCAPED_UNICODE) ?>,
             pipeline: <?= json_encode($assetPipeline, JSON_UNESCAPED_UNICODE) ?>,
             pipelines: <?= json_encode(array_values(array_filter(array_map('trim', explode(',', $assetPipeline)))), JSON_UNESCAPED_UNICODE) ?>,
+            license: <?= json_encode($assetLicense, JSON_UNESCAPED_UNICODE) ?>,
             format: <?= json_encode($assetFormat, JSON_UNESCAPED_UNICODE) ?>,
             art: <?= json_encode($assetArt, JSON_UNESCAPED_UNICODE) ?>,
-            image: ''
+            image: '',
+            images: [],
+            video_url: ''
         };
+
+        let galleryMediaItems = [];
+
+        function extractYouTubeId(url) {
+            if (!url || typeof url !== 'string') return null;
+            const trimmed = url.trim();
+            const patterns = [
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+                /[?&]v=([a-zA-Z0-9_-]{11})/
+            ];
+            for (let i = 0; i < patterns.length; i++) {
+                const match = trimmed.match(patterns[i]);
+                if (match && match[1]) return match[1];
+            }
+            return null;
+        }
+
+        function selectGallerySlide(index) {
+            const stage = document.getElementById('assetDetailMediaStage');
+            const slide = galleryMediaItems[index];
+            if (!stage || !slide) return;
+
+            document.querySelectorAll('#thumbGalleryRow .thumb-card-item').forEach((el, idx) => {
+                el.classList.toggle('active', idx === index);
+            });
+
+            if (slide.type === 'youtube') {
+                stage.innerHTML = `
+                    <iframe
+                        width="100%"
+                        height="100%"
+                        src="https://www.youtube.com/embed/${slide.youtubeId}?rel=0"
+                        title="${String(activeAssetState.title || '').replace(/"/g, '&quot;')}"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowfullscreen
+                        style="display: block; width: 100%; height: 100%;">
+                    </iframe>
+                `;
+            } else if (slide.type === 'image') {
+                stage.innerHTML = `
+                    <img src="${slide.src}" alt="${String(activeAssetState.title || '').replace(/"/g, '&quot;')}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                `;
+            } else {
+                stage.innerHTML = `
+                    <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
+                        <use href="#art-${activeAssetState.art || 'castle'}" />
+                    </svg>
+                `;
+            }
+        }
+
+        function buildDynamicMediaGallery() {
+            const thumbRow = document.getElementById('thumbGalleryRow');
+            if (!thumbRow) return;
+
+            galleryMediaItems = [];
+            const ytId = extractYouTubeId(activeAssetState.video_url);
+
+            // 1. Jika ada URL YouTube, tempatkan di urutan pertama (persis gambar acuan)
+            if (ytId) {
+                galleryMediaItems.push({
+                    type: 'youtube',
+                    youtubeId: ytId,
+                    thumbSrc: `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
+                });
+            }
+
+            // 2. Tambahkan seluruh gambar yang diunggah penjual
+            const imgs = Array.isArray(activeAssetState.images) && activeAssetState.images.length > 0 ?
+                activeAssetState.images :
+                (activeAssetState.image ? [activeAssetState.image] : []);
+
+            imgs.forEach(src => {
+                if (src && (String(src).startsWith('data:') || String(src).includes('/'))) {
+                    galleryMediaItems.push({
+                        type: 'image',
+                        src: src,
+                        thumbSrc: src
+                    });
+                }
+            });
+
+            // 3. Fallback SVG bawaan jika belum ada foto maupun video
+            if (galleryMediaItems.length === 0) {
+                galleryMediaItems.push({
+                    type: 'svg',
+                    thumbSrc: ''
+                });
+            }
+
+            thumbRow.innerHTML = galleryMediaItems.map((item, idx) => {
+                const activeCls = idx === 0 ? 'active' : '';
+                if (item.type === 'youtube') {
+                    return `
+                        <div class="thumb-card-item ${activeCls}" onclick="selectGallerySlide(${idx})" title="Putar Video Pratinjau YouTube">
+                            <img src="${item.thumbSrc}" alt="Video YouTube" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                            <span class="thumb-video-play-badge">
+                                <i class="bi bi-play-fill"></i>
+                            </span>
+                        </div>
+                    `;
+                }
+                if (item.type === 'image') {
+                    return `
+                        <div class="thumb-card-item ${activeCls}" onclick="selectGallerySlide(${idx})" title="Gambar ${idx + 1}">
+                            <img src="${item.thumbSrc}" alt="Preview ${idx + 1}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                        </div>
+                    `;
+                }
+                return `
+                    <div class="thumb-card-item ${activeCls}" onclick="selectGallerySlide(${idx})">
+                        <svg class="w-100 h-100 d-block" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid slice">
+                            <use href="#art-${activeAssetState.art || 'castle'}" />
+                        </svg>
+                    </div>
+                `;
+            }).join('');
+
+            selectGallerySlide(0);
+        }
 
         function switchDetailTab(evt, tabId) {
             document.querySelectorAll('.detail-nav-tabs .tab-link').forEach(link => link.classList.remove('active'));
@@ -1005,9 +1142,6 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
             }
         }
 
-        // =========================================================================
-        // SINKRONISASI DINAMIS PENUH (HARGA, KREATOR, KATEGORI, SPEK, DESKRIPSI, GAMBAR)
-        // =========================================================================
         function loadDynamicAssetContent() {
             let assetData = null;
             const normId = String(currentAssetId || '').trim().toLowerCase();
@@ -1035,7 +1169,12 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                     assetData = Object.assign({}, foundInQueue, assetData || {});
                     if (foundInQueue.description && !assetData.description) assetData.description = foundInQueue.description;
                     if (foundInQueue.how_to_use && !assetData.how_to_use) assetData.how_to_use = foundInQueue.how_to_use;
+                    if (foundInQueue.license && !assetData.license) assetData.license = foundInQueue.license;
                     if (foundInQueue.image && !assetData.image) assetData.image = foundInQueue.image;
+                    if ((!Array.isArray(assetData.images) || assetData.images.length === 0) && Array.isArray(foundInQueue.images)) {
+                        assetData.images = foundInQueue.images;
+                    }
+                    if (foundInQueue.video_url && !assetData.video_url) assetData.video_url = foundInQueue.video_url;
                 }
             } catch (e) {}
 
@@ -1049,13 +1188,17 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                             assetData = Object.assign({}, foundInSeller, assetData || {});
                             if (foundInSeller.description && !assetData.description) assetData.description = foundInSeller.description;
                             if (foundInSeller.how_to_use && !assetData.how_to_use) assetData.how_to_use = foundInSeller.how_to_use;
+                            if (foundInSeller.license && !assetData.license) assetData.license = foundInSeller.license;
                             if (foundInSeller.image && !assetData.image) assetData.image = foundInSeller.image;
+                            if ((!Array.isArray(assetData.images) || assetData.images.length === 0) && Array.isArray(foundInSeller.images)) {
+                                assetData.images = foundInSeller.images;
+                            }
+                            if (foundInSeller.video_url && !assetData.video_url) assetData.video_url = foundInSeller.video_url;
                         }
                     } catch (e) {}
                 }
             });
 
-            // Jika ditemukan data riil di storage, sinkronkan seluruh state & tampilan
             if (assetData) {
                 if (assetData.id) activeAssetState.id = String(assetData.id);
                 if (assetData.title) activeAssetState.title = assetData.title;
@@ -1064,8 +1207,8 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                 if (resolvedCreator) activeAssetState.creator = resolvedCreator;
 
                 if (assetData.category) activeAssetState.category = assetData.category;
+                if (assetData.license) activeAssetState.license = assetData.license;
 
-                // Sinkronkan Harga Riil
                 let parsedPrice = null;
                 if (typeof assetData.price_num === 'number') {
                     parsedPrice = assetData.price_num;
@@ -1084,7 +1227,6 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                     activeAssetState.isGratis = (parsedPrice <= 0);
                 }
 
-                // Sinkronkan Pipeline
                 if (Array.isArray(assetData.pipelines) && assetData.pipelines.length > 0) {
                     activeAssetState.pipelines = assetData.pipelines;
                     activeAssetState.pipeline = assetData.pipelines.join(', ');
@@ -1094,7 +1236,6 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                     activeAssetState.pipelines = pStr.split(',').map(s => s.trim()).filter(Boolean);
                 }
 
-                // Sinkronkan Versi Unity & Format
                 if (assetData.unity_ver || assetData.unity_version) {
                     activeAssetState.unity_version = assetData.unity_ver || assetData.unity_version;
                 }
@@ -1104,8 +1245,13 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                 if (assetData.image) {
                     activeAssetState.image = assetData.image;
                 }
+                if (Array.isArray(assetData.images) && assetData.images.length > 0) {
+                    activeAssetState.images = assetData.images;
+                }
+                if (assetData.video_url) {
+                    activeAssetState.video_url = assetData.video_url;
+                }
 
-                // Perbarui elemen UI kartu kanan
                 document.title = activeAssetState.title + ' - IndoFX';
                 const catEl = document.getElementById('displayCategoryBadge');
                 if (catEl) catEl.innerText = activeAssetState.category;
@@ -1132,21 +1278,20 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                 const pipeEl = document.getElementById('displayPipeline');
                 if (pipeEl) pipeEl.innerText = activeAssetState.pipeline;
 
+                const licEl = document.getElementById('displayLicense');
+                if (licEl) licEl.innerText = activeAssetState.license;
+
                 const fmtEl = document.getElementById('displayFormatFile');
                 if (fmtEl) fmtEl.innerText = activeAssetState.format;
             }
 
-            // Render Seksi Deskripsi Aset
             const descEl = document.getElementById('displayAssetDescription');
             if (descEl) {
-                if (assetData && assetData.description && assetData.description.trim() !== '') {
-                    descEl.innerText = assetData.description.trim();
-                } else {
-                    descEl.innerText = 'Belum ada deskripsi khusus yang dicantumkan untuk paket aset ' + activeAssetState.title + '.';
-                }
+                descEl.innerText = (assetData && assetData.description && assetData.description.trim() !== '') ?
+                    assetData.description.trim() :
+                    ('Belum ada deskripsi khusus yang dicantumkan untuk paket aset ' + activeAssetState.title + '.');
             }
 
-            // Render Seksi Panduan Penggunaan Aset
             const howToUseEl = document.getElementById('displayAssetHowToUse');
             if (howToUseEl) {
                 if (assetData && assetData.how_to_use && assetData.how_to_use.trim() !== '') {
@@ -1156,30 +1301,16 @@ $checkoutUrl = '/checkout?' . $checkoutQuery;
                 }
             }
 
-            // Render Gambar Asli jika diunggah penjual (Base64 / URL)
-            if (activeAssetState.image && (activeAssetState.image.startsWith('data:') || activeAssetState.image.includes('/'))) {
-                const carouselInner = document.querySelector('.main-preview-card .carousel-inner');
-                if (carouselInner) {
-                    carouselInner.innerHTML = `
-                        <div class="carousel-item active h-100">
-                            <img src="${activeAssetState.image}" alt="${activeAssetState.title}" style="width: 100%; height: 100%; object-fit: cover;">
-                        </div>
-                    `;
-                }
-                const thumbItems = document.querySelectorAll('.thumb-card-item');
-                thumbItems.forEach(t => {
-                    t.innerHTML = `<img src="${activeAssetState.image}" alt="${activeAssetState.title}" style="width: 100%; height: 100%; object-fit: cover;">`;
-                });
-            }
+            // Bangun Galeri Video YouTube + Seluruh Foto Unggahan
+            buildDynamicMediaGallery();
 
-            // Render ulang tombol aksi sesuai harga & kepemilikan terbaru
             renderActionButtons();
         }
 
         function downloadAssetPackage() {
             const fmt = activeAssetState.format || '.unitypackage';
             const fileName = activeAssetState.title.toLowerCase().replace(/[^a-z0-9]/g, '_') + (fmt.startsWith('.') ? fmt : ('.' + fmt));
-            const dummyContent = `=== INDOFX ASSET PACKAGE ===\nJudul: ${activeAssetState.title}\nID: ${activeAssetState.id}\nFormat: ${fmt}\nLisensi: Single Developer Commercial License\nDiunduh oleh: ${userKey}\nTanggal: ${new Date().toLocaleString()}\n`;
+            const dummyContent = `=== INDOFX ASSET PACKAGE ===\nJudul: ${activeAssetState.title}\nID: ${activeAssetState.id}\nFormat: ${fmt}\nLisensi: ${activeAssetState.license}\nDiunduh oleh: ${userKey}\nTanggal: ${new Date().toLocaleString()}\n`;
 
             const blob = new Blob([dummyContent], {
                 type: 'application/octet-stream'

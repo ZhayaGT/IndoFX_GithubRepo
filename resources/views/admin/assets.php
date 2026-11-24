@@ -21,16 +21,13 @@ if (count($words) >= 2) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daftar Antrean Moderasi Aset - IndoFX</title>
 
-    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Bootstrap 5 CSS & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    <!-- Stylesheet Admin -->
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/admin.css">
 </head>
@@ -146,12 +143,10 @@ if (count($words) >= 2) {
                     </table>
                 </div>
 
-                <!-- Footer Navigasi Paginasi Dinamis (Seragam dengan Kelola Pengguna) -->
+                <!-- Footer Navigasi Paginasi Dinamis -->
                 <div class="admin-pagination-bar" id="assetPaginationBar">
                     <span id="assetPaginationInfoText">Menampilkan 0 dari 0 aset</span>
-                    <div class="admin-pagination-btns" id="assetPaginationBtnsContainer">
-                        <!-- Tombol Halaman Digenerate Dinamis -->
-                    </div>
+                    <div class="admin-pagination-btns" id="assetPaginationBtnsContainer"></div>
                 </div>
             </div>
         </main>
@@ -177,10 +172,8 @@ if (count($words) >= 2) {
         </div>
     </footer>
 
-    <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- ENGINE TABEL MODERASI ASET + PAGINASI 5 DATA PER HALAMAN -->
     <script>
         const initialQueue = [{
                 id: 'mod-1',
@@ -227,10 +220,85 @@ if (count($words) >= 2) {
         ];
 
         let moderationAssets = [];
-
-        // Konfigurasi Paginasi: 5 aset per tabel
         const itemsPerPage = 5;
         let currentPage = 1;
+
+        function parseIndoDateToObj(dateStr, fallbackId) {
+            if (dateStr) {
+                const raw = String(dateStr).trim();
+                const lower = raw.toLowerCase();
+                if (lower === 'hari ini') return new Date();
+                if (lower === 'kemarin') {
+                    const d = new Date();
+                    d.setDate(d.getDate() - 1);
+                    return d;
+                }
+                const monthMap = {
+                    jan: 0,
+                    januari: 0,
+                    feb: 1,
+                    februari: 1,
+                    mar: 2,
+                    maret: 2,
+                    apr: 3,
+                    april: 3,
+                    mei: 4,
+                    may: 4,
+                    jun: 5,
+                    juni: 5,
+                    jul: 6,
+                    juli: 6,
+                    agu: 7,
+                    agt: 7,
+                    agustus: 7,
+                    aug: 7,
+                    sep: 8,
+                    sept: 8,
+                    september: 8,
+                    okt: 9,
+                    oktober: 9,
+                    oct: 9,
+                    nov: 10,
+                    november: 10,
+                    des: 11,
+                    desember: 11,
+                    dec: 11
+                };
+                const indoMatch = lower.match(/^(\d{1,2})\s+([a-z]+)\s+(\d{4})/);
+                if (indoMatch) {
+                    const day = parseInt(indoMatch[1], 10);
+                    const monIdx = monthMap[indoMatch[2]];
+                    const year = parseInt(indoMatch[3], 10);
+                    if (monIdx !== undefined && !isNaN(day) && !isNaN(year)) {
+                        return new Date(year, monIdx, day);
+                    }
+                }
+                const parsedDirect = new Date(raw);
+                if (!isNaN(parsedDirect.getTime())) return parsedDirect;
+            }
+            if (fallbackId) {
+                const tsMatch = String(fallbackId).match(/(\d{13})/);
+                if (tsMatch) {
+                    const fromTs = new Date(parseInt(tsMatch[1], 10));
+                    if (!isNaN(fromTs.getTime())) return fromTs;
+                }
+            }
+            return null;
+        }
+
+        function formatDaysAgoRealTime(dateStr, fallbackId, storedTime) {
+            const targetDate = parseIndoDateToObj(dateStr, fallbackId);
+            if (!targetDate) {
+                return (storedTime && storedTime !== 'Baru saja' && storedTime !== 'WIB') ? storedTime : 'Hari ini';
+            }
+            const now = new Date();
+            const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const startTarget = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
+            const diffDays = Math.floor((startToday - startTarget) / (1000 * 60 * 60 * 24));
+            if (diffDays <= 0) return 'Hari ini';
+            if (diffDays === 1) return 'Kemarin';
+            return `${diffDays} hari yang lalu`;
+        }
 
         function syncCategoryFilterOptions() {
             const selectEl = document.getElementById('filterModerationCategory');
@@ -262,7 +330,6 @@ if (count($words) >= 2) {
                 moderationAssets = [...initialQueue];
             }
 
-            // Pindai aset dari penjual yang baru diunggah
             Object.keys(localStorage).forEach(key => {
                 if (key.startsWith('indofx_seller_assets_')) {
                     try {
@@ -274,14 +341,20 @@ if (count($words) >= 2) {
                                     id: sa.id || ('asset-' + Date.now()),
                                     title: sa.title,
                                     pipeline: Array.isArray(sa.pipelines) ? (sa.pipelines[0] || 'Built-in') : (sa.pipelines || 'Built-in'),
+                                    pipelines: Array.isArray(sa.pipelines) ? sa.pipelines : [sa.pipelines || 'Built-in'],
                                     category: sa.category || 'VFX Partikel',
+                                    license: sa.license || 'Komersial',
                                     file_info: sa.file_info || ('File: ' + sa.title.toLowerCase().replace(/[^a-z0-9]/g, '_') + '.unitypackage (24 MB)'),
                                     studio: sa.creator || sa.seller || 'Studio Kreator',
                                     unity_ver: sa.unity_version ? ('Unity ' + sa.unity_version + ' LTS') : 'Unity 2022.3 LTS',
                                     price: typeof sa.price === 'number' ? ('Rp' + sa.price.toLocaleString('id-ID')) : (sa.price || 'Gratis'),
                                     price_num: parseFloat(String(sa.price).replace(/[^0-9]/g, '')) || 0,
                                     date: sa.created_at || sa.date || 'Hari ini',
-                                    time: 'Baru saja',
+                                    description: sa.description || '',
+                                    how_to_use: sa.how_to_use || '',
+                                    image: sa.image || '',
+                                    images: Array.isArray(sa.images) ? sa.images : (sa.image ? [sa.image] : []),
+                                    video_url: sa.video_url || '',
                                     status: sa.status === 'Disetujui' ? 'Published' : (sa.status || 'Pending Review'),
                                     seller_key: key
                                 });
@@ -293,7 +366,6 @@ if (count($words) >= 2) {
 
             localStorage.setItem('indofx_moderation_queue', JSON.stringify(moderationAssets));
 
-            // Perbarui badge sidebar Moderasi Aset & Pengajuan Penjual
             const pendingCount = moderationAssets.filter(a => a.status === 'Pending' || a.status === 'Pending Review').length;
             document.getElementById('sidebarModerationBadge').innerText = pendingCount;
 
@@ -344,13 +416,12 @@ if (count($words) >= 2) {
                 return;
             }
 
-            // Ambil tepat 5 aset untuk halaman aktif
             const startIndex = (currentPage - 1) * itemsPerPage;
             const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
             const pageData = filtered.slice(startIndex, endIndex);
 
             tbody.innerHTML = pageData.map(item => {
-                const pipe = item.pipeline || 'URP';
+                const pipe = item.pipeline || (Array.isArray(item.pipelines) ? item.pipelines[0] : 'URP');
                 let pipeClass = 'badge-pipe-urp';
                 if (pipe.toLowerCase().includes('hdrp')) pipeClass = 'badge-pipe-hdrp';
                 if (pipe.toLowerCase().includes('built')) pipeClass = 'badge-pipe-builtin';
@@ -365,10 +436,23 @@ if (count($words) >= 2) {
                     statusBadge = `<span class="badge-status-blocked">Ditolak</span>`;
                 }
 
-                // Tombol Detail membuka subpage review, Halaman Publik membuka detail aset
+                const rawPriceNum = (typeof item.price_num === 'number') ?
+                    item.price_num :
+                    (parseFloat(String(item.price || '0').replace(/[^0-9]/g, '')) || 0);
+                const allPipesParam = Array.isArray(item.pipelines) && item.pipelines.length > 0 ?
+                    item.pipelines.join(', ') :
+                    pipe;
+
+                const publicDetailUrl = `/asset/detail?id=${encodeURIComponent(item.id)}` +
+                    `&title=${encodeURIComponent(item.title)}` +
+                    `&category=${encodeURIComponent(item.category || 'VFX Partikel')}` +
+                    `&creator=${encodeURIComponent(item.studio || 'Studio Kreator')}` +
+                    `&price=${encodeURIComponent(rawPriceNum)}` +
+                    `&pipeline=${encodeURIComponent(allPipesParam)}`;
+
                 const actionBtn = isPublished ?
                     `
-                        <a href="/asset/detail?id=${encodeURIComponent(item.id)}&title=${encodeURIComponent(item.title)}" class="btn-admin-public">
+                        <a href="${publicDetailUrl}" class="btn-admin-public">
                             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0">
                                 <rect x="2" y="2" width="12" height="12" rx="2.5" />
                                 <line x1="5.5" y1="5.5" x2="10.5" y2="5.5" />
@@ -384,8 +468,8 @@ if (count($words) >= 2) {
                         </a>
                     `;
 
-                const displayDate = item.date || item.created_at || '15 Okt 2026';
-                const displayTime = item.time || 'WIB';
+                const displayDate = item.date || item.created_at || 'Hari ini';
+                const relativeDayLabel = formatDaysAgoRealTime(displayDate, item.id, item.time);
 
                 return `
                     <tr>
@@ -401,7 +485,7 @@ if (count($words) >= 2) {
                         <td class="fw-bold text-dark cell-nowrap">${item.price}</td>
                         <td class="cell-nowrap">
                             <div class="text-dark">${displayDate}</div>
-                            <div class="text-muted small" style="font-size: 0.72rem;">${displayTime}</div>
+                            <div class="text-muted small" style="font-size: 0.72rem;">${relativeDayLabel}</div>
                         </td>
                         <td class="cell-nowrap">${statusBadge}</td>
                         <td class="text-end pe-3 cell-nowrap">${actionBtn}</td>
@@ -433,7 +517,7 @@ if (count($words) >= 2) {
             }
 
             btnsHtml += `
-                <button type="button" class="btn-page-admin ${currentPage === totalPages ? 'disabled' : ''} onclick="goToAssetPage(${currentPage + 1})">
+                <button type="button" class="btn-page-admin" ${currentPage === totalPages ? 'disabled' : ''} onclick="goToAssetPage(${currentPage + 1})">
                     <i class="bi bi-chevron-right"></i>
                 </button>
             `;
@@ -465,7 +549,6 @@ if (count($words) >= 2) {
                 renderModerationTable();
             });
 
-            // Dropdown Profil Admin
             const btn = document.getElementById('adminDropdownBtn');
             const menu = document.getElementById('adminDropdownMenu');
             if (btn && menu) {
