@@ -92,7 +92,7 @@ class Library extends Model {
         $sql = "SELECT id, file_path, original_name, extension, file_size, version, changelog, created_at
                 FROM asset_files 
                 WHERE asset_id = :asset_id 
-                ORDER BY created_at DESC";
+                ORDER BY created_at DESC, id DESC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':asset_id' => $assetId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

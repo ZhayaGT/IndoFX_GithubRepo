@@ -153,7 +153,7 @@ if ($initials === '') {
                         <div class="col-12 col-md-6">
                             <label for="contact_email" class="form-label form-field-label">Email Kontak*</label>
                             <input type="email" class="form-control form-field-input" id="contact_email" name="contact_email"
-                                value="<?= htmlspecialchars($contactEmail, ENT_QUOTES, 'UTF-8') ?>" readonly>
+                                value="<?= htmlspecialchars($contactEmail, ENT_QUOTES, 'UTF-8') ?>" maxlength="254" required>
                         </div>
                     </div>
 

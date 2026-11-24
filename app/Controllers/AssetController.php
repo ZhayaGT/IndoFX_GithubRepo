@@ -90,6 +90,7 @@ class AssetController extends Controller {
 
         // 7. Susun array $detail
         $detail = [
+            'is_dummy_package' => str_contains((string) ($assetFiles[0]['original_name'] ?? ''), 'DUMMY-QA'),
             'file_format'    => $fileFormatString,
             'unity_versions' => $asset['unity_version'] ?? 'Semua Versi',
             'pipelines'      => array_values(array_filter(array_map('trim', explode(',', $asset['render_pipeline'] ?? '')))),

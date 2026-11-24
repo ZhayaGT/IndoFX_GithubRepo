@@ -67,7 +67,7 @@ class User extends Model {
     // Mengambil user berdasarkan ID Internal (Untuk Session/Dashboard)
     public function getUserById($id) {
         $sql = "SELECT u.id, u.public_id, u.email, u.role, u.is_active, COALESCE(p.name, u.email) AS name, p.bio,
-                       s.store_name, s.portfolio_url, s.website_url, 
+                       s.store_name, s.contact_email, s.portfolio_url, s.website_url,
                        s.payout_number, s.payout_account_name
                 FROM users u
                 LEFT JOIN user_profiles p ON u.id = p.user_id
@@ -82,7 +82,7 @@ class User extends Model {
 
     // Mengambil user berdasarkan UUID Publik (Untuk URL Publik)
     public function getUserByPublicId($publicId) {
-        $sql = "SELECT u.id, u.public_id, u.email, u.role, u.is_active, COALESCE(p.name, u.email) AS name, p.bio, s.store_name, s.portfolio_url, s.website_url
+        $sql = "SELECT u.id, u.public_id, u.email, u.role, u.is_active, COALESCE(p.name, u.email) AS name, p.bio, s.store_name, s.contact_email, s.portfolio_url, s.website_url
                 FROM users u
                 LEFT JOIN user_profiles p ON u.id = p.user_id
                 LEFT JOIN seller_profiles s ON u.id = s.user_id

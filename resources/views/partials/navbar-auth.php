@@ -55,6 +55,7 @@ if ($initials === '') {
         <div class="navbar-avatar-wrap">
             <button type="button" id="navbar-avatar" class="navbar-avatar"
                 aria-haspopup="true" aria-expanded="false" aria-controls="navbar-avatar-menu"
+                aria-label="Menu profil <?= htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8') ?>"
                 title="<?= htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8') ?>">
                 <span class="avatar-circle-inner"><?= htmlspecialchars($initials, ENT_QUOTES, 'UTF-8') ?></span>
                 <span class="avatar-username-label <?= $isSeller ? 'd-none' : 'd-none d-lg-inline' ?>">
@@ -73,7 +74,7 @@ if ($initials === '') {
                     <?php if ($userRole === 'admin'): ?>
                         <a href="/admin/dashboard" class="navbar-menu-item text-primary fw-bold">Dashboard Admin</a>
                     <?php elseif ($isSeller): ?>
-                        <a href="/dashboard/profile" class="navbar-menu-item text-primary fw-bold">Dashboard</a>
+                        <a href="/dashboard" class="navbar-menu-item text-primary fw-bold">Dashboard</a>
                     <?php else: ?>
                         <a href="/seller/register" class="navbar-menu-item text-primary fw-bold">Jadi Penjual</a>
                     <?php endif; ?>
@@ -81,7 +82,9 @@ if ($initials === '') {
                 </div>
 
                 <!-- Menu Edit Profile disembunyikan jika sudah jadi penjual (pakai dashboard) -->
-                <?php if (!$isSeller): ?>
+                <?php if ($isSeller): ?>
+                    <a href="/dashboard/profile" class="navbar-menu-item">Edit Profile</a>
+                <?php else: ?>
                     <a href="/dashboard/ubah-profil" class="navbar-menu-item">Edit Profile</a>
                 <?php endif; ?>
 

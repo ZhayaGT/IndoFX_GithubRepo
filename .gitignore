@@ -38,6 +38,8 @@ Thumbs.db
 .phpunit.cache/
 
 # Unggahan pengguna
+/public/uploads/asset_files/*
+/public/uploads/asset_previews/*
 /public/uploads/previews/*
 !/public/uploads/previews/.gitkeep
 /storage/uploads/assets/*

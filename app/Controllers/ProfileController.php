@@ -98,7 +98,7 @@ class ProfileController extends Controller {
         // Petakan kolom database ke key yang dibaca oleh ubahprofile.php
         $sellerProfile = [
             'store_name'        => $user['store_name'] ?? $user['name'] ?? '',
-            'contact_email'     => $user['email'] ?? '',
+            'contact_email'     => $user['contact_email'] ?? $user['email'] ?? '',
             'bio'               => $user['bio'] ?? '',
             'portfolio_url'     => $user['portfolio_url'] ?? '',
             'website_url'       => $user['website_url'] ?? '',
@@ -126,7 +126,7 @@ class ProfileController extends Controller {
 
         $sellerProfile = [
             'store_name'          => $user['store_name'] ?? '',
-            'contact_email'       => $user['email'] ?? '',
+            'contact_email'       => $user['contact_email'] ?? $user['email'] ?? '',
             'bio'                 => $user['bio'] ?? '',
             'portfolio_url'       => $user['portfolio_url'] ?? '',
             'website_url'         => $user['website_url'] ?? '',
@@ -142,41 +142,58 @@ class ProfileController extends Controller {
 
     // 5. Memproses Form Edit Profil Penjual (/dashboard/ubah-profil-toko)
     public function updateSeller() {
-        if (!isset($_SESSION['user_id'])) $this->redirect('/login');
+        self::guardSeller();
 
         $userId      = (int) $_SESSION['user_id'];
         $storeName   = trim($_POST['store_name'] ?? '');
+        $contactEmail = trim($_POST['contact_email'] ?? '');
         $bio         = trim($_POST['bio'] ?? '');
         $portfolio   = trim($_POST['portfolio_url'] ?? '');
         $website     = trim($_POST['website_url'] ?? '');
         $danaNumber  = trim($_POST['dana_number'] ?? '');
         $danaName    = trim($_POST['dana_account_name'] ?? '');
 
+        if ($storeName === '' || mb_strlen($storeName) > 150 || strlen($contactEmail) > 254 || !filter_var($contactEmail, FILTER_VALIDATE_EMAIL)) {
+            $_SESSION['error_msg'] = 'Isi nama toko (maksimal 150 karakter) dan email kontak yang valid.';
+            $this->redirect('/dashboard/profile');
+        }
+
         $db = \IndoFX\Core\Database::getInstance()->getConnection();
+        try {
+            $db->beginTransaction();
+            $stmtBio = $db->prepare("UPDATE user_profiles SET bio = :bio, updated_at = NOW() WHERE user_id = :id");
+            $stmtBio->execute([':bio' => $bio, ':id' => $userId]);
 
-        // 1. Update bio di user_profiles
-        $stmtBio = $db->prepare("UPDATE user_profiles SET bio = :bio, updated_at = NOW() WHERE user_id = :id");
-        $stmtBio->execute([':bio' => $bio, ':id' => $userId]);
-
-        // 2. Update data toko & pencairan dana di seller_profiles
-        $stmtSeller = $db->prepare("
-            UPDATE seller_profiles SET 
-                store_name = :store_name,
-                portfolio_url = :portfolio_url,
-                website_url = :website_url,
-                payout_number = :payout_number,
-                payout_account_name = :payout_account_name,
-                updated_at = NOW()
-            WHERE user_id = :id
-        ");
-        $stmtSeller->execute([
-            ':store_name'          => $storeName,
-            ':portfolio_url'       => $portfolio !== '' ? $portfolio : null,
-            ':website_url'         => $website !== '' ? $website : null,
-            ':payout_number'       => $danaNumber !== '' ? $danaNumber : null,
-            ':payout_account_name' => $danaName !== '' ? $danaName : null,
-            ':id'                  => $userId
-        ]);
+            $stmtSeller = $db->prepare("
+                UPDATE seller_profiles SET
+                    store_name = :store_name,
+                    contact_email = :contact_email,
+                    portfolio_url = :portfolio_url,
+                    website_url = :website_url,
+                    payout_number = :payout_number,
+                    payout_account_name = :payout_account_name,
+                    updated_at = NOW()
+                WHERE user_id = :id
+            ");
+            $stmtSeller->execute([
+                ':store_name'          => $storeName,
+                ':contact_email'       => $contactEmail,
+                ':portfolio_url'       => $portfolio !== '' ? $portfolio : null,
+                ':website_url'         => $website !== '' ? $website : null,
+                ':payout_number'       => $danaNumber !== '' ? $danaNumber : null,
+                ':payout_account_name' => $danaName !== '' ? $danaName : null,
+                ':id'                  => $userId
+            ]);
+            if ($stmtSeller->rowCount() !== 1) {
+                throw new \RuntimeException('Profil toko tidak ditemukan.');
+            }
+            $db->commit();
+        } catch (\Throwable $e) {
+            if ($db->inTransaction()) $db->rollBack();
+            error_log('Seller profile update failed: ' . $e->getMessage());
+            $_SESSION['error_msg'] = 'Profil toko gagal disimpan. Silakan coba kembali.';
+            $this->redirect('/dashboard/profile');
+        }
 
         $_SESSION['store_name']  = $storeName;
         $_SESSION['bio']         = $bio;

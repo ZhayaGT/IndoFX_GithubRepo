@@ -50,6 +50,19 @@ body {
   padding: 0 24px;
 }
 
+a[href], button, select, summary, label[for], input[type="checkbox"], input[type="radio"] {
+  cursor: pointer;
+}
+
+button:disabled, input:disabled, select:disabled {
+  cursor: not-allowed;
+}
+
+:focus-visible {
+  outline: 3px solid #2b2623;
+  outline-offset: 3px;
+}
+
 
 /* ========================================================
    2. HEADER NAVBAR & STATUS LOGIN

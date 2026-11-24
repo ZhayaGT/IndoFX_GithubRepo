@@ -176,6 +176,8 @@ $isCartEmpty = empty($cartData);
 
         .cart-item-content {
             flex-grow: 1;
+            min-width: 0;
+            overflow-wrap: anywhere;
         }
 
         .cart-status-line {
@@ -331,6 +333,30 @@ $isCartEmpty = empty($cartData);
             align-items: center;
             gap: 8px;
         }
+        @media (max-width: 767.98px) {
+            .cart-item-card {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 14px;
+                gap: 12px;
+            }
+            .cart-item-thumb {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 16 / 9;
+            }
+            .cart-item-actions {
+                justify-content: space-between;
+            }
+            .btn-cart-delete, .btn-cart-checkout {
+                min-height: 44px;
+            }
+            .cart-checkbox {
+                width: 24px;
+                height: 24px;
+            }
+            .cart-page-title { font-size: 1.5rem; }
+        }
     </style>
 </head>
 
@@ -364,27 +390,7 @@ $isCartEmpty = empty($cartData);
                 <span class="brand-text text-white fw-bold">IndoFX</span>
             </a>
 
-            <div class="d-flex align-items-center gap-3">
-                <a href="/cart" class="text-white text-decoration-none d-flex align-items-center" title="Keranjang">
-                    <i class="bi bi-cart3 fs-4"></i>
-                </a>
-
-                <div class="profile-dropdown-wrapper">
-                    <button type="button" class="btn-profile-trigger" id="profileDropdownBtn" aria-expanded="false">
-                        <span class="avatar-circle-header"><?= htmlspecialchars($initials, ENT_QUOTES, 'UTF-8') ?></span>
-                        <span class="fw-bold fs-6"><?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?></span>
-                    </button>
-
-                    <div class="profile-custom-menu" id="profileDropdownMenu">
-                        <a href="/creator/profile?id=<?= $_SESSION['public_id'] ?? '' ?>" class="profile-custom-item fw-bold">
-                            <?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>
-                        </a>
-                        <a href="/dashboard/ubah-profil" class="profile-custom-item">Edit Profile</a>
-                        <a href="/invoice" class="profile-custom-item">Histori Pembelian</a>
-                        <a href="/logout" class="profile-custom-item text-danger">Keluar</a>
-                    </div>
-                </div>
-            </div>
+            <?php require BASE_PATH . '/resources/views/partials/navbar-auth.php'; ?>
         </div>
     </nav>
 
@@ -416,7 +422,7 @@ $isCartEmpty = empty($cartData);
                                         $thumbPath = $item['thumbnail'] ?? '';
                                         $finalThumbUrl = empty($thumbPath) 
                                             ? '' 
-                                            : ((strpos($thumbPath, 'http') === 0) ? $thumbPath : $storageBasePath . $thumbPath);
+                                            : ((str_starts_with($thumbPath, '/') || strpos($thumbPath, 'http') === 0) ? $thumbPath : $storageBasePath . $thumbPath);
                                     ?>
                                     <?php if ($finalThumbUrl): ?>
                                         <img src="<?= htmlspecialchars($finalThumbUrl, ENT_QUOTES, 'UTF-8') ?>" 
@@ -430,10 +436,9 @@ $isCartEmpty = empty($cartData);
 
                                 <div class="cart-item-content">
                                     <div class="cart-status-line">
-                                        <!-- Jika belum dibeli (di dalam keranjang), tidak ada label DIBELI, namun karena format Figma meminta label tersebut: -->
-                                        <span class="cart-status-badge">DIBELI</span> 
+                                        <span class="cart-status-badge">BELUM DIBAYAR</span>
                                         <span class="text-muted ms-2">
-                                            Perolehan: <?= htmlspecialchars(date('d M Y', strtotime($item['added_at'] ?? 'now'))) ?>
+                                            Ditambahkan: <?= htmlspecialchars(date('d M Y', strtotime($item['added_at'] ?? 'now'))) ?>
                                         </span>
                                     </div>
 
@@ -460,9 +465,9 @@ $isCartEmpty = empty($cartData);
                                     </p>
                                 </div>
 
-                                <div class="d-flex align-items-center gap-3">
+                                <div class="cart-item-actions d-flex align-items-center gap-3">
                                     <!-- Checkbox ini yang akan dikirim ke Checkout (name="selected_items[]") -->
-                                    <input type="checkbox" name="selected_items[]" class="cart-checkbox" checked value="<?= htmlspecialchars($item['id'], ENT_QUOTES, 'UTF-8') ?>">
+                                    <input type="checkbox" name="selected_items[]" class="cart-checkbox" aria-label="Pilih <?= htmlspecialchars($item['title'], ENT_QUOTES, 'UTF-8') ?> untuk checkout" checked value="<?= htmlspecialchars($item['id'], ENT_QUOTES, 'UTF-8') ?>">
                                     
                                     <!-- Tombol Hapus: Akan membuka Modal Konfirmasi (mengoper ID) -->
                                     <button type="button" class="btn-cart-delete" onclick="openDeleteModal('<?= htmlspecialchars($item['id'], ENT_QUOTES, 'UTF-8') ?>')">
@@ -534,6 +539,7 @@ $isCartEmpty = empty($cartData);
         </div>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/navbar-auth.js"></script>
     <script>
         // Membuka modal konfirmasi hapus dan menyisipkan ID aset ke input form tersembunyi
         function openDeleteModal(assetId) {
@@ -544,23 +550,6 @@ $isCartEmpty = empty($cartData);
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Dropdown Profil Header
-            const dropdownBtn = document.getElementById('profileDropdownBtn');
-            const dropdownMenu = document.getElementById('profileDropdownMenu');
-
-            if (dropdownBtn && dropdownMenu) {
-                dropdownBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    dropdownMenu.classList.toggle('show');
-                });
-
-                document.addEventListener('click', function(e) {
-                    if (!dropdownMenu.contains(e.target) && !dropdownBtn.contains(e.target)) {
-                        dropdownMenu.classList.remove('show');
-                    }
-                });
-            }
-
             // Validasi sebelum submit form checkout
             const cartForm = document.getElementById('cartForm');
             if (cartForm) {

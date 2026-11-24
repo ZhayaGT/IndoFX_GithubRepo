@@ -90,6 +90,12 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
 
         <!-- KONTEN KANAN -->
         <main class="dashboard-main-content">
+            <?php foreach (['success_msg' => 'success', 'error_msg' => 'danger'] as $messageKey => $messageClass): ?>
+                <?php if (!empty($_SESSION[$messageKey])): ?>
+                    <div class="alert alert-<?= $messageClass ?>" role="status"><?= htmlspecialchars($_SESSION[$messageKey], ENT_QUOTES, 'UTF-8') ?></div>
+                    <?php unset($_SESSION[$messageKey]); ?>
+                <?php endif; ?>
+            <?php endforeach; ?>
 
             <!-- Header Judul & Tombol Tambah -->
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
@@ -184,6 +190,7 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/indofx-utils.js"></script>
 
     <script>
         const storeName = <?= json_encode($storeName ?? $userName, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
@@ -251,7 +258,7 @@ $sellerInitials = mb_strtoupper(mb_substr($userName, 0, 1));
 
                 const detailUrl = `/asset/detail?id=${encodeURIComponent(item.public_id)}`;
 
-                let statusBadge = `<span class="badge-status-pending">Pending</span>`;
+                let statusBadge = `<span class="badge-status-pending">Pending / Menunggu</span>`;
                 let actionBtn   = `<span class="text-muted small fst-italic">Ditinjau Admin</span>`;
 
                 if (item.status === 'Disetujui') {

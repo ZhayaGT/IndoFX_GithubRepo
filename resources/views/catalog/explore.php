@@ -199,7 +199,7 @@ $storageBasePath = rtrim((string) \IndoFX\Core\Env::get('STORAGE_BASE_URL', ''),
             <div class="row g-4 align-items-start">
 
                 <!-- KOLOM KIRI: Grid 3 Kartu per Baris -->
-                <div class="col-12 col-lg-9">
+                <div class="col-12 col-lg-9 order-2 order-lg-1">
                     <div class="row g-3">
                         <?php foreach ($assets as $asset): ?>
                             <div class="col-12 col-sm-6 col-lg-4"> 
@@ -315,7 +315,7 @@ $storageBasePath = rtrim((string) \IndoFX\Core\Env::get('STORAGE_BASE_URL', ''),
                 </div>
 
                 <!-- KOLOM KANAN: Card Filter Pencarian -->
-                <div class="col-12 col-lg-3">
+                <div class="col-12 col-lg-3 order-1 order-lg-2">
                     <div class="filter-search-card p-3">
                         <form action="/catalog/explore" method="GET">
 

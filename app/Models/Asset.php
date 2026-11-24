@@ -267,7 +267,7 @@ class Asset extends Model {
     public function getAssetByInternalId($id) {
         $sql = "SELECT a.*, 
                        u.public_id as seller_public_id,
-                       u.email as seller_email,
+                       COALESCE(NULLIF(s.contact_email, ''), u.email) as seller_email,
                        p.name as seller_name, 
                        s.store_name,
                        s.payout_number as seller_phone,

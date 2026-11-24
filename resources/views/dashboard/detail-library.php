@@ -380,6 +380,9 @@ foreach ($images as $img) {
                             </div>
                         </div>
 
+                        <?php if (str_contains((string) ($files[0]['original_name'] ?? ''), 'DUMMY-QA')): ?>
+                            <p class="alert alert-warning small" role="status">Paket dummy untuk pengujian QA. Paket ini bukan aset Unity asli.</p>
+                        <?php endif; ?>
                         <button type="button" class="btn-download-orange" onclick="downloadFile()">
                             <i class="bi bi-download"></i>
                             <span>Unduh</span>

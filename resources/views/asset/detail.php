@@ -705,6 +705,9 @@ $isLoggedIn = isset($_SESSION['user_id']);
                             <?php endif; ?>
                         </div>
 
+                        <?php if (!empty($detail['is_dummy_package'])): ?>
+                            <p class="alert alert-warning small" role="status">Paket dummy untuk pengujian QA. Paket ini bukan aset Unity asli.</p>
+                        <?php endif; ?>
                         <!-- Tombol Aksi Sesuai 3 Kondisi Figma -->
                         <div id="actionButtonWrapper" class="d-grid gap-2">
                             <?php if (!empty($isOwned)): ?>
@@ -780,6 +783,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
 
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/navbar-auth.js"></script>
     <script>
         // 1. Fungsi Berpindah Tab (Deskripsi, Changelog, Ulasan)
         function switchDetailTab(evt, tabId) {
